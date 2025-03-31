@@ -1,14 +1,7 @@
 <div class="cadastro-container">
   <div class="cadastro-left">
-    <img
-      src="assets/cadastro/cadastro.png"
-      class="cadastro-image"
-      alt="Imagem de fundo"
-    />
-    <button
-      class="logo-btn"
-      style="cursor: pointer; background: transparent; border: transparent"
-    >
+    <img src="assets/cadastro/cadastro.png" class="cadastro-image" alt="Imagem de fundo" />
+    <button class="logo-btn" style="cursor: pointer; background: transparent; border: transparent">
       <img src="assets/logo.png" class="logo" alt="Logo" />
     </button>
   </div>
@@ -16,66 +9,56 @@
   <div class="cadastro-right">
     <h2>Cadastrar</h2>
 
-    <div class="input-container">
-      <input type="email" placeholder="E-mail" [(ngModel)]="email" />
-    </div>
+    <form (ngSubmit)="register()" #registerForm="ngForm" class="loginform">
 
-    <div class="input-container password-container">
-      <input
-        [type]="passwordVisible ? 'text' : 'password'"
-        id="password"
-        placeholder="Senha"
-        [(ngModel)]="password"
-      />
-      <button class="show-password" (click)="togglePassword()">
-        <img
-          [src]="
+      <div class="input-container">
+        <input type="email" name="email" placeholder="E-mail" [(ngModel)]="User.email" />
+      </div>
+
+      <div class="input-container password-container">
+        <input [type]="passwordVisible ? 'text' : 'password'" id="password" placeholder="Senha" name="password" [(ngModel)]="User.password" />
+        <button class="show-password" type="button" (click)="togglePassword()">
+          <img [src]="
             passwordVisible
-              ? 'assets/cadastro/openeye.png'
-              : 'assets/cadastro/closeeye.png'
-          "
-          alt=""
-        />
-      </button>
-    </div>
+            ? 'assets/cadastro/openeye.png'
+            : 'assets/cadastro/closeeye.png'
+            " alt="" />
+        </button>
+      </div>
 
-    <div class="input-container password-container">
-      <input
-        [type]="passwordVisible ? 'text' : 'password'"
-        id="confirmPassword"
-        placeholder="Confirmar Senha"
-        [(ngModel)]="confirmPassword"
-      />
-      <button class="show-password" (click)="togglePassword()">
-        <img
-          [src]="
+      <div class="input-container password-container">
+        <input [type]="passwordVisible ? 'text' : 'password'" id="confirmPassword" placeholder="Confirmar Senha" />
+        <button class="show-password" type="button" (click)="togglePassword()">
+          <img [src]="
             passwordVisible
-              ? 'assets/cadastro/openeye.png'
-              : 'assets/cadastro/closeeye.png'
-          "
-          alt=""
-        />
+            ? 'assets/cadastro/openeye.png'
+            : 'assets/cadastro/closeeye.png'
+            " alt="" />
+        </button>
+      </div>
+
+      <div class="terms-container">
+        <input type="checkbox" />
+        <a [routerLink]="['/termo']">Eu aceito os Termos de Uso e a Política de Privacidade</a>
+      </div>
+
+      <div class="content-message">
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <input class="btn-primary" type="submit" placeholder="Cadastrar">
+
+      <p class="or-text">Entrar com:</p>
+
+      <button class="btn-google">
+        <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="Google" />
       </button>
-    </div>
 
-    <div class="terms-container">
-      <input type="checkbox" [(ngModel)]="acceptTerms" />
-      <a [routerLink]="['/termo']">Eu aceito os Termos de Uso e a Política de Privacidade</a>
-    </div>
-
-    <button [routerLink]="['/primeira-etapa']" class="btn-primary" (click)="register()">Cadastrar</button>
-
-    <p class="or-text">Entrar com:</p>
-
-    <button class="btn-google">
-      <img
-        src="https://cdn-icons-png.flaticon.com/128/300/300221.png"
-        alt="Google"
-      />
-    </button>
-
-    <p class="register-text">
-      Já possui uma conta? <a [routerLink]="['/login']">Entrar</a>
-    </p>
+      <p class="register-text">
+        Já possui uma conta? <a [routerLink]="['/login']">Entrar</a>
+      </p>
+    </form>
   </div>
 </div>

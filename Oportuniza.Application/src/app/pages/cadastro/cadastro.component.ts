@@ -1,38 +1,58 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { FormsModule, NgModel } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { User } from '../../models/User.model';
+import { AuthService } from '../../services/auth.service';
+import { response } from 'express';
+import { error } from 'console';
 
 @Component({
   selector: 'app-cadastro',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './cadastro.component.html',
-  styleUrl: './cadastro.component.css'
+  styleUrl: './cadastro.component.css',
 })
-
 export class CadastroComponent {
-  email: string = '';
-  password: string = '';
+  setPassword: string = '';
   confirmPassword: string = '';
   acceptTerms: boolean = false;
   passwordVisible: boolean = false;
+  isLoading: boolean = false;
+  errorMessage: string = '';
+
+  constructor(private authService: AuthService, private router:Router) {}
+
+  User: User = { name:'user', email: '', password: '', isACompany: false };
 
   togglePassword() {
     this.passwordVisible = !this.passwordVisible;
   }
 
   register() {
-    if (this.password !== this.confirmPassword) {
+    if (this.setPassword !== this.confirmPassword) {
       alert('As senhas não coincidem.');
       return;
     }
 
-    if (!this.acceptTerms) {
-      alert('Você precisa aceitar os Termos de Uso e a Política de Privacidade.');
-      return;
-    }
-
-    console.log('Cadastro realizado com sucesso:', { email: this.email, password: this.password });
+    this.authService.register(this.User).subscribe(
+      (response) => {
+        console.log('success');
+        console.log(this.User.email);
+        console.log(this.User.password);
+        this.router.navigate(["/login"])
+      },
+      (error) => {
+        if (error.status === 400) {
+          this.errorMessage = 'Usuário não existe.';
+        } else if (error.status === 401) {
+          this.errorMessage = 'Usuário ou senha inválido.';
+        } else {
+          this.errorMessage = 'Ocorreu um erro ao tentar realizar o login. Tente novamente mais tarde.';
+        }
+        console.log('Error', error);
+      }
+    );
   }
 }
