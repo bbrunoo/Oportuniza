@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Oportuniza.Infrastructure.Configurations
+namespace Oportuniza.Domain.DTOs.User
 {
-    class Class1
+    public class EditUserDTO
     {
+        public string Name { get; set; }
     }
 }
