@@ -1,11 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NgModel } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { User } from '../../models/User.model';
 import { AuthService } from '../../services/auth.service';
-import { response } from 'express';
-import { error } from 'console';
 
 @Component({
   selector: 'app-cadastro',
@@ -15,33 +13,94 @@ import { error } from 'console';
   styleUrl: './cadastro.component.css',
 })
 export class CadastroComponent {
-  setPassword: string = '';
-  confirmPassword: string = '';
-  acceptTerms: boolean = false;
   passwordVisible: boolean = false;
+  confirmPasswordVisible: boolean = false;
   isLoading: boolean = false;
   errorMessage: string = '';
+  acceptTerms: boolean = false;
 
-  constructor(private authService: AuthService, private router:Router) {}
+  email: string = '';
+  password: string = '';
+  confirmPassword: string = '';
 
-  User: User = { name:'user', email: '', password: '', isACompany: false };
+  constructor(private authService: AuthService, private router: Router) {
+    this.restoreTermsAcceptance();
+    this.restoreFormData();
+  }
 
   togglePassword() {
     this.passwordVisible = !this.passwordVisible;
   }
 
+  toggleConfirmPassword() {
+    this.confirmPasswordVisible = !this.confirmPasswordVisible;
+  }
+
+  validateEmail(email: string): boolean {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailPattern.test(email);
+  }
+
+  saveTermsAcceptance() {
+    localStorage.setItem('acceptTerms', JSON.stringify(this.acceptTerms));
+  }
+
+  restoreTermsAcceptance() {
+    const storedAcceptance = localStorage.getItem('acceptTerms');
+    if (storedAcceptance) {
+      this.acceptTerms = JSON.parse(storedAcceptance);
+    }
+  }
+
+  saveFormData() {
+    localStorage.setItem('cadastroEmail', this.email);
+    localStorage.setItem('cadastroPassword', this.password);
+    localStorage.setItem('cadastroConfirmPassword', this.confirmPassword);
+  }
+
+  restoreFormData() {
+    const savedEmail = localStorage.getItem('cadastroEmail');
+    const savedPassword = localStorage.getItem('cadastroPassword');
+    const savedConfirmPassword = localStorage.getItem('cadastroConfirmPassword');
+
+    if (savedEmail) this.email = savedEmail;
+    if (savedPassword) this.password = savedPassword;
+    if (savedConfirmPassword) this.confirmPassword = savedConfirmPassword;
+  }
+
   register() {
-    if (this.setPassword !== this.confirmPassword) {
+    if (!this.email || !this.validateEmail(this.email)) {
+      alert('Por favor, insira um e-mail válido.');
+      return;
+    }
+
+    if (this.password.length < 6) {
+      alert('A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+
+    if (this.password !== this.confirmPassword) {
       alert('As senhas não coincidem.');
       return;
     }
 
-    this.authService.register(this.User).subscribe(
+    if (!this.acceptTerms) {
+      alert('Você precisa aceitar os Termos de Uso e a Política de Privacidade.');
+      return;
+    }
+
+    const newUser: User = {
+      name: 'user',
+      email: this.email,
+      password: this.password,
+      isACompany: false,
+    };
+
+    this.authService.register(newUser).subscribe(
       (response) => {
         console.log('success');
-        console.log(this.User.email);
-        console.log(this.User.password);
-        this.router.navigate(["/login"])
+        localStorage.clear();
+        this.router.navigate(['/login']);
       },
       (error) => {
         if (error.status === 400) {

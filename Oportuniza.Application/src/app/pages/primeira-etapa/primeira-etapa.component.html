@@ -2,6 +2,13 @@
 <div class="container">
   <div class="center-content">
     <div class="head">
+      <button
+        class="logo-btn"
+        style="cursor: pointer; background: transparent; border: transparent"
+      >
+        <img src="assets/logo.png" class="logo" alt="Logo" />
+      </button>
+
       <div class="step1">
         <span></span>
         <p>1° Etapa</p>
@@ -20,7 +27,7 @@
       <div class="center">
         <div class="img-content">
           <img src="assets/etapas/perfil.png" width="150px" height="150px">
-          <img class="plus" src="assets/etapas/PlusIcon.png"  width="30px" height="30px">
+          <img class="plus" src="assets/etapas/PlusIcon.png" width="30px" height="30px">
         </div>
         <div class="indicate-text">
           Nome completo:
@@ -28,14 +35,15 @@
       </div>
       <div class="form">
         <div class="input-text">
-          <input type="text">
+          <input type="text" #nomeInput>
         </div>
       </div>
       <div class="send-button">
-        <button [routerLink]="['/segunda-etapa']">Proximo</button>
+        <button (click)="verificarNome(nomeInput)">Próximo</button>
       </div>
       <div class="send"></div>
     </div>
     <div class="footer"></div>
   </div>
 </div>
+  
