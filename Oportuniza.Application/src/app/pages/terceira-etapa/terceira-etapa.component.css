@@ -1,7 +1,14 @@
-*{
+* {
   margin: 0;
   padding: 0;
   text-decoration: none;
+}
+
+.logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 100px;
 }
 
 .overlay {
@@ -13,7 +20,7 @@
   background: rgba(0, 0, 0, 0.5);
 }
 
-.container{
+.container {
   background-image: url("../../../assets/etapas/background.png");
   background-size: cover;
   background-repeat: no-repeat;
@@ -25,7 +32,7 @@
   justify-content: center;
 }
 
-.center-content{
+.center-content {
   background-color: white;
   width: 45em;
   height: 28em;
@@ -39,7 +46,7 @@
   z-index: 10;
 }
 
-.head{
+.head {
   display: flex;
   width: 90%;
   gap: 1.5em;
@@ -55,7 +62,7 @@
   justify-content: center;
 }
 
-.step1 span, .step2 span, .step3 span{
+.step1 span, .step2 span, .step3 span {
   margin-bottom: 5px;
   background-color: rgb(199, 199, 199);
   display: flex;
@@ -67,11 +74,11 @@
   border-radius: 100px;
 }
 
-.step1 span, .step2 span, .step3 span{
+.step1 span, .step2 span, .step3 span {
   background-color: blue;
 }
 
-.main-content{
+.main-content {
   width: 90%;
   height: 20em;
   display: flex;
@@ -81,22 +88,22 @@
   padding-top: 5px;
 }
 
-.title{
+.title {
   font-size: 20px;
   font-weight: 600;
 }
 
-.indicate-text{
+.indicate-text {
   font-weight: 500;
 }
 
-.center{
+.center {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2em;
-  height: 15em
+  height: 15em;
 }
 
 .title p {
@@ -120,56 +127,55 @@
   color: #333;
 }
 
-.custom-select {
+.custom-input {
   position: relative;
+  box-shadow: 0 0 0 0;
+  border: 0 none;
+  outline: 0;
   display: inline-block;
   width: 20em;
-  display: flex;
-  align-items: center;
+  background-color: transparent;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  box-shadow: none; 
 }
 
-.styled-select {
-  border: none;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
+.styled-input {
   width: 100%;
   background-color: transparent;
   color: #333;
-  font-size: 14px;
-  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
   outline: none;
-  transition: background-color 0.3s;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease;
 }
 
-.custom-select::after {
-  content: '▼';
-  position: absolute;
-  top: 50%;
-  right: 14px;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: #666;
-  font-size: 12px;
-  border: none;
+.styled-input:focus {
+  background-color: #e0e0e0;
+  box-shadow: none !important; 
+  outline: none !important; 
 }
-.img-content{
+
+.img-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height:8em;
+  height: 8em;
   padding: 10px;
 }
 
-.img-content .plus{
+.img-content .plus {
   position: relative;
   right: -2em;
   top: -3em;
   cursor: pointer;
 }
 
-.form{
+.form {
   height: 5em;
   width: 100%;
   display: flex;
@@ -179,7 +185,7 @@
   gap: 1em;
 }
 
-.input-text input{
+.input-text input {
   text-decoration: none;
   border: none;
   border-bottom: 1.5px solid black;
@@ -188,16 +194,18 @@
   background-color: transparent;
   font-size: 18px;
   font-weight: 500;
+  box-shadow: none; 
 }
 
-.send-button{
+.send-button {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-direction: row;
   width: 100%;
 }
-.send-button button{
+
+.send-button button {
   background-color: #2E3FFF;
   border: none;
   padding: 10px;
@@ -210,4 +218,23 @@
 
 *:focus {
   outline: none;
+}
+
+
+.styled-input {
+  width: 100%;
+  background-color: transparent;
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease;
+}
+
+.styled-input:focus {
+  background-color: transparent;
+  box-shadow: none !important;
+  outline: none !important; 
 }

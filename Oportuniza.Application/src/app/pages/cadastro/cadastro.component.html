@@ -1,7 +1,7 @@
 <div class="cadastro-container">
   <div class="cadastro-left">
     <img src="assets/cadastro/cadastro.png" class="cadastro-image" alt="Imagem de fundo" />
-    <button class="logo-btn" style="cursor: pointer; background: transparent; border: transparent">
+    <button type="button" class="logo-btn" style="cursor: pointer; background: transparent; border: transparent">
       <img src="assets/logo.png" class="logo" alt="Logo" />
     </button>
   </div>
@@ -12,34 +12,30 @@
     <form (ngSubmit)="register()" #registerForm="ngForm" class="loginform">
 
       <div class="input-container">
-        <input type="email" name="email" placeholder="E-mail" [(ngModel)]="User.email" />
+        <input type="email" name="email" placeholder="E-mail" [(ngModel)]="email" maxlength="100" />
       </div>
 
       <div class="input-container password-container">
-        <input [type]="passwordVisible ? 'text' : 'password'" id="password" placeholder="Senha" name="password" [(ngModel)]="User.password" />
+        <input [type]="passwordVisible ? 'text' : 'password'" id="password" placeholder="Senha" name="password" [(ngModel)]="password" maxlength="20" />
         <button class="show-password" type="button" (click)="togglePassword()">
-          <img [src]="
-            passwordVisible
-            ? 'assets/cadastro/openeye.png'
-            : 'assets/cadastro/closeeye.png'
-            " alt="" />
+          <img [src]="passwordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'" alt="" />
         </button>
       </div>
 
       <div class="input-container password-container">
-        <input [type]="passwordVisible ? 'text' : 'password'" id="confirmPassword" placeholder="Confirmar Senha" />
-        <button class="show-password" type="button" (click)="togglePassword()">
-          <img [src]="
-            passwordVisible
-            ? 'assets/cadastro/openeye.png'
-            : 'assets/cadastro/closeeye.png'
-            " alt="" />
+        <input [type]="confirmPasswordVisible ? 'text' : 'password'" id="confirmPassword" placeholder="Confirmar Senha" name="confirmPassword" [(ngModel)]="confirmPassword" maxlength="20" />
+        <button class="show-password" type="button" (click)="toggleConfirmPassword()">
+          <img [src]="confirmPasswordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'" alt="" />
         </button>
       </div>
 
       <div class="terms-container">
-        <input type="checkbox" />
-        <a [routerLink]="['/termo']">Eu aceito os Termos de Uso e a Política de Privacidade</a>
+        <input type="checkbox" [(ngModel)]="acceptTerms" name="terms" (change)="saveTermsAcceptance()" />
+        <p>Li e aceito os
+          <a [routerLink]="['/termo']" style="color: blue;">Termos de Uso</a> e a
+          <br>
+          <a [routerLink]="['/termo']" style="color: blue;">Política de Privacidade</a>
+        </p>
       </div>
 
       <div class="content-message">
@@ -48,12 +44,15 @@
         </div>
       </div>
 
-      <input class="btn-primary" type="submit" placeholder="Cadastrar">
+      <input class="btn-primary" type="submit" value="Cadastrar">
 
       <p class="or-text">Entrar com:</p>
 
-      <button class="btn-google">
-        <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="Google" />
+      <button class="btn-microsoft" type="button">
+        <img
+        src="https://blog.topedia.com/wp-content/uploads/2020/05/Microsoft_Logo.png"
+        alt="Microsoft"
+      />
       </button>
 
       <p class="register-text">

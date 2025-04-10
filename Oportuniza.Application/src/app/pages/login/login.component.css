@@ -9,20 +9,6 @@
   overflow: hidden;
 }
 
-.error-message {
-  color: red;
-  font-size: 14px;
-  margin-top: 10px;
-  text-align: center;
-}
-
-.loginform{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
 .login-left {
   flex: 1;
   position: relative;
@@ -68,7 +54,14 @@ h2 {
   margin-bottom: 15px;
   position: relative;
   width: 100%;
-  padding: 10px;
+}
+
+form{
+  width: 25em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 input {
@@ -80,19 +73,6 @@ input {
   font-size: 16px;
   background-color: transparent;
   transition: border-color 0.3s;
-}
-
-.content-message{
-  width: 100%;
-  height: 2.5em;
-  margin-bottom: 20px;
-}
-
-.error-message {
-  color: red;
-  font-size: 14px;
-  margin-top: 10px;
-  text-align: center;
 }
 
 input:focus {
@@ -118,12 +98,14 @@ input:focus {
 }
 
 .forgot-password {
-  color: #007BFF;
-  text-align: right;
+  color: #2E3FFF;
   font-size: 14px;
+  margin-top: 5px;
   margin-bottom: 15px;
   cursor: pointer;
   text-decoration: none;
+  text-align: right;
+  width: 100%;
 }
 
 .forgot-password:hover {
@@ -157,7 +139,7 @@ input:focus {
   margin-bottom: 10px;
 }
 
-.btn-google {
+.btn-microsoft {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -166,7 +148,7 @@ input:focus {
   margin-bottom: 20px;
 }
 
-.btn-google img {
+.btn-microsoft img {
   width: 30px;
 }
 

@@ -1,47 +1,46 @@
+
 <div class="login-container">
+
   <div class="login-left">
-    <img src="assets/cadastro/login.png" class="login-image" alt="Imagem de fundo">
-    <button class="logo-btn" style="cursor: pointer; background: transparent; border: transparent;">
-      <img src="assets/logo.png" class="logo" alt="Logo">
-    </button>
+      <img src="assets/cadastro/login.png" class="login-image" alt="Imagem de fundo">
+      <button type="button" class="logo-btn" style="cursor: pointer; background: transparent; border: transparent;">
+          <img src="assets/logo.png" class="logo" alt="Logo">
+      </button>
   </div>
 
   <div class="login-right">
-    <h2>Entrar</h2>
-    <form class="loginform" (ngSubmit)="login()">
+    <form (ngSubmit)="login()">
+      <h2>Entrar</h2>
+
       <div class="input-container">
-        <input type="email" placeholder="E-mail" name="email" [(ngModel)]="User.email">
+          <input type="email" placeholder="E-mail" name="email" [(ngModel)]="User.email">
       </div>
 
       <div class="input-container password-container">
-        <input [type]="passwordVisible ? 'text' : 'password'" id="password" name="password" placeholder="Senha" [(ngModel)]="User.password">
-        <button class="show-password" type="button" (click)="togglePassword()">
-          <img [src]="passwordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'"
-            alt="Ícone de mostrar senha">
-        </button>
+          <input maxlength="20" [type]="passwordVisible ? 'text' : 'password'" id="password" placeholder="Senha" name="password" [(ngModel)]="User.password" [ngModelOptions]="{standalone: true}">
+          <button type="button" class="show-password" (click)="togglePassword()">
+              <img [src]="passwordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'" alt="Ícone de mostrar senha">
+          </button>
       </div>
 
-      <!-- <a [routerLink]="['/redefinir-senha']" class="forgot-password">Esqueceu a senha?</a> -->
+      <a [routerLink]="['/redefinir-senha']" class="forgot-password">Esqueceu a senha?</a>
 
-      <div class="content-message">
-        <div class="content-message">
-          <div *ngIf="errorMessage" class="error-message">
-            {{ errorMessage }}
-          </div>
-        </div>
-      </div>
-
-      <input type="submit" class="btn-primary" placeholder="Continuar">
+      <button type="submit" class="btn-primary">Continuar</button>
 
       <p class="or-text">Entrar com:</p>
 
-      <button class="btn-google">
-        <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="Google">
+
+      <button type="button" class="btn-microsoft">
+        <img
+          src="https://blog.topedia.com/wp-content/uploads/2020/05/Microsoft_Logo.png"
+          alt="Microsoft"
+        />
       </button>
+    </form>
 
       <p class="register-text">
-        Ainda não possui uma conta? <a [routerLink]="['/cadastro']">Cadastre-se</a>
+          Ainda não possui uma conta? <a [routerLink]="['/cadastro']">Cadastre-se</a>
       </p>
-    </form>
   </div>
 </div>
+

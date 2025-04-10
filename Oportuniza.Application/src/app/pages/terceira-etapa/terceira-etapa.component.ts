@@ -5,8 +5,13 @@ import { RouterModule } from '@angular/router';
   selector: 'app-terceira-etapa',
   imports: [RouterModule],
   templateUrl: './terceira-etapa.component.html',
-  styleUrl: './terceira-etapa.component.css'
+  styleUrls: ['./terceira-etapa.component.css']
 })
 export class TerceiraEtapaComponent {
 
+  onFocus() {
+  }
+
+  onBlur() {
+  }
 }
