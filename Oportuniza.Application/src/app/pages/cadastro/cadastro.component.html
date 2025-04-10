@@ -1,7 +1,7 @@
 <div class="cadastro-container">
   <div class="cadastro-left">
     <img src="assets/cadastro/cadastro.png" class="cadastro-image" alt="Imagem de fundo" />
-    <button class="logo-btn" style="cursor: pointer; background: transparent; border: transparent">
+    <button type="button" class="logo-btn" style="cursor: pointer; background: transparent; border: transparent">
       <img src="assets/logo.png" class="logo" alt="Logo" />
     </button>
   </div>
@@ -31,8 +31,8 @@
 
       <div class="terms-container">
         <input type="checkbox" [(ngModel)]="acceptTerms" name="terms" (change)="saveTermsAcceptance()" />
-        <p>Li e aceito os  
-          <a [routerLink]="['/termo']" style="color: blue;">Termos de Uso</a> e a  
+        <p>Li e aceito os
+          <a [routerLink]="['/termo']" style="color: blue;">Termos de Uso</a> e a
           <br>
           <a [routerLink]="['/termo']" style="color: blue;">Política de Privacidade</a>
         </p>
