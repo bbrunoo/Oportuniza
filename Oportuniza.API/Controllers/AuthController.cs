@@ -55,10 +55,12 @@ namespace Oportuniza.API.Controllers
             var emailExistente = await _authenticateUser.UserExists(model.Email);
             if (emailExistente) return BadRequest("Email já cadastrado.");
 
+            var nomeGerado = model.Email.Split('@')[0];
+
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                Name = model.Name,
+                Name = nomeGerado,
                 Email = model.Email,
                 Password = model.Password,
                 IsACompany = model.isACompany
@@ -112,7 +114,7 @@ namespace Oportuniza.API.Controllers
 
             var usuario = await _authenticateUser.GetUserByEmail(loginRequestDTO.Email);
 
-            var token = _authenticateUser.GenerateToken(usuario.Id, usuario.Email, usuario.IsACompany);
+            var token = _authenticateUser.GenerateToken(usuario.Id, usuario.Email, usuario.IsACompany, usuario.Name);
 
             return new UserToken { Token = token };
         }

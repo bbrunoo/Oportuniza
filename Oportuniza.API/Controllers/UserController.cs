@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 
@@ -14,7 +15,7 @@ namespace Oportuniza.API.Controllers
             _userRepository = userRepository;
         }
 
-        [HttpGet("user")]
+        [HttpGet()]
         public async Task<IEnumerable<UserDTO>> Get()
         {
             var user = await _userRepository.Get();
@@ -26,7 +27,7 @@ namespace Oportuniza.API.Controllers
             });
         }
 
-        [HttpGet("user/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<UserByIdDTO>> GetById(Guid id)
         {
             var user = await _userRepository.GetById(id);

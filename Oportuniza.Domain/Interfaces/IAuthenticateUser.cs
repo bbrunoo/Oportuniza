@@ -11,7 +11,7 @@ namespace Oportuniza.Domain.Interfaces
     {
         Task<bool> AuthenticateAsync(string email, string senha);
         Task<bool> UserExists(string email);
-        public string GenerateToken(Guid id, string email, bool isACompany);
+        public string GenerateToken(Guid id, string email, bool isACompany, string name);
         public Task<User> GetUserByEmail(string email);
     }
 }

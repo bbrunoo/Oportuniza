@@ -50,13 +50,14 @@ namespace Oportuniza.Infrastructure.Repositories
             return true;
         }
 
-        public string GenerateToken(Guid id, string email, bool isACompany)
+        public string GenerateToken(Guid id, string email, bool isACompany, string name)
         {
             var claims = new[]
                        {
                 new Claim("id", id.ToString()),
                 new Claim("email", email),
                 new Claim("isACompany", isACompany.ToString().ToLower()),
+                new Claim("name", name),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
