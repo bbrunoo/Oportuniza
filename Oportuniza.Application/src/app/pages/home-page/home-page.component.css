@@ -1,0 +1,63 @@
+header{
+  position:absolute;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo{
+  width: 5.4em;
+  height: 5em;
+  padding-left: 5px;
+}
+
+.logout{
+  cursor: pointer;
+  width: 2em;
+  height: 2em;
+  padding-right: 5px;
+}
+
+.container{
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(205, 237, 255)(255, 255, 255);
+  flex-direction: column;
+}
+
+.name {
+  color: rgb(64, 63, 68);
+  font-weight: 600;
+}
+
+.welcome {
+  font-weight: 400;
+}
+
+.mat{
+  height: 8em;
+  width: 8em;
+}
+
+.manutencao{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row-reverse;
+  gap: 2em;
+}
+
+p{
+  font-size: 2.5em;
+  font-weight: 700;
+}
+
+.mant-p{
+  font-size: 3em;
+  font-weight: 700;
+}
+

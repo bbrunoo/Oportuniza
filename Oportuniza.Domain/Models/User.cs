@@ -7,11 +7,12 @@
             
         }
 
-        public User( string name, string email, byte[] passwordHash, byte[] passwordSalt, bool isACompany, string imageUrl)
+        public User( string name, string email, byte[] passwordHash, byte[] passwordSalt, bool isACompany, string imageUrl, string fullName)
         {
             Id = Guid.NewGuid(); 
             Name = name;
             Email = email;
+            //FullName = fullName;
             PasswordHash = passwordHash;
             PasswordSalt = passwordSalt;
             IsACompany = isACompany;
@@ -20,6 +21,7 @@
 
         public Guid Id { get; set; }
         public string Name { get; set; }
+       // public string FullName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
         public byte[] PasswordHash { get; set; }  

@@ -29,6 +29,7 @@ export class LoginComponent {
       (response) => {
         console.log('logged with success');
         this.router.navigate(["/primeira-etapa"])
+        this.authService.setToken(response.token)
       },
       (error) => {
         if (error.status === 400) {
