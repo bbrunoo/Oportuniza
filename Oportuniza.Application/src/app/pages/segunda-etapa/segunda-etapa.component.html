@@ -2,10 +2,7 @@
 <div class="container">
   <div class="center-content">
     <div class="head">
-      <button
-        class="logo-btn"
-        style="cursor: pointer; background: transparent; border: transparent"
-      >
+      <button class="logo-btn" style="cursor: pointer; background: transparent; border: transparent">
         <img src="assets/logo.png" class="logo" alt="Logo" />
       </button>
       <div class="step1">
@@ -24,34 +21,16 @@
     <div class="main-content">
       <div class="title">COMPLETE SEU PERFIL</div>
       <div class="center">
-        <div
-          class="right"
-          [ngStyle]="{
-            backgroundColor: getBackgroundColor('contratado'),
-            color: getFontColor('contratado')
-          }"
-          (click)="selecionarBotao('contratado')"
-        >
+        <div class="right" [ngStyle]="{backgroundColor: getBackgroundColor('contratado'), color: getFontColor('contratado')}"(click)="selecionarBotao('contratado')">
           <p>Eu quero ser <br /> contratado </p>
         </div>
-        <div
-          class="left"
-          [ngStyle]="{
-            backgroundColor: getBackgroundColor('contratar'),
-            color: getFontColor('contratar')
-          }"
-          (click)="selecionarBotao('contratar')"
-        >
+        <div class="left" [ngStyle]="{ backgroundColor: getBackgroundColor('contratar'), color: getFontColor('contratar')}" (click)="selecionarBotao('contratar')">
           <p>Eu quero <br /> contratar </p>
         </div>
       </div>
       <div class="send-button">
         <button [routerLink]="['/primeira-etapa']">Voltar</button>
-        <button 
-          [routerLink]="['/terceira-etapa']" 
-          [disabled]="!selectedButton" 
-          [ngClass]="{ 'disabled': !selectedButton }">Próximo</button>
-      </div>
+        <button [disabled]="!selectedButton" [ngClass]="{ 'disabled': !selectedButton }" (click)="proximaEtapa()">Próximo</button> </div>
       <div class="send"></div>
     </div>
     <div class="footer"></div>

@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
+header {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  filter: invert(1);
+}
+
+header p {
+  font-size: 2.5em;
+  font-weight: 700;
+}
+
+.logo {
+  width: 5.4em;
+  height: 5em;
+  padding-left: 5px;
+  cursor: pointer;
+}
+
+.logout {
+  cursor: pointer;
+  width: 2em;
+  height: 2em;
+  padding-right: 5px;
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-image: url("../../../assets/auxiliar/background-image.png");
+  background-size: cover;
+  color: #fff;
+}
+
+h3 {
+  margin: 10px 0;
+  font-weight: 500;
+}
+
+p {
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  max-width: 90vw;
+  margin-top: 120px;
+}
+
+.card-container {
+  background-color: #525153;
+  border-radius: 5px;
+  box-shadow: 0px 10px 20px -10px rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 15px 0;
+  text-align: center;
+  width: 30em;
+  max-width: 250px;
+}
+
+.card-container .round {
+  border: 2px solid #202025;
+  border-radius: 50%;
+  padding: 7px;
+  background-color: #d6f5ff;
+}
+
+button.primary {
+  background-color: #252527;
+  border: 1p;
+  border-radius: 3px;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 10px 25px;
+  margin: 10px;
+  cursor: pointer;
+  border: none;
+}
+
+
+button:hover {
+  filter: contrast(1.2);
+}
+
+
+@media screen and (max-width: 1200px) {
+  .cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

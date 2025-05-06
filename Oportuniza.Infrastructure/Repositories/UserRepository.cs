@@ -18,15 +18,10 @@ namespace Oportuniza.Infrastructure.Repositories
 
         public async Task<User> Add(User user)
         {
-            if (string.IsNullOrWhiteSpace(user.Password))
-            {
-                throw new ArgumentException("The password is needed");
-            }
-            using (var hmac = new HMACSHA512())
-            {
-                user.PasswordSalt = hmac.Key;
-                user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(user.Password));
-            }
+
+            if (user.PasswordHash == null || user.PasswordSalt == null)
+                throw new ArgumentException("Hash e salt da senha são obrigatórios.");
+
             await _context.User.AddAsync(user);
             await _context.SaveChangesAsync();
             return user;
@@ -36,17 +31,6 @@ namespace Oportuniza.Infrastructure.Repositories
             _context.User.Remove(user);
             await _context.SaveChangesAsync();
             return user;
-        } 
-        public async Task<EditUserDTO> Edit(Guid id, EditUserDTO editUserDto)
-        {
-            var userExist = await _context.User.FirstOrDefaultAsync(x => x.Id == id);
-            if (userExist == null) { throw new KeyNotFoundException("User not found"); }
-
-            userExist.Name = editUserDto.Name;
-
-            _context.User.Update(userExist);    
-            await _context.SaveChangesAsync();
-            return editUserDto;
         }
         public async Task<bool> Exist(Guid id)
         {
@@ -56,9 +40,45 @@ namespace Oportuniza.Infrastructure.Repositories
         {
             return await _context.User.ToListAsync();
         }
-        public async Task<User> GetById(Guid id)
+
+        public async Task<IEnumerable<AllUsersInfoDTO>> GetAllUserInfosAsync()
         {
-            return await _context.User.FirstOrDefaultAsync(c => c.Id == id);
+            return await _context.User
+                .Select(u => new AllUsersInfoDTO
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Email = u.Email,
+                    FullName = u.FullName,
+                    isACompany = u.IsACompany
+                })
+                .ToListAsync();
+        }
+
+        public async Task<User?> GetById(Guid id)
+        {
+            return await _context.User.FindAsync(id);
+        }
+        public async Task<UserInfoDTO> GetUserInfoAsync(Guid id)
+        {
+            var userInfo = await _context.User
+                .Where(u => u.Id == id)
+                .Select(u => new UserInfoDTO
+                {
+                    Name = u.Name,
+                    FullName = u.FullName,
+                    Email = u.Email,
+                    isACompany = u.IsACompany
+                })
+                .FirstOrDefaultAsync();
+
+            if (userInfo == null) throw new KeyNotFoundException("User not found");
+            return userInfo;
+        }
+        public async Task<bool> Update(User user)
+        {
+            _context.User.Update(user);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

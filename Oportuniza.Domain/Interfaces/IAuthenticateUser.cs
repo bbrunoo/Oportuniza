@@ -1,17 +1,13 @@
 ﻿using Oportuniza.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Oportuniza.Domain.Interfaces
 {
     public interface IAuthenticateUser
     {
-        Task<bool> AuthenticateAsync(string email, string senha);
+        Task<(bool isAuthenticated, string? errorMessage, int? statusCode)> AuthenticateAsync(string email, string senha, string ipAddress);
         Task<bool> UserExists(string email);
         public string GenerateToken(Guid id, string email, bool isACompany, string name);
         public Task<User> GetUserByEmail(string email);
+
     }
 }

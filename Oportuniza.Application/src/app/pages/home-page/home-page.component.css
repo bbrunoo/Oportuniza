@@ -4,6 +4,7 @@ header{
   display: flex;
   align-items: center;
   justify-content: space-between;
+  color: #fff;
 }
 
 .logo{
@@ -25,13 +26,15 @@ header{
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgb(205, 237, 255)(255, 255, 255);
   flex-direction: column;
+  background-image: url("../../../assets/auxiliar/background-image.png");
+  background-size: cover;
+  color: #fff;
 }
 
 .name {
-  color: rgb(64, 63, 68);
-  font-weight: 600;
+  color: rgb(255, 216, 157);
+  font-weight: 400;
 }
 
 .welcome {
@@ -61,3 +64,35 @@ p{
   font-weight: 700;
 }
 
+img{
+  filter: invert(1);
+}
+
+.botoes{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 40vw;
+  padding: 20px;
+}
+
+button{
+  border: none;
+  text-decoration: none;
+  justify-content: center;
+  align-items: center;
+  width: 8em;
+  height: 3.5em;
+  border-radius: 15px;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  background-color: bisque;
+}
+
+button:hover{
+  filter: contrast(1.2);
+}

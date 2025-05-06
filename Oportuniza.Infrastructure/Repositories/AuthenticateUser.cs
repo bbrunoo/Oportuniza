@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
+using Oportuniza.Infrastructure.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Oportuniza.Domain.Models;
-using Oportuniza.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Oportuniza.Infrastructure.Repositories
 {
@@ -23,71 +23,109 @@ namespace Oportuniza.Infrastructure.Repositories
             _configuration = configuration;
         }
 
-        public async Task<bool> AuthenticateAsync(string email, string senha)
+        public async Task<(bool isAuthenticated, string? errorMessage, int? statusCode)> AuthenticateAsync(string email, string senha, string ipAddress)
         {
-
-            var user = await _context.User.Where(x => x.Email.ToLower() == email.ToLower()).FirstOrDefaultAsync();
-            if (user == null) return false;
-
-            if (user.PasswordSalt.Length != 128 || user.PasswordHash.Length != 64)
+            var loginAttempt = await _context.LoginAttempt.FirstOrDefaultAsync(x => x.IPAddress == ipAddress);
+            if (loginAttempt?.LockoutEnd > DateTime.UtcNow)
             {
-                Console.WriteLine("Tamanho inválido de salt ou hash.");
-                return false;
+                var hora = loginAttempt.LockoutEnd.Value.ToLocalTime().ToString("HH:mm");
+                return (false, $"Este IP está temporariamente bloqueado. Tente novamente após {hora}.", 423);
             }
 
-            using (var hmac = new HMACSHA512(user.PasswordSalt))
-            {
-                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(senha));
+            var user = await GetUser(email);
+            if (user == null)
+                return (false, "Usuário ou senha inválidos.", 401);
 
-                for (int i = 0; i < computedHash.Length; i++)
+            using var hmac = new HMACSHA512(user.PasswordSalt);
+            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(senha));
+
+            if (!CryptographicOperations.FixedTimeEquals(computedHash, user.PasswordHash))
+            {
+                if (loginAttempt == null)
                 {
-                    if (computedHash[i] != user.PasswordHash[i])
+                    loginAttempt = new LoginAttempt
                     {
-                        return false;
+                        IPAddress = ipAddress,
+                        FailedAttempts = 1
+                    };
+                    _context.LoginAttempt.Add(loginAttempt);
+                }
+                else
+                {
+                    loginAttempt.FailedAttempts++;
+
+                    if (loginAttempt.FailedAttempts >= 5)
+                    {
+                        loginAttempt.LockoutEnd = DateTime.UtcNow.AddHours(1);
+                        loginAttempt.FailedAttempts = 0;
                     }
                 }
+
+                await _context.SaveChangesAsync();
+                return (false, "Usuário ou senha inválidos.", 401);
             }
-            return true;
+
+            if (loginAttempt != null)
+            {
+                loginAttempt.FailedAttempts = 0;
+                loginAttempt.LockoutEnd = null;
+            }
+
+            await _context.SaveChangesAsync();
+            return (true, null, 200);
         }
 
         public string GenerateToken(Guid id, string email, bool isACompany, string name)
         {
             var claims = new[]
-                       {
-                new Claim("id", id.ToString()),
-                new Claim("email", email),
+            {
+                new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+                new Claim(ClaimTypes.Email, email),
                 new Claim("isACompany", isACompany.ToString().ToLower()),
-                new Claim("name", name),
+                new Claim(ClaimTypes.Name, name),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            var privateKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["jwt:secretKey"]));
+            var secretKey = _configuration["jwt:secretKey"];
+            if (string.IsNullOrEmpty(secretKey))
+                throw new InvalidOperationException("JWT secret key not found in configuration.");
 
+            var privateKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(privateKey, SecurityAlgorithms.HmacSha256);
 
-            var expiration = DateTime.UtcNow.AddDays(10);
+            var expiration = DateTime.UtcNow.AddMinutes(
+                          double.TryParse(_configuration["jwt:expiryMinutes"], out var minutes) ? minutes : 60
+                      );
 
-            JwtSecurityToken token = new JwtSecurityToken(
-                issuer: _configuration["jwt:issuer"],
-                audience: _configuration["jwt:audience"],
-                claims: claims,
-                expires: expiration,
-                signingCredentials: credentials
-                );
+            var token = new JwtSecurityToken(
+              issuer: _configuration["jwt:issuer"],
+              audience: _configuration["jwt:audience"],
+              claims: claims,
+              expires: expiration,
+              signingCredentials: credentials
+          );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        public async Task GetBlockedIp(string ip)
+        {
+            await _context.LoginAttempt.FirstOrDefaultAsync(x => x.IPAddress == ip);
+        }
         public async Task<User> GetUserByEmail(string email)
         {
-            return await _context.User.Where(x => x.Email.ToLower() == email.ToLower()).FirstOrDefaultAsync();
+            return await GetUser(email);
         }
 
         public async Task<bool> UserExists(string email)
         {
-            var user = await _context.User.Where(x => x.Email.ToLower() == email.ToLower()).FirstOrDefaultAsync();
-            if (user == null) return false;
-            return true;
+            var user = await GetUser(email);
+            return user != null;
+        }
+        private async Task<User?> GetUser(string email)
+        {
+            return await _context.User
+                .FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower());
         }
     }
 }

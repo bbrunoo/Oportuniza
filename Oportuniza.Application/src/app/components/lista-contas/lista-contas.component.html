@@ -1,0 +1,25 @@
+<header>
+  <img
+    src="../../../assets/temp/logo-escura.png"
+    class="logo"
+    routerLink="/home"
+  />
+  <p>PESSOAS</p>
+  <img (click)="logout()" src="../../../assets/temp/logout.png" class="logout"/>
+</header>
+
+<div class="container">
+  <div class="cards">
+    <div class="card-container" *ngFor="let user of userProfiles"   >
+      <img class="round" src="../../../assets/temp/logo-escura.png" width="150px" height="150px" alt="user" />
+      <h3>{{ getFirstTwoNames(user.fullName) }}</h3>
+      <h3>{{ user.name }}</h3>
+      <p>{{ user.email }}</p>
+      <div class="buttons">
+        <button class="primary" (click)="iniciarConversa(user.id)">
+          Conversar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -162,25 +162,27 @@ input:focus {
 
 .terms-container {
   display: flex;
-  align-items: flex-start;
+  align-items: flex;
+  flex-direction: row;
   font-size: 14px;
   color: #333;
-  margin-bottom: 20px;
+  height: 2.5em;
+  justify-content: start;
+  align-items: center;
+  gap: 5px;
   width: 100%;
 }
 
 .terms-container input {
   width: 16px;
   height: 16px;
-  margin-right: 8px;
-  flex-shrink: 0;
   margin-top: 4px;
 }
 
 .terms-container p {
   margin: 0;
   font-size: 13px;
-  line-height: 1.3;
+  cursor: pointer;
 }
 
 .terms-container a {
@@ -193,13 +195,29 @@ input:focus {
   text-decoration: underline;
 }
 
-.content-message {
+.password-criteria {
+  margin-top: 8px;
+  font-size: 13px;
   width: 100%;
-  text-align: center;
-  margin-bottom: 15px;
+  display:flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 5px;
+  padding-bottom: 15px;
 }
 
-.error-message {
-  color: red;
-  font-size: 13px;
+.password-criteria div {
+  color: #999;
+  transition: all 0.3s ease;
 }
+
+.password-criteria div.met {
+  color: #129b16;
+  font-weight: 500;
+}
+
+.password-criteria div.highlight {
+  font-weight: bold;
+  transform: scale(1.03);
+}
+
