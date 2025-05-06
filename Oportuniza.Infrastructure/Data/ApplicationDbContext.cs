@@ -8,7 +8,6 @@ namespace Oportuniza.Infrastructure.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext() : base() { }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public virtual DbSet<User> User { get; set; }
@@ -20,6 +19,8 @@ namespace Oportuniza.Infrastructure.Data
             modelBuilder.ApplyConfiguration(new UserEntityConfiguration());
             modelBuilder.ApplyConfiguration(new ChatEntityConfiguration());
             modelBuilder.ApplyConfiguration(new MessageEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new MemberEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new RoomEntityConfiguration());
             base.OnModelCreating(modelBuilder); 
         }
     }
