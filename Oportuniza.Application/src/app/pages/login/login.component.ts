@@ -28,7 +28,7 @@ export class LoginComponent {
     this.authService.login(this.User).subscribe(
       (response) => {
         console.log('logged with success');
-        this.router.navigate(["/primeira-etapa"])
+        this.router.navigate(["/home"])
         this.authService.setToken(response.token)
       },
       (error) => {

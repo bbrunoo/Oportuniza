@@ -11,6 +11,8 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { authGuard } from './guards/auth.guard';
 import { authRedirectGuard } from './guards/auth-redirect.guard';
 import { PerfilComponent } from './pages/perfil/perfil.component';
+import { ChatComponent } from './components/chat/chat.component';
+import { ListaContasComponent } from './components/lista-contas/lista-contas.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -22,5 +24,7 @@ export const routes: Routes = [
   { path: 'terceira-etapa', component: TerceiraEtapaComponent, canActivate: [authGuard]  },
   { path: 'redefinir-senha', component: RedefinirSenhaComponent },
   { path: 'home', component: HomePageComponent, canActivate: [authGuard] },
-  { path: 'perfil', component: PerfilComponent, canActivate: [authGuard] },
+  { path: 'perfil/:id', component: PerfilComponent, canActivate: [authGuard] },
+  { path: 'chat/:chatId', component: ChatComponent, canActivate: [authGuard] },
+  { path: 'Contas', component: ListaContasComponent, canActivate: [authGuard] },
 ];

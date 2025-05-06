@@ -60,8 +60,16 @@ export class AuthService {
   getUserData(): any {
     const token = this.getToken();
     if (!token) return null;
+
     try {
-      return jwtDecode(token);
+      const decoded: any = jwtDecode(token);
+
+      return {
+        id: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
+        email: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
+        name: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+        isACompany: decoded["isACompany"]
+      };
     } catch {
       return null;
     }

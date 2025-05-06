@@ -15,7 +15,7 @@ namespace Oportuniza.API.Controllers
             _userRepository = userRepository;
         }
 
-        [HttpGet()]
+        [HttpGet]
         public async Task<IEnumerable<UserDTO>> Get()
         {
             var user = await _userRepository.Get();

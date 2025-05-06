@@ -53,16 +53,15 @@ namespace Oportuniza.Infrastructure.Repositories
         public string GenerateToken(Guid id, string email, bool isACompany, string name)
         {
             var claims = new[]
-                       {
-                new Claim("id", id.ToString()),
-                new Claim("email", email),
+            {
+                new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+                new Claim(ClaimTypes.Email, email),
                 new Claim("isACompany", isACompany.ToString().ToLower()),
-                new Claim("name", name),
+                new Claim(ClaimTypes.Name, name),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             var privateKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["jwt:secretKey"]));
-
             var credentials = new SigningCredentials(privateKey, SecurityAlgorithms.HmacSha256);
 
             var expiration = DateTime.UtcNow.AddDays(10);
@@ -73,7 +72,7 @@ namespace Oportuniza.Infrastructure.Repositories
                 claims: claims,
                 expires: expiration,
                 signingCredentials: credentials
-                );
+            );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

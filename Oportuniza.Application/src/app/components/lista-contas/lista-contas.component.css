@@ -1,0 +1,31 @@
+.container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.conteudo-central{
+  border: 1px solid;
+  border-radius: 15px;
+  width: 45em;
+  height: 25em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.card-perfil{
+  background-color: green;
+  width: 10em;
+  border-radius: 10px;
+  padding: 10px;
+  height: 6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1em;
+}

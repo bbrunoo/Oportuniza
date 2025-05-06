@@ -1,0 +1,13 @@
+<div class="chat-container">
+  <div class="messages">
+    <div *ngFor="let msg of messages" [ngClass]="{ 'my-message': msg.senderId === currentUserId, 'other-message': msg.senderId !== currentUserId }">
+      <strong>{{ msg.senderId === currentUserId ? 'Você' : 'Outro' }}</strong>: {{ msg.text }}
+      <div class="timestamp">{{ msg.sentAt | date:'shortTime' }}</div>
+    </div>
+  </div>
+
+  <div class="message-input">
+    <input [(ngModel)]="message" (keyup.enter)="sendMessage()" placeholder="Digite sua mensagem..." />
+    <button (click)="sendMessage()">Enviar</button>
+  </div>
+</div>
