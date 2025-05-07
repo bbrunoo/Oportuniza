@@ -16,18 +16,18 @@ namespace Oportuniza.API.Controllers
             _chatService = chatService;
         }
 
-        [HttpGet("get-or-create/{user1Id}/{user2Id}")]
-        public async Task<IActionResult> GetOrCreateChat(Guid user1Id, Guid user2Id)
-        {
-            var chat = await _chatService.GetOrCreateAsync(user1Id, user2Id);
-            return Ok(chat);
-        }
+        //[HttpGet("get-or-create/{user1Id}/{user2Id}")]
+        //public async Task<IActionResult> GetOrCreateChat(Guid user1Id, Guid user2Id)
+        //{
+        //    var chat = await _chatService.GetOrCreateAsync(user1Id, user2Id);
+        //    return Ok(chat);
+        //}
 
-        [HttpGet("messages/{chatId}")]
-        public async Task<IActionResult> GetMessages(Guid chatId)
-        {
-            var messages = await _chatService.GetMessagesAsync(chatId);
-            return Ok(messages);
-        }
+        //[HttpGet("messages/{chatId}")]
+        //public async Task<IActionResult> GetMessages(Guid chatId)
+        //{
+        //    var messages = await _chatService.GetMessagesAsync(chatId);
+        //    return Ok(messages);
+        //}
     }
 }

@@ -8,8 +8,8 @@ namespace Oportuniza.API.Controllers.Conversations
     [ApiController]
     public class ConversationsController : ControllerBase
     {
-        public async Task<IActionResult> CreateConversation(CreateConversationsRequest request)
-        {
-        }
+        //public async Task<IActionResult> CreateConversation(CreateConversationsRequest request)
+        //{
+        //}
     }
 }
