@@ -36,7 +36,7 @@ namespace Oportuniza.Infrastructure.Repositories
             _context.User.Remove(user);
             await _context.SaveChangesAsync();
             return user;
-        } 
+        }
         public async Task<EditUserDTO> Edit(Guid id, EditUserDTO editUserDto)
         {
             var userExist = await _context.User.FirstOrDefaultAsync(x => x.Id == id);
@@ -44,7 +44,7 @@ namespace Oportuniza.Infrastructure.Repositories
 
             userExist.Name = editUserDto.Name;
 
-            _context.User.Update(userExist);    
+            _context.User.Update(userExist);
             await _context.SaveChangesAsync();
             return editUserDto;
         }
@@ -59,6 +59,23 @@ namespace Oportuniza.Infrastructure.Repositories
         public async Task<User> GetById(Guid id)
         {
             return await _context.User.FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task<UserInfoDTO> GetUserInfoAsync(Guid id)
+        {
+            var userInfo = await _context.User
+                .Where(u => u.Id == id)
+                .Select(u => new UserInfoDTO
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Email = u.Email,
+                    isACompany = u.IsACompany
+                })
+                .FirstOrDefaultAsync();
+
+            if (userInfo == null) throw new KeyNotFoundException("User not found");
+            return userInfo;
         }
     }
 }

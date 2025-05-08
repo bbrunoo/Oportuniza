@@ -27,7 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Configurations\ChatConfiguration\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

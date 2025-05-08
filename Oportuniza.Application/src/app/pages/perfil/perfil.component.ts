@@ -11,41 +11,22 @@ import { ChatService } from '../../services/chat.service';
   styleUrl: './perfil.component.css'
 })
 export class PerfilComponent implements OnInit {
-  userId: string | null = null;
-  email : string | null = null;
-  name : string | null = null;
+  targetUserId!: string;
+  targetUserName!: string;
 
-  targetUserId: string = '';
-  targetUserName: string = '';
-  currentUserId: string = '';
-
-  constructor(private authService: AuthService, private route: ActivatedRoute, private router: Router, private profileService: ProfileService, private chatService: ChatService) {}
-
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
   ngOnInit(): void {
-    const idFromUrl = this.route.snapshot.paramMap.get("id");
+    throw new Error('Method not implemented.');
+  }
+
+  startChat() {
     const userData = this.authService.getUserData();
-
-    if (!idFromUrl || !userData) return;
-
-    this.currentUserId = userData.id;
-
-    this.profileService.getUserProfile(idFromUrl).subscribe(profile => {
-      this.targetUserId = profile.id;
-      this.targetUserName = profile.name;
-    })
-  }
-
-  startChat(){
-    const chatId = this.generateChatId(this.currentUserId, this.targetUserId);
-    this.chatService.connectToChat(chatId);
-    this.router.navigate([`/chat/${chatId}`]);
-  }
-
-  private generateChatId(id1: string, id2: string): string {
-    return [id1, id2].sort().join('-');
-  }
-
-  logout() {
-    this.authService.logout();
+    const loggedUserId = userData.id; // precisa fornecer esse método
+    const ids = [loggedUserId, this.targetUserId].sort(); // ordena os dois GUIDs
+    const chatId = `${ids[0]}-${ids[1]}`;
+    this.router.navigate(['/chat', chatId]); // URL será /chat/{userA-userB}, sempre igual para ambos
   }
 }
