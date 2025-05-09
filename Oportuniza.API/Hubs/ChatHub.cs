@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Oportuniza.Domain.Interfaces;
-using Oportuniza.Infrastructure.Data;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Hubs
@@ -14,19 +13,30 @@ namespace Oportuniza.API.Hubs
         {
             _userRepository = userRepository;
         }
+
         private static List<ConnectedUser> ConnectedUsers = new List<ConnectedUser>();
-        private static List<ConnectedUser> ChatQueue = new List<ConnectedUser>();
 
-        private static List<ConnectedUser> Users = new List<ConnectedUser>();
-        private static List<MessageHistory> CurrentChatMessages = new List<MessageHistory>();
-        private static List<ConnectedUser> CurrentChatMembers = new List<ConnectedUser>();
+        public async Task JoinChat(Guid chatId)
+        {
+            var identity = Context.User.Identity as ClaimsIdentity;
+            var userIdClaim = identity?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var userId = Guid.Parse(userIdClaim);
+            var userInfo = await _userRepository.GetUserInfoAsync(userId);
 
-        private static List<MessageHistory> MessagesToSecondPerson = new List<MessageHistory>();
+            var connectedUser = new ConnectedUser
+            {
+                ConnectionId = Context.ConnectionId,
+                UserId = userId,
+                DisplayName = userInfo.Name,
+            };
 
-        private static Dictionary<string, List<ConnectedUser>> PrivateChats = new();
-        private string GetPrivateChatId(Guid userId1, Guid userId2) =>
-            $"chat:{(userId1.CompareTo(userId2) < 0 ? userId1 : userId2)}:{(userId1.CompareTo(userId2) < 0 ? userId2 : userId1)}";
+            if (!ConnectedUsers.Any(u => u.ConnectionId == connectedUser.ConnectionId))
+                ConnectedUsers.Add(connectedUser);
 
+            await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
+
+            await Clients.Group(chatId.ToString()).SendAsync("UserJoined", connectedUser.DisplayName);
+        }
         public override async Task OnConnectedAsync()
         {
             var identity = Context.User.Identity as ClaimsIdentity;
@@ -41,16 +51,10 @@ namespace Oportuniza.API.Hubs
                 DisplayName = userInfo.Name,
             };
 
-            if (!ConnectedUsers.Any(connectedUser => connectedUser.ConnectionId == Context.ConnectionId))
-            {
-                ConnectedUsers.Add(connectedUser);
-            }
-
             await Clients.All.SendAsync("UpdateConnectedUsers", ConnectedUsers);
 
             await base.OnConnectedAsync();
         }
-
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             var user = ConnectedUsers.FirstOrDefault(u => u.ConnectionId == Context.ConnectionId);
@@ -61,119 +65,35 @@ namespace Oportuniza.API.Hubs
             }
             await base.OnDisconnectedAsync(exception);
         }
-
-        public async Task SendMessage(string message)
+        public async Task SendMessageToChat(Guid chatId, string message)
         {
-            var sender = CurrentChatMembers.FirstOrDefault(u => u.ConnectionId == Context.ConnectionId);
-            if (sender != null)
+            var sender = ConnectedUsers.FirstOrDefault(u => u.ConnectionId == Context.ConnectionId);
+            if (sender == null) return;
+
+            var messageHistory = new MessageHistory
             {
-                MessagesToSecondPerson.Add(new MessageHistory()
-                {
-                    Message = message,
-                    SentDateTime = DateTime.UtcNow,
-                    SenderConnectionId = sender.ConnectionId,
-                    UserName = sender.DisplayName
-                });
-                foreach (var user in CurrentChatMembers)
-                {
-                    await Clients.Client(user.ConnectionId).SendAsync("ReceiveMessage", sender.DisplayName, message);
-                }
-            }
+                Message = message,
+                SentDateTime = DateTime.UtcNow,
+                SenderConnectionId = sender.ConnectionId,
+                UserName = sender.DisplayName
+            };
+
+            await Clients.Group(chatId.ToString()).SendAsync("ReceiveMessage", sender.DisplayName, message);
         }
-
-        public async Task ConnectWithSecondPerson(string connectionId)
+        public string GetPrivateChatId(Guid userId1, Guid useriId2)
         {
-            var user = Users.FirstOrDefault(a => a.ConnectionId == Context.ConnectionId);
-            var secondUser = ChatQueue.FirstOrDefault(u => u.ConnectionId == connectionId);
+            var sorted = new[] { userId1, useriId2 }.OrderBy(id => id).ToArray();
+            var combined = $"{sorted[0]}-{sorted[1]}";
 
-            if (secondUser != null && user != null)
-            {
-                await Clients.Client(secondUser.ConnectionId).SendAsync("StartChat", secondUser);
-                await Clients.Client(user.ConnectionId).SendAsync("StartChat", user);
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            var hashBytes = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(combined));
 
-                if (!CurrentChatMembers.Any(a => a.ConnectionId == secondUser.ConnectionId))
-                {
-                    CurrentChatMembers.Add(secondUser);
-                }
+            var bigInt = new System.Numerics.BigInteger(hashBytes.Append((byte)0).ToArray());
+            var numericString = System.Numerics.BigInteger.Abs(bigInt).ToString();
 
-                if (!CurrentChatMembers.Any(a => a.ConnectionId == user.ConnectionId))
-                {
-                    CurrentChatMembers.Add(user);
-                }
-
-                var initialMessage = new MessageHistory() { Message = $"Iniciando conversa com {secondUser.DisplayName}" };
-                CurrentChatMessages.Add(initialMessage);
-
-                await Clients.Client(secondUser.ConnectionId).SendAsync("ReceiveMessage", "System", initialMessage.Message);
-                await Clients.Client(user.ConnectionId).SendAsync("ReceiveMessage", "System", initialMessage.Message);
-
-                ChatQueue.Remove(secondUser);
-                await Clients.All.SendAsync("UpdateChatQueue", ChatQueue);
-            }
-        }
-        public async Task JoinChatQueue()
-        {
-            var user = ConnectedUsers.FirstOrDefault(u => u.ConnectionId == Context.ConnectionId);
-            if (user != null)
-            {
-                if (!ChatQueue.Any(a => a.ConnectionId == Context.ConnectionId))
-                {
-                    ChatQueue.Add(user);
-                }
-                await Clients.All.SendAsync("UpdateChatQueue", ChatQueue);
-            }
-        }
-
-        public async Task StartPrivateChat(Guid targetUserId)
-        {
-            var userA = ConnectedUsers.FirstOrDefault(u => u.ConnectionId == Context.ConnectionId);
-            var userB = ConnectedUsers.FirstOrDefault(u => u.UserId == targetUserId);
-
-            if (userA == null)
-                throw new HubException("Usuário atual não encontrado na lista de conexões.");
-
-            if (userB == null)
-                throw new HubException("Usuário de destino não encontrado na lista de conexões.");
-
-            var chatId = GetPrivateChatId(userA.UserId, userB.UserId);
-
-            if (!PrivateChats.ContainsKey(chatId))
-                PrivateChats[chatId] = new List<ConnectedUser>();
-
-            if (!PrivateChats[chatId].Any(u => u.ConnectionId == userA.ConnectionId))
-                PrivateChats[chatId].Add(userA);
-
-            if (!PrivateChats[chatId].Any(u => u.ConnectionId == userB.ConnectionId))
-                PrivateChats[chatId].Add(userB);
-
-            foreach (var user in PrivateChats[chatId])
-            {
-                await Clients.Client(user.ConnectionId).SendAsync("StartChat", userB);
-            }
-        }
-        public async Task SendPrivateMessage(Guid toUserId, string message)
-        {
-            var fromUser = ConnectedUsers.FirstOrDefault(u => u.ConnectionId == Context.ConnectionId);
-            var toUser = ConnectedUsers.FirstOrDefault(u => u.UserId == toUserId);
-            if (fromUser == null || toUser == null) return;
-
-            var chatId = GetPrivateChatId(fromUser.UserId, toUser.UserId);
-            if (!PrivateChats.ContainsKey(chatId)) return;
-
-            foreach (var user in PrivateChats[chatId])
-            {
-                await Clients.Client(user.ConnectionId).SendAsync("ReceiveMessage", fromUser.DisplayName, message);
-            }
-        }
-
-        public async Task EndChat()
-        {
-            foreach (var secondUser in CurrentChatMembers)
-            {
-                await Clients.Client(secondUser.ConnectionId).SendAsync("EndChat", secondUser);
-            }
-            CurrentChatMembers.Clear();
-            CurrentChatMessages.Clear();
+            return numericString.Length >= 32
+                ? numericString.Substring(0, 32)
+                : numericString.PadLeft(32, '0');
         }
         private class ConnectedUser
         {
@@ -182,7 +102,6 @@ namespace Oportuniza.API.Hubs
             public string DisplayName { get; set; }
             public bool IsAdmin { get; set; }
         }
-
         private class MessageHistory
         {
             public string? SenderConnectionId { get; set; }
@@ -192,3 +111,5 @@ namespace Oportuniza.API.Hubs
         }
     }
 }
+
+
