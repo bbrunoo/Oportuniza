@@ -40,7 +40,6 @@ namespace Oportuniza.API.Controllers
             return new Guid(hashBytes);
         }
 
-        [Authorize]
         [HttpDelete("message/{messageId}")]
         public async Task<IActionResult> DeleteMessage(Guid messageId)
         {
@@ -55,7 +54,6 @@ namespace Oportuniza.API.Controllers
             return NoContent();
         }
 
-        [Authorize]
         [HttpGet("history/{chatId}")]
         public async Task<IActionResult> GetChatHistory(string chatId)
         {
@@ -63,5 +61,11 @@ namespace Oportuniza.API.Controllers
             return Ok(messages);
         }
 
+        [HttpGet("conversations/{userId}")]
+        public async Task<IActionResult> GetChatHistory(Guid userId)
+        {
+            var result = await _chatRepository.GetUserChatsAsync(userId);
+            return Ok(result);
+        }
     }
 }

@@ -10,6 +10,15 @@ export interface ChatMessage {
   sentDateTime: string;
 }
 
+export interface GetMessage {
+  id: string;
+  chatId: string;
+  senderId: string;
+  senderName: string;
+  message: string;
+  sentAt: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -19,7 +28,7 @@ export class ChatService {
   http = inject(HttpClient);
 
   private hubConnection!: signalR.HubConnection;
-  private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
+  private messagesSubject = new BehaviorSubject<GetMessage[]>([]);
   public messages$ = this.messagesSubject.asObservable();
 
   private currentChatId!: string;
@@ -56,13 +65,8 @@ export class ChatService {
       })
       .catch(error => console.error('Erro ao conectar ao hub:', error));
 
-    this.hubConnection.on('ReceiveMessage', (userName: string, message: string) => {
-      const chatMsg: ChatMessage = {
-        userName,
-        message,
-        sentDateTime: new Date().toISOString()
-      };
-      this.addMessage(chatMsg);
+    this.hubConnection.on('ReceiveMessage', (msg: GetMessage) => {
+      this.addMessage(msg);
     });
   }
 
@@ -73,7 +77,7 @@ export class ChatService {
       .catch(console.error);
   }
 
-  private addMessage(msg: ChatMessage) {
+  private addMessage(msg: GetMessage) {
     const current = this.messagesSubject.value;
     this.messagesSubject.next([...current, msg]);
   }
@@ -84,59 +88,7 @@ export class ChatService {
     }
   }
 
-
-  // authService = inject(AuthService);
-  // http = inject(HttpClient);
-
-  // private hubConnection!: signalR.HubConnection;
-  // private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
-  // public messages$ = this.messagesSubject.asObservable();
-
-  // private currentTargetUserId!: string;
-
-  // startConnection(targetUserId: string) {
-  //   if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
-  //     return;
-  //   }
-
-  //   this.currentTargetUserId = targetUserId;
-
-  //   this.hubConnection = new signalR.HubConnectionBuilder()
-  //     .withUrl('https://localhost:5000/chathub', {
-  //       accessTokenFactory: () => this.authService.getToken() || ''
-  //     })
-  //     .withAutomaticReconnect()
-  //     .build();
-
-  //   this.hubConnection
-  //     .start()
-  //     .catch(error => console.error('Erro ao conectar ao hub', error));
-
-  //   this.hubConnection.on('ReceiveMessage', (userName: string, message: string) => {
-  //     const chatMsg: ChatMessage = {
-  //       userName,
-  //       message,
-  //       sentDateTime: new Date().toISOString()
-  //     };
-  //     this.addMessage(chatMsg);
-  //   });
-  // }
-
-  // sendMessage(message: string) {
-  //   if (!this.currentTargetUserId) return;
-  //   this.hubConnection
-  //     .invoke('SendPrivateMessage', this.currentTargetUserId, message)
-  //     .catch(console.error);
-  // }
-
-  // private addMessage(msg: ChatMessage) {
-  //   const current = this.messagesSubject.value;
-  //   this.messagesSubject.next([...current, msg]);
-  // }
-
-  // stopConnection() {
-  //   if (this.hubConnection) {
-  //     this.hubConnection.stop().catch(console.error);
-  //   }
-  // }
+  getChatMessages(chatId: string): Observable<GetMessage[]> {
+    return this.http.get<GetMessage[]>(`https://localhost:5000/api/chat/history/${chatId}`);
+  }
 }

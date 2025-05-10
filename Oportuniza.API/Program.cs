@@ -114,8 +114,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCors();
 
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -124,6 +125,5 @@ app.MapControllers();
 
 app.MapHub<ChatHub>("/chathub");
 
-app.UseCors();
 
 app.Run();

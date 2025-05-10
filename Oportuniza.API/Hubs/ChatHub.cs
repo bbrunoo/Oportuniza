@@ -77,7 +77,15 @@ namespace Oportuniza.API.Hubs
             };
 
             await _chatRepository.SaveMessageAsync(chatMessage);
-            await Clients.Group(chatId).SendAsync("ReceiveMessage", sender.DisplayName, message);
+            await Clients.Group(chatId).SendAsync("ReceiveMessage", new
+            {
+                Id = chatMessage.Id,
+                ChatId = chatMessage.ChatId,
+                SenderId = chatMessage.SenderId,
+                SenderName = chatMessage.SenderName,
+                Message = chatMessage.Message,
+                SentAt = chatMessage.SentAt
+            });
         }
 
         private class ConnectedUser

@@ -3,7 +3,7 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ChatService, ChatMessage } from '../../services/chat.service';
+import { ChatService, ChatMessage, GetMessage } from '../../services/chat.service';
 import { Subscription } from 'rxjs';
 import { ProfileService } from '../../services/profile.service';
 
@@ -19,7 +19,7 @@ interface ConnectedUser {
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
-export class ChatComponent implements OnInit, OnDestroy  {
+export class ChatComponent implements OnInit, OnDestroy {
   private messagesSub!: Subscription;
 
   chatService = inject(ChatService);
@@ -27,7 +27,7 @@ export class ChatComponent implements OnInit, OnDestroy  {
   profileService = inject(ProfileService);
   route = inject(ActivatedRoute);
 
-  messages: ChatMessage[] = [];
+  getMessages: GetMessage[] = [];
   newMessage = '';
   currentUserName = this.authService.getUserData().name;
   targetUserId!: string;
@@ -50,11 +50,31 @@ export class ChatComponent implements OnInit, OnDestroy  {
       }
     });
 
-    this.chatService.startConnection(this.targetUserId);
+    this.chatService.getPrivateChatId(this.targetUserId).subscribe({
+      next: chatId => {
+        this.chatService.getChatMessages(chatId).subscribe({
+          next: oldMessages => {
+            this.getMessages = oldMessages;
+          },
+          error: err => {
+            console.error("Erro ao carregar o historico do chat", err);
+          }
+        });
 
-    this.messagesSub = this.chatService.messages$.subscribe(msgs => {
-      this.messages = msgs;
+        this.chatService.startConnection(this.targetUserId);
+
+        this.messagesSub = this.chatService.messages$.subscribe(msgs => {
+          msgs.forEach(msg => this.getMessages.push(msg));
+        });
+      },
+      error: err => {
+        console.error('Erro ao obter o id do chat', err);
+      }
     });
+  }
+
+  trackById(index: number, item: GetMessage) {
+    return item.id;
   }
 
   sendMessage() {

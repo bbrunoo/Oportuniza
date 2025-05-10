@@ -13,6 +13,5 @@ namespace Oportuniza.Domain.Interfaces
         Task<bool> Exist(Guid id);
         Task<User> Delete(User user);
         Task<UserInfoDTO> GetUserInfoAsync(Guid id);
-
     }
 }

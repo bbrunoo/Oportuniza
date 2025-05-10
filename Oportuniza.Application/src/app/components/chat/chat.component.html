@@ -1,16 +1,20 @@
-<!-- chat.component.html -->
 <div class="chat-container">
+
   <div class="chat-header">
     <h3>Chat com {{nomeTarget}}</h3>
     <h3>Conta logada {{currentUserName}}</h3>
   </div>
 
+  <div class="conversas">
+    <span>oi</span>
+  </div>
+
   <div class="chat-messages">
-    <div *ngFor="let msg of messages">
-      <div [ngClass]="{'my-message': msg.userName === currentUserName, 'other-message': msg.userName !== currentUserName}">
-        <strong>{{ msg.userName }}</strong>
+    <div *ngFor="let msg of getMessages; trackBy: trackById">
+      <div [ngClass]="{'my-message': msg.senderName === currentUserName, 'other-message': msg.senderName !== currentUserName}">
+        <strong>{{ msg.senderName }}</strong>
         <p>{{ msg.message }}</p>
-        <span class="timestamp">{{ msg.sentDateTime | date:'shortTime' }}</span>
+        <span class="timestamp">{{ msg.sentAt | date:'shortTime' }}</span>
       </div>
     </div>
   </div>
