@@ -1,18 +1,19 @@
 import { jwtDecode } from "jwt-decode";
-import { Injectable } from '@angular/core';
-import { catchError, map, Observable, switchMap } from 'rxjs';
-import { loggedUser } from '../models/loggedUser.model';
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { Observable } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root',
 })
+
 export class AuthService {
   apiUrl = 'https://localhost:5000/api/v1/Auth';
   private tokenKey = 'access_token';
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router, @Inject(PLATFORM_ID) private platformId: Object) { }
 
   login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials);
@@ -27,16 +28,23 @@ export class AuthService {
   }
 
   getToken(): string {
-    return sessionStorage.getItem(this.tokenKey) || '';
+    if (isPlatformBrowser(this.platformId)) {
+      return sessionStorage.getItem(this.tokenKey) || '';
+    }
+    return '';
   }
 
   setToken(token: string): void {
-    sessionStorage.setItem(this.tokenKey, token);
-    console.log('Token:', this.getToken());
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem(this.tokenKey, token);
+      console.log('Token:', this.getToken());
+    }
   }
 
   clearToken(): void {
-    sessionStorage.removeItem(this.tokenKey);
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.removeItem(this.tokenKey);
+    }
   }
 
   logout() {

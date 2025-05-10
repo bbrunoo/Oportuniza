@@ -1,10 +1,11 @@
 import { AuthService } from './../../services/auth.service';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ChatService } from '../../services/chat.service';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ToastrService } from 'ngx-toastr';
+import { ChatService, ChatMessage } from '../../services/chat.service';
+import { Subscription } from 'rxjs';
+import { ProfileService } from '../../services/profile.service';
 
 interface ConnectedUser {
   connectionId: string;
@@ -18,104 +19,52 @@ interface ConnectedUser {
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
-export class ChatComponent implements OnInit, OnDestroy {
-  // message: string = '';
-  // connectedUsers$: any;
-  // chatQueue$: any;
-  // chatStarted$: any;
-  // chatEnded!: ConnectedUser | null;
-  // currentChatUser: any = null;
-  // statusMessage: string = 'Nenhuma conversa selecionada';
-  // messages: { sender: string; content: string }[] = [];
+export class ChatComponent implements OnInit, OnDestroy  {
+  private messagesSub!: Subscription;
 
-  // constructor(
-  //   private authService: AuthService,
-  //   private chatService: ChatService,
-  //   private toastrService: ToastrService) { }
+  chatService = inject(ChatService);
+  authService = inject(AuthService);
+  profileService = inject(ProfileService);
+  route = inject(ActivatedRoute);
 
-  // ngOnInit(): void {
-  //   this.connectedUsers$ = this.chatService.connectedUsers$;
-  //   this.chatQueue$ = this.chatService.chatQueue$;
-  //   this.chatStarted$ = this.chatService.chatStarted$;
-  //   this.chatService.chatEnded$.subscribe((s) => {
-  //     this.chatEnded = s;
-  //     if (this.messages.length > 0) {
-  //       this.toastrService.info(
-  //         'Your chat has been ended. You can check the transcript from the website.',
-  //         'Chat Ended'
-  //       );
-  //     }
-  //     this.messages = [];
-  //   });
-  //   this.chatService.startConnection();
-  // }
-
-  // connectWithSecondPerson(connectionIdOfUser: string) {
-  //   this.chatService.connectWithUser(connectionIdOfUser)
-  //   this.currentChatUser = connectionIdOfUser;
-  // }
-
-  // sendMessage(message: string) {
-  //   if (message) {
-  //     console.log('message to:', message);
-  //     this.chatService.sendMessage(this.message);
-  //     this.message = '';
-  //   }
-  // }
-
-  // joinChatQueue() {
-  //   this.chatService.joinChatQueue();
-  // }
-
-  // endChat() {
-  //   this.chatService.endChat();
-  // }
-
-  // ngOnDestroy(): void {
-  //   this.chatService.stopConnection();
-  // }
-
+  messages: ChatMessage[] = [];
+  newMessage = '';
+  currentUserName = this.authService.getUserData().name;
   targetUserId!: string;
-  message = '';
-  messages: { from: string, message: string }[] = [];
 
-  constructor(
-    private chatService: ChatService,
-    private route: ActivatedRoute,
-    private authService:AuthService
-  ) {}
-
-  ngOnDestroy(): void {
-    throw new Error('Method not implemented.');
-  }
+  nomeTarget: string = '';
 
 
-  ngOnInit() {
-    const chatId = this.route.snapshot.paramMap.get('chatId');
+  userInfo = this.profileService.getUserProfile(this.targetUserId)
 
-    if (!chatId) {
-      console.error('ChatId não encontrado na rota.');
-      return;
-    }
+  ngOnInit(): void {
+    this.targetUserId = this.route.snapshot.paramMap.get('targetUserId')!;
 
-    const [userA, userB] = chatId.split('-');
-    const userData = this.authService.getUserData();
-    const loggedUserId = userData.id;
-    this.targetUserId = loggedUserId === userA ? userB : userA;
-
-    // ✅ Aguarda a conexão antes de iniciar o chat
-    this.chatService.connectionEstablished$.subscribe(connected => {
-      if (connected) {
-        this.chatService.startPrivateChat(this.targetUserId);
+    this.profileService.getUserProfile(this.targetUserId).subscribe({
+      next: (user) => {
+        this.nomeTarget = user.name;
+      },
+      error: (err) => {
+        console.error('Erro ao obter nome do usuário alvo', err);
+        this.nomeTarget = 'usuário';
       }
+    });
+
+    this.chatService.startConnection(this.targetUserId);
+
+    this.messagesSub = this.chatService.messages$.subscribe(msgs => {
+      this.messages = msgs;
     });
   }
 
-
-
   sendMessage() {
-    this.chatService.sendPrivateMessage(this.targetUserId, this.message);
-    this.messages.push({ from: 'Você', message: this.message });
-    this.message = '';
+    if (!this.newMessage.trim()) return;
+    this.chatService.sendMessage(this.newMessage);
+    this.newMessage = '';
+  }
+
+  ngOnDestroy() {
+    this.messagesSub?.unsubscribe();
+    this.chatService.stopConnection();
   }
 }

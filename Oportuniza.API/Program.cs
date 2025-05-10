@@ -69,6 +69,7 @@ builder.Services.AddAuthentication(options =>
     {
         OnAuthenticationFailed = context =>
         {
+            Console.WriteLine($"[DEBUG] Authentication failed: {context.Exception.Message}");
             if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
             {
                 context.Response.Headers.Add("Token-Expired", "true");
@@ -80,20 +81,19 @@ builder.Services.AddAuthentication(options =>
         {
             var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
-            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
             {
                 context.Token = accessToken;
             }
             return Task.CompletedTask;
         }
     };
-
 });
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthenticateUser, AuthenticateUser>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddSignalR();
-
 
 builder.Services.AddCors(options =>
 {
@@ -116,13 +116,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHub<ChatHub>("/chat");
+app.MapHub<ChatHub>("/chathub");
+
+app.UseCors();
 
 app.Run();

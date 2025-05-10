@@ -25,6 +25,6 @@ export const routes: Routes = [
   { path: 'redefinir-senha', component: RedefinirSenhaComponent },
   { path: 'home', component: HomePageComponent, canActivate: [authGuard] },
   { path: 'perfil/:id', component: PerfilComponent, canActivate: [authGuard] },
-  { path: 'chat/:chatId', component: ChatComponent, canActivate: [authGuard] },
+  { path: 'chat/:targetUserId', component: ChatComponent, canActivate: [authGuard] },
   { path: 'Contas', component: ListaContasComponent, canActivate: [authGuard] },
 ];

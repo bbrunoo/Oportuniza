@@ -1,185 +1,142 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import * as signalR from '@microsoft/signalr';
 
-interface ConnectedUser {
-  connectionId: string;
-  userId: string;
-  displayName: string;
+export interface ChatMessage {
+  userName: string;
+  message: string;
+  sentDateTime: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  // private hubConnection!: HubConnection;
-  // private connectedUsersSubject = new BehaviorSubject<ConnectedUser[]>([]);
-  // public connectedUsers$ = this.connectedUsersSubject.asObservable();
 
-  // private chatQueueSubject = new BehaviorSubject<ConnectedUser[]>([]);
-  // public chatQueue$ = this.chatQueueSubject.asObservable();
+  authService = inject(AuthService);
+  http = inject(HttpClient);
 
-  // private chatStartedSubject = new BehaviorSubject<ConnectedUser | null>(null);
-  // public chatStarted$ = this.chatStartedSubject.asObservable();
+  private hubConnection!: signalR.HubConnection;
+  private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
+  public messages$ = this.messagesSubject.asObservable();
 
-  // private messagesSubject = new BehaviorSubject<{sender: string; content: string}[]>([]);
+  private currentChatId!: string;
+
+  startConnection(targetUserId: string): void {
+    this.getPrivateChatId(targetUserId).subscribe({
+      next: chatId => {
+        this.currentChatId = chatId;
+        this.initSignalRConnection(chatId);
+      },
+      error: err => {
+        console.error('Erro ao obter o chatId da API:', err);
+      }
+    });
+  }
+
+  getPrivateChatId(targetUserId: string): Observable<string> {
+    return this.http.get<string>(`https://localhost:5000/api/chat/private/${targetUserId}`);
+  }
+
+  private initSignalRConnection(chatId: string): void {
+    if (this.hubConnection?.state === signalR.HubConnectionState.Connected) return;
+
+    this.hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl('https://localhost:5000/chathub', {
+        accessTokenFactory: () => this.authService.getToken() || ''
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    this.hubConnection.start()
+      .then(() => {
+        this.hubConnection.invoke('JoinChat', chatId).catch(console.error);
+      })
+      .catch(error => console.error('Erro ao conectar ao hub:', error));
+
+    this.hubConnection.on('ReceiveMessage', (userName: string, message: string) => {
+      const chatMsg: ChatMessage = {
+        userName,
+        message,
+        sentDateTime: new Date().toISOString()
+      };
+      this.addMessage(chatMsg);
+    });
+  }
+
+  sendMessage(message: string): void {
+    if (!this.currentChatId) return;
+    this.hubConnection
+      .invoke('SendMessageToChat', this.currentChatId, message)
+      .catch(console.error);
+  }
+
+  private addMessage(msg: ChatMessage) {
+    const current = this.messagesSubject.value;
+    this.messagesSubject.next([...current, msg]);
+  }
+
+  stopConnection() {
+    if (this.hubConnection) {
+      this.hubConnection.stop().catch(console.error);
+    }
+  }
+
+
+  // authService = inject(AuthService);
+  // http = inject(HttpClient);
+
+  // private hubConnection!: signalR.HubConnection;
+  // private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
   // public messages$ = this.messagesSubject.asObservable();
 
-  // private chatEndedSubject = new BehaviorSubject<ConnectedUser | null>(null);
-  // public chatEnded$ = this.chatEndedSubject.asObservable();
+  // private currentTargetUserId!: string;
 
-  // private messageSubject = new BehaviorSubject<{ from: string, message: string } | null>(null);
-  // public receivedMessage$ = this.messageSubject.asObservable();
+  // startConnection(targetUserId: string) {
+  //   if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
+  //     return;
+  //   }
 
-  chatHubUrl = 'https://localhost:5000/chat';
+  //   this.currentTargetUserId = targetUserId;
 
-  // constructor(private authService: AuthService) { }
-
-  // public startConnection() {
-  //   this.hubConnection = new HubConnectionBuilder()
-  //     .withUrl(this.chatHubUrl, {
-  //       accessTokenFactory: async () => {
-  //         const tokenResponse = await this.authService.getToken()
-  //         return tokenResponse || '';
-  //       },
+  //   this.hubConnection = new signalR.HubConnectionBuilder()
+  //     .withUrl('https://localhost:5000/chathub', {
+  //       accessTokenFactory: () => this.authService.getToken() || ''
   //     })
-  //     .configureLogging(LogLevel.Information)
+  //     .withAutomaticReconnect()
   //     .build();
 
   //   this.hubConnection
   //     .start()
-  //     .then(() => {
-  //       console.log("Connection started");
-  //       this.registerHandlers();
-  //     })
-  //     .catch((err) => console.error("Error while starting connection: " + err));
+  //     .catch(error => console.error('Erro ao conectar ao hub', error));
+
+  //   this.hubConnection.on('ReceiveMessage', (userName: string, message: string) => {
+  //     const chatMsg: ChatMessage = {
+  //       userName,
+  //       message,
+  //       sentDateTime: new Date().toISOString()
+  //     };
+  //     this.addMessage(chatMsg);
+  //   });
   // }
 
-  // private registerHandlers() {
-  //   this.hubConnection.on('UpdateConnectedUsers', (users:  ConnectedUser[]) => {
-  //     this.connectedUsersSubject.next(users);
-  //   })
-
-  //   this.hubConnection.on('UpdateChatQueue', (queue:  ConnectedUser[]) => {
-  //     this.chatQueueSubject.next(queue);
-  //   })
-
-  //   this.hubConnection.on('StartChat', (user:  ConnectedUser) => {
-  //     console.log("Chat started with user:", user);
-  //     this.chatStartedSubject.next(user);
-  //   })
-
-  //   this.hubConnection.on('ReceiveMessage', (sender: string, message: string) => {
-  //     const currentMessages = this.messagesSubject.getValue();
-  //     currentMessages.push({sender, content: message});
-  //     this.messagesSubject.next(currentMessages);
-  //   })
-
-  //   this.hubConnection.on('EndChat', (user:  ConnectedUser) => {
-  //     console.log("Chat ended with user:", user);
-  //     this.chatEndedSubject.next(user);
-  //   })
-  // }
-
-  // public stopConnection() {
+  // sendMessage(message: string) {
+  //   if (!this.currentTargetUserId) return;
   //   this.hubConnection
-  //   .stop()
-  //   .catch((err) => console.error("error stopping connection:" + err));
+  //     .invoke('SendPrivateMessage', this.currentTargetUserId, message)
+  //     .catch(console.error);
   // }
 
-  // public joinChatQueue() {
-  //   this.hubConnection
-  //   .invoke('JoinChatQueue')
-  //   .catch((err) => console.error("error joining chat queue:" + err));
+  // private addMessage(msg: ChatMessage) {
+  //   const current = this.messagesSubject.value;
+  //   this.messagesSubject.next([...current, msg]);
   // }
 
-  // public connectWithUser(connectionId: string) {
-  //   this.hubConnection
-  //   .invoke('ConnectWithSecondPerson', connectionId)
-  //   .catch((err) => console.error("error connecting with the user:" + err));
+  // stopConnection() {
+  //   if (this.hubConnection) {
+  //     this.hubConnection.stop().catch(console.error);
+  //   }
   // }
-
-  // public sendMessage(message: string) {
-  //   this.hubConnection
-  //   .invoke('SendMessage', message)
-  //   .catch((err) => console.error("error sending message:" + err));
-  // }
-
-  // public endChat() {
-  //   this.hubConnection
-  //     .invoke('EndChat')
-  //     .catch((err) => console.error('Error connecting with user', err));
-  // }
-
-  //  public setUserIdLogado(userId: string) {
-  //   this.userIdLogado = userId;
-  // }
-
-  // public startPrivateChat(targetUserId: string) {
-  //   this.hubConnection.invoke("StartPrivateChat", targetUserId)
-  //     .catch(err => console.error("Erro ao iniciar chat privado:", err));
-  // }
-
-  // public sendPrivateMessage(toUserId: string, message: string) {
-  //   this.hubConnection.invoke("SendPrivateMessage", toUserId, message)
-  //     .catch(err => console.error("Erro ao enviar mensagem:", err));
-  // }
-
-  private hubConnection!: HubConnection;
-  private messageSubject = new BehaviorSubject<{ from: string, message: string } | null>(null);
-  public receivedMessage$ = this.messageSubject.asObservable();
-
-  private connectionEstablished = new BehaviorSubject<boolean>(false);
-public connectionEstablished$ = this.connectionEstablished.asObservable();
-
-  private userIdLogado!: string;
-
-  constructor(private authService: AuthService) {
-    this.startConnection();
-  }
-
-  private startConnection() {
-    this.hubConnection = new HubConnectionBuilder()
-      .withUrl(this.chatHubUrl, {
-        accessTokenFactory: async () => {
-          const tokenResponse = await this.authService.getToken();
-          return tokenResponse || '';
-        },
-      })
-      .configureLogging(LogLevel.Information)
-      .build();
-
-    this.hubConnection
-      .start()
-      .then(() => {
-        console.log('Conectado ao SignalR');
-        this.connectionEstablished.next(true); // ✅ Dispara quando conectado
-      })
-      .catch(err => console.error('Erro ao conectar ao SignalR:', err));
-
-    this.hubConnection.on("ReceiveMessage", (from: string, message: string) => {
-      this.messageSubject.next({ from, message });
-    });
-
-    this.hubConnection.on("StartChat", (user: any) => {
-      console.log("Chat privado iniciado com:", user);
-    });
-  }
-
-  public setUserIdLogado(userId: string) {
-    this.userIdLogado = userId;
-  }
-
-  public startPrivateChat(targetUserId: string) {
-    this.hubConnection.invoke("StartPrivateChat", targetUserId)
-      .catch(err => console.error("Erro ao iniciar chat privado:", err));
-  }
-
-  public sendPrivateMessage(toUserId: string, message: string) {
-    this.hubConnection.invoke("SendPrivateMessage", toUserId, message)
-      .catch(err => console.error("Erro ao enviar mensagem:", err));
-  }
-
 }
