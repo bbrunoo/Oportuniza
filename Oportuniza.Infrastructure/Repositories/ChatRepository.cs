@@ -4,6 +4,7 @@ using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Data;
+using System;
 
 namespace Oportuniza.Infrastructure.Repositories
 {
@@ -67,37 +68,49 @@ namespace Oportuniza.Infrastructure.Repositories
                         .ToListAsync();
         }
 
-        public async Task<List<ChatHistoryDto>> GetUserChatsAsync(Guid userId)
+        public async Task<List<ChatSummaryDto>> GetUserChatsAsync(Guid userId)
         {
             var userChats = await _context.ChatParticipants
                 .Where(p => p.UserId == userId)
                 .Select(p => p.ChatId)
                 .ToListAsync();
 
-            var chats = await _context.ChatParticipants
+            var chatSummaries = await _context.ChatParticipants
                 .Where(p => userChats.Contains(p.ChatId))
-                .GroupBy(p => p.ChatId)
-                .Select(g => new ChatHistoryDto
+                .Where(p => p.UserId != userId)
+                .Select(p => new ChatSummaryDto
                 {
-                    ChatId = g.Key,
-                    Participants = g.Where(p => p.UserId != userId).Select(p => p.UserName).ToList(),
+                    ChatId = p.ChatId,
+                    TargetUserId = p.UserId,
+                    TargetUserName = p.UserName,
                     LastMessage = _context.ChatMessage
-                        .Where(m => m.ChatId == g.Key)
-                        .OrderByDescending(m => m.SentAt)
-                        .Select(m => m.Message)
-                        .FirstOrDefault(),
+                    .Where(m=>m.ChatId == p.ChatId)
+                    .OrderByDescending(m=>m.SentAt)
+                    .Select(m=>m.Message)
+                    .FirstOrDefault(),
                     LastMessageDate = _context.ChatMessage
-                        .Where(m => m.ChatId == g.Key)
-                        .Max(m => (DateTime?)m.SentAt)
+                    .Where(m=>m.ChatId == p.ChatId)
+                    .Max(m => (DateTime?)m.SentAt)
                 })
                 .ToListAsync();
 
-            return chats;
+            return chatSummaries;
         }
 
         public async Task SaveMessageAsync(ChatMessage message)
         {
             await _context.ChatMessage.AddAsync(message);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> ChatExistsAsync(Guid chatId)
+        {
+            return await _context.PrivateChat.AnyAsync(c => c.Id == chatId);
+        }
+
+        public async Task CreateChatAsync(PrivateChat chat)
+        {
+            _context.PrivateChat.Add(chat);
             await _context.SaveChangesAsync();
         }
     }

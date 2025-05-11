@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
+import { ChatSummary } from '../models/ChatSummary.model';
 
 export interface ChatMessage {
   userName: string;
@@ -90,5 +91,9 @@ export class ChatService {
 
   getChatMessages(chatId: string): Observable<GetMessage[]> {
     return this.http.get<GetMessage[]>(`https://localhost:5000/api/chat/history/${chatId}`);
+  }
+
+  getUserChats(): Observable<ChatSummary[]> {
+    return this.http.get<ChatSummary[]>('https://localhost:5000/api/chat/conversations');
   }
 }

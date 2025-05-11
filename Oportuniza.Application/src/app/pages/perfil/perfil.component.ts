@@ -16,7 +16,7 @@ export class PerfilComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.targetUserId = this.route.snapshot.paramMap.get('id') ?? '';
@@ -27,7 +27,8 @@ export class PerfilComponent implements OnInit {
       console.error('targetUserId não definido');
       return;
     }
+    localStorage.setItem('chatTargetUserId', this.targetUserId);
 
-    this.router.navigate(['/chat', this.targetUserId]);
+    this.router.navigate(['/chat']);
   }
 }

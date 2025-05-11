@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { ChatService, ChatMessage, GetMessage } from '../../services/chat.service';
 import { Subscription } from 'rxjs';
 import { ProfileService } from '../../services/profile.service';
+import { ChatSummary } from '../../models/ChatSummary.model';
 
 interface ConnectedUser {
   connectionId: string;
@@ -32,15 +33,28 @@ export class ChatComponent implements OnInit, OnDestroy {
   currentUserName = this.authService.getUserData().name;
   targetUserId!: string;
 
+  chatSummaries: ChatSummary[] = [];
+  selectedChatId: string | null = null;
   nomeTarget: string = '';
 
+  currentUserId = this.authService.getUserData().id;
 
   userInfo = this.profileService.getUserProfile(this.targetUserId)
 
   ngOnInit(): void {
-    this.targetUserId = this.route.snapshot.paramMap.get('targetUserId')!;
+    this.loadUserChats();
 
-    this.profileService.getUserProfile(this.targetUserId).subscribe({
+    const storedTargetId = localStorage.getItem('chatTargetUserId');
+    if (storedTargetId) {
+      this.initiateChatWithUser(storedTargetId);
+      localStorage.removeItem('chatTargetUserId');
+    }
+  }
+
+  initiateChatWithUser(userId: string) {
+    this.targetUserId = userId;
+
+    this.profileService.getUserProfile(userId).subscribe({
       next: (user) => {
         this.nomeTarget = user.name;
       },
@@ -50,8 +64,10 @@ export class ChatComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.chatService.getPrivateChatId(this.targetUserId).subscribe({
+    this.chatService.getPrivateChatId(userId).subscribe({
       next: chatId => {
+        this.selectedChatId = chatId;
+
         this.chatService.getChatMessages(chatId).subscribe({
           next: oldMessages => {
             this.getMessages = oldMessages;
@@ -61,7 +77,7 @@ export class ChatComponent implements OnInit, OnDestroy {
           }
         });
 
-        this.chatService.startConnection(this.targetUserId);
+        this.chatService.startConnection(userId);
 
         this.messagesSub = this.chatService.messages$.subscribe(msgs => {
           msgs.forEach(msg => this.getMessages.push(msg));
@@ -73,18 +89,30 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  trackById(index: number, item: GetMessage) {
-    return item.id;
-  }
-
   sendMessage() {
     if (!this.newMessage.trim()) return;
     this.chatService.sendMessage(this.newMessage);
     this.newMessage = '';
   }
 
+  loadUserChats() {
+    this.chatService.getUserChats().subscribe({
+      next: (summaries) => this.chatSummaries = summaries,
+      error: (err) => console.error('Erro ao carregar conversas', err)
+    });
+  }
+
+  openChat(summary: ChatSummary) {
+    this.getMessages = [];
+    this.initiateChatWithUser(summary.targetUserId);
+  }
+
   ngOnDestroy() {
     this.messagesSub?.unsubscribe();
     this.chatService.stopConnection();
+  }
+
+  trackById(index: number, item: GetMessage) {
+    return item.id;
   }
 }

@@ -12,12 +12,14 @@ namespace Oportuniza.Infrastructure.Data
 
         public virtual DbSet<ChatMessage> ChatMessage { get; set; }
         public virtual DbSet<ChatParticipant> ChatParticipants { get; set; }
+        public virtual DbSet<PrivateChat> PrivateChat { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UserEntityConfiguration());
             modelBuilder.ApplyConfiguration(new ChatMessageEntityConfiguration());
             modelBuilder.ApplyConfiguration(new ChatParticipantsEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new ConversationsEntityTypeConfiguration());
 
             base.OnModelCreating(modelBuilder); 
         }

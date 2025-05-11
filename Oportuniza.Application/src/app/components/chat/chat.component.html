@@ -1,26 +1,50 @@
 <div class="chat-container">
-
-  <div class="chat-header">
-    <h3>Chat com {{nomeTarget}}</h3>
-    <h3>Conta logada {{currentUserName}}</h3>
+  <div class="chat-sidebar">
+    <h3>Conversas</h3>
+    <ul *ngIf="chatSummaries.length > 0; else noConversations">
+      <li
+        *ngFor="let chat of chatSummaries"
+        (click)="openChat(chat)"
+        [class.active]="chat.chatId === selectedChatId"
+      >
+        {{ chat.targetUserName }}
+      </li>
+    </ul>
+    <ng-template #noConversations>
+      <p>Nenhuma conversa ainda.</p>
+    </ng-template>
   </div>
 
-  <div class="conversas">
-    <span>oi</span>
-  </div>
-
-  <div class="chat-messages">
-    <div *ngFor="let msg of getMessages; trackBy: trackById">
-      <div [ngClass]="{'my-message': msg.senderName === currentUserName, 'other-message': msg.senderName !== currentUserName}">
-        <strong>{{ msg.senderName }}</strong>
-        <p>{{ msg.message }}</p>
-        <span class="timestamp">{{ msg.sentAt | date:'shortTime' }}</span>
+  <div class="chat-main">
+    <ng-container *ngIf="selectedChatId; else emptyChat">
+      <h4>Conversando com: {{ nomeTarget }}</h4>
+      <div class="chat-messages">
+        <div
+          *ngFor="let msg of getMessages; trackBy: trackById"
+          [ngClass]="{
+            'message-sent': msg.senderId === currentUserId,
+            'message-received': msg.senderId !== currentUserId
+          }"
+        >
+          <div class="message-header">
+            <strong>{{ msg.senderName }}</strong>
+            <span class="message-time">{{
+              msg.sentAt | date : "shortTime"
+            }}</span>
+          </div>
+          <div class="message-body">{{ msg.message }}</div>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="chat-input">
-    <input [(ngModel)]="newMessage" placeholder="Digite uma mensagem" />
-    <button (click)="sendMessage()">Enviar</button>
+      <input
+        [(ngModel)]="newMessage"
+        placeholder="Digite sua mensagem..."
+        (keydown.enter)="sendMessage()"
+      />
+    </ng-container>
+
+    <ng-template #emptyChat>
+      <p>Nenhuma conversa iniciada ainda.</p>
+    </ng-template>
   </div>
 </div>

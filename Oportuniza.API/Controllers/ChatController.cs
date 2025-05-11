@@ -2,8 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Oportuniza.API.Hubs;
 using Oportuniza.Domain.Interfaces;
+using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Repositories;
+using System.Net.WebSockets;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Oportuniza.API.Controllers
 {
@@ -12,14 +15,14 @@ namespace Oportuniza.API.Controllers
     [ApiController]
     public class ChatController : ControllerBase
     {
-        private static IChatRepository _chatRepository;
+        private readonly IChatRepository _chatRepository;
         public ChatController(IChatRepository chatRepository)
         {
             _chatRepository = chatRepository;
         }
 
         [HttpGet("private/{targetUserId}")]
-        public IActionResult GetPrivateChatId(Guid targetUserId)
+        public async Task<IActionResult> GetPrivateChatId(Guid targetUserId)
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(currentUserId))
@@ -29,6 +32,17 @@ namespace Oportuniza.API.Controllers
             var userId2 = targetUserId;
 
             var chatId = GenerateDeterministicChatId(userId1, userId2);
+
+            var exists = await _chatRepository.ChatExistsAsync(chatId);
+            if (!exists)
+            {
+                await _chatRepository.CreateChatAsync(new PrivateChat
+                {
+                    Id = chatId,
+                    User1Id = userId1,
+                    User2Id = userId2
+                });
+            }
             return Ok(chatId);
         }
         private static Guid GenerateDeterministicChatId(Guid user1, Guid user2)
@@ -64,6 +78,17 @@ namespace Oportuniza.API.Controllers
         [HttpGet("conversations/{userId}")]
         public async Task<IActionResult> GetChatHistory(Guid userId)
         {
+            var result = await _chatRepository.GetUserChatsAsync(userId);
+            return Ok(result);
+        }
+
+        [HttpGet("conversations")]
+        public async Task<IActionResult> GetUserConversations()
+        {
+            var userIDClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIDClaim)) return Unauthorized();
+
+            var userId = Guid.Parse(userIDClaim);
             var result = await _chatRepository.GetUserChatsAsync(userId);
             return Ok(result);
         }

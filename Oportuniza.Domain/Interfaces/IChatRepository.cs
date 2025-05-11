@@ -9,8 +9,9 @@ namespace Oportuniza.Domain.Interfaces
         Task SaveMessageAsync(ChatMessage message);
         Task<List<ChatMessage>> GetMessagesForChatAsync(string chatId);
         Task<bool> DeleteMessageAsync(Guid messageId, Guid userId);
-        Task<List<ChatHistoryDto>> GetUserChatsAsync(Guid userId);
+        Task<List<ChatSummaryDto>> GetUserChatsAsync(Guid userId);
         Task<string> EnsureChatAndParticipantsAsync(Guid userAId, string userAName, Guid userBId, string userBName);
-
+        Task<bool> ChatExistsAsync(Guid chatId);
+        Task CreateChatAsync(PrivateChat chat);
     }
 }
