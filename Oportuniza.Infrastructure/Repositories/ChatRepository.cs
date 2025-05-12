@@ -39,10 +39,10 @@ namespace Oportuniza.Infrastructure.Repositories
             if (existingParticipants.Count == 0)
             {
                 var participants = new List<ChatParticipant>
-        {
-            new ChatParticipant { ChatId = chatId.ToString(), UserId = userAId, UserName = userAName },
-            new ChatParticipant { ChatId = chatId.ToString(), UserId = userBId, UserName = userBName }
-        };
+                {
+                    new ChatParticipant { ChatId = chatId.ToString(), UserId = userAId, UserName = userAName },
+                    new ChatParticipant { ChatId = chatId.ToString(), UserId = userBId, UserName = userBName }
+                };
 
                 await _context.ChatParticipants.AddRangeAsync(participants);
                 await _context.SaveChangesAsync();
@@ -107,11 +107,20 @@ namespace Oportuniza.Infrastructure.Repositories
         {
             return await _context.PrivateChat.AnyAsync(c => c.Id == chatId);
         }
-
         public async Task CreateChatAsync(PrivateChat chat)
         {
             _context.PrivateChat.Add(chat);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<string> GetUserNameById(Guid userId)
+        {
+            var user = await _context.User
+                        .Where(u => u.Id == userId)
+                        .Select(u => u.Name)
+                        .FirstOrDefaultAsync();
+
+            return user ?? "Desconhecido";
         }
     }
 }

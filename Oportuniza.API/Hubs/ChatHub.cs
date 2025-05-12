@@ -20,9 +20,18 @@ namespace Oportuniza.API.Hubs
         private static List<ConnectedUser> ConnectedUsers = new List<ConnectedUser>();
         public async Task JoinChat(string chatId)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, chatId);
-            Console.WriteLine($"[ChatHub] Usuário {Context.ConnectionId} entrou no chat {chatId}");
+            try
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, chatId);
+                Console.WriteLine($"[ChatHub] Usuário {Context.ConnectionId} entrou no chat {chatId}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"JoinChat failed: {ex.Message}");
+                throw; // Re-throw so client sees error
+            }
         }
+
         public override async Task OnConnectedAsync()
         {
             var userIdClaim = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -44,7 +53,6 @@ namespace Oportuniza.API.Hubs
 
                 Console.WriteLine($"[ChatHub] {userInfo.Name} conectado com ID {Context.ConnectionId}");
             }
-
             await base.OnConnectedAsync();
         }
         public override async Task OnDisconnectedAsync(Exception exception)

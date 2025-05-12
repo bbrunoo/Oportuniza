@@ -21,10 +21,9 @@ export interface GetMessage {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ChatService {
-
   authService = inject(AuthService);
   http = inject(HttpClient);
 
@@ -35,36 +34,42 @@ export class ChatService {
   private currentChatId!: string;
 
   startConnection(targetUserId: string): void {
+    this.messagesSubject.next([]);
+
     this.getPrivateChatId(targetUserId).subscribe({
-      next: chatId => {
-        this.currentChatId = chatId;
-        this.initSignalRConnection(chatId);
+      next: response => {
+        this.currentChatId = response.chatId;
+        this.initSignalRConnection(response.chatId);
       },
-      error: err => {
+      error: (err) => {
         console.error('Erro ao obter o chatId da API:', err);
-      }
+      },
     });
   }
 
-  getPrivateChatId(targetUserId: string): Observable<string> {
-    return this.http.get<string>(`https://localhost:5000/api/chat/private/${targetUserId}`);
+  getPrivateChatId(targetUserId: string): Observable<{ chatId: string }> {
+    return this.http.get<{ chatId: string }>(
+      `https://localhost:5000/api/chat/private/${targetUserId}`
+    );
   }
 
   private initSignalRConnection(chatId: string): void {
-    if (this.hubConnection?.state === signalR.HubConnectionState.Connected) return;
+    if (this.hubConnection?.state === signalR.HubConnectionState.Connected)
+      return;
 
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('https://localhost:5000/chathub', {
-        accessTokenFactory: () => this.authService.getToken() || ''
+        accessTokenFactory: () => this.authService.getToken() || '',
       })
       .withAutomaticReconnect()
       .build();
 
-    this.hubConnection.start()
+    this.hubConnection
+      .start()
       .then(() => {
         this.hubConnection.invoke('JoinChat', chatId).catch(console.error);
       })
-      .catch(error => console.error('Erro ao conectar ao hub:', error));
+      .catch((error) => console.error('Erro ao conectar ao hub:', error));
 
     this.hubConnection.on('ReceiveMessage', (msg: GetMessage) => {
       this.addMessage(msg);
@@ -85,15 +90,20 @@ export class ChatService {
 
   stopConnection() {
     if (this.hubConnection) {
+      this.hubConnection.off('ReceiveMessage');
       this.hubConnection.stop().catch(console.error);
     }
   }
 
   getChatMessages(chatId: string): Observable<GetMessage[]> {
-    return this.http.get<GetMessage[]>(`https://localhost:5000/api/chat/history/${chatId}`);
+    return this.http.get<GetMessage[]>(
+      `https://localhost:5000/api/chat/history/${chatId}`
+    );
   }
 
   getUserChats(): Observable<ChatSummary[]> {
-    return this.http.get<ChatSummary[]>('https://localhost:5000/api/chat/conversations');
+    return this.http.get<ChatSummary[]>(
+      'https://localhost:5000/api/chat/conversations'
+    );
   }
 }

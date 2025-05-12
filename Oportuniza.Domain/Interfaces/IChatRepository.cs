@@ -13,5 +13,6 @@ namespace Oportuniza.Domain.Interfaces
         Task<string> EnsureChatAndParticipantsAsync(Guid userAId, string userAName, Guid userBId, string userBName);
         Task<bool> ChatExistsAsync(Guid chatId);
         Task CreateChatAsync(PrivateChat chat);
+        Task<string> GetUserNameById(Guid userId);
     }
 }

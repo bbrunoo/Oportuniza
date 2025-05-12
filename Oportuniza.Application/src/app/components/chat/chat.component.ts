@@ -3,7 +3,11 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ChatService, ChatMessage, GetMessage } from '../../services/chat.service';
+import {
+  ChatService,
+  ChatMessage,
+  GetMessage,
+} from '../../services/chat.service';
 import { Subscription } from 'rxjs';
 import { ProfileService } from '../../services/profile.service';
 import { ChatSummary } from '../../models/ChatSummary.model';
@@ -18,7 +22,7 @@ interface ConnectedUser {
   selector: 'app-chat',
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './chat.component.html',
-  styleUrl: './chat.component.css'
+  styleUrl: './chat.component.css',
 })
 export class ChatComponent implements OnInit, OnDestroy {
   private messagesSub!: Subscription;
@@ -39,13 +43,14 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   currentUserId = this.authService.getUserData().id;
 
-  userInfo = this.profileService.getUserProfile(this.targetUserId)
+  userInfo = this.profileService.getUserProfile(this.targetUserId);
 
   ngOnInit(): void {
     this.loadUserChats();
 
     const storedTargetId = localStorage.getItem('chatTargetUserId');
     if (storedTargetId) {
+      this.messagesSub?.unsubscribe();
       this.initiateChatWithUser(storedTargetId);
       localStorage.removeItem('chatTargetUserId');
     }
@@ -61,31 +66,32 @@ export class ChatComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Erro ao obter nome do usuário alvo', err);
         this.nomeTarget = 'usuário';
-      }
+      },
     });
 
     this.chatService.getPrivateChatId(userId).subscribe({
-      next: chatId => {
-        this.selectedChatId = chatId;
+      next: response => {
+        this.selectedChatId = response.chatId;
 
-        this.chatService.getChatMessages(chatId).subscribe({
-          next: oldMessages => {
-            this.getMessages = oldMessages;
+        this.chatService.getChatMessages(response.chatId).subscribe({
+          next: (oldMessages) => {
+            this.getMessages = [...oldMessages];
           },
-          error: err => {
-            console.error("Erro ao carregar o historico do chat", err);
-          }
+          error: (err) => {
+            console.error('Erro ao carregar o historico do chat', err);
+          },
         });
 
+        this.chatService.stopConnection();
         this.chatService.startConnection(userId);
 
-        this.messagesSub = this.chatService.messages$.subscribe(msgs => {
-          msgs.forEach(msg => this.getMessages.push(msg));
-        });
+        this.messagesSub?.unsubscribe();
+        this.messagesSub = this.chatService.messages$.subscribe((msgs) => {
+          this.getMessages = [...this.getMessages, ...msgs];         });
       },
-      error: err => {
+      error: (err) => {
         console.error('Erro ao obter o id do chat', err);
-      }
+      },
     });
   }
 
@@ -97,8 +103,8 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   loadUserChats() {
     this.chatService.getUserChats().subscribe({
-      next: (summaries) => this.chatSummaries = summaries,
-      error: (err) => console.error('Erro ao carregar conversas', err)
+      next: (summaries) => (this.chatSummaries = summaries),
+      error: (err) => console.error('Erro ao carregar conversas', err),
     });
   }
 

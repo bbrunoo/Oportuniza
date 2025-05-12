@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Oportuniza.API.Hubs;
+using Oportuniza.Domain.DTOs.Chat;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
+using Oportuniza.Infrastructure.Data;
 using Oportuniza.Infrastructure.Repositories;
 using System.Net.WebSockets;
 using System.Security.Claims;
@@ -16,9 +19,11 @@ namespace Oportuniza.API.Controllers
     public class ChatController : ControllerBase
     {
         private readonly IChatRepository _chatRepository;
-        public ChatController(IChatRepository chatRepository)
+        private readonly ApplicationDbContext _context;
+        public ChatController(IChatRepository chatRepository, ApplicationDbContext context)
         {
             _chatRepository = chatRepository;
+            _context = context;
         }
 
         [HttpGet("private/{targetUserId}")]
@@ -31,28 +36,47 @@ namespace Oportuniza.API.Controllers
             var userId1 = Guid.Parse(currentUserId);
             var userId2 = targetUserId;
 
-            var chatId = GenerateDeterministicChatId(userId1, userId2);
+            var currentUserName = await _chatRepository.GetUserNameById(userId1);
+            var targetUserName = await _chatRepository.GetUserNameById(userId2);
 
-            var exists = await _chatRepository.ChatExistsAsync(chatId);
-            if (!exists)
-            {
-                await _chatRepository.CreateChatAsync(new PrivateChat
-                {
-                    Id = chatId,
-                    User1Id = userId1,
-                    User2Id = userId2
-                });
-            }
-            return Ok(chatId);
+            var chatId = await _chatRepository.EnsureChatAndParticipantsAsync(
+                userId1, currentUserName, userId2, targetUserName);
+
+            return Ok(new { chatId = chatId.ToString() });
         }
-        private static Guid GenerateDeterministicChatId(Guid user1, Guid user2)
-        {
-            var ordered = new[] { user1, user2 }.OrderBy(g => g.ToString()).ToArray();
-            using var md5 = System.Security.Cryptography.MD5.Create();
-            var combinedBytes = System.Text.Encoding.UTF8.GetBytes($"{ordered[0]}_{ordered[1]}");
-            var hashBytes = md5.ComputeHash(combinedBytes);
-            return new Guid(hashBytes);
-        }
+
+        //[HttpPost("create")]
+        //public async Task<IActionResult> CreateChat([FromBody] CreateChatRequest request)
+        //{
+        //    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    if (string.IsNullOrEmpty(currentUserId))
+        //        return Unauthorized();
+
+        //    var userId1 = Guid.Parse(currentUserId);
+        //    var userId2 = request.TargetUserId;
+
+        //    var chatId = GenerateDeterministicChatId(userId1, userId2);
+
+        //    var newChat = new PrivateChat
+        //    {
+        //        Id = chatId,
+        //        User1Id = userId1,
+        //        User2Id = userId2
+        //    };
+
+        //    await _chatRepository.CreateChatAsync(newChat);
+
+        //    return Ok(chatId);
+        //}
+
+        //private static Guid GenerateDeterministicChatId(Guid user1, Guid user2)
+        //{
+        //    var ordered = new[] { user1, user2 }.OrderBy(g => g.ToString()).ToArray();
+        //    using var md5 = System.Security.Cryptography.MD5.Create();
+        //    var combinedBytes = System.Text.Encoding.UTF8.GetBytes($"{ordered[0]}_{ordered[1]}");
+        //    var hashBytes = md5.ComputeHash(combinedBytes);
+        //    return new Guid(hashBytes);
+        //}
 
         [HttpDelete("message/{messageId}")]
         public async Task<IActionResult> DeleteMessage(Guid messageId)
@@ -76,7 +100,7 @@ namespace Oportuniza.API.Controllers
         }
 
         [HttpGet("conversations/{userId}")]
-        public async Task<IActionResult> GetChatHistory(Guid userId)
+        public async Task<IActionResult> GetHistory(Guid userId)
         {
             var result = await _chatRepository.GetUserChatsAsync(userId);
             return Ok(result);
