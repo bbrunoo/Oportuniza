@@ -18,15 +18,10 @@ namespace Oportuniza.Infrastructure.Repositories
 
         public async Task<User> Add(User user)
         {
-            if (string.IsNullOrWhiteSpace(user.Password))
-            {
-                throw new ArgumentException("The password is needed");
-            }
-            using (var hmac = new HMACSHA512())
-            {
-                user.PasswordSalt = hmac.Key;
-                user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(user.Password));
-            }
+
+            if (user.PasswordHash == null || user.PasswordSalt == null)
+                throw new ArgumentException("Hash e salt da senha são obrigatórios.");
+
             await _context.User.AddAsync(user);
             await _context.SaveChangesAsync();
             return user;

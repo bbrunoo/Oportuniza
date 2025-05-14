@@ -16,7 +16,7 @@
       </div>
 
       <div class="input-container password-container">
-        <input [type]="passwordVisible ? 'text' : 'password'" id="password" placeholder="Senha" name="password" [(ngModel)]="password" maxlength="20" />
+        <input [type]="passwordVisible ? 'text' : 'password'" id="password" placeholder="Senha" name="password" [(ngModel)]="password" (input)="onPasswordInput()" maxlength="20"/>
         <button class="show-password" type="button" (click)="togglePassword()">
           <img [src]="passwordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'" alt="" />
         </button>
@@ -33,18 +33,21 @@
         <input type="checkbox" [(ngModel)]="acceptTerms" name="terms" (change)="saveTermsAcceptance()" />
         <p>Li e aceito os
           <a [routerLink]="['/termo']" style="color: blue;">Termos de Uso</a> e a
-          <br>
           <a [routerLink]="['/termo']" style="color: blue;">Política de Privacidade</a>
         </p>
       </div>
 
-      <div class="content-message">
-        <div *ngIf="errorMessage" class="error-message">
-          {{ errorMessage }}
+      <div class="password-criteria">
+        <div
+          *ngFor="let criterion of criteriaList"
+          [class.met]="getPasswordCriteria(criterion.key)"
+          [class.highlight]="getPasswordStatus(criterion.key)">
+          {{ criterion.message }}
         </div>
       </div>
 
-      <input class="btn-primary" type="submit" value="Cadastrar">
+
+    <input class="btn-primary" type="submit" value="Cadastrar" />
 
       <p class="or-text">Entrar com:</p>
 

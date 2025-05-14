@@ -33,6 +33,7 @@
     "rxjs": "~7.8.0",
     "stream-chat": "^9.0.1",
     "stream-chat-angular": "^6.0.0",
+    "sweetalert2": "^11.21.0",
     "swiper": "^11.2.5",
     "tslib": "^2.3.0",
     "vite": "^6.2.0",
