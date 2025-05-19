@@ -1,5 +1,8 @@
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from './../../services/auth.service';
 import { Component, OnInit } from '@angular/core';
+import { ProfileService } from '../../services/profile.service';
+import { ChatService } from '../../services/chat.service';
 
 @Component({
   selector: 'app-perfil',
@@ -8,23 +11,24 @@ import { Component, OnInit } from '@angular/core';
   styleUrl: './perfil.component.css'
 })
 export class PerfilComponent implements OnInit {
-  userId: string | null = null;
-  email : string | null = null;
-  name : string | null = null;
+  targetUserId!: string;
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+  ) { }
 
-  ngOnInit(): void {
-    const userData = this.authService.getUserData();
-
-    if (userData) {
-      this.userId = userData.id;
-      this.email = userData.email;
-      this.name = userData.name;
-    }
+  ngOnInit() {
+    this.targetUserId = this.route.snapshot.paramMap.get('id') ?? '';
   }
 
-  logout() {
-    this.authService.logout();
+  startChat() {
+    if (!this.targetUserId) {
+      console.error('targetUserId não definido');
+      return;
+    }
+    localStorage.setItem('chatTargetUserId', this.targetUserId);
+
+    this.router.navigate(['/chat']);
   }
 }

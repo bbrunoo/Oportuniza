@@ -34,13 +34,14 @@
               id="areas-input"
               class="styled-input"
               placeholder="Digite uma área de interesse..."
+              [(ngModel)]="areaDeInteresse"
             />
           </div>
         </div>
       </div>
       <div class="send-button">
         <button [routerLink]="['/segunda-etapa']">Voltar</button>
-        <button [routerLink]="['/home']">Concluir</button>
+        <button (click)="concluirCadastro()" routerLink="/login">Concluir</button>
       </div>
       <div class="send"></div>
     </div>

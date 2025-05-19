@@ -1,11 +1,6 @@
 ﻿
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Oportuniza.Domain.Interfaces
 {
@@ -13,9 +8,11 @@ namespace Oportuniza.Domain.Interfaces
     {
         Task<User> Add(User user);
         Task<IEnumerable<User>> Get();
-        Task<User> GetById(Guid id);
-        Task<EditUserDTO> Edit(Guid id, EditUserDTO editUserDto);
+        Task<User?> GetById(Guid id);
         Task<bool> Exist(Guid id);
         Task<User> Delete(User user);
+        Task<UserInfoDTO> GetUserInfoAsync(Guid id);
+        Task<bool> Update(User user);
+        Task<IEnumerable<AllUsersInfoDTO>> GetAllUserInfosAsync();
     }
 }

@@ -2,31 +2,17 @@
 {
     public class User
     {
-        public User()
-        {
-            
-        }
-
-        public User( string name, string email, byte[] passwordHash, byte[] passwordSalt, bool isACompany, string imageUrl, string fullName)
-        {
-            Id = Guid.NewGuid(); 
-            Name = name;
-            Email = email;
-            //FullName = fullName;
-            PasswordHash = passwordHash;
-            PasswordSalt = passwordSalt;
-            IsACompany = isACompany;
-            ImageUrl = imageUrl;
-        }
+        public User() { }
 
         public Guid Id { get; set; }
         public string Name { get; set; }
-       // public string FullName { get; set; }
+        public string FullName { get; set; }
         public string Email { get; set; }
-        public string Password { get; set; }
-        public byte[] PasswordHash { get; set; }  
-        public byte[] PasswordSalt { get; set; }  
+        public byte[] PasswordHash { get; set; }
+        public byte[] PasswordSalt { get; set; }
         public bool IsACompany { get; set; }
         public string? ImageUrl { get; set; }
+        public string? Interests { get; set; }
+
     }
 }

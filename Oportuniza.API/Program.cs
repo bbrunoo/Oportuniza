@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Oportuniza.API.Hubs;
 using Oportuniza.API.Services;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Infrastructure.Data;
@@ -9,6 +10,7 @@ using Oportuniza.Infrastructure.Repositories;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -18,47 +20,27 @@ builder.Services.AddSwaggerGen(c =>
 {
     var securityScheme = new OpenApiSecurityScheme
     {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
         Scheme = "bearer",
         BearerFormat = "JWT",
+        Name = "Authorization",
         In = ParameterLocation.Header,
-        Description = "Insira o token JWT desta forma: Bearer {seu token}"
-    };
-
-    c.AddSecurityDefinition("Bearer", securityScheme);
-
-    var securityRequirement = new OpenApiSecurityRequirement
-    {
+        Type = SecuritySchemeType.Http,
+        Description = "Insira **Apenas o Token** JWT ",
+        Reference = new OpenApiReference
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
         }
     };
 
-    c.AddSecurityRequirement(securityRequirement);
+    c.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement { { securityScheme, Array.Empty<string>() } });
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngularApp", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
 });
 
 var jwtSettings = builder.Configuration.GetSection("jwt");
@@ -79,25 +61,50 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings["issuer"],
         ValidAudience = jwtSettings["audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(key)
+        IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["jwt:secretKey"]))
     };
 
     options.Events = new JwtBearerEvents
     {
         OnAuthenticationFailed = context =>
         {
+            Console.WriteLine($"[DEBUG] Authentication failed: {context.Exception.Message}");
             if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
             {
                 context.Response.Headers.Add("Token-Expired", "true");
             }
             return Task.CompletedTask;
+        },
+
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
         }
     };
-
 });
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthenticateUser, AuthenticateUser>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddSignalR();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy( policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 
@@ -107,6 +114,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors();
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -114,6 +123,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseCors("AllowAngularApp");
+app.MapHub<ChatHub>("/chathub");
+
 
 app.Run();

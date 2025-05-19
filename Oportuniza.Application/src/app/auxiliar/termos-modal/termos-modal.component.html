@@ -1,0 +1,113 @@
+<div class="container">
+  <h2 class="title">TERMO DE USO E POLÍTICA DE PRIVACIDADE</h2>
+  <span></span>
+  <div class="content-box">
+    <div class="content" #scrollContainer (scroll)="verificarRolagem($event)">
+      <h3>1. Introdução</h3>
+      <p>
+        Seja bem-vindo ao Oportuniza, uma plataforma digital que tem como
+        objetivo facilitar a conexão entre trabalhadores essenciais — como
+        babás, diaristas, auxiliares de limpeza, empacotadores, entre outros — e
+        empregadores que buscam mão de obra confiável e qualificada. Ao acessar,
+        navegar ou utilizar qualquer funcionalidade do nosso site ou aplicativo,
+        você concorda integralmente com os termos e condições aqui apresentados.
+      </p>
+
+      <h3>2. Aceitação dos Termos</h3>
+      <p>
+        O uso da plataforma Oportuniza implica na aceitação integral e
+        irrestrita dos presentes Termos de Uso e da Política de Privacidade.
+        Caso não esteja de acordo com qualquer cláusula ou condição aqui
+        descrita, recomendamos que cesse imediatamente o uso da plataforma. O
+        uso continuado será interpretado como concordância tácita a eventuais
+        atualizações deste documento.
+      </p>
+
+      <h3>3. Cadastro e Responsabilidades</h3>
+      <p>
+        Para acessar determinados recursos da plataforma, o usuário deverá
+        realizar um cadastro fornecendo informações pessoais verdadeiras,
+        precisas, completas e atualizadas. O usuário se compromete a manter a
+        confidencialidade de sua conta e senha, sendo o único responsável por
+        todas as atividades realizadas sob sua conta. O Oportuniza não se
+        responsabiliza por quaisquer prejuízos decorrentes do uso indevido da
+        conta por terceiros. Informações falsas ou enganosas poderão resultar na
+        suspensão ou exclusão imediata do cadastro.
+      </p>
+
+      <h3>4. Uso Adequado da Plataforma</h3>
+      <p>
+        O usuário compromete-se a utilizar a plataforma de forma ética,
+        responsável e em conformidade com a legislação vigente. É expressamente
+        proibido o uso da plataforma para fins ilegais, imorais ou que possam
+        violar direitos de terceiros. Isso inclui, mas não se limita a, envio de
+        conteúdos ofensivos, difamatórios, racistas, misóginos ou
+        discriminatórios de qualquer natureza. O descumprimento destas regras
+        poderá resultar em sanções como advertência, suspensão temporária ou
+        exclusão definitiva da conta.
+      </p>
+
+      <h3>5. Privacidade e Proteção de Dados</h3>
+      <p>
+        A privacidade de nossos usuários é uma prioridade. Coletamos dados
+        pessoais como nome completo, telefone, endereço de e-mail e localização
+        geográfica, com o objetivo exclusivo de facilitar a conexão entre
+        empregadores e trabalhadores. Todas as informações são armazenadas de
+        forma segura, em conformidade com a Lei Geral de Proteção de Dados (LGPD
+        - Lei nº 13.709/2018). Não compartilhamos, vendemos ou alugamos os dados
+        dos usuários a terceiros sem consentimento explícito, exceto em casos de
+        exigência legal. Utilizamos cookies e tecnologias similares para
+        melhorar a experiência de navegação e análise de uso da plataforma.
+      </p>
+
+      <h3>6. Direitos e Deveres dos Usuários</h3>
+      <p>
+        Os usuários têm o direito de acessar, corrigir, atualizar ou solicitar a
+        exclusão de seus dados pessoais a qualquer momento, mediante solicitação
+        via nossos canais de atendimento. A plataforma não garante a contratação
+        de candidatos, atuando unicamente como intermediária na disponibilização
+        de perfis e oportunidades. Os usuários também devem se abster de
+        utilizar a plataforma para fins de assédio, fraude ou qualquer conduta
+        abusiva.
+      </p>
+
+      <h3>7. Modificações dos Termos</h3>
+      <p>
+        O Oportuniza reserva-se o direito de, a qualquer momento e sem
+        necessidade de aviso prévio, modificar, atualizar ou alterar os
+        presentes Termos de Uso e a Política de Privacidade, visando o
+        aprimoramento da plataforma ou em decorrência de alterações legais. É de
+        responsabilidade do usuário consultar periodicamente este documento para
+        se manter informado sobre eventuais mudanças. A continuidade do uso da
+        plataforma após a publicação de alterações será considerada aceitação
+        das novas condições.
+      </p>
+
+      <h3>8. Contato e Suporte</h3>
+      <p>
+        Para esclarecimentos, sugestões, reclamações ou solicitações referentes
+        a este documento ou ao funcionamento da plataforma, o usuário pode
+        entrar em contato por meio do e-mail:
+        <strong>suporte&#64;oportuniza.com</strong>. O atendimento será
+        realizado em dias úteis, no horário comercial.
+      </p>
+
+      <h3>9. Legislação Aplicável e Foro</h3>
+      <p>
+        Este Termo de Uso é regido pelas leis da República Federativa do Brasil,
+        especialmente pelas disposições do Código Civil, do Código de Defesa do
+        Consumidor e da Lei Geral de Proteção de Dados (LGPD). Fica eleito o
+        foro da comarca do domicílio do usuário ou, em sua ausência, o foro da
+        sede da plataforma, para dirimir eventuais conflitos oriundos da
+        utilização da plataforma, com renúncia expressa de qualquer outro, por
+        mais privilegiado que seja.
+      </p>
+    </div>
+  </div>
+  <span class="span2"></span>
+  <div class="conteudo-botao">
+    <div class="cont-btn" *ngIf="botaoVisivel">
+      <button (click)="aceitarTermos()">Aceitar e Continuar</button>
+    </div>
+  </div>
+</div>
