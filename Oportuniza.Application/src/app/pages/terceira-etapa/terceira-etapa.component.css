@@ -88,9 +88,10 @@
   padding-top: 5px;
 }
 
-.title {
+.title{
   font-size: 20px;
   font-weight: 600;
+  padding-bottom: 25px;
 }
 
 .indicate-text {
@@ -138,7 +139,7 @@
   border-radius: 8px;
   padding: 12px 16px;
   box-sizing: border-box;
-  box-shadow: none; 
+  box-shadow: none;
 }
 
 .styled-input {
@@ -155,8 +156,8 @@
 
 .styled-input:focus {
   background-color: #e0e0e0;
-  box-shadow: none !important; 
-  outline: none !important; 
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .img-content {
@@ -194,7 +195,7 @@
   background-color: transparent;
   font-size: 18px;
   font-weight: 500;
-  box-shadow: none; 
+  box-shadow: none;
 }
 
 .send-button {
@@ -236,5 +237,5 @@
 .styled-input:focus {
   background-color: transparent;
   box-shadow: none !important;
-  outline: none !important; 
+  outline: none !important;
 }

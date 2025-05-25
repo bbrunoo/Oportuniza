@@ -50,6 +50,7 @@ namespace Oportuniza.API.Controllers
 
             user.FullName = model.FullName;
             user.IsACompany = model.IsACompany;
+            user.ImageUrl = model.ImageUrl;
 
             user.Interests = StringHelpers.FormatInterest(model.Interests);
 
