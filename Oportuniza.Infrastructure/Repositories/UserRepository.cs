@@ -50,7 +50,8 @@ namespace Oportuniza.Infrastructure.Repositories
                     Name = u.Name,
                     Email = u.Email,
                     FullName = u.FullName,
-                    isACompany = u.IsACompany
+                    isACompany = u.IsACompany,
+                    imageUrl = u.ImageUrl
                 })
                 .ToListAsync();
         }

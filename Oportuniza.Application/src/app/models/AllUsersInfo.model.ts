@@ -4,4 +4,5 @@ export interface AllUsersInfoModel {
   fullName: string;
   email: string;
   isACompany: boolean;
+  imageUrl: string;
 }

@@ -25,7 +25,7 @@
       <div class="title">COMPLETE SEU PERFIL</div>
       <div class="center">
         <div class="title">
-          <p>Digite suas categorias de interesse:</p>
+          <p>Digite sua área de interesse:</p>
         </div>
         <div class="right">
           <div class="custom-input">
@@ -35,13 +35,16 @@
               class="styled-input"
               placeholder="Digite uma área de interesse..."
               [(ngModel)]="areaDeInteresse"
+              (ngModelChange)="onAreaDeInteresseChange($event)"
             />
           </div>
         </div>
       </div>
       <div class="send-button">
         <button [routerLink]="['/segunda-etapa']">Voltar</button>
-        <button (click)="concluirCadastro()" routerLink="/login">Concluir</button>
+        <button (click)="concluirCadastro()" routerLink="/login">
+          Concluir
+        </button>
       </div>
       <div class="send"></div>
     </div>

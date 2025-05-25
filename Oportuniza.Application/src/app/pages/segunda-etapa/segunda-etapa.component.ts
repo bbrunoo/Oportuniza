@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
@@ -10,12 +10,25 @@ import Swal from 'sweetalert2';
   templateUrl: './segunda-etapa.component.html',
   styleUrls: ['./segunda-etapa.component.css']
 })
-export class SegundaEtapaComponent {
+export class SegundaEtapaComponent implements OnInit{
   selectedButton: string | null = null;
   constructor(private router: Router) { }
 
-  selecionarBotao(botao: string) {
-    this.selectedButton = this.selectedButton === botao ? null : botao;
+  ngOnInit(): void {
+    const savedSelection = localStorage.getItem('selectedButton');
+       if (savedSelection) {
+      this.selectedButton = savedSelection;
+    }
+  }
+
+    selecionarBotao(botao: string) {
+    if (this.selectedButton === botao) {
+      this.selectedButton = null;
+      localStorage.removeItem('selectedButton');
+    } else {
+      this.selectedButton = botao;
+      localStorage.setItem('selectedButton', botao);
+    }
   }
 
   getBackgroundColor(botao: string): string {
@@ -41,4 +54,5 @@ export class SegundaEtapaComponent {
 
     this.router.navigate(['/terceira-etapa']);
   }
+
 }

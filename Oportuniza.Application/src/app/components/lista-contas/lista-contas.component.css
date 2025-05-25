@@ -15,17 +15,19 @@ header p {
 }
 
 .logo {
+  position: relative;
   width: 5.4em;
   height: 5em;
-  padding-left: 5px;
+  left: 110px;
   cursor: pointer;
 }
 
 .logout {
+  position: relative;
   cursor: pointer;
   width: 2em;
   height: 2em;
-  padding-right: 5px;
+  right: 110px;
 }
 
 .container {
@@ -38,6 +40,13 @@ header p {
   background-image: url("../../../assets/auxiliar/background-image.png");
   background-size: cover;
   color: #fff;
+}
+
+.conteudo-central {
+
+  display: flex;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 h3 {
@@ -55,7 +64,7 @@ p {
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   max-width: 90vw;
-  margin-top: 120px;
+  padding: 10px;
 }
 
 .card-container {
@@ -78,6 +87,10 @@ p {
   border-radius: 50%;
   padding: 7px;
   background-color: #d6f5ff;
+}
+
+.card-container img {
+  border-radius: 100%;
 }
 
 button.primary {
