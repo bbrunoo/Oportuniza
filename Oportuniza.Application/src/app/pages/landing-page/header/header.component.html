@@ -1,18 +1,17 @@
 <header [ngClass]="{ 'header-hidden': isHeaderHidden }">
-  <nav>
+
+  <nav [ngClass]="{ 'active': isMenuOpen }">
     <img src="assets/logo.png" alt="Logo da empresa" />
 
     <ul>
-      <li><a href="#inicio">Início</a></li>
-      <li><a href="#sobre">Sobre</a></li>
-      <li><a href="#vagas">Vagas</a></li>
-      <li><a>|</a></li>
+      <li><a href="#inicio" (click)="closeMenu()">Início</a></li>
+      <li><a href="#sobre" (click)="closeMenu()">Sobre</a></li>
+      <li><a href="#vagas" (click)="closeMenu()">Vagas</a></li>
     </ul>
 
-    <div class="menu-right">
-      <a  [routerLink]="['/cadastro']" class="btn" role="button">Cadastre-se agora</a>
-      <a  [routerLink]="['/login']">Entrar</a>
+    <div class="menu-right" >
+      <a routerLink="/cadastro" class="btn" role="button" (click)="closeMenu()">Cadastre-se agora</a>
+      <a routerLink="/login" (click)="closeMenu()">Entrar</a>
     </div>
-
   </nav>
 </header>

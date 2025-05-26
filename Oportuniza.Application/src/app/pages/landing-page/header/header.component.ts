@@ -11,6 +11,7 @@ import { RouterModule } from '@angular/router';
 })
 
 export class HeaderComponent {
+  isMenuOpen = false;
   lastScrollTop = 0;
   isHeaderHidden = false;
   scrollThreshold = 100;
@@ -26,5 +27,15 @@ export class HeaderComponent {
     }
 
     this.lastScrollTop = scrollTop;
+  }
+
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+    console.log("oi");
+  }
+
+  closeMenu() {
+    this.isMenuOpen = false;
   }
 }

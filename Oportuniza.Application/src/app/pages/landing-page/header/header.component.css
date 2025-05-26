@@ -7,8 +7,7 @@ header {
   background: rgba(0, 0, 0, 0.32);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(5.8px);
-  -webkit-backdrop-filter: blur(5.8px);
-  padding: 0;
+  padding: 10px;
   transition: transform 0.5s ease-in-out;
 }
 
@@ -16,40 +15,146 @@ header {
   transform: translateY(-100%);
 }
 
-header nav img {
+nav img {
   width: 100px;
+  padding-left: 150px;
 }
 
-header nav {
+nav {
   display: flex;
   align-items: center;
-  max-width: 1200px;
-  justify-content: space-around;
+  max-width: 100%;
+  justify-content: space-between;
 }
 
-header nav ul {
+ul {
   list-style: none;
   display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  width: 30em;
 }
 
-header nav ul li {
-  margin-right: 100px;
-}
-
-header nav ul li a {
+nav ul li a {
   color: white;
   text-decoration: none;
   font-size: 18px;
   font-weight: 500;
+}
+
+.menu-right {
+  display: flex;
+  align-items: center;
+  width: 20em;
+  justify-content: space-evenly;
+  gap: 20px;
+  padding-right: 100px;
 }
 
 .menu-right a {
   font-size: 18px;
   color: white;
   text-decoration: none;
-  margin-right: 50px;
   font-weight: 500;
 }
 
+#menu-toggle {
+  display: none;
+  font-size: 2rem;
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 1200px) {
+
+  nav {
+    flex-direction:  row;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+    padding: 10px;
+  }
+
+  nav img {
+    padding-left: 0;
+    margin-bottom: 10px;
+  }
+
+  ul {
+    flex-direction: row;
+    width: 25em;
+    padding: 0;
+    gap: 10px;
+  }
+
+  .menu-right {
+    flex-direction: row;
+    width: 100%;
+    padding-right: 0;
+    gap: 10px;
+    width: 20em;
+  }
+
+  nav ul li a,
+  .menu-right a {
+    font-size: 16px;
+    padding: 8px 16px;
+    border-bottom: 1px solid white;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  nav {
+    flex-direction:  column;
+    align-items: center;
+    padding: 10px;
+  }
+  nav img {
+    width: 80px;
+  }
+
+  ul {
+    gap: 5px;
+  }
+
+  nav ul li a,
+  .menu-right a {
+    padding: 8px 16px;
+    border-bottom: 1px solid white;
+  }
+
+  .menu-right a {
+    padding: 8px 16px;
+    border-bottom: 1px solid white;
+  }
+}
 
 
+@media screen and (max-width: 600px) {
+  nav {
+    flex-direction:  column;
+    align-items: center;
+    padding: 10px;
+  }
+  nav img {
+    width: 80px;
+  }
+
+  ul {
+    gap: 5px;
+  }
+
+  nav ul li a,
+  .menu-right a {
+    padding: 8px 16px;
+    border-bottom: 1px solid white;
+  }
+
+  .menu-right a {
+    padding: 8px 16px;
+    border-bottom: 1px solid white;
+  }
+}
