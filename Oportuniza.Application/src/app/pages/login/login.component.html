@@ -20,12 +20,13 @@
           <input maxlength="20" [type]="passwordVisible ? 'text' : 'password'" id="password" placeholder="Senha" name="password" [(ngModel)]="User.password" [ngModelOptions]="{standalone: true}">
           <button type="button" class="show-password" (click)="togglePassword()">
               <img [src]="passwordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'" alt="Ícone de mostrar senha">
-          </button>
+            </button>
+            <a [routerLink]="['/redefinir-senha']" class="forgot-password">Esqueceu a senha?</a>
       </div>
 
-      <a [routerLink]="['/redefinir-senha']" class="forgot-password">Esqueceu a senha?</a>
 
       <button type="submit" class="btn-primary">Continuar</button>
+      <a class="extra-btn" routerLink="/cadastro">Cadastre-se</a>
 
       <p class="or-text">Entrar com:</p>
 
@@ -41,6 +42,7 @@
       <p class="register-text">
           Ainda não possui uma conta? <a [routerLink]="['/cadastro']">Cadastre-se</a>
       </p>
+
   </div>
 </div>
 

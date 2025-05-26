@@ -51,65 +51,35 @@
       </div>
 
       <div class="input-container password-container">
-        <input
-          [type]="confirmPasswordVisible ? 'text' : 'password'"
-          id="confirmPassword"
-          placeholder="Confirmar Senha"
-          name="confirmPassword"
-          [(ngModel)]="confirmPassword"
-          maxlength="20"
-        />
-        <button
-          class="show-password"
-          type="button"
-          (click)="toggleConfirmPassword()"
-        >
-          <img
-            [src]="
-              confirmPasswordVisible
-                ? 'assets/cadastro/openeye.png'
-                : 'assets/cadastro/closeeye.png'
-            "
-            alt=""
-          />
+        <input [type]="confirmPasswordVisible ? 'text' : 'password'" id="confirmPassword"placeholder="Confirmar Senha" name="confirmPassword" [(ngModel)]="confirmPassword" maxlength="20" />
+        <button class="show-password" type="button" (click)="toggleConfirmPassword()" >
+          <img [src]="confirmPasswordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'" alt=""/>
         </button>
       </div>
 
       <div class="terms-container">
-        <input
-          type="checkbox"
-          [(ngModel)]="acceptTerms"
-          [disabled]="!termsAcceptedInternally"
-          (click)="$event.preventDefault()"
-          name="terms"
-        />
+        <input type="checkbox" [(ngModel)]="acceptTerms" [disabled]="!termsAcceptedInternally" (click)="$event.preventDefault()" name="terms" />
         <p>
           Li e aceito os
           <a (click)="openModal()" style="color: blue">Termos de Uso</a> e a
-          <a (click)="openModal()" style="color: blue"
-            >Política de Privacidade</a
-          >
+          <a (click)="openModal()" style="color: blue">Política de Privacidade</a>
         </p>
       </div>
 
       <div class="password-criteria">
-        <div
-          *ngFor="let criterion of criteriaList"
-          [class.met]="getPasswordCriteria(criterion.key)"
-          [class.highlight]="getPasswordStatus(criterion.key)"
-        >
-          {{ criterion.message }}
+        <div *ngFor="let criterion of criteriaList" [class.met]="getPasswordCriteria(criterion.key)" [class.highlight]="getPasswordStatus(criterion.key)" > {{ criterion.message }}
         </div>
       </div>
 
       <input class="btn-primary" type="submit" value="Cadastrar" />
+      <a class="extra-btn" routerLink="/login">Entrar</a>
 
       <p class="or-text">Entrar com:</p>
 
       <button class="btn-microsoft" type="button">
         <img
-          src="https://blog.topedia.com/wp-content/uploads/2020/05/Microsoft_Logo.png"
-          alt="Microsoft"
+        src="https://blog.topedia.com/wp-content/uploads/2020/05/Microsoft_Logo.png"
+        alt="Microsoft"
         />
       </button>
 

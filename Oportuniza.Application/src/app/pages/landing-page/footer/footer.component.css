@@ -1,13 +1,14 @@
-
 footer {
   background-color: black;
-  height: 100%;
+  max-width: 100%;
+  height: auto;
   padding: 50px;
   color: white;
 }
 
 .containerfooter {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   align-items: center;
   justify-content: space-around;
 }
@@ -17,12 +18,14 @@ footer {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  justify-content: center;
 }
 
 .social {
   display: flex;
   gap: 20px;
   justify-content: center;
+  align-items: center;
 }
 
 .social img {
@@ -32,38 +35,70 @@ footer {
 
 
 .links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
 .links h1 {
-  font-size: 16px;
+  font-size: 18px;
 }
 
-.miniNav ul {
+.conteudo-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
   list-style: none;
-  padding: 0;
+  gap: 10px;
 }
 
-.miniNav ul li {
-  display: inline-block;
-  margin: 0 10px;
-  font-weight: 500;
+.conteudo-links a {
+  color: white;
+  text-decoration: none;
+  list-style: none;
+  border-bottom: 1px solid;
 }
 
-.miniNav ul li:last-child {
-  display: block;
-  margin-top: 10px;
+.linha1 {
+  display: flex;
+  gap: 10px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding-top: 10px;
 }
 
-.miniNav ul li a {
-  color: inherit;
-  font-weight: 400;
-  font-size: 12px;
+.linha2 {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding-top: 10px;
 }
-
 
 .info {
-  text-align: center;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 10px;
+}
+
+.info-title h1 {
+  font-size: 18px;
+}
+
+.info-conteudo {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
 }
 
 .info h1 {
@@ -72,6 +107,8 @@ footer {
 
 .organização {
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 8px;
   font-size: 14px;
 }
@@ -84,4 +121,56 @@ footer {
 .organização img {
   width: 20px;
   height: 20px;
+}
+
+span {
+  display: none;
+}
+
+@media screen and (max-width: 1200px) {
+  .containerfooter {
+    gap: 50px;
+    justify-content: center;
+    align-items: center;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media screen and (max-width: 900px) {
+    .info-conteudo{
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    img {
+      display: none;
+    }
+  }
+  .organização{
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .containerfooter {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .info-conteudo{
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    img {
+      display: none;
+    }
+  }
+  .organização{
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+  }
+  .containerfooter {
+    grid-template-columns: 1fr;
+  }
 }

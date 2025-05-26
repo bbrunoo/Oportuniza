@@ -1,15 +1,20 @@
 .slideshow-container {
   display: flex;
   align-items: center;
-  max-width: 100%;
-  height:auto;
+  justify-content: center;
+  width: 100%;
+  height: auto;
+  padding-top: 50px;
+  padding-bottom: 50px;
   background-color: #D9D9D9;
-  padding: 50px;
 }
 
-
 .slide {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  width: 60em;
+  align-items: center;
+  justify-content: center;
 }
 
 [hidden] {
@@ -21,31 +26,33 @@
   flex-direction: column;
   gap: 20px;
   align-items: center;
-  margin-left: 20px;
 }
 
 .dot {
   height: 12px;
   width: 12px;
-  background-color: #ffffff;
+  background-color: #b4b4b4;
   border-radius: 50%;
   cursor: pointer;
 }
 
 .dot.active {
-  background-color: #000970;
+  background-color: #001cbe;
 }
 
 .content {
-display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
 }
-
 
 .item {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+  width: 10em;
+  height: 10em;
+  padding: 0 30px 0 30px;
 }
 
 .icon2 {
@@ -54,20 +61,20 @@ display: flex;
   margin-bottom: 10px;
 }
 
-.item h2{
-font-size: 16px;
+.item h2 {
+  font-size: 16px;
 }
 
 .item p {
-font-size: 12px;
-width: 70%;
+  font-size: 12px;
+  width: 70%;
 }
 
 .textprincipal {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 40px;
+  padding-bottom: 40px;
   gap: 10px;
 }
 
@@ -83,3 +90,33 @@ width: 70%;
   height: auto;
 }
 
+@media screen and (max-width: 1200px) {
+  .slide {
+    width: 40em;
+  }
+
+  .content {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 50px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .slide {
+    width: 22em;
+  }
+
+  .content {
+    height: auto;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 50px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+
+  .content {
+    height: auto;
+    grid-template-columns: 1fr;
+  }
+}
