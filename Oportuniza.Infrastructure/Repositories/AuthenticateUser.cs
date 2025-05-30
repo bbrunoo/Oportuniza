@@ -5,7 +5,6 @@ using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Data;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -75,13 +74,12 @@ namespace Oportuniza.Infrastructure.Repositories
             return (true, null, 200);
         }
 
-        public string GenerateToken(Guid id, string email, bool isACompany, string name)
+        public string GenerateToken(Guid id, string email, string name)
         {
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, id.ToString()),
                 new Claim(ClaimTypes.Email, email),
-                new Claim("isACompany", isACompany.ToString().ToLower()),
                 new Claim(ClaimTypes.Name, name),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };

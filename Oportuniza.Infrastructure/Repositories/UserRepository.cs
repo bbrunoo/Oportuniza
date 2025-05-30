@@ -3,8 +3,6 @@ using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Data;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Oportuniza.Infrastructure.Repositories
 {
@@ -50,7 +48,6 @@ namespace Oportuniza.Infrastructure.Repositories
                     Name = u.Name,
                     Email = u.Email,
                     FullName = u.FullName,
-                    isACompany = u.IsACompany,
                     imageUrl = u.ImageUrl
                 })
                 .ToListAsync();
@@ -69,7 +66,6 @@ namespace Oportuniza.Infrastructure.Repositories
                     Name = u.Name,
                     FullName = u.FullName,
                     Email = u.Email,
-                    isACompany = u.IsACompany
                 })
                 .FirstOrDefaultAsync();
 

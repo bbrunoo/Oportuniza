@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Oportuniza.Domain.DTOs.Chat;
-using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Data;
-using System;
 
 namespace Oportuniza.Infrastructure.Repositories
 {
