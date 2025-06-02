@@ -25,24 +25,28 @@ namespace Oportuniza.API.Controllers
             var curriculums = await _curriculumRepository.GetAllAsync(
                 c => c.Educations,
                 c => c.Experiences,
-                c => c.Certifications);
+                c => c.Certifications,
+                c => c.User);
 
             if (curriculums == null) return NotFound("Currículo não encontrado.");
 
-            return Ok(curriculums);
+            var response = _mapper.Map<List<CurriculumDto>>(curriculums);
+
+            return StatusCode(200, response);
         }
 
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             var curriculums = await _curriculumRepository.GetByIdAsync(id,
                 c => c.Educations,
                 c => c.Experiences,
-                c => c.Certifications);
+                c => c.Certifications,
+                c => c.User);
 
             if (curriculums == null) return NotFound("Currículo não encontrado.");
 
-            var response = _mapper.Map<CurriculumResponseDto>(curriculums);
+            var response = _mapper.Map<CurriculumDto>(curriculums);
 
             return StatusCode(200, response);
         }
