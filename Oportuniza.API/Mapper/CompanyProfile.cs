@@ -7,15 +7,14 @@ namespace Oportuniza.API.Mapper
     public class CompanyProfile : Profile
     {
         public CompanyProfile() {
-            CreateMap<CompanyDTO, Company>();
-            CreateMap<CompanyByIdDTO, Company>();
-            CreateMap<CompanyInfoDTO, Company>();
-            CreateMap<AllCompanyInfoDTO, Company>();
+            CreateMap<CompanyCreateDto, Company>();
 
-            CreateMap<Company, CompanyDTO>();
-            CreateMap<Company, CompanyByIdDTO>();
-            CreateMap<Company, CompanyInfoDTO>();
-            CreateMap<Company, AllCompanyInfoDTO>();
+            CreateMap<Company, CompanyDTO>()
+                .ForMember(dest => dest.ManagerName, opt => opt.MapFrom(src => src.Manager.Name))
+                .ForMember(dest => dest.Employees, opt => opt.MapFrom(src => src.Employees));
+
+            CreateMap<CompanyEmployee, CompanyEmployeeDto>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Name));
         }
     }
 }

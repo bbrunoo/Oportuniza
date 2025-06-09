@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.Interfaces;
+using Oportuniza.Domain.Models;
 
 namespace Oportuniza.API.Controllers
 {
@@ -20,8 +21,11 @@ namespace Oportuniza.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var company = await _companyRepository.Get();
-            var response = _mapper.Map<List<CompanyDTO>>(company);
+            var companys = await _companyRepository.GetAllAsync();
+
+            if (companys == null) return NotFound("Empresa não encontrado.");
+
+            var response = _mapper.Map<List<CompanyDTO>>(companys);
 
             return StatusCode(200, response);
         }
@@ -29,27 +33,54 @@ namespace Oportuniza.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var company = await _companyRepository.GetById(id);
+            var companys = await _companyRepository.GetByIdAsync(id);
 
-            if (company == null) return NotFound();
+            if (companys == null) return NotFound("Currículo não encontrado.");
 
-            var response = _mapper.Map<List<CompanyByIdDTO>>(company);
+            var response = _mapper.Map<CompanyDTO>(companys);
 
             return StatusCode(200, response);
         }
 
-        //[HttpPut("completar-perfil/{id}")]
-        //public async Task<IActionResult> CompletePerfil(Guid id, [FromBody] CompleteProfileDTO model)
-        //{
-        //    var company = await _companyRepository.GetById(id);
-        //    if (company == null) return NotFound("Usuario nao encontrado");
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] CompanyCreateDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        //    company.ImageUrl = model.ImageUrl;
+            if (dto == null)
+                return BadRequest("Dados inválidos.");
 
-        //    var result = await _companyRepository.Update(company);
-        //    if (!result) return StatusCode(500, "Erro ao atualizar perfil");
+            var company = _mapper.Map<Company>(dto);
+            if (company == null) return BadRequest();
+            await _companyRepository.AddAsync(company);
+            return CreatedAtAction(nameof(GetById), new { id = company.Id }, company);
+        }
 
-        //    return NoContent();
-        //}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(Guid id, [FromBody] Company company)
+        {
+            if (company == null || id != company.Id)
+                return BadRequest();
+
+            var existingCompany = await _companyRepository.GetByIdAsync(id);
+            if (existingCompany == null)
+                return NotFound();
+
+            await _companyRepository.UpdateAsync(company);
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var existingCompany = await _companyRepository.GetByIdAsync(id);
+            if (existingCompany == null)
+                return NotFound();
+
+            await _companyRepository.DeleteAsync(id);
+            return NoContent();
+        }
     }
 }

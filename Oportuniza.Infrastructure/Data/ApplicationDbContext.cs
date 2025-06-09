@@ -18,6 +18,7 @@ namespace Oportuniza.Infrastructure.Data
         public DbSet<Experience> Experience { get; set; }
         public DbSet<Publication> Publication { get; set; }
         public DbSet<UserAreaOfInterest> UserAreaOfInterest { get; set; }
+        public DbSet<CompanyEmployee> CompanyEmployee { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,6 +34,7 @@ namespace Oportuniza.Infrastructure.Data
             modelBuilder.ApplyConfiguration(new ExperienceConfiguration());
             modelBuilder.ApplyConfiguration(new PublicationConfiguration());
             modelBuilder.ApplyConfiguration(new UserAreaOfInterestConfiguration());
+            modelBuilder.ApplyConfiguration(new CompanyEmployeeConfiguration());
 
 
             base.OnModelCreating(modelBuilder);

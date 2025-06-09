@@ -37,25 +37,6 @@ namespace Oportuniza.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Company",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    Desc = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    IsAdmin = table.Column<bool>(type: "bit", nullable: false),
-                    Active = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Company", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "LoginAttempt",
                 columns: table => new
                 {
@@ -100,8 +81,9 @@ namespace Oportuniza.Infrastructure.Migrations
                     PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    IsAdmin = table.Column<bool>(type: "bit", nullable: false),
-                    Active = table.Column<bool>(type: "bit", nullable: false)
+                    IsAdmin = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    Active = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    UserType = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,29 +91,24 @@ namespace Oportuniza.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CompanyAreaOfInterest",
+                name: "Company",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AreaOfInterestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Principal = table.Column<bool>(type: "bit", nullable: false),
-                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Desc = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Active = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CompanyAreaOfInterest", x => x.Id);
+                    table.PrimaryKey("PK_Company", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CompanyAreaOfInterest_AreasOfInterest_AreaOfInterestId",
-                        column: x => x.AreaOfInterestId,
-                        principalTable: "AreasOfInterest",
+                        name: "FK_Company_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CompanyAreaOfInterest_Company_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "Company",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -182,6 +159,32 @@ namespace Oportuniza.Infrastructure.Migrations
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_UserAreaOfInterest_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CompanyEmployee",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CanPostJobs = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CompanyEmployee", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CompanyEmployee_Company_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CompanyEmployee_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
@@ -260,14 +263,20 @@ namespace Oportuniza.Infrastructure.Migrations
                 column: "CurriculumId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CompanyAreaOfInterest_AreaOfInterestId",
-                table: "CompanyAreaOfInterest",
-                column: "AreaOfInterestId");
+                name: "IX_Company_UserId",
+                table: "Company",
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CompanyAreaOfInterest_CompanyId",
-                table: "CompanyAreaOfInterest",
+                name: "IX_CompanyEmployee_CompanyId",
+                table: "CompanyEmployee",
                 column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CompanyEmployee_UserId",
+                table: "CompanyEmployee",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Curriculum_CityId",
@@ -307,7 +316,7 @@ namespace Oportuniza.Infrastructure.Migrations
                 name: "Certification");
 
             migrationBuilder.DropTable(
-                name: "CompanyAreaOfInterest");
+                name: "CompanyEmployee");
 
             migrationBuilder.DropTable(
                 name: "Education");

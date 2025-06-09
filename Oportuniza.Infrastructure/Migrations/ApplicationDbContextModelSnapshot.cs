@@ -91,64 +91,54 @@ namespace Oportuniza.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("Active")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Desc")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<byte[]>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte[]>("PasswordSalt")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Company");
                 });
 
-            modelBuilder.Entity("Oportuniza.Domain.Models.CompanyAreaOfInterest", b =>
+            modelBuilder.Entity("Oportuniza.Domain.Models.CompanyEmployee", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AreaOfInterestId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<bool>("CanPostJobs")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<Guid>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("Principal")
-                        .HasColumnType("bit");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AreaOfInterestId");
-
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("CompanyAreaOfInterest");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CompanyEmployee");
                 });
 
             modelBuilder.Entity("Oportuniza.Domain.Models.Curriculum", b =>
@@ -323,7 +313,9 @@ namespace Oportuniza.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("Active")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -340,7 +332,9 @@ namespace Oportuniza.Infrastructure.Migrations
                         .HasColumnType("nvarchar(300)");
 
                     b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -358,6 +352,9 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("UserType")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -399,23 +396,34 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.Navigation("Curriculum");
                 });
 
-            modelBuilder.Entity("Oportuniza.Domain.Models.CompanyAreaOfInterest", b =>
+            modelBuilder.Entity("Oportuniza.Domain.Models.Company", b =>
                 {
-                    b.HasOne("Oportuniza.Domain.Models.AreaOfInterest", "AreaOfInterest")
-                        .WithMany()
-                        .HasForeignKey("AreaOfInterestId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Oportuniza.Domain.Models.User", "Manager")
+                        .WithOne("CompanyOwned")
+                        .HasForeignKey("Oportuniza.Domain.Models.Company", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("Oportuniza.Domain.Models.CompanyEmployee", b =>
+                {
                     b.HasOne("Oportuniza.Domain.Models.Company", "Company")
-                        .WithMany("CompanyAreasOfInterest")
+                        .WithMany("Employees")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AreaOfInterest");
+                    b.HasOne("Oportuniza.Domain.Models.User", "User")
+                        .WithMany("CompanyLinks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Company");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Oportuniza.Domain.Models.Curriculum", b =>
@@ -480,7 +488,7 @@ namespace Oportuniza.Infrastructure.Migrations
 
             modelBuilder.Entity("Oportuniza.Domain.Models.Company", b =>
                 {
-                    b.Navigation("CompanyAreasOfInterest");
+                    b.Navigation("Employees");
                 });
 
             modelBuilder.Entity("Oportuniza.Domain.Models.Curriculum", b =>
@@ -494,6 +502,11 @@ namespace Oportuniza.Infrastructure.Migrations
 
             modelBuilder.Entity("Oportuniza.Domain.Models.User", b =>
                 {
+                    b.Navigation("CompanyLinks");
+
+                    b.Navigation("CompanyOwned")
+                        .IsRequired();
+
                     b.Navigation("Curriculum");
 
                     b.Navigation("UserAreasOfInterest");

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Oportuniza.Domain.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Oportuniza.API.Viewmodel
 {
@@ -7,5 +8,6 @@ namespace Oportuniza.API.Viewmodel
         public string Name { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public UserType UserType { get; set; }
     }
 }

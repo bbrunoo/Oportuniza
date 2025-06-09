@@ -25,7 +25,35 @@ namespace Oportuniza.Infrastructure.Configurations
 
             builder.Property(x => x.ImageUrl)
                    .HasMaxLength(300);
+
+            builder.Property(x => x.IsAdmin)
+                   .HasDefaultValue(false);
+
+            builder.Property(x => x.Active)
+                   .HasDefaultValue(true);
+
+            builder.Property(x => x.UserType)
+                   .IsRequired();
+
+            builder.HasOne(u => u.CompanyOwned)
+                   .WithOne(c => c.Manager)
+                   .HasForeignKey<Company>(c => c.UserId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(u => u.CompanyLinks)
+                   .WithOne(e => e.User)
+                   .HasForeignKey(e => e.UserId)
+                   .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(u => u.Curriculum)
+                .WithOne()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(u => u.UserAreasOfInterest)
+                .WithOne()
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
-
 }

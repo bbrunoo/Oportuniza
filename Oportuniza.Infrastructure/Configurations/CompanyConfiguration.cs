@@ -17,11 +17,18 @@ namespace Oportuniza.Infrastructure.Configurations
             builder.Property(x => x.Desc)
                    .HasMaxLength(500);
 
-            builder.Property(x => x.Email)
-               .HasMaxLength(150);
+            builder.Property(c => c.Active)
+                 .HasDefaultValue(true);
 
-            builder.Property(x => x.ImageUrl)
-                   .HasMaxLength(300);
+            builder.HasOne(c => c.Manager)
+                 .WithOne(u => u.CompanyOwned)
+                 .HasForeignKey<Company>(c => c.UserId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(c => c.Employees)
+                   .WithOne(e => e.Company)
+                   .HasForeignKey(e => e.CompanyId)
+                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
