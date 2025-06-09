@@ -8,27 +8,33 @@ namespace Oportuniza.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Publication> builder)
         {
-            builder.HasKey(x => x.Id);
+            builder.HasKey(p => p.Id);
 
-            builder.Property(x => x.Title)
-                   .IsRequired()
-                   .HasMaxLength(100);
+            builder.Property(p => p.Title)
+                .IsRequired()
+                .HasMaxLength(200);
 
-            builder.Property(x => x.Description)
-                   .HasMaxLength(500);
+            builder.Property(p => p.Description)
+                .IsRequired()
+                .HasColumnType("TEXT");
 
-            builder.Property(x => x.ImageUrl)
-                   .HasMaxLength(300);
+            builder.Property(p => p.CreationDate)
+                .IsRequired();
 
-            builder.HasOne(x => x.Company)
-                   .WithMany()
-                   .HasForeignKey(x => x.CompanyId)
-                   .OnDelete(DeleteBehavior.Cascade);
+            builder.Property(p => p.ImageUrl)
+                .HasMaxLength(300);
 
-            builder.HasOne(x => x.PublishedByUser)
-                   .WithMany()
-                   .HasForeignKey(x => x.PublishedByUserId)
-                   .OnDelete(DeleteBehavior.Cascade);
+            builder.Property(p => p.Expired)
+                .IsRequired();
+
+            builder.Property(p => p.AuthorId)
+                .IsRequired();
+
+            builder.Property(p => p.AuthorType)
+                .IsRequired()
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
         }
     }
 

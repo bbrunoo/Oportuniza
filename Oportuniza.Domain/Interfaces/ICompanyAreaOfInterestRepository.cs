@@ -2,7 +2,7 @@
 
 namespace Oportuniza.Domain.Interfaces
 {
-    public interface IPublicationRepository : IRepository<Publication>
+    public interface ICompanyAreaOfInterestRepository : IRepository<CompanyAreaOfInterest>
     {
     }
 }

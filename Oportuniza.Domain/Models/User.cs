@@ -14,7 +14,6 @@
         public bool IsAdmin { get; set; }
         public bool Active { get; set; }
         public ICollection<UserAreaOfInterest> UserAreasOfInterest { get; set; } = new List<UserAreaOfInterest>();
-        public ICollection<CompanyUser> CompanyUsers { get; set; } = new List<CompanyUser>();
         public ICollection<Curriculum> Curriculum { get; set; } = new List<Curriculum>();
     }
 }

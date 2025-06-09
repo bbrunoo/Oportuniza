@@ -31,8 +31,4 @@
     <ProjectReference Include="..\Oportuniza.Infrastructure\Oportuniza.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Helper\" />
-  </ItemGroup>
-
 </Project>

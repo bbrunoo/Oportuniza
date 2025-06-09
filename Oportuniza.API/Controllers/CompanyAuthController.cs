@@ -13,19 +13,19 @@ namespace Oportuniza.API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class CompanyAuthController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IAuthenticateUser _authenticateUser;
+        private readonly ICompanyRepository _companyRepository;
+        private readonly IAuthenticateCompany _authenticateCompany;
 
-        public AuthController(IUserRepository userRepository, IAuthenticateUser authenticateUser)
+        public CompanyAuthController(ICompanyRepository companyRepository, IAuthenticateCompany authenticateCompany)
         {
-            _userRepository = userRepository;
-            _authenticateUser = authenticateUser;
+            _companyRepository = companyRepository;
+            _authenticateCompany = authenticateCompany;
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<UserByIdDTO>> Register([FromBody] UserRegisterViewmodel model)
+        public async Task<ActionResult<CompanyByIdDTO>> Register([FromBody] CompanyRegisterViewmodel model)
         {
             if (model == null || IsInvalidInput(model.Name) || IsInvalidInput(model.Email) || IsInvalidInput(model.Password))
                 return BadRequest("Todos os campos são obrigatórios.");
@@ -45,16 +45,15 @@ namespace Oportuniza.API.Controllers
             if (model.Password.Length < 8)
                 return BadRequest("A senha deve conter no mínimo 8 caracteres.");
 
-            var emailJaExiste = await _authenticateUser.UserExists(model.Email);
+            var emailJaExiste = await _authenticateCompany.UserExists(model.Email);
             if (emailJaExiste)
                 return Conflict("Este e-mail já está cadastrado.");
 
             CreatePasswordHash(model.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-            var user = new User
+            var user = new Company
             {
                 Id = Guid.NewGuid(),
-                FullName = model.Name.Trim(),
                 Name = model.Email.Split('@')[0],
                 Email = model.Email.Trim(),
                 PasswordHash = passwordHash,
@@ -62,11 +61,11 @@ namespace Oportuniza.API.Controllers
                 Active = true
             };
 
-            var result = await _userRepository.Add(user);
+            var result = await _companyRepository.Add(user);
             if (result == null)
                 return StatusCode(500, "Erro interno ao registrar o usuário.");
 
-            var userDto = new UserByIdDTO
+            var userDto = new CompanyByIdDTO
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -89,7 +88,7 @@ namespace Oportuniza.API.Controllers
                 return BadRequest("Formato de e-mail inválido.");
 
             var ip = GetClientIp();
-            var (isAuthenticated, errorMessage, statusCode) = await _authenticateUser.AuthenticateAsync(
+            var (isAuthenticated, errorMessage, statusCode) = await _authenticateCompany.AuthenticateAsync(
                 loginRequestDTO.Email, loginRequestDTO.Password, ip
             );
 
@@ -101,8 +100,8 @@ namespace Oportuniza.API.Controllers
                 return Unauthorized(errorMessage);
             }
 
-            var user = await _authenticateUser.GetUserByEmail(loginRequestDTO.Email);
-            var token = _authenticateUser.GenerateToken(user.Id, user.Email, user.Name);
+            var user = await _authenticateCompany.GetUserByEmail(loginRequestDTO.Email);
+            var token = _authenticateCompany.GenerateToken(user.Id, user.Email, user.Name);
 
             return Ok(new UserToken { Token = token });
         }

@@ -1,18 +1,17 @@
-﻿namespace Oportuniza.Domain.Models
+﻿using Oportuniza.Domain.Models;
+
+namespace Oportuniza.Domain.DTOs.Publication
 {
-    public enum AuthorType
-    {
-        User, Company
-    }
-    public class Publication
+    public class PublicationDto
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public DateTime CreationDate { get; set; } = DateTime.Now;
-        public string ImageUrl { get; set; }
+        public DateTime CreationDate { get; set; }
+        public string? ImageUrl { get; set; }
         public bool Expired { get; set; }
         public Guid AuthorId { get; set; }
         public AuthorType AuthorType { get; set; }
+        public string AuthorName { get; set; }
     }
 }

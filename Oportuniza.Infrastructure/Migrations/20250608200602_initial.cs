@@ -24,36 +24,6 @@ namespace Oportuniza.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChatMessage",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ChatId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SenderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SenderName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Message = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChatMessage", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ChatParticipants",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ChatId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChatParticipants", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "City",
                 columns: table => new
                 {
@@ -64,6 +34,25 @@ namespace Oportuniza.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_City", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Company",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Desc = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    IsAdmin = table.Column<bool>(type: "bit", nullable: false),
+                    Active = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Company", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -82,17 +71,21 @@ namespace Oportuniza.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PrivateChat",
+                name: "Publication",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    User1Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    User2Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Expired = table.Column<bool>(type: "bit", nullable: false),
+                    AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AuthorType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PrivateChat", x => x.Id);
+                    table.PrimaryKey("PK_Publication", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -116,23 +109,29 @@ namespace Oportuniza.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Company",
+                name: "CompanyAreaOfInterest",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    AreaOfInterestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Principal = table.Column<bool>(type: "bit", nullable: false),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Company", x => x.Id);
+                    table.PrimaryKey("PK_CompanyAreaOfInterest", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Company_User_CreatedByUserId",
-                        column: x => x.CreatedByUserId,
-                        principalTable: "User",
+                        name: "FK_CompanyAreaOfInterest_AreasOfInterest_AreaOfInterestId",
+                        column: x => x.AreaOfInterestId,
+                        principalTable: "AreasOfInterest",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CompanyAreaOfInterest_Company_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -184,63 +183,6 @@ namespace Oportuniza.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_UserAreaOfInterest_User_UserId",
                         column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CompanyUser",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LinkDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Active = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CompanyUser", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CompanyUser_Company_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "Company",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CompanyUser_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Publication",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Expired = table.Column<bool>(type: "bit", nullable: false),
-                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PublishedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Publication", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Publication_Company_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "Company",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Publication_User_PublishedByUserId",
-                        column: x => x.PublishedByUserId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -318,29 +260,14 @@ namespace Oportuniza.Infrastructure.Migrations
                 column: "CurriculumId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatParticipants_ChatId",
-                table: "ChatParticipants",
-                column: "ChatId");
+                name: "IX_CompanyAreaOfInterest_AreaOfInterestId",
+                table: "CompanyAreaOfInterest",
+                column: "AreaOfInterestId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatParticipants_UserId",
-                table: "ChatParticipants",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Company_CreatedByUserId",
-                table: "Company",
-                column: "CreatedByUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyUser_CompanyId",
-                table: "CompanyUser",
+                name: "IX_CompanyAreaOfInterest_CompanyId",
+                table: "CompanyAreaOfInterest",
                 column: "CompanyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyUser_UserId",
-                table: "CompanyUser",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Curriculum_CityId",
@@ -363,16 +290,6 @@ namespace Oportuniza.Infrastructure.Migrations
                 column: "CurriculumId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Publication_CompanyId",
-                table: "Publication",
-                column: "CompanyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Publication_PublishedByUserId",
-                table: "Publication",
-                column: "PublishedByUserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserAreaOfInterest_AreaOfInterestId",
                 table: "UserAreaOfInterest",
                 column: "AreaOfInterestId");
@@ -390,13 +307,7 @@ namespace Oportuniza.Infrastructure.Migrations
                 name: "Certification");
 
             migrationBuilder.DropTable(
-                name: "ChatMessage");
-
-            migrationBuilder.DropTable(
-                name: "ChatParticipants");
-
-            migrationBuilder.DropTable(
-                name: "CompanyUser");
+                name: "CompanyAreaOfInterest");
 
             migrationBuilder.DropTable(
                 name: "Education");
@@ -408,19 +319,16 @@ namespace Oportuniza.Infrastructure.Migrations
                 name: "LoginAttempt");
 
             migrationBuilder.DropTable(
-                name: "PrivateChat");
-
-            migrationBuilder.DropTable(
                 name: "Publication");
 
             migrationBuilder.DropTable(
                 name: "UserAreaOfInterest");
 
             migrationBuilder.DropTable(
-                name: "Curriculum");
+                name: "Company");
 
             migrationBuilder.DropTable(
-                name: "Company");
+                name: "Curriculum");
 
             migrationBuilder.DropTable(
                 name: "AreasOfInterest");

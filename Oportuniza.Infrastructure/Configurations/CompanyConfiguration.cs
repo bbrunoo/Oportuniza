@@ -14,13 +14,14 @@ namespace Oportuniza.Infrastructure.Configurations
                    .IsRequired()
                    .HasMaxLength(100);
 
-            builder.Property(x => x.Description)
+            builder.Property(x => x.Desc)
                    .HasMaxLength(500);
 
-            builder.HasOne(x => x.CreatedByUser)
-                   .WithMany()
-                   .HasForeignKey(x => x.CreatedByUserId)
-                   .OnDelete(DeleteBehavior.Restrict);
+            builder.Property(x => x.Email)
+               .HasMaxLength(150);
+
+            builder.Property(x => x.ImageUrl)
+                   .HasMaxLength(300);
         }
     }
 }

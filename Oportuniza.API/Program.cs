@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Oportuniza.API.Hubs;
 using Oportuniza.API.Services;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Infrastructure.Data;
@@ -91,11 +90,14 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAuthenticateCompany, AuthenticateCompany>();
 builder.Services.AddScoped<IAuthenticateUser, AuthenticateUser>();
-builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IAreaOfInterest, AreaOfInterestRepository>();
 builder.Services.AddScoped<ICurriculumRepository, CurriculumRepository>();
 builder.Services.AddScoped<IPublicationRepository, PublicationRepository>();
+builder.Services.AddScoped<IUserAreaOfInterestRepository, UserAreaOfInterestRepository>();
+builder.Services.AddScoped<ICompanyAreaOfInterestRepository, CompanyAreaOfInterestRepository>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -131,8 +133,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.MapHub<ChatHub>("/chathub");
-
 
 app.Run();
