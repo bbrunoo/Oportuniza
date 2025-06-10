@@ -4,27 +4,26 @@ namespace Oportuniza.Domain.DTOs.Curriculum
 {
     public class CurriculumCreateDto
     {
-        [Required]
+        [Required(ErrorMessage = "O ID do usuário é obrigatório.")]
         public Guid UserId { get; set; }
 
-        [Required]
-        [Phone]
-        [StringLength(15, MinimumLength = 8)]
+        [Required(ErrorMessage = "O telefone é obrigatório.")]
+        [Phone(ErrorMessage = "Formato de telefone inválido.")]
         public string Phone { get; set; }
 
-        [Required]
-        [MinLength(10)]
+        [Required(ErrorMessage = "O objetivo é obrigatório.")]
+        [StringLength(500, ErrorMessage = "O objetivo deve ter no máximo 500 caracteres.")]
         public string Objective { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "A data de nascimento é obrigatória.")]
         [DataType(DataType.Date)]
         public DateTime BirthDate { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "A cidade é obrigatória.")]
         public Guid CityId { get; set; }
 
-        public List<EducationDto> Educations { get; set; } = new();
-        public List<ExperienceDto> Experiences { get; set; } = new();
-        public List<CertificationDto> Certifications { get; set; } = new();
+        public List<EducationCreateDto> Educations { get; set; } = new();
+        public List<ExperienceCreateDto> Experiences { get; set; } = new();
+        public List<CertificationCreateDto> Certifications { get; set; } = new();
     }
 }

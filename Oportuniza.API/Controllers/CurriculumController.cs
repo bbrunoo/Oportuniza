@@ -26,7 +26,8 @@ namespace Oportuniza.API.Controllers
                 c => c.Educations,
                 c => c.Experiences,
                 c => c.Certifications,
-                c => c.User);
+                c => c.User,
+                c => c.City);
 
             if (curriculums == null) return NotFound("Currículo não encontrado.");
 
@@ -42,7 +43,8 @@ namespace Oportuniza.API.Controllers
                 c => c.Educations,
                 c => c.Experiences,
                 c => c.Certifications,
-                c => c.User);
+                c => c.User,
+                c => c.City);
 
             if (curriculums == null) return NotFound("Currículo não encontrado.");
 
@@ -57,16 +59,23 @@ namespace Oportuniza.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (dto == null)
+                return BadRequest("Dados inválidos.");
+
             if (dto.BirthDate > DateTime.Today)
                 return BadRequest("Data de nascimento não pode ser no futuro.");
 
-            if (dto == null)
-                return BadRequest("Dados inválidos.");
-            
-            var curriculum = _mapper.Map<Curriculum>(dto); 
-            if (curriculum == null) return BadRequest();
+            var cityExists = await _curriculumRepository.CityExistsAsync(dto.CityId);
+            if (!cityExists)
+                return BadRequest("Cidade não encontrada.");
+
+            var curriculum = _mapper.Map<Curriculum>(dto);
+            if (curriculum == null)
+                return BadRequest("Erro ao mapear currículo.");
+
             await _curriculumRepository.AddAsync(curriculum);
-            return CreatedAtAction(nameof(GetById), new {id = curriculum.Id}, curriculum);
+
+            return CreatedAtAction(nameof(GetById), new { id = curriculum.Id }, _mapper.Map<CurriculumDto>(curriculum));
         }
 
         [HttpPut("{id}")]

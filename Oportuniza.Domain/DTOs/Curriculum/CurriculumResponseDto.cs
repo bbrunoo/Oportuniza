@@ -7,6 +7,7 @@
         public string Objective { get; set; }
         public DateTime BirthDate { get; set; }
         public string CityName { get; set; }
+        public string Uf { get; set; }
         public IEnumerable<EducationDto> Educations { get; set; }
         public IEnumerable<ExperienceDto> Experiences { get; set; }
         public IEnumerable<CertificationDto> Certifications { get; set; }

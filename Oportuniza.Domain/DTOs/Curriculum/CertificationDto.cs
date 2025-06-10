@@ -6,8 +6,6 @@ namespace Oportuniza.Domain.DTOs.Curriculum
     {
         [Required]
         public string Name { get; set; }
-        [Required]
-        public string Issuer { get; set; }
 
         [Required]
         public DateTime Date { get; set; }

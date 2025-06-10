@@ -8,7 +8,6 @@ namespace Oportuniza.Domain.DTOs.Curriculum
         public string Institution { get; set; }
         [Required]
         public string Degree { get; set; }
-
         [Required]
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }

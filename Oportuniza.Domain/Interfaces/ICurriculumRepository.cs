@@ -10,5 +10,6 @@ namespace Oportuniza.Domain.Interfaces
         Task RemoveExperienceAsync(Guid curriculumId, Guid experienceId);
         Task AddCertificationAsync(Guid curriculumId, Certification certification);
         Task RemoveCertificationAsync(Guid curriculumId, Guid certificationId);
+        Task<bool> CityExistsAsync(Guid cityId);
     }
 }

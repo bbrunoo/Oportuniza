@@ -96,5 +96,10 @@ namespace Oportuniza.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<bool> CityExistsAsync(Guid cityId)
+        {
+            return await _context.City.AnyAsync(c => c.Id == cityId);
+        }
     }
 }
