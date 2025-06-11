@@ -43,10 +43,21 @@ namespace Oportuniza.API.Controllers
             return Ok(result);
         }
 
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             var city = await _cityRepository.GetByIdAsync(id);
+            if (city == null)
+                return NotFound();
+
+            return Ok(city);
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> GetCities([FromQuery] string? uf, [FromQuery] string? name)
+        {
+            var city = await _cityRepository.GetCitiesAsync(uf, name);
             if (city == null)
                 return NotFound();
 

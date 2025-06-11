@@ -7,5 +7,6 @@ namespace Oportuniza.Domain.Interfaces
         Task<City?> GetByNameAsync(string name);
         Task<IEnumerable<City>> GetByUfAsync(string uf);
         Task DeleteAllAsync();
+        Task<IEnumerable<City>> GetCitiesAsync(string? uf, string? name);
     }
 }

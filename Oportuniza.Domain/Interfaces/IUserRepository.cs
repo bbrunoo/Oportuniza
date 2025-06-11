@@ -15,5 +15,6 @@ namespace Oportuniza.Domain.Interfaces
         Task<UserInfoDTO> GetUserInfoAsync(Guid id);
         Task<bool> Update(User user);
         Task<IEnumerable<AllUsersInfoDTO>> GetAllUserInfosAsync();
+        Task<User?> GetByIdWithInterests(Guid id);
     }
 }

@@ -2,6 +2,7 @@
 using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
+using Oportuniza.Domain.Models;
 using System.Globalization;
 
 namespace Oportuniza.API.Controllers
@@ -46,11 +47,22 @@ namespace Oportuniza.API.Controllers
         [HttpPut("completar-perfil/{id}")]
         public async Task<IActionResult> CompletePerfil(Guid id, [FromBody] CompleteProfileDTO model)
         {
-            var user = await _userRepository.GetById(id);
+            var user = await _userRepository.GetByIdWithInterests(id);
             if (user == null) return NotFound("Usuario nao encontrado");
 
             user.FullName = model.FullName;
             user.ImageUrl = model.ImageUrl;
+
+            user.UserAreasOfInterest.Clear();
+
+            foreach (var areaId in model.AreaOfInterestIds)
+            {
+                user.UserAreasOfInterest.Add(new UserAreaOfInterest
+                {
+                    UserId = id,
+                    AreaOfInterestId = areaId
+                });
+            }
 
             var result = await _userRepository.Update(user);
             if (!result) return StatusCode(500, "Erro ao atualizar perfil");

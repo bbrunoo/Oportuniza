@@ -22,6 +22,17 @@ namespace Oportuniza.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<IEnumerable<AreaOfInterest>> GetAreasAsync(string? areaName)
+        {
+            var query = _context.AreasOfInterest.AsQueryable();
+
+
+            if (!string.IsNullOrWhiteSpace(areaName))
+                query = query.Where(c => c.InterestArea.ToLower().Contains(areaName.ToLower()));
+
+            return await query.OrderBy(c => c.InterestArea).ToListAsync();
+        }
+
         public async Task<AreaOfInterest?> GetByNameAsync(string name)
         {
             return await _dbSet.FirstOrDefaultAsync(c => c.InterestArea.ToLower() == name.ToLower());

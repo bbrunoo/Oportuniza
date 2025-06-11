@@ -1,43 +1,50 @@
+import { NgxMaskConfig } from './../../../../node_modules/ngx-mask/lib/ngx-mask.config.d';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
+import { NgxMaskDirective, NgxMaskPipe } from 'ngx-mask';
 
 @Component({
   selector: 'app-segunda-etapa',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, NgxMaskDirective],
   templateUrl: './segunda-etapa.component.html',
   styleUrls: ['./segunda-etapa.component.css']
 })
-export class SegundaEtapaComponent implements OnInit{
+export class SegundaEtapaComponent implements OnInit {
   selectedButton: string | null = null;
+  telValue = localStorage.getItem("profileTel");
   constructor(private router: Router) { }
 
   ngOnInit(): void {
-    const savedSelection = localStorage.getItem('selectedButton');
-       if (savedSelection) {
-      this.selectedButton = savedSelection;
-    }
   }
 
-    selecionarBotao(botao: string) {
-    if (this.selectedButton === botao) {
-      this.selectedButton = null;
-      localStorage.removeItem('selectedButton');
-    } else {
-      this.selectedButton = botao;
-      localStorage.setItem('selectedButton', botao);
-    }
+ verificarTel(telInput: HTMLInputElement) {
+  const nome = telInput.value.trim();
+  const somenteNumeros = telInput.value.replace(/\D/g, '');
+
+  if (somenteNumeros.length !== 11) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Número inválido!',
+      text: 'Deve conter 11 dígitos.'
+    });
+    return;
   }
 
-  getBackgroundColor(botao: string): string {
-    return this.selectedButton === botao ? '#2E3FFF' : '#d1d1d1';
+  if (nome === '') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Campo obrigatório',
+      text: 'Por favor, insira seu telefone antes de continuar.'
+    });
+    return;
   }
 
-  getFontColor(botao: string): string {
-    return this.selectedButton === botao ? 'white' : 'black';
-  }
+  localStorage.setItem('profileTel', nome);
+  this.router.navigate(['/terceira-etapa']);
+}
 
   proximaEtapa() {
     if (!this.selectedButton) {

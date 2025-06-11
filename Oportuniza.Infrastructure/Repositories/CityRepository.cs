@@ -33,5 +33,18 @@ namespace Oportuniza.Infrastructure.Repositories
                 .Where(c => c.Uf.ToLower() == uf.ToLower())
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<City>> GetCitiesAsync(string? uf, string? name)
+        {
+            var query = _context.City.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(uf))
+                query = query.Where(c => c.Uf.ToLower() == uf.ToLower());
+
+            if (!string.IsNullOrWhiteSpace(name))
+                query = query.Where(c => c.Name.ToLower().Contains(name.ToLower()));
+
+            return await query.OrderBy(c => c.Name).ToListAsync();
+        }
     }
 }

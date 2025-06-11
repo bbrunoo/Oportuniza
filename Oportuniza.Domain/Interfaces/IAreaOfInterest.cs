@@ -6,5 +6,6 @@ namespace Oportuniza.Domain.Interfaces
     {
         Task<AreaOfInterest?> GetByNameAsync(string name);
         Task DeleteAllAsync();
+        Task<IEnumerable<AreaOfInterest>> GetAreasAsync(string? areaName);
     }
 }

@@ -14,9 +14,10 @@ export class UserService {
 
   updateProfile(profileData: {
     fullName: string;
-    isACompany: boolean;
-    interests: string;
     imageUrl: string;
+    phone: string;
+    interests: string;               // 👈 Corrigido para string
+    areaOfInterestIds: string[];
   }, id: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/completar-perfil/${id}`, profileData);
   }

@@ -1,79 +1,126 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, ViewChild, inject
+} from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { UserService } from '../../services/user.service';
-import Swal from 'sweetalert2';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { UserService } from '../../services/user.service';
+import { AreaService } from '../../services/area.service';
+import { AreaInteresse } from '../../models/AreaInteresse.model';
+import Swal from 'sweetalert2';
+import { MultiSelectModule } from 'primeng/multiselect';
+
+interface SelectedItem {
+  id: string,
+  interestArea: string,
+  selected?: boolean
+}
 
 @Component({
   selector: 'app-terceira-etapa',
-  imports: [RouterModule, FormsModule],
+  standalone: true,
+  imports: [RouterModule, FormsModule, CommonModule, MultiSelectModule],
   templateUrl: './terceira-etapa.component.html',
   styleUrls: ['./terceira-etapa.component.css']
 })
 export class TerceiraEtapaComponent implements OnInit {
-  areaDeInteresse: string = '';
+  private elementRef = inject(ElementRef);
+  @ViewChild('dropdownContainer') dropdownRef!: ElementRef;
 
-  constructor(private router: Router, private userService: UserService) { }
+  allAreas: AreaInteresse[] = [];
+  filteredAreas: AreaInteresse[] = [];
+  selectedAreaIds: string[] = [];
+  isDropdownVisible = false;
 
-  ngOnInit(): void {
-    const savedInterest = localStorage.getItem('areaDeInteresse');
-    if (savedInterest) {
-      this.areaDeInteresse = savedInterest;
+  constructor(
+    private areaService: AreaService,
+    private userService: UserService,
+    private router: Router,
+  ) { }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+  if (this.dropdownRef && !this.dropdownRef.nativeElement.contains(event.target)) {
+    this.isDropdownVisible = false;
+  }
+}
+
+  ngOnInit() {
+    this.areaService.getAllAreas().subscribe({
+      next: (res) => {
+        this.allAreas = res.map(a => ({ ...a, selected: false }));
+        this.filteredAreas = [...this.allAreas];
+      },
+      error: (err) => {
+        console.error('Erro ao carregar áreas:', err);
+        Swal.fire('Erro', 'Não foi possível carregar áreas de interesse', 'error');
+      }
+    });
+  }
+
+  showDropdown() {
+    this.isDropdownVisible = true;
+  }
+
+  filterItems(event: Event) {
+    const termo = (event.target as HTMLInputElement).value.toLowerCase();
+    this.filteredAreas = this.allAreas.filter(area =>
+      area.interestArea.toLowerCase().includes(termo)
+    );
+  }
+
+  toggleItem(area: AreaInteresse, event: MouseEvent) {
+    event.stopPropagation();
+
+    if (area.selected) {
+      area.selected = false;
+      this.selectedAreaIds = this.selectedAreaIds.filter(id => id !== area.id);
+      return
+    } else {
+      if (this.selectedAreaIds.length >= 3) {
+        Swal.fire('Limite atingido', 'Você só pode selecionar até 3 áreas de interesse.', 'warning');
+        return;
+      }
+      area.selected = true;
+      this.selectedAreaIds.push(area.id);
+      return;
     }
   }
 
-  onAreaDeInteresseChange(value: string): void {
-    this.areaDeInteresse = value;
-    localStorage.setItem('areaDeInteresse', value);
+  removeItem(area: AreaInteresse, event: MouseEvent) {
+    event.stopPropagation();
+    area.selected = false;
+    this.selectedAreaIds = this.selectedAreaIds.filter(id => id !== area.id);
   }
-
 
   concluirCadastro(): void {
     const nome = localStorage.getItem('profileName');
-    const isACompany = localStorage.getItem('isACompany') === 'true';
+    const phone = localStorage.getItem('profileTel');
     const userId = localStorage.getItem('userId');
     const imageUrl = localStorage.getItem('profileImageUrl');
 
     if (!userId) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro',
-        text: 'Usuário não identificado.'
-      });
+      Swal.fire('Erro', 'Usuário não identificado.', 'error');
       return;
     }
 
-    if (!this.areaDeInteresse.trim()) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campo obrigatório',
-        text: 'Por favor, preencha sua área de interesse antes de continuar.'
-      });
+    if (this.selectedAreaIds.length === 0) {
+      Swal.fire('Campo obrigatório', 'Selecione pelo menos uma área de interesse.', 'warning');
       return;
     }
 
     const dados = {
       fullName: nome || '',
-      isACompany: isACompany,
-      interests: this.areaDeInteresse.trim(),
       imageUrl: imageUrl || '',
+      phone: phone || '',
+      interests: this.selectedAreaIds.join(','),
+      areaOfInterestIds: this.selectedAreaIds
     };
 
     this.userService.updateProfile(dados, userId).subscribe({
       next: () => {
-        localStorage.removeItem("profileName");
-        localStorage.removeItem("isACompany");
-        localStorage.removeItem("userId");
-        localStorage.removeItem("profileImageUrl");
-        localStorage.removeItem("areaDeInteresse");
-        localStorage.removeItem("selectedButton");
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Perfil atualizado!',
-          timer: 2000,
-          text: 'Seu perfil foi completado com sucesso.'
-        }).then(() => {
+        localStorage.clear();
+        Swal.fire('Sucesso', 'Perfil atualizado com sucesso.', 'success').then(() => {
           this.router.navigate(['/home']);
         });
       }

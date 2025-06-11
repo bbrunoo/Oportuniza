@@ -7,6 +7,9 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { authInterceptor } from './interceptor/auth.interceptor';
 import { provideToastr } from 'ngx-toastr';
 import { TranslateModule } from '@ngx-translate/core';
+import { provideNgxMask } from 'ngx-mask';
+import { MultiSelectModule } from 'primeng/multiselect';
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,7 +18,8 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideToastr(),
-    [provideZoneChangeDetection({eventCoalescing: true}), importProvidersFrom(TranslateModule.forRoot())]
+    [provideZoneChangeDetection({eventCoalescing: true}), importProvidersFrom(TranslateModule.forRoot()),],
+    provideNgxMask(),
   ]
 };
 

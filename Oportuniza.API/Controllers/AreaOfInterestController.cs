@@ -21,6 +21,17 @@ namespace Oportuniza.API.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> GetAreas([FromQuery] string? areaName)
+        {
+            var areas = await _areaOfInterest.GetAreasAsync(areaName);
+
+            if (areas == null || !areas.Any())
+                return NotFound();
+
+            return Ok(areas);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
