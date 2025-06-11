@@ -21,10 +21,10 @@ export class SegundaEtapaComponent implements OnInit {
   }
 
  verificarTel(telInput: HTMLInputElement) {
-  const nome = telInput.value.trim();
-  const somenteNumeros = telInput.value.replace(/\D/g, '');
+  const raw = telInput.value;
+  const numeroSemMascara = raw.replace(/\D/g, '');
 
-  if (somenteNumeros.length !== 11) {
+  if (numeroSemMascara.length !== 11) {
     Swal.fire({
       icon: 'warning',
       title: 'Número inválido!',
@@ -33,7 +33,7 @@ export class SegundaEtapaComponent implements OnInit {
     return;
   }
 
-  if (nome === '') {
+  if (raw === '') {
     Swal.fire({
       icon: 'warning',
       title: 'Campo obrigatório',
@@ -42,7 +42,7 @@ export class SegundaEtapaComponent implements OnInit {
     return;
   }
 
-  localStorage.setItem('profileTel', nome);
+  localStorage.setItem('profileTel', numeroSemMascara);
   this.router.navigate(['/terceira-etapa']);
 }
 

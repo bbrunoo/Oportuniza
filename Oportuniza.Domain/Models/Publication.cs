@@ -14,5 +14,7 @@
         public bool Expired { get; set; }
         public Guid AuthorId { get; set; }
         public AuthorType AuthorType { get; set; }
+        public virtual User? Author { get; set; }
+
     }
 }

@@ -8,7 +8,8 @@ namespace Oportuniza.API.Mapper
     {
         public PublicationProfile()
         {
-            CreateMap<PublicationDto, Publication>();
+            CreateMap<PublicationDto, Publication>()
+                .ForMember(dest => dest.Author, opt => opt.MapFrom(x => x.AuthorName));
             CreateMap<PublicationCreateDto, Publication>();
             
             CreateMap<Publication, PublicationDto>();

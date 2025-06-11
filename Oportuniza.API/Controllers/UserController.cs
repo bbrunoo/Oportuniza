@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.DTOs.Company;
+using Oportuniza.Domain.DTOs.Curriculum;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
@@ -12,36 +14,31 @@ namespace Oportuniza.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
-        public UserController(IUserRepository userRepository)
+        private readonly IMapper _mapper;
+        public UserController(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<UserDTO>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var user = await _userRepository.Get();
-            return user.Select(u => new UserDTO
-            {
-                Id = u.Id,
-                Name = u.Name,
-                Email = u.Email,
-            });
+            var user = await _userRepository.GetAllAsync();
+            if (user == null) return NotFound("Usuario não encontrado.");
+            var response = _mapper.Map<List<UserDTO>>(user);
+            return StatusCode(200, response);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserByIdDTO>> GetById(Guid id)
+        public async Task<IActionResult> GetById(Guid id)
         {
-            var user = await _userRepository.GetById(id);
+            var user = await _userRepository.GetByIdAsync(id);
 
             if (user == null) return NotFound();
 
-            var userDto = new UserByIdDTO
-            {
-                Name = user.Name,
-                Email = user.Email,
-            };
-            return Ok(userDto);
+            var response = _mapper.Map<UserDTO>(user);
+            return StatusCode(200, response);
         }
 
         [HttpPut("completar-perfil/{id}")]
@@ -50,6 +47,7 @@ namespace Oportuniza.API.Controllers
             var user = await _userRepository.GetByIdWithInterests(id);
             if (user == null) return NotFound("Usuario nao encontrado");
 
+            user.Phone = model.Phone;
             user.FullName = model.FullName;
             user.ImageUrl = model.ImageUrl;
 
@@ -64,8 +62,8 @@ namespace Oportuniza.API.Controllers
                 });
             }
 
-            var result = await _userRepository.Update(user);
-            if (!result) return StatusCode(500, "Erro ao atualizar perfil");
+            var result = await _userRepository.UpdateAsync(user);
+            if (result == null) return StatusCode(500, "Erro ao atualizar perfil");
 
             return NoContent();
         }

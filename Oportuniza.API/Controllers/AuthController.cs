@@ -62,7 +62,7 @@ namespace Oportuniza.API.Controllers
                 Active = true
             };
 
-            var result = await _userRepository.Add(user);
+            var result = await _userRepository.AddAsync(user);
             if (result == null)
                 return StatusCode(500, "Erro interno ao registrar o usuário.");
 

@@ -117,6 +117,8 @@ export class TerceiraEtapaComponent implements OnInit {
       areaOfInterestIds: this.selectedAreaIds
     };
 
+    console.log("dados antes de enviar:", dados);
+    
     this.userService.updateProfile(dados, userId).subscribe({
       next: () => {
         localStorage.clear();

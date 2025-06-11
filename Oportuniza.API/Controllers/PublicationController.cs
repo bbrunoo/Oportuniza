@@ -21,7 +21,7 @@ namespace Oportuniza.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var publications = await _publicationRepository.GetAllAsync();
+            var publications = await _publicationRepository.GetAllAsync(c=>c.Author);
 
             if (publications == null) return NotFound("Currículo não encontrado.");
 

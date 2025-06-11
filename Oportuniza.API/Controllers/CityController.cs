@@ -64,7 +64,7 @@ namespace Oportuniza.API.Controllers
             return Ok(city);
         }
 
-        [HttpGet("{name}")]
+        [HttpGet("name/{name}")]
         public async Task<IActionResult> GetByName(string name)
         {
             var city = await _cityRepository.GetByNameAsync(name);

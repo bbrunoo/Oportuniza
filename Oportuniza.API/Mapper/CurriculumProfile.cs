@@ -14,7 +14,6 @@ namespace Oportuniza.API.Mapper
                 .ForMember(dest => dest.Experiences, opt => opt.MapFrom(src => src.Experiences))
                 .ForMember(dest => dest.Certifications, opt => opt.MapFrom(src => src.Certifications));
 
-            // Mapeamentos faltando (corrigidos aqui):
             CreateMap<EducationCreateDto, Education>();
             CreateMap<ExperienceCreateDto, Experience>();
             CreateMap<CertificationCreateDto, Certification>();
