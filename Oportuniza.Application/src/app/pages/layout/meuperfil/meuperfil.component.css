@@ -1,0 +1,49 @@
+.container{
+  background-color: rgba(255, 255, 255, 0.26);
+  width: 90em;
+  height: 55em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  color: white;
+  border-radius: 25px;
+  font-weight: 600;
+}
+
+@media screen and (max-width: 1600px) {
+  .container{
+    width: 72em;
+    height: 48em;
+  }
+}
+
+@media screen and (max-width: 1500px) {
+  .container{
+    width: 66em;
+    height: 42em;
+  }
+}
+
+@media screen and (max-width: 1400px) {
+  .container{
+    width: 66em;
+    height: 42em;
+  }
+}
+
+@media screen and (max-width: 1300px) {
+  .container{
+    width: 60em;
+    height: 42em;
+  }
+}
+
+
+@media screen and (max-width: 1200px) {
+  .container{
+    width: 58em;
+    height: 38em;
+  }
+}
+

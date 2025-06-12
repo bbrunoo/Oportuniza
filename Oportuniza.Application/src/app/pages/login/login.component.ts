@@ -14,7 +14,7 @@ import Swal from 'sweetalert2';
 })
 export class LoginComponent {
   passwordVisible = false;
-  User: User = { name: 'user', email: '', password: '', isACompany: false };
+  User: User = { name: 'user', email: '', password: '' };
   isLoading = false;
 
   constructor(private authService: AuthService, private router: Router) { }

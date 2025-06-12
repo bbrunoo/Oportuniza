@@ -1,3 +1,4 @@
+import { UserProfile } from './../models/UserProfile.model';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -11,6 +12,10 @@ export class UserService {
 
   apiUrl = 'https://localhost:5000/api/v1/User';
   uploadApi = 'https://localhost:5000/api/Upload/upload-profile-picture';
+
+  getOwnProfile(){
+    return this.http.get<UserProfile>(`${this.apiUrl}/profile`)
+  }
 
   updateProfile(profileData: {
     fullName: string;

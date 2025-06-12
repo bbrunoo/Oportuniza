@@ -8,6 +8,5 @@ namespace Oportuniza.Domain.DTOs.Publication
         public string Description { get; set; }
         public string? ImageUrl { get; set; }
         public Guid AuthorId { get; set; }
-        public AuthorType AuthorType { get; set; }
     }
 }

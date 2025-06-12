@@ -11,5 +11,8 @@ namespace Oportuniza.Domain.Interfaces
         Task<T> AddAsync(T entity);
         Task<T> UpdateAsync(T entity);
         Task DeleteAsync(Guid id);
+        Task<IEnumerable<T>> GetAllAsync(
+         Expression<Func<T, object>> include = null,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null);
     }
 }

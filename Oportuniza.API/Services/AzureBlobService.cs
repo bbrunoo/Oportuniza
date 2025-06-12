@@ -61,5 +61,33 @@ namespace Oportuniza.API.Services
 
             return blobClient.Uri.ToString();
         }
+
+        public async Task<string> UploadPostImage(IFormFile file, string containerName, Guid userId)
+        {
+            if (file == null || file.Length == 0) throw new ArgumentNullException("Invalid File" + nameof(file));
+
+            var blobServiceClient = new BlobServiceClient(_connectionString);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+
+            await blobContainerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+
+            string blobName = $"publication-{userId}-{Guid.NewGuid()}";
+
+            var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+            using (var stream = file.OpenReadStream())
+            {
+                var uploadOptions = new BlobUploadOptions
+                {
+                    HttpHeaders = new BlobHttpHeaders
+                    {
+                        ContentType = file.ContentType,
+                    }
+                };
+                await blobClient.UploadAsync(stream, uploadOptions);
+            }
+
+            return blobClient.Uri.ToString();
+        }
     }
 }

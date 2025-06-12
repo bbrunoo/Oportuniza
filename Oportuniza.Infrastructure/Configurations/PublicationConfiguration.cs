@@ -29,12 +29,6 @@ namespace Oportuniza.Infrastructure.Configurations
 
             builder.Property(p => p.AuthorId)
                 .IsRequired();
-
-            builder.Property(p => p.AuthorType)
-                .IsRequired()
-                .HasConversion<string>()
-                .HasMaxLength(20);
-
         }
     }
 

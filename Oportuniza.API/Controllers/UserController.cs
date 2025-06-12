@@ -6,6 +6,7 @@ using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using System.Globalization;
+using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers
 {
@@ -34,6 +35,18 @@ namespace Oportuniza.API.Controllers
         public async Task<IActionResult> GetById(Guid id)
         {
             var user = await _userRepository.GetByIdAsync(id);
+
+            if (user == null) return NotFound();
+
+            var response = _mapper.Map<UserDTO>(user);
+            return StatusCode(200, response);
+        }
+
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetOwnProfile()
+        {  
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var user = await _userRepository.GetByIdAsync(userId);
 
             if (user == null) return NotFound();
 

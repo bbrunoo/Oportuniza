@@ -68,5 +68,18 @@ namespace Oportuniza.Infrastructure.Repositories
 
             return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
         }
+
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, object>> include = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)
+        {
+            IQueryable<T> query = _dbSet;
+
+            if (include != null)
+                query = query.Include(include);
+
+            if (orderBy != null)
+                query = orderBy(query);
+
+            return await query.ToListAsync();
+        }
     }
 }

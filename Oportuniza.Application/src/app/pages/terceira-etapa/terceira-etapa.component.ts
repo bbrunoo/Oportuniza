@@ -118,12 +118,12 @@ export class TerceiraEtapaComponent implements OnInit {
     };
 
     console.log("dados antes de enviar:", dados);
-    
+
     this.userService.updateProfile(dados, userId).subscribe({
       next: () => {
         localStorage.clear();
         Swal.fire('Sucesso', 'Perfil atualizado com sucesso.', 'success').then(() => {
-          this.router.navigate(['/home']);
+          this.router.navigate(['/inicio']);
         });
       }
     });

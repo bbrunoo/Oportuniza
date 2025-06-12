@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Oportuniza.API.Services;
 using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
@@ -11,17 +13,21 @@ namespace Oportuniza.API.Controllers
     public class PublicationController : ControllerBase
     {
         private readonly IPublicationRepository _publicationRepository;
+        private readonly AzureBlobService _azureBlobService;
         private readonly IMapper _mapper;
-        public PublicationController(IPublicationRepository publicationRepository, IMapper mapper)
+        public PublicationController(IPublicationRepository publicationRepository, IMapper mapper, AzureBlobService azureBlobService)
         {
             _publicationRepository = publicationRepository;
             _mapper = mapper;
+            _azureBlobService = azureBlobService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var publications = await _publicationRepository.GetAllAsync(c=>c.Author);
+            var publications = await _publicationRepository.GetAllAsync(
+                include: c=>c.Author,
+                orderBy: q => q.OrderByDescending(c=>c.CreationDate));
 
             if (publications == null) return NotFound("Currículo não encontrado.");
 
@@ -43,18 +49,30 @@ namespace Oportuniza.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] PublicationCreateDto dto)
+        public async Task<IActionResult> Post([FromForm] PublicationCreateDto dto, IFormFile image)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             if (dto == null)
                 return BadRequest("Dados inválidos.");
 
-            var publication = _mapper.Map<Publication>(dto);
-            if (publication == null) return BadRequest();
-            await _publicationRepository.AddAsync(publication);
-            return CreatedAtAction(nameof(GetById), new { id = publication.Id }, publication);
+            if (image == null || image.Length == 0)
+                return BadRequest("A imagem é obrigatória.");
+
+            try
+            {
+                string containerName = "publications";
+                string imageUrl = await _azureBlobService.UploadPostImage(image, containerName, dto.AuthorId);
+
+                dto.ImageUrl = imageUrl;
+
+                var publication = _mapper.Map<Publication>(dto);
+                await _publicationRepository.AddAsync(publication);
+
+                return CreatedAtAction(nameof(GetById), new {id = publication.Id}, publication);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao criar publicação: {ex.Message}");
+            }
         }
 
         [HttpPut("{id}")]

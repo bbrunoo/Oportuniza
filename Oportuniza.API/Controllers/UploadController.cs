@@ -43,5 +43,24 @@ namespace Oportuniza.API.Controllers
                 return StatusCode(500, $"Aconteceu um erro ao enviar a imagem: {ex.Message}");
             }
         }
+
+        [HttpPost("upload-publication-picture")]
+        public async Task<IActionResult> UploadPublication(IFormFile file)
+        {
+            if (file == null) return BadRequest("File not found");
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            try
+            {
+                string containerName = "publications";
+                var imageUrl = await _azureBlobService.UploadPostImage(file, containerName, Guid.Parse(userId));
+                return Ok(new { imageUrl });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Aconteceu um erro ao enviar a imagem: {ex.Message}");
+            }
+        }
     }
 }

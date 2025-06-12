@@ -1,0 +1,40 @@
+<div class="container">
+  <div class="conteudo">
+    <div class="conteudo-left">
+      <div class="preview" *ngIf="previewUrl">
+        <img [src]="previewUrl" alt="Preview" width="150" />
+      </div>
+      <div class="preview" *ngIf="!previewUrl">
+        <p>Selecione uma imagem.</p>
+      </div>
+    </div>
+    <div class="conteudo-right">
+      <form (ngSubmit)="post()" #publicationForm="ngForm">
+        <div class="content">
+          <p>POSTAR VAGA</p>
+          <input
+            type="text"
+            name="title"
+            [(ngModel)]="publication.title"
+            placeholder="Título"
+            required
+          />
+          <textarea
+            name="content"
+            [(ngModel)]="publication.content"
+            placeholder="Conteúdo"
+            required
+          ></textarea>
+
+          <input
+            type="file"
+            (change)="onFileSelected($event)"
+            accept="image/*"
+          />
+
+          <button type="submit">Publicar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

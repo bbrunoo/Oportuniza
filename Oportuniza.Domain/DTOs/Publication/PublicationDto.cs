@@ -11,7 +11,8 @@ namespace Oportuniza.Domain.DTOs.Publication
         public string? ImageUrl { get; set; }
         public bool Expired { get; set; }
         public Guid AuthorId { get; set; }
-        public AuthorType AuthorType { get; set; }
+        public int AuthorType { get; set; }
         public string AuthorName { get; set; }
+        public string AuthorImageUrl { get; set; }
     }
 }

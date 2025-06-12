@@ -1,0 +1,44 @@
+<div class="layout-container">
+  <aside class="sidebar">
+    <div class="title">
+      <h2>Oportuniza</h2>
+    </div>
+
+
+    <div class="center-content">
+      <nav>
+        <a routerLink="feed" routerLinkActive="active">
+          <img class="icons" src="../../../../assets/home-assets/home.png" />
+            Início
+        </a>
+        <a routerLink="meus-posts">
+          <img class="icons" src="../../../../assets/home-assets/feed.png" />
+          Minhas Vagas
+        </a>
+        <a routerLink="interessados">
+          <img class="icons" src="../../../../assets/home-assets/sino.png" />
+          Interessados
+        </a>
+        <a routerLink="perfil">
+          <img class="icons" src="../../../../assets/home-assets/perfil.png" />
+          Perfil
+        </a>
+      </nav>
+    </div>
+
+    <div class="user-content">
+      <button class="novo-post" routerLink="post">+ Novo Post</button>
+      <div class="user">
+        <img class="profile-image" [src]="userProfile.imageUrl" alt="">
+        {{userProfile.name}}
+        <img class="config-image" src="../../../../assets/home-assets/settings.png" alt="">
+      </div>
+    </div>
+  </aside>
+
+  <hr>
+
+  <main class="content">
+    <router-outlet class="layout-content"></router-outlet>
+  </main>
+</div>

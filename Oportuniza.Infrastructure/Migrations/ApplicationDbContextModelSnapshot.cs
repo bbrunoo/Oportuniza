@@ -276,11 +276,6 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AuthorType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
@@ -302,6 +297,8 @@ namespace Oportuniza.Infrastructure.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
 
                     b.ToTable("Publication");
                 });
@@ -465,6 +462,17 @@ namespace Oportuniza.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Curriculum");
+                });
+
+            modelBuilder.Entity("Oportuniza.Domain.Models.Publication", b =>
+                {
+                    b.HasOne("Oportuniza.Domain.Models.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
                 });
 
             modelBuilder.Entity("Oportuniza.Domain.Models.UserAreaOfInterest", b =>

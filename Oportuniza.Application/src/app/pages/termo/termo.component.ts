@@ -11,9 +11,7 @@ export class TermoComponent {
   constructor(private router: Router) { }
 
   acceptTermsAndContinue() {
-   
     localStorage.setItem('acceptTerms', 'true');
-    this.router.navigate(['/cadastro']); 
+    this.router.navigate(['/cadastro']);
   }
 }
- 
