@@ -16,6 +16,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<AzureBlobService>();
 
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddSwaggerGen(c =>
 {
     var securityScheme = new OpenApiSecurityScheme
@@ -37,8 +39,12 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityRequirement(new OpenApiSecurityRequirement { { securityScheme, Array.Empty<string>() } });
 });
 
+var AZURE_CONNECTION_STRING = Environment.GetEnvironmentVariable("AZURE_SQL_OPORTUNIZA");
+var LOCAL_CONNECTION_STRING = Environment.GetEnvironmentVariable("LOCAL_SQL_OPORTUNIZA");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
+    //options.UseSqlServer(AZURE_CONNECTION_STRING);
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 

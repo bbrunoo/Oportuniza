@@ -8,7 +8,7 @@ import { authInterceptor } from './interceptor/auth.interceptor';
 import { provideToastr } from 'ngx-toastr';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNgxMask } from 'ngx-mask';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 
 
 export const appConfig: ApplicationConfig = {
@@ -18,8 +18,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideToastr(),
-    [provideZoneChangeDetection({eventCoalescing: true}), importProvidersFrom(TranslateModule.forRoot()),],
+    [provideZoneChangeDetection({ eventCoalescing: true }), importProvidersFrom(TranslateModule.forRoot()),],
     provideNgxMask(),
+
   ]
 };
 

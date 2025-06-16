@@ -95,9 +95,14 @@ namespace Oportuniza.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<string>("Desc")
+                    b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -109,8 +114,7 @@ namespace Oportuniza.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Company");
                 });
@@ -128,6 +132,10 @@ namespace Oportuniza.Infrastructure.Migrations
 
                     b.Property<Guid>("CompanyId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Roles")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -273,7 +281,13 @@ namespace Oportuniza.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AuthorId")
+                    b.Property<Guid?>("AuthorCompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AuthorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreationDate")
@@ -291,6 +305,11 @@ namespace Oportuniza.Infrastructure.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
+                    b.Property<string>("Salary")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -298,7 +317,11 @@ namespace Oportuniza.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AuthorId");
+                    b.HasIndex("AuthorCompanyId");
+
+                    b.HasIndex("AuthorUserId");
+
+                    b.HasIndex("CreatedByUserId");
 
                     b.ToTable("Publication");
                 });
@@ -396,8 +419,8 @@ namespace Oportuniza.Infrastructure.Migrations
             modelBuilder.Entity("Oportuniza.Domain.Models.Company", b =>
                 {
                     b.HasOne("Oportuniza.Domain.Models.User", "Manager")
-                        .WithOne("CompanyOwned")
-                        .HasForeignKey("Oportuniza.Domain.Models.Company", "UserId")
+                        .WithMany("CompaniesOwned")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -415,7 +438,7 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.HasOne("Oportuniza.Domain.Models.User", "User")
                         .WithMany("CompanyLinks")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Company");
@@ -466,13 +489,27 @@ namespace Oportuniza.Infrastructure.Migrations
 
             modelBuilder.Entity("Oportuniza.Domain.Models.Publication", b =>
                 {
-                    b.HasOne("Oportuniza.Domain.Models.User", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Oportuniza.Domain.Models.Company", "AuthorCompany")
+                        .WithMany("AuthoredPublications")
+                        .HasForeignKey("AuthorCompanyId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Oportuniza.Domain.Models.User", "AuthorUser")
+                        .WithMany("AuthoredAsUserPublications")
+                        .HasForeignKey("AuthorUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Oportuniza.Domain.Models.User", "CreatedByUser")
+                        .WithMany("CreatedPublications")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Author");
+                    b.Navigation("AuthorCompany");
+
+                    b.Navigation("AuthorUser");
+
+                    b.Navigation("CreatedByUser");
                 });
 
             modelBuilder.Entity("Oportuniza.Domain.Models.UserAreaOfInterest", b =>
@@ -496,6 +533,8 @@ namespace Oportuniza.Infrastructure.Migrations
 
             modelBuilder.Entity("Oportuniza.Domain.Models.Company", b =>
                 {
+                    b.Navigation("AuthoredPublications");
+
                     b.Navigation("Employees");
                 });
 
@@ -510,10 +549,13 @@ namespace Oportuniza.Infrastructure.Migrations
 
             modelBuilder.Entity("Oportuniza.Domain.Models.User", b =>
                 {
+                    b.Navigation("AuthoredAsUserPublications");
+
+                    b.Navigation("CompaniesOwned");
+
                     b.Navigation("CompanyLinks");
 
-                    b.Navigation("CompanyOwned")
-                        .IsRequired();
+                    b.Navigation("CreatedPublications");
 
                     b.Navigation("Curriculum");
 

@@ -35,15 +35,10 @@ namespace Oportuniza.Infrastructure.Configurations
             builder.Property(x => x.UserType)
                    .IsRequired();
 
-            builder.HasOne(u => u.CompanyOwned)
-                   .WithOne(c => c.Manager)
-                   .HasForeignKey<Company>(c => c.UserId)
-                   .OnDelete(DeleteBehavior.Restrict);
-
             builder.HasMany(u => u.CompanyLinks)
                    .WithOne(e => e.User)
                    .HasForeignKey(e => e.UserId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                   .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(u => u.Curriculum)
                 .WithOne()

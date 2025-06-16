@@ -9,26 +9,23 @@
     <div class="right-image">
       <img [src]="publications[currentIndex].imageUrl || '../../../assets/logo.png'" />
     </div>
-
     <div class="post-description">
       <div class="user-datas">
-        <img
-          class="profile-picture"
-          [src]="publications[currentIndex].authorImageUrl"
-        />{{ publications[currentIndex].authorName }}
-      </div>
-      <hr>
+        <img class="profile-picture" [src]="publications[currentIndex].authorImageUrl"/> {{ publications[currentIndex].authorName }}
+       </div>
       <div class="description">
         <div class="title">{{ publications[currentIndex].title }}</div>
-        <div class="main-description">
-          {{ publications[currentIndex].description }}
-        </div>
+        <div class="main-description"> {{ publications[currentIndex].description }} </div>
+
+        <div class="title"> Salario:
+          <br>{{ publications[currentIndex].salary }} </div>
         <div class="bottom">
           <button>Candidatar-se</button>
         </div>
       </div>
     </div>
   </div>
+
   <div class="navigation-space">
     <div
       class="navigation"

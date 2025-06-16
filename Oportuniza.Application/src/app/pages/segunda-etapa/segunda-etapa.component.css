@@ -127,6 +127,7 @@ button.disabled {
   padding-top: 5px;
 }
 
+
 .title {
   font-size: 20px;
   font-weight: 600;
@@ -146,7 +147,8 @@ button.disabled {
 
 .form {
   height: 5em;
-  width: 100%;
+  width: 80%;
+  height: 20em;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -168,10 +170,11 @@ button.disabled {
 .send-button {
   display: flex;
   align-items: center;
-  justify-content: end;
+  justify-content: space-between;
   flex-direction: row;
-  width: 100%;
+  width: 80%;
 }
+
 
 .send-button button {
   background-color: #2E3FFF;
@@ -182,7 +185,9 @@ button.disabled {
   font-weight: 600;
   color: white;
   cursor: pointer;
+
 }
+
 
 *:focus {
   outline: none;

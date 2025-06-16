@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { HomeExtrasComponent } from '../../../extras/home-extras/home-extras.component';
 import { MatDialog } from '@angular/material/dialog';
 import { UserService } from '../../../services/user.service';
 import { UserProfile } from '../../../models/UserProfile.model';
+import { ConfigsComponent } from '../../../extras/configs/configs.component';
 
 @Component({
   selector: 'app-initial-layout',
@@ -12,16 +12,16 @@ import { UserProfile } from '../../../models/UserProfile.model';
   templateUrl: './initial-layout.component.html',
   styleUrl: './initial-layout.component.css'
 })
-export class InitialLayoutComponent implements OnInit{
+export class InitialLayoutComponent implements OnInit {
   userProfile!: UserProfile;
 
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService, private dialog: MatDialog) { }
 
-  ngOnInit(){
+  ngOnInit() {
     this.getLoggedUserProfile()
   }
 
-  getLoggedUserProfile(){
+  getLoggedUserProfile() {
     this.userService.getOwnProfile().subscribe({
       next: (profile: UserProfile) => {
         this.userProfile = profile;
@@ -31,5 +31,23 @@ export class InitialLayoutComponent implements OnInit{
         console.error(error);
       }
     })
+  }
+
+  openDialog() {
+    const dialogRef = this.dialog.open(ConfigsComponent, {
+      minWidth: '230px',
+      minHeight: '130px',
+      position: {
+        bottom: '80px',
+        left: '130px'
+      },
+      panelClass: 'custom-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('fechou');
+      }
+    });
   }
 }

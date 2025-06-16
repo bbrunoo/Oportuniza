@@ -18,6 +18,7 @@ export class SegundaEtapaComponent implements OnInit {
   constructor(private router: Router) { }
 
   ngOnInit(): void {
+      this.telValue = localStorage.getItem("profileTel");
   }
 
  verificarTel(telInput: HTMLInputElement) {

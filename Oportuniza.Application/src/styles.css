@@ -5,7 +5,6 @@
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;
-
 }
 
 body {
@@ -14,6 +13,18 @@ body {
 
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
 
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.custom-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 25px;
+  background-color: #272623;
+
+}

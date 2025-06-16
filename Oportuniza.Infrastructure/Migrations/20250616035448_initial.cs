@@ -52,24 +52,6 @@ namespace Oportuniza.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Publication",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false),
-                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Expired = table.Column<bool>(type: "bit", nullable: false),
-                    AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AuthorType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Publication", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
@@ -96,9 +78,10 @@ namespace Oportuniza.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Desc = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Active = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -172,6 +155,7 @@ namespace Oportuniza.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Roles = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CanPostJobs = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
@@ -188,7 +172,45 @@ namespace Oportuniza.Infrastructure.Migrations
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Publication",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Salary = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Expired = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AuthorUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    AuthorCompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Publication", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Publication_Company_AuthorCompanyId",
+                        column: x => x.AuthorCompanyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Publication_User_AuthorUserId",
+                        column: x => x.AuthorUserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Publication_User_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -265,8 +287,7 @@ namespace Oportuniza.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Company_UserId",
                 table: "Company",
-                column: "UserId",
-                unique: true);
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CompanyEmployee_CompanyId",
@@ -297,6 +318,21 @@ namespace Oportuniza.Infrastructure.Migrations
                 name: "IX_Experience_CurriculumId",
                 table: "Experience",
                 column: "CurriculumId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Publication_AuthorCompanyId",
+                table: "Publication",
+                column: "AuthorCompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Publication_AuthorUserId",
+                table: "Publication",
+                column: "AuthorUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Publication_CreatedByUserId",
+                table: "Publication",
+                column: "CreatedByUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserAreaOfInterest_AreaOfInterestId",
@@ -334,10 +370,10 @@ namespace Oportuniza.Infrastructure.Migrations
                 name: "UserAreaOfInterest");
 
             migrationBuilder.DropTable(
-                name: "Company");
+                name: "Curriculum");
 
             migrationBuilder.DropTable(
-                name: "Curriculum");
+                name: "Company");
 
             migrationBuilder.DropTable(
                 name: "AreasOfInterest");

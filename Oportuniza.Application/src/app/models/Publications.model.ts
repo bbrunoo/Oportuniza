@@ -8,5 +8,6 @@ export interface Publication {
   authorId: string;
   authorType: number;
   authorName: string;
+  salary:string;
   authorImageUrl: string;
 }

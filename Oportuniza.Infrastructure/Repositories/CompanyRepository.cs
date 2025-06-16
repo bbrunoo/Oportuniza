@@ -13,5 +13,29 @@ namespace Oportuniza.Infrastructure.Repositories
         {
             _context = context;
         }
+
+        public async Task<IEnumerable<Company>> GetAllWithEmployeesAndUsersAsync()
+        {
+            return await _context.Company
+                             .Include(c => c.Employees)
+                             .ThenInclude(e => e.User)
+                             .AsNoTracking()
+                             .ToListAsync();
+        }
+
+        public async Task<List<Company>> GetByUserIdAsync(Guid userId)
+        {
+            return await _context.Company
+                    .Where(c => c.UserId == userId)
+                    .ToListAsync();
+        }
+
+        public async Task<bool> UserHasAccessToCompanyAsync(Guid userId, Guid companyId)
+        {
+            bool hasAccess = await _context.CompanyEmployee
+                        .AnyAsync(cu => cu.UserId == userId && cu.CompanyId == companyId);
+
+            return hasAccess;
+        }
     }
 }

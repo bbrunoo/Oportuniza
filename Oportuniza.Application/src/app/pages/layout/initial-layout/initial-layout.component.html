@@ -27,11 +27,14 @@
     </div>
 
     <div class="user-content">
+      <button class="novo-post" routerLink="criar-empresa">Criar Empresa</button>
       <button class="novo-post" routerLink="post">+ Novo Post</button>
       <div class="user">
-        <img class="profile-image" [src]="userProfile.imageUrl" alt="">
-        {{userProfile.name}}
-        <img class="config-image" src="../../../../assets/home-assets/settings.png" alt="">
+        <img *ngIf="userProfile?.imageUrl" class="profile-image" [src]="userProfile.imageUrl" alt="">
+        <label *ngIf="userProfile?.imageUrl"  for="">
+          {{userProfile.name}}
+        </label>
+        <img class="config-image" (click)="openDialog()" src="../../../../assets/home-assets/settings.png" alt="">
       </div>
     </div>
   </aside>

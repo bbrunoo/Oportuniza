@@ -1,4 +1,5 @@
-﻿using Oportuniza.Domain.Models;
+﻿using Oportuniza.Domain.Enums;
+using Oportuniza.Domain.Models;
 
 namespace Oportuniza.Domain.DTOs.Publication
 {
@@ -6,7 +7,7 @@ namespace Oportuniza.Domain.DTOs.Publication
     {
         public string Title { get; set; }
         public string Description { get; set; }
-        public string? ImageUrl { get; set; }
-        public Guid AuthorId { get; set; }
+        public string Salary { get; set; }
+        public Guid? PostAsCompanyId { get; set; }
     }
 }

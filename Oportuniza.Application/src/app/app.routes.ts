@@ -20,6 +20,7 @@ import { InteressadosComponent } from './pages/layout/interessados/interessados.
 import { MeuperfilComponent } from './pages/layout/meuperfil/meuperfil.component';
 import { PublicationComponent } from './pages/layout/publication/publication.component';
 import { MeuspostsComponent } from './pages/layout/meusposts/meusposts.component';
+import { CriarEmpresaComponent } from './extras/criar-empresa/criar-empresa.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -37,6 +38,7 @@ export const routes: Routes = [
   { path: 'menu', component: BackgroudMenuAuxiliarComponent },
   {
     path: "inicio", component: InitialLayoutComponent, canActivate: [authGuard], children: [
+      { path: 'criar-empresa', component: CriarEmpresaComponent, canActivate: [authGuard] },
       { path: "", redirectTo: "feed", pathMatch: "full" },
       { path: "feed", component: FeedComponent },
       { path: "interessados", component: InteressadosComponent },

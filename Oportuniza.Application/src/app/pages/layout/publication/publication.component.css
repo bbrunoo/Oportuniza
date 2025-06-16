@@ -14,13 +14,13 @@
   font-weight: 600;
 }
 
-.conteudo{
+.conteudo {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: row;
   width: 95%;
-  height: 75%;
+  height: 90%;
   border-radius: 20px;
   background-color: rgb(226, 226, 226);
   padding: 15px;
@@ -34,7 +34,7 @@
   border-radius: 20px;
 }
 
-.conteudo-right{
+.conteudo-right {
   background-color: rgba(202, 202, 202, 0.363);
   border-radius: 20px;
 }
@@ -54,27 +54,28 @@ form {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 90%;
-  height: 90%;
-  gap: .2em;
+  width: 35em;
+  height: 42em;
+  gap: .5em;
 }
 
-p{
+p {
+  font-weight: 700;
   font-size: 20px;
 }
 
 input[type="text"] {
-  width: 90%;
+  width: 32em;
   padding: 5px;
   border-radius: 5px;
   font-size: 15px;
-  height: 20px;
+  height: 30px;
   font-weight: 500;
 }
 
 textarea {
-  min-height: 50%;
-  min-width: 90%;
+  height: 12em;
+  width: 32em;
   resize: none;
   padding: 5px;
   border-radius: 5px;
@@ -82,22 +83,73 @@ textarea {
   font-weight: 500;
 }
 
-button {
-  width: 8em;
-  height: 2.5em;
-  border-radius: 10px;
-  background-color: rgb(48, 45, 218);
-  color: white;
-  font-weight: 600;
-  margin: 1rem;
-  cursor: pointer;
-  font-size: 15px;
+.opcoes {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+  width: 35em;
+  gap: 5px;
+  font-size: 14px;
+  padding-bottom: 10px;
+  padding-top: 10px;
 }
 
-button:hover{
-  transition: .3s;
-  transform: scale(1.1);
+.opcoes-botoes {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: start;
+  justify-content: space-between;
 }
+
+.btn-salario {
+  text-align: center;
+  background-color: #818181;
+  color: white;
+  font-size: 13px;
+  width: 10em;
+  font-weight: 600;
+  border-radius: 10px;
+  height: 2.5em;
+  padding-left: 5px;
+  padding-right: 5px;
+  transition: 0.2s;
+}
+
+.btn-salario:hover {
+  transition: 0.2s;
+  transform: scale(1.03);
+}
+
+.opcoes-botoes .btn-salario.active {
+  background-color: #0077ff;
+  color: white;
+  border: dashed 1px #0051e7;
+}
+
+.submit{
+  margin-top: 5px;
+}
+
+.submit-button {
+  width: 8em;
+  height: 3em;
+  border-radius: 10px;
+  background-color: #3D50CA;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+.submit-button:hover {
+  transition: .3s;
+  transform: scale(1.02);
+}
+
+
 
 input {
   margin-top: 1rem;
@@ -111,54 +163,127 @@ input::file-selector-button {
   border: none;
 }
 
-.conteudo-left{
+.conteudo-left {
   display: flex;
   align-content: center;
   justify-content: center;
 }
 
-.preview{
+.drop-zone {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  max-width: 100%;
-  max-height: 100%;
-  color: black;
-  font-size: 25px;
+  align-items: center;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 2px dashed #a9a9a9;
+  background-color: #f9f9f9;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  margin-bottom: 1rem;
+  width: 26.6em;
+  height: 8em;
 }
 
-@media screen and (max-width: 1600px) {
+small {
+  font-size: 20px;
+}
+
+.drop-zone:hover {
+  border-color: #007bff;
+  background-color: #f0f8ff;
+}
+
+.drop-zone.dragging {
+  border-color: #28a745;
+  background-color: #e9f7eb;
+  transform: scale(1.02);
+}
+
+.drop-zone mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #007bff;
+}
+
+.drop-zone p {
+  margin: 0.5rem 0 0 0;
+}
+
+.drop-zone-subtext {
+  font-size: 0.8em;
+  color: #6c757d;
+}
+
+.preview {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  color: black;
+  gap: 5px;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  font-size: 20px;
+}
+
+.preview-image {
+  width: 95%;
+  min-height: 70%;
+}
+
+.preview-placeholder {
+  padding-top: 20px;
+  font-weight: 500;
+  color: #7e7e7e;
+}
+
+@media screen and (max-width: 1920px) {
   .container {
-    width: 72em;
+    width: 80em;
     height: 48em;
   }
 }
 
-@media screen and (max-width: 1500px) {
-  .container {
-    width: 66em;
-    height: 42em;
-  }
-}
-
 @media screen and (max-width: 1400px) {
+
+  .opcoes {
+    width: 30em;
+  }
+
+  .content {
+    width: 29em;
+    height: 33em;
+  }
+
+  .conteudo {
+    width: 100%;
+    height: 95%;
+  }
+
   .container {
     width: 66em;
-    height: 42em;
+    height: 40em;
   }
-}
 
-@media screen and (max-width: 1300px) {
-  .container {
-    width: 60em;
-    height: 42em;
+  input[type="text"] {
+    width: 27em;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 15px;
+    height: 20px;
+    font-weight: 500;
   }
-}
 
+  textarea {
+    height: 20em;
+    width: 27em;
+  }
 
-@media screen and (max-width: 1200px) {
-  .container {
-    width: 58em;
-    height: 38em;
+  .drop-zone {
+    width: 22em;
   }
 }

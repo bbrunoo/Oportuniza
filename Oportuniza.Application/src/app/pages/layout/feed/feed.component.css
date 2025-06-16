@@ -1,6 +1,6 @@
 .container {
-  width: 90em;
-  height: 55em;
+  width: 80em;
+  height: 48em;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9,8 +9,8 @@
 
 .no-publications {
   background-color: rgba(255, 255, 255, 0.26);
-  width: 90em;
-  height: 55em;
+  width: 80em;
+  height: 48em;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,7 +19,6 @@
   border-radius: 25px;
   font-weight: 600;
 }
-
 
 .user-datas {
   display: flex;
@@ -30,11 +29,9 @@
   gap: 1em;
   font-size: 20px;
   font-weight: 600;
-}
-
-hr {
-  border: solid 1px black;
-  width: 95%;
+  border-radius: 0 10px 0 0;
+  background-color: rgb(250, 247, 243);
+  border-bottom: 2px solid rgb(212, 209, 205);
 }
 
 .profile-picture {
@@ -51,34 +48,26 @@ hr {
   height: 80%;
   border-radius: 10px;
   width: 85%;
-  background-color: rgb(238, 235, 241);
   padding: 20px;
-  gap: 4px;
 }
 
 .right-image {
-  width: 50%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 32em;
+  height: 32em;
 }
 
 .right-image img {
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: contain;
+  width: 100%;
+  border-radius: 10px 0 0 10px;
+  height: 100%;
+  background-color: white;
 }
 
 .post-description {
-  background-color: rgba(204, 204, 204, 0.61);
-  width: 50%;
-  height: 100%;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
+  background-color: rgb(233, 233, 233);
+  width: 25em;
+  height: 32em;
+  border-radius: 0 10px 10px 0;
 }
 
 .description {
@@ -86,8 +75,8 @@ hr {
   flex-direction: column;
   align-items: center;
   justify-content: start;
-  height: 95%;
   width: 95%;
+  height: 26.26em;
   padding: 10px;
 }
 
@@ -102,34 +91,42 @@ hr {
 
 .main-description {
   width: 100%;
-  height: 80%;
+  height: 19em;
   display: flex;
   align-items: start;
   justify-content: start;
   font-size: 17px;
   font-weight: 400;
+  white-space: pre-wrap;
+
 }
 
 .bottom {
+  height: 4em;
   width: 100%;
-  height: 15%;
   display: flex;
   align-items: center;
   justify-content: end;
-  font-size: 17px;
-  font-weight: 400;
 }
 
 .bottom button {
   border: none;
   font-size: 15px;
-  width: 10em;
+  width: 9em;
   height: 3em;
-  border-radius: 12px;
-  background-color: #3D50CA;
+  border-radius: 10px;
+  font-weight: 500;
   color: white;
-  font-weight: 600;
+  background-color: #3D50CA;
+  transition: .2s;
+  cursor: pointer;
 }
+
+.bottom button:hover {
+  transition: .2s;
+  transform: scale(1.05);
+}
+
 
 .navigation-space {
   display: flex;
@@ -147,6 +144,7 @@ hr {
   height: 50px;
   background-color: rgba(110, 110, 110, 0.575);
   transition: .2s;
+  cursor: pointer;
 }
 
 .navigation img {
@@ -160,38 +158,83 @@ hr {
   transform: scale(1.04);
 }
 
-@media screen and (max-width: 1600px) {
+@media screen and (max-width: 1920px) {
   .container {
-    width: 72em;
+    width: 80em;
     height: 48em;
   }
-}
 
-@media screen and (max-width: 1500px) {
-  .container {
-    width: 66em;
-    height: 42em;
+  .right-image {
+    width: 40em;
+    height: 40em;
   }
+
+  .user-datas {
+    width: 22.5em;
+  }
+
+  .post-description {
+    width: 30em;
+    height: 40em;
+  }
+
+  .description {
+    width: 95%;
+    height: 34em;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .main-description {
+    height: 25em;
+    font-size: 18px;
+  }
+
 }
 
 @media screen and (max-width: 1400px) {
   .container {
-    width: 66em;
-    height: 42em;
-  }
-}
-
-@media screen and (max-width: 1300px) {
-  .container {
-    width: 60em;
-    height: 42em;
-  }
-}
-
-
-@media screen and (max-width: 1200px) {
-  .container {
-    width: 58em;
+    width: 65em;
     height: 38em;
   }
+
+  .no-publications {
+    width: 65em;
+    height: 38em;
+  }
+
+  .center-content {
+    width: 95%;
+  }
+
+  .right-image {
+    width: 32em;
+    height: 32em;
+  }
+
+  .user-datas {
+    width: 18.2em;
+  }
+
+  .post-description {
+    width: 24em;
+    height: 32em;
+  }
+
+  .description {
+    width: 95%;
+    height: 26em;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .main-description {
+    height: 20em;
+    font-size: 16px;
+  }
+
 }

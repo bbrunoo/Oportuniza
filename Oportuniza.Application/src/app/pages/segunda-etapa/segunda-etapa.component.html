@@ -24,10 +24,8 @@
     </div>
     <div class="main-content">
       <div class="title">COMPLETE SEU PERFIL</div>
-      <div class="center">
-        <div class="indicate-text">Telefone para Contato:</div>
-      </div>
       <div class="form">
+        <div class="indicate-text">Telefone para Contato:</div>
         <div class="input-text">
           <input
             type="text"
@@ -40,6 +38,7 @@
         </div>
       </div>
       <div class="send-button">
+        <button [routerLink]="['/primeira-etapa']">Voltar</button>
         <button (click)="verificarTel(telInput)">Próximo</button>
       </div>
       <div class="send"></div>

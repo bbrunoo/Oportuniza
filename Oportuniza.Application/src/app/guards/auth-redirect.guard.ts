@@ -14,7 +14,7 @@ export const authRedirectGuard: CanActivateFn = (route, state) => {
     const isAllowedRoute = allowedRoutes.some(route => currentUrl.startsWith(route));
 
     if (!isAllowedRoute) {
-      router.navigate(['/home']);
+      router.navigate(['/inicio']);
       return false;
     }
   }

@@ -46,7 +46,7 @@ export class LoginComponent {
         timer: 1500,
         showConfirmButton: false
       }).then(() => {
-        this.router.navigate(['/home']);
+        this.router.navigate(['/inicio']);
       });
     },
     error: (error) => {

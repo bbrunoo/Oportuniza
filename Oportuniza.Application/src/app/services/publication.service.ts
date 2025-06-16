@@ -1,7 +1,7 @@
+import { PublicationCreate } from './../models/publication-create.model';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Publication } from '../models/Publications.model';
-import { PublicationCreate } from '../models/PublicationCreate.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,11 +14,15 @@ export class PublicationService {
     return this.http.get<Publication[]>(`${this.apiUrl}`,);
   }
 
-  createPublication(dto: PublicationCreate, image: File) {
+ createPublication(dto: PublicationCreate, image: File) {
     const formData = new FormData();
     formData.append('Title', dto.title);
     formData.append('Description', dto.content);
-    formData.append('AuthorId', dto.authorId);
+    formData.append('Salary', dto.salary);
+
+    if (dto.postAsCompanyId) {
+      formData.append('PostAsCompanyId', dto.postAsCompanyId);
+    }
 
     if (image) {
       formData.append('Image', image);

@@ -24,11 +24,26 @@ namespace Oportuniza.Infrastructure.Configurations
             builder.Property(p => p.ImageUrl)
                 .HasMaxLength(300);
 
+            builder.Property(p => p.Salary)
+                .HasMaxLength(20);
+
             builder.Property(p => p.Expired)
                 .IsRequired();
 
-            builder.Property(p => p.AuthorId)
-                .IsRequired();
+            builder.HasOne(p => p.CreatedByUser)
+               .WithMany(u => u.CreatedPublications)
+               .HasForeignKey(p => p.CreatedByUserId)
+               .OnDelete(DeleteBehavior.Restrict); // SEJA EXPLÍCITO
+
+            builder.HasOne(p => p.AuthorUser)
+                .WithMany(u => u.AuthoredAsUserPublications)
+                .HasForeignKey(p => p.AuthorUserId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            builder.HasOne(p => p.AuthorCompany)
+                .WithMany(c => c.AuthoredPublications)
+                .HasForeignKey(p => p.AuthorCompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 

@@ -5,11 +5,11 @@
         public Guid Id { get; set; }
 
         public Guid UserId { get; set; }
-        public User User { get; set; }
+        public virtual User User { get; set; }
 
         public Guid CompanyId { get; set; }
-        public Company Company { get; set; }
-
+        public virtual Company Company { get; set; }
+        public string Roles { get; set; }
         public bool CanPostJobs { get; set; }
     }
 

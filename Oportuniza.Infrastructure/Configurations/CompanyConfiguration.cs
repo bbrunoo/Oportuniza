@@ -14,21 +14,24 @@ namespace Oportuniza.Infrastructure.Configurations
                    .IsRequired()
                    .HasMaxLength(100);
 
-            builder.Property(x => x.Desc)
+            builder.Property(x => x.Description)
                    .HasMaxLength(500);
+
+            builder.Property(x => x.ImageUrl)
+                   .HasMaxLength(200);
 
             builder.Property(c => c.Active)
                  .HasDefaultValue(true);
 
             builder.HasOne(c => c.Manager)
-                 .WithOne(u => u.CompanyOwned)
-                 .HasForeignKey<Company>(c => c.UserId)
-                 .OnDelete(DeleteBehavior.Restrict);
+               .WithMany(u => u.CompaniesOwned) // Cria essa coleção no User
+               .HasForeignKey(c => c.UserId)
+               .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(c => c.Employees)
                    .WithOne(e => e.Company)
                    .HasForeignKey(e => e.CompanyId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

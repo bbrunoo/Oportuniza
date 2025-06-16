@@ -252,7 +252,7 @@ export class CadastroComponent {
   openModal() {
     const dialogRef = this.dialog.open(TermosModalComponent, {
       width: '35em',
-      height: '32em',
+      height: '35em',
       maxWidth: 'none',
     });
 
