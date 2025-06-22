@@ -49,7 +49,7 @@ export class ChatService {
 
   getPrivateChatId(targetUserId: string): Observable<{ chatId: string }> {
     return this.http.get<{ chatId: string }>(
-      `https://localhost:5000/api/chat/private/${targetUserId}`
+      `http://localhost:5000/api/chat/private/${targetUserId}`
     );
   }
 

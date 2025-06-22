@@ -1,5 +1,6 @@
+import { TokenService } from './token.service';
 import { PublicationCreate } from './../models/publication-create.model';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Publication } from '../models/Publications.model';
 
@@ -7,14 +8,16 @@ import { Publication } from '../models/Publications.model';
   providedIn: 'root'
 })
 export class PublicationService {
-  constructor(private http: HttpClient) { }
-  apiUrl = 'https://localhost:5000/api/Publication';
+  constructor(private http: HttpClient, private tokenService: TokenService) { }
+  apiUrl = 'http://localhost:5000/api/Publication';
 
   getPublications() {
-    return this.http.get<Publication[]>(`${this.apiUrl}`,);
+    const header = new HttpHeaders().set("Content-Type", "application/json");
+    return this.http.get<Publication[]>(`${this.apiUrl}`, { headers: header });
   }
 
- createPublication(dto: PublicationCreate, image: File) {
+  createPublication(dto: PublicationCreate, image: File) {
+
     const formData = new FormData();
     formData.append('Title', dto.title);
     formData.append('Description', dto.content);

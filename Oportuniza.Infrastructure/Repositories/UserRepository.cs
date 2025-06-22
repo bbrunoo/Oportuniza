@@ -18,8 +18,8 @@ namespace Oportuniza.Infrastructure.Repositories
         public async Task<User> Add(User user)
         {
 
-            if (user.PasswordHash == null || user.PasswordSalt == null)
-                throw new ArgumentException("Hash e salt da senha são obrigatórios.");
+            //if (user.PasswordHash == null || user.PasswordSalt == null)
+            //    throw new ArgumentException("Hash e salt da senha são obrigatórios.");
 
             await _context.User.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -52,6 +52,11 @@ namespace Oportuniza.Infrastructure.Repositories
                     imageUrl = u.ImageUrl
                 })
                 .ToListAsync();
+        }
+
+        public async Task<User> GetByAzureAdObjectIdAsync(Guid azureAdObjectId)
+        {
+            return await _context.User.FirstOrDefaultAsync(u => u.AzureAdObjectId == azureAdObjectId);
         }
 
         public async Task<User?> GetById(Guid id)

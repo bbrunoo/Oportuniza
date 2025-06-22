@@ -7,7 +7,7 @@ import { AreaInteresse } from '../models/AreaInteresse.model';
   providedIn: 'root'
 })
 export class AreaService {
-  private apiUrl = "https://localhost:5000/api/AreaOfInterest";
+  private apiUrl = "http://localhost:5000/api/AreaOfInterest";
 
   constructor(private http: HttpClient) { }
 

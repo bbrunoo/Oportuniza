@@ -1,62 +1,96 @@
 import { UserService } from './../../services/user.service';
 import { Component, NgModule } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { CropperDialogComponent, CropperDialogData } from '../../extras/cropper-dialog/cropper-dialog.component';
 
 @Component({
   selector: 'app-primeira-etapa',
   templateUrl: './primeira-etapa.component.html',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, RouterModule],
   styleUrls: ['./primeira-etapa.component.css']
 })
 export class PrimeiraEtapaComponent {
+  userId: string = '';
   selectedFile: File | null = null;
   previewUrl: string | ArrayBuffer | null = null;
   nomeValue = localStorage.getItem("profileName");
-  
-  constructor(private router: Router, private userService: UserService) { }
+  selectedImage?: File;
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      const validTypes = ['image/png', 'image/jpg', 'image/jpeg'];
-      if (!validTypes.includes(file.type)) {
-        return;
+  constructor(private router: Router, private userService: UserService, private dialog: MatDialog,
+  ) { }
+
+  ngOnInit(): void {
+    this.userService.getOwnProfile().subscribe({
+      next: (profile) => {
+        this.userId = profile.id;
+        localStorage.setItem("userId", this.userId);
+      },
+      error: (err) => {
+        console.error('Erro ao buscar perfil:', err);
       }
-
-      this.selectedFile = file;
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.previewUrl = reader.result;
-      };
-      reader.readAsDataURL(file);
-
-      this.userService.uploadProfilePicture(file).subscribe({
-        next: res => {
-          localStorage.setItem('profileImageUrl', res.imageUrl);
-        },
-        error: err => {
-          console.error('Erro ao enviar imagem de perfil:', err);
-        }
-      });
-    }
+    });
   }
 
-  verificarNome(nomeInput: HTMLInputElement) {
-    const nome = nomeInput.value.trim();
-
-    if (nome === '') {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campo obrigatório',
-        text: 'Por favor, insira seu nome antes de continuar.'
-      });
-    } else {
-      localStorage.setItem('profileName', nome);
-      this.router.navigate(['/segunda-etapa']);
+  onFileSelected(event: any): void {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      this.handleFile(files[0]);
     }
+    event.target.value = '';
+  }
+
+  private handleFile(file: File): void {
+    const validTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+    if (!validTypes.includes(file.type)) {
+      Swal.fire('Tipo inválido', 'Apenas imagens PNG, JPG ou JPEG são permitidas.', 'warning');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        this.openCropperDialog(reader.result);
+      }
+    };
+    reader.onerror = (error) => {
+      console.error('Erro ao ler o arquivo:', error);
+      Swal.fire('Erro', 'Não foi possível ler o arquivo de imagem.', 'error');
+    };
+  }
+
+  private openCropperDialog(imageBase64: string): void {
+    const dialogData: CropperDialogData = { imageBase64 };
+
+    const dialogRef = this.dialog.open(CropperDialogComponent, {
+      minWidth: '1000px',
+      minHeight: '600px',
+      data: dialogData,
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.selectedImage = result;
+        this.previewUrl = URL.createObjectURL(result);
+
+        this.userService.uploadProfilePicture(result).subscribe({
+          next: res => {
+            localStorage.setItem('profileImageUrl', res.imageUrl);
+          },
+          error: err => {
+            console.error('Erro ao enviar imagem de perfil:', err);
+          }
+        });
+      }
+    });
+  }
+
+  proximo() {
+    this.router.navigate(['/segunda-etapa']);
   }
 }

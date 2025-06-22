@@ -36,7 +36,6 @@ export class FeedComponent implements OnInit {
     this.publicationService.getPublications().subscribe({
       next: (publication: Publication[]) => {
         this.publications = publication;
-        console.log("res", publication);
       },
       error: (error: any) => {
         console.log(error);

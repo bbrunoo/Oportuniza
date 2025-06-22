@@ -4,12 +4,11 @@
       <h2>Oportuniza</h2>
     </div>
 
-
     <div class="center-content">
       <nav>
         <a routerLink="feed" routerLinkActive="active">
           <img class="icons" src="../../../../assets/home-assets/home.png" />
-            Início
+          Início
         </a>
         <a routerLink="meus-posts">
           <img class="icons" src="../../../../assets/home-assets/feed.png" />
@@ -26,20 +25,30 @@
       </nav>
     </div>
 
-    <div class="user-content">
-      <button class="novo-post" routerLink="criar-empresa">Criar Empresa</button>
+    <div class="user-content" >
+      <button class="novo-post" routerLink="criar-empresa">
+        Criar Empresa
+      </button>
       <button class="novo-post" routerLink="post">+ Novo Post</button>
-      <div class="user">
-        <img *ngIf="userProfile?.imageUrl" class="profile-image" [src]="userProfile.imageUrl" alt="">
-        <label *ngIf="userProfile?.imageUrl"  for="">
-          {{userProfile.name}}
-        </label>
-        <img class="config-image" (click)="openDialog()" src="../../../../assets/home-assets/settings.png" alt="">
+      <div class="user" *ngIf="loginDisplay">
+        <img
+        class="user-image"
+        [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'"
+        alt=""
+        />
+        {{ userProfile.name }}
+        <img
+        class="config-image"
+        (click)="openDialog()"
+        src="../../../../assets/home-assets/settings.png"
+        alt=""
+        />
+        <span *ngIf="showCompleteProfileicon"><img src="../../../../assets/exclamation.png" alt=""></span>
       </div>
     </div>
   </aside>
 
-  <hr>
+  <hr />
 
   <main class="content">
     <router-outlet class="layout-content"></router-outlet>

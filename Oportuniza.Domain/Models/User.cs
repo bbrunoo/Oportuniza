@@ -15,11 +15,11 @@
         public string FullName { get; set; }
         public string Email { get; set; }
         public string? Phone { get; set; }
-        public byte[] PasswordHash { get; set; } //TODO - Integrar keycloak
-        public byte[] PasswordSalt { get; set; }
         public string? ImageUrl { get; set; }
         public bool IsAdmin { get; set; }
         public bool Active { get; set; }
+        public bool IsProfileCompleted { get; set; }
+        public Guid AzureAdObjectId { get; set; }
         public UserType UserType { get; set; }
         public ICollection<CompanyEmployee> CompanyLinks { get; set; } = new List<CompanyEmployee>();
         public ICollection<UserAreaOfInterest> UserAreasOfInterest { get; set; } = new List<UserAreaOfInterest>();

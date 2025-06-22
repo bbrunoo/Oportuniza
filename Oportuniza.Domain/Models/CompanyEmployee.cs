@@ -6,7 +6,7 @@
 
         public Guid UserId { get; set; }
         public virtual User User { get; set; }
-
+        public Guid AzureUserId { get; set; }
         public Guid CompanyId { get; set; }
         public virtual Company Company { get; set; }
         public string Roles { get; set; }

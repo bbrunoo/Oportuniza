@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Oportuniza.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class initia : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -60,11 +60,11 @@ namespace Oportuniza.Infrastructure.Migrations
                     FullName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     IsAdmin = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     Active = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    IsProfileCompleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    AzureAdObjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserType = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -154,6 +154,7 @@ namespace Oportuniza.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AzureUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Roles = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CanPostJobs = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)

@@ -22,57 +22,62 @@ namespace Oportuniza.Infrastructure.Repositories
             _configuration = configuration;
         }
 
-        public async Task<(bool isAuthenticated, string? errorMessage, int? statusCode)> AuthenticateAsync(string email, string senha, string ipAddress)
+        public Task<(bool isAuthenticated, string? errorMessage, int? statusCode)> AuthenticateAsync(string email, string senha, string ipAddress)
         {
-            var loginAttempt = await _context.LoginAttempt.FirstOrDefaultAsync(x => x.IPAddress == ipAddress);
-            if (loginAttempt?.LockoutEnd > DateTime.UtcNow)
-            {
-                var hora = loginAttempt.LockoutEnd.Value.ToLocalTime().ToString("HH:mm");
-                return (false, $"Este IP está temporariamente bloqueado. Tente novamente após {hora}.", 423);
-            }
-
-            var user = await GetUser(email);
-            if (user == null)
-                return (false, "Usuário ou senha inválidos.", 401);
-
-            using var hmac = new HMACSHA512(user.PasswordSalt);
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(senha));
-
-            if (!CryptographicOperations.FixedTimeEquals(computedHash, user.PasswordHash))
-            {
-                if (loginAttempt == null)
-                {
-                    loginAttempt = new LoginAttempt
-                    {
-                        IPAddress = ipAddress,
-                        FailedAttempts = 1
-                    };
-                    _context.LoginAttempt.Add(loginAttempt);
-                }
-                else
-                {
-                    loginAttempt.FailedAttempts++;
-
-                    if (loginAttempt.FailedAttempts >= 5)
-                    {
-                        loginAttempt.LockoutEnd = DateTime.UtcNow.AddHours(1);
-                        loginAttempt.FailedAttempts = 0;
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-                return (false, "Usuário ou senha inválidos.", 401);
-            }
-
-            if (loginAttempt != null)
-            {
-                loginAttempt.FailedAttempts = 0;
-                loginAttempt.LockoutEnd = null;
-            }
-
-            await _context.SaveChangesAsync();
-            return (true, null, 200);
+            throw new NotImplementedException();
         }
+
+        //public async Task<(bool isAuthenticated, string? errorMessage, int? statusCode)> AuthenticateAsync(string email, string senha, string ipAddress)
+        //{
+        //    var loginAttempt = await _context.LoginAttempt.FirstOrDefaultAsync(x => x.IPAddress == ipAddress);
+        //    if (loginAttempt?.LockoutEnd > DateTime.UtcNow)
+        //    {
+        //        var hora = loginAttempt.LockoutEnd.Value.ToLocalTime().ToString("HH:mm");
+        //        return (false, $"Este IP está temporariamente bloqueado. Tente novamente após {hora}.", 423);
+        //    }
+
+        //    var user = await GetUser(email);
+        //    if (user == null)
+        //        return (false, "Usuário ou senha inválidos.", 401);
+
+        //    using var hmac = new HMACSHA512(user.PasswordSalt);
+        //    var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(senha));
+
+        //    if (!CryptographicOperations.FixedTimeEquals(computedHash, user.PasswordHash))
+        //    {
+        //        if (loginAttempt == null)
+        //        {
+        //            loginAttempt = new LoginAttempt
+        //            {
+        //                IPAddress = ipAddress,
+        //                FailedAttempts = 1
+        //            };
+        //            _context.LoginAttempt.Add(loginAttempt);
+        //        }
+        //        else
+        //        {
+        //            loginAttempt.FailedAttempts++;
+
+        //            if (loginAttempt.FailedAttempts >= 5)
+        //            {
+        //                loginAttempt.LockoutEnd = DateTime.UtcNow.AddHours(1);
+        //                loginAttempt.FailedAttempts = 0;
+        //            }
+        //        }
+
+        //        await _context.SaveChangesAsync();
+        //        return (false, "Usuário ou senha inválidos.", 401);
+        //    }
+
+        //    if (loginAttempt != null)
+        //    {
+        //        loginAttempt.FailedAttempts = 0;
+        //        loginAttempt.LockoutEnd = null;
+        //    }
+
+        //    await _context.SaveChangesAsync();
+        //    return (true, null, 200);
+        //}
 
         public string GenerateToken(Guid id, string email, string name)
         {

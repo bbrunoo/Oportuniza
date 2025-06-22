@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Oportuniza.API.Services;
 using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Enums;
@@ -66,12 +68,13 @@ namespace Oportuniza.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Post([FromForm] PublicationCreateDto dto, IFormFile image)
         {
             if (dto == null) return BadRequest("Dados inválidos.");
             if (image == null || image.Length == 0) return BadRequest("A imagem é obrigatória.");
 
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userIdClaim = User.FindFirst(ClaimConstants.ObjectId)?.Value;
             if (!Guid.TryParse(userIdClaim, out Guid userGuid))
             {
                 return Unauthorized("Token inválido.");

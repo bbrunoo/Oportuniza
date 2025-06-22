@@ -1,10 +1,18 @@
-<div class="container">
-  <div class="botao" >
-    <img src="../../../assets/refresh.png" alt="">
+<div class="container" [ngStyle]="{'height': containerHeight}">
+  <span *ngIf="showCompleteProfileButton"><img src="../../../../assets/exclamation.png" alt="" /></span>
+
+  <div class="botao" *ngIf="showCompleteProfileButton">
+    <img src="../../../../assets/check.png" alt="" />
+    <button (click)="completePerfil()">Completar Perfil</button>
+  </div>
+
+  <div class="botao">
+    <img src="../../../assets/refresh.png" alt="" />
     <button (click)="changeAccount()">Trocar de Conta</button>
   </div>
-  <div class="botao" >
-    <img src="../../../assets/signout.png" alt="">
-    <button (click)="changeAccount()">Sair</button>
+
+  <div class="botao">
+    <img src="../../../assets/signout.png" alt="" />
+    <button (click)="logout()">Sair</button>
   </div>
 </div>

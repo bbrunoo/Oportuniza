@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 using Oportuniza.API.Services;
 using System.Security.Claims;
 
@@ -30,7 +31,7 @@ namespace Oportuniza.API.Controllers
         {
             if (file == null) return BadRequest("File not found");
 
-            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdStr = User.FindFirst(ClaimConstants.ObjectId)?.Value;
 
             if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new { message = "Usuário não autenticado" });
@@ -55,7 +56,7 @@ namespace Oportuniza.API.Controllers
         {
             if (file == null) return BadRequest("File not found");
 
-            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdStr = User.FindFirst(ClaimConstants.ObjectId)?.Value;
 
             if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new { message = "Usuário não autenticado" });
@@ -80,7 +81,7 @@ namespace Oportuniza.API.Controllers
         {
             if (file == null) return BadRequest("File not found");
 
-            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdStr = User.FindFirst(ClaimConstants.ObjectId)?.Value;
 
             if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new { message = "Usuário não autenticado" });

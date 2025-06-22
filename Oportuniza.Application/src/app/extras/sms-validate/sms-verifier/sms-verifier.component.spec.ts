@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RedefinirSenhaComponent } from './redefinir-senha.component';
+import { SmsVerifierComponent } from './sms-verifier.component';
 
-describe('RedefinirSenhaComponent', () => {
-  let component: RedefinirSenhaComponent;
-  let fixture: ComponentFixture<RedefinirSenhaComponent>;
+describe('SmsVerifierComponent', () => {
+  let component: SmsVerifierComponent;
+  let fixture: ComponentFixture<SmsVerifierComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RedefinirSenhaComponent]
+      imports: [SmsVerifierComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(RedefinirSenhaComponent);
+    fixture = TestBed.createComponent(SmsVerifierComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

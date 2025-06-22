@@ -1,17 +1,17 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Oportuniza.Domain.DTOs.Company;
-using Oportuniza.Domain.DTOs.Curriculum;
+using Microsoft.Identity.Web;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
-using System.Globalization;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
@@ -43,12 +43,46 @@ namespace Oportuniza.API.Controllers
         }
 
         [HttpGet("profile")]
+        [Authorize]
         public async Task<IActionResult> GetOwnProfile()
-        {  
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var user = await _userRepository.GetByIdAsync(userId);
+        {
+            var userObjectIdString = User.FindFirst(ClaimConstants.ObjectId)?.Value;
 
-            if (user == null) return NotFound();
+            if (string.IsNullOrEmpty(userObjectIdString))
+            {
+      
+                return Unauthorized("User Object ID claim not found in token.");
+            }
+
+            Guid azureAdObjectId;
+            if (!Guid.TryParse(userObjectIdString, out azureAdObjectId))
+            {
+                return BadRequest("Invalid User Object ID format in token.");
+            }
+
+            var user = await _userRepository.GetByAzureAdObjectIdAsync(azureAdObjectId);
+
+            if (user == null)
+            {
+
+                var email = User.FindFirst("preferred_username")?.Value;
+                var name = User.FindFirst("name")?.Value;
+                var givenName = User.FindFirst("given_name")?.Value;
+                var familyName = User.FindFirst("family_name")?.Value;
+
+                var newUser = new User
+                {
+                    Id = Guid.Parse(userObjectIdString),
+                    AzureAdObjectId = azureAdObjectId,
+                    Email = email,
+                    Name = name,
+                    FullName = name
+                };
+
+                await _userRepository.AddAsync(newUser);
+
+                return NotFound($"User with Azure AD Object ID '{userObjectIdString}' not found in local database. Consider implementing Just-In-Time provisioning.");
+            }
 
             var response = _mapper.Map<UserDTO>(user);
             return StatusCode(200, response);
@@ -60,9 +94,9 @@ namespace Oportuniza.API.Controllers
             var user = await _userRepository.GetByIdWithInterests(id);
             if (user == null) return NotFound("Usuario nao encontrado");
 
-            user.Phone = model.Phone;
             user.FullName = model.FullName;
             user.ImageUrl = model.ImageUrl;
+            user.IsProfileCompleted = true;
 
             user.UserAreasOfInterest.Clear();
 

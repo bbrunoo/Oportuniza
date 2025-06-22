@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Web;
 using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
@@ -52,7 +53,7 @@ namespace Oportuniza.API.Controllers
         [HttpGet("user-companies")]
         public async Task<IActionResult> GetCompaniesByUser()
         {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userIdClaim = User.FindFirst(ClaimConstants.ObjectId)?.Value;
 
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userGuid))
                 return Unauthorized("Token inválido.");
@@ -64,14 +65,14 @@ namespace Oportuniza.API.Controllers
             return Ok(response);
         }
 
-        [Authorize]
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Post([FromBody] CompanyCreateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userIdClaim = User.FindFirst(ClaimConstants.ObjectId)?.Value;
             if (!Guid.TryParse(userIdClaim, out Guid userGuid))
             {
                 return Unauthorized("Token inválido ou ID do usuário ausente.");

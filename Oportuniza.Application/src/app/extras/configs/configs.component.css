@@ -1,12 +1,36 @@
 .container {
   width: 250px;
-  height: 140px;
   display: flex;
   align-items: center;
   flex-direction: column;
   justify-content: center;
   background-color: #272623;
   gap: 1em;
+  padding: 1em 0;
+  border-radius: 20px;
+}
+
+span {
+  position: absolute;
+  right: 5px;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;
+  background-color: rgb(255, 35, 35);
+  width: 22px;
+  color: white;
+  font-weight: 500;
+  height: 22px;
+  z-index: 1;
+}
+
+
+span img {
+  width: 22px;
+  height: 22px;
+  font-size: 15px;
 }
 
 .botao {

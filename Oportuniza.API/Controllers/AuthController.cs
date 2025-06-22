@@ -57,8 +57,8 @@ namespace Oportuniza.API.Controllers
                 FullName = model.Name.Trim(),
                 Name = model.Email.Split('@')[0],
                 Email = model.Email.Trim(),
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
+                //PasswordHash = passwordHash,
+                //PasswordSalt = passwordSalt,
                 Active = true
             };
 

@@ -1,27 +1,30 @@
 import { UserProfile } from './../models/UserProfile.model';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+// import { useAuth } from '../authConfig';
+import { TokenService } from './token.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private tokenService: TokenService) { }
 
-  apiUrl = 'https://localhost:5000/api/v1/User';
-  uploadApi = 'https://localhost:5000/api/Upload/upload-profile-picture';
+  apiUrl = 'http://localhost:5000/api/v1/User';
+  uploadApi = 'http://localhost:5000/api/Upload/upload-profile-picture';
 
-  getOwnProfile(){
-    return this.http.get<UserProfile>(`${this.apiUrl}/profile`)
+  getOwnProfile() {
+    const header = new HttpHeaders().set("Content-Type", "application/json");
+    return this.http.get<UserProfile>(`${this.apiUrl}/profile`, { headers: header});
   }
 
   updateProfile(profileData: {
     fullName: string;
     imageUrl: string;
     phone: string;
-    interests: string;               // 👈 Corrigido para string
+    interests: string;
     areaOfInterestIds: string[];
   }, id: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/completar-perfil/${id}`, profileData);

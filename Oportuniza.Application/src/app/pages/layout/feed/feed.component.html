@@ -11,7 +11,7 @@
     </div>
     <div class="post-description">
       <div class="user-datas">
-        <img class="profile-picture" [src]="publications[currentIndex].authorImageUrl"/> {{ publications[currentIndex].authorName }}
+        <img class="profile-picture" [src]="publications[currentIndex].authorImageUrl || '../../../../assets/etapas/perfil.png'"/> {{ publications[currentIndex].authorName }}
        </div>
       <div class="description">
         <div class="title">{{ publications[currentIndex].title }}</div>

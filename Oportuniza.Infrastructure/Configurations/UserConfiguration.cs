@@ -32,6 +32,9 @@ namespace Oportuniza.Infrastructure.Configurations
             builder.Property(x => x.Active)
                    .HasDefaultValue(true);
 
+            builder.Property(x => x.IsProfileCompleted)
+                   .HasDefaultValue(false);
+
             builder.Property(x => x.UserType)
                    .IsRequired();
 

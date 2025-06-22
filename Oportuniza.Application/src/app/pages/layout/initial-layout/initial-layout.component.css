@@ -108,18 +108,38 @@ button:hover {
   transform: scale(1.02);
 }
 
+span {
+  position: absolute;
+  right: 0px;
+  left: 12em;
+  bottom: 2.3em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;
+  background-color: rgb(255, 35, 35);
+  width: 22px;
+  height: 22px;
+}
+
+span img {
+  width: 22px;
+  height: 22px;
+  font-size: 15px;
+}
+
 .user {
-  width: 80%;
+  width: 85%;
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-between;
   color: white;
   font-weight: 500;
   font-size: 18px;
 }
 
-.profile-image {
+.user-image {
   width: 50px;
   height: 50px;
   border-radius: 100%;
@@ -160,6 +180,14 @@ button:hover {
     font-size: 32px;
   }
 
+  span {
+    right: 0px;
+    left: 13.6em;
+    bottom: 1.8em;
+    width: 20px;
+    height: 20px;
+  }
+
   a,
   .user,
   .novo-post {
@@ -172,9 +200,9 @@ button:hover {
     height: 30px;
   }
 
-  .profile-image {
-    width: 40px;
-    height: 40px;
+  .user-image {
+    width: 35px;
+    height: 35px;
   }
 
   .user {
@@ -183,13 +211,5 @@ button:hover {
     justify-content: space-evenly;
     width: 90%;
     gap: 1em;
-  }
-}
-
-
-@media screen and (max-width: 1300px) {
-  .container {
-    width: 60em;
-    height: 42em;
   }
 }

@@ -15,8 +15,8 @@ export interface CompanyCreatePayload {
   providedIn: 'root'
 })
 export class CompanyService {
-  private companyApiUrl = 'https://localhost:5000/api/v1/Company';
-  private uploadApiUrl = 'https://localhost:5000/api/Upload/upload-company-picture';
+  private companyApiUrl = 'http://localhost:5000/api/v1/Company';
+  private uploadApiUrl = 'http://localhost:5000/api/Upload/upload-company-picture';
 
   constructor(
     private http: HttpClient,
@@ -24,37 +24,14 @@ export class CompanyService {
   ) { }
 
   uploadCompanyImage(file: File): Observable<{ imageUrl: string }> {
-    const token = this.authService.getToken();
-    if (!token) {
-      return throwError(() => new Error('Token de autenticação não encontrado.'));
-    }
-
     const formData = new FormData();
     formData.append('file', file, file.name);
 
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
-    return this.http.post<{ imageUrl: string }>(this.uploadApiUrl, formData, { headers }).pipe(
-      catchError(this.handleError)
-    );
+    return this.http.post<{ imageUrl: string }>(this.uploadApiUrl, formData);
   }
 
   createCompany(companyData: CompanyCreatePayload): Observable<any> {
-    const token = this.authService.getToken();
-    if (!token) {
-      return throwError(() => new Error('Token de autenticação não encontrado.'));
-    }
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
-
-    return this.http.post<any>(this.companyApiUrl, companyData, { headers }).pipe(
-      catchError(this.handleError)
-    );
+    return this.http.post<any>(this.companyApiUrl, companyData);
   }
 
   getUserCompanies(): Observable<CompanyListDto[]> {
