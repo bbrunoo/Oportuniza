@@ -1,17 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Data;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Oportuniza.Infrastructure.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : Repository<User>, IUserRepository
     {
         private readonly ApplicationDbContext _context;
-        public UserRepository(ApplicationDbContext context)
+        public UserRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -19,8 +18,8 @@ namespace Oportuniza.Infrastructure.Repositories
         public async Task<User> Add(User user)
         {
 
-            if (user.PasswordHash == null || user.PasswordSalt == null)
-                throw new ArgumentException("Hash e salt da senha são obrigatórios.");
+            //if (user.PasswordHash == null || user.PasswordSalt == null)
+            //    throw new ArgumentException("Hash e salt da senha são obrigatórios.");
 
             await _context.User.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -50,16 +49,28 @@ namespace Oportuniza.Infrastructure.Repositories
                     Name = u.Name,
                     Email = u.Email,
                     FullName = u.FullName,
-                    isACompany = u.IsACompany,
                     imageUrl = u.ImageUrl
                 })
                 .ToListAsync();
+        }
+
+        public async Task<User> GetByAzureAdObjectIdAsync(Guid azureAdObjectId)
+        {
+            return await _context.User.FirstOrDefaultAsync(u => u.AzureAdObjectId == azureAdObjectId);
         }
 
         public async Task<User?> GetById(Guid id)
         {
             return await _context.User.FindAsync(id);
         }
+
+        public async Task<User?> GetByIdWithInterests(Guid id)
+        {
+            return await _context.User
+                    .Include(u => u.UserAreasOfInterest)
+                    .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
         public async Task<UserInfoDTO> GetUserInfoAsync(Guid id)
         {
             var userInfo = await _context.User
@@ -69,7 +80,6 @@ namespace Oportuniza.Infrastructure.Repositories
                     Name = u.Name,
                     FullName = u.FullName,
                     Email = u.Email,
-                    isACompany = u.IsACompany
                 })
                 .FirstOrDefaultAsync();
 

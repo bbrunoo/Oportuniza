@@ -1,15 +1,25 @@
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
 import { inject } from '@angular/core';
+import { UserService } from '../services/user.service';
+import { catchError, map, of } from 'rxjs';
 
 export const authGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
   const router = inject(Router);
+  const userService = inject(UserService);
 
-  if (authService.isAuthenticated()) {
-    return true;
-  } else {
-    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
-    return false;
-  }
+  return userService.getOwnProfile().pipe(
+    map(profile => {
+      if (profile.isProfileCompleted) {
+        router.navigate(['/inicio']);
+        return false;
+      } else {
+        return true;
+      }
+    }),
+    catchError((error) => {
+      console.error('Erro ao buscar perfil:', error);
+      router.navigate(['/inicio']);
+      return of(false);
+    })
+  );
 };

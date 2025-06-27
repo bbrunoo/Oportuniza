@@ -1,0 +1,215 @@
+* {
+  text-decoration: none;
+  list-style: none;
+}
+
+.layout-container {
+  background-image: url(../../../../assets/home-assets/Fundo.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  width: 100%;
+  height: 100vh;
+}
+
+hr {
+  height: 95%;
+}
+
+a {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 500;
+  color: white;
+  transition: color 0.3s;
+  position: relative;
+  transition: .3s;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+a:hover {
+  transition: .3s;
+  transform: scale(1.1);
+}
+
+.sidebar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
+  width: 18%;
+}
+
+.title {
+  width: 100%;
+  height: 15%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+h2 {
+  font-size: 35px;
+  color: white;
+}
+
+.center-content {
+  width: 100%;
+  height: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+nav {
+  width: 80%;
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: start;
+  gap: 1.5em;
+}
+
+.user-content {
+  width: 100%;
+  height: 20%;
+  display: flex;
+  gap: 1em;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 10px;
+}
+
+.novo-post {
+  border: none;
+  font-size: 17px;
+  width: 70%;
+  height: 30%;
+  font-weight: 500;
+  color: white;
+  background-color: #3D50CA;
+  border-radius: 12px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+button:hover {
+  transition: 0.2s;
+  transform: scale(1.02);
+}
+
+span {
+  position: absolute;
+  right: 0px;
+  left: 12em;
+  bottom: 2.3em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;
+  background-color: rgb(255, 35, 35);
+  width: 22px;
+  height: 22px;
+}
+
+span img {
+  width: 22px;
+  height: 22px;
+  font-size: 15px;
+}
+
+.user {
+  width: 85%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  font-weight: 500;
+  font-size: 18px;
+}
+
+.user-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 100%;
+}
+
+.content {
+  height: 100%;
+  width: 82%;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.icons {
+  filter: invert(1);
+  width: 40px;
+  height: 40px;
+  padding-right: 15px;
+}
+
+.config-image {
+  filter: invert(1);
+  width: 40px;
+  height: 40px;
+  padding-right: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.config-image:hover {
+  transition: 0.2s;
+  transform: scale(1.05);
+}
+
+@media screen and (max-width: 1600px) {
+  h2 {
+    font-size: 32px;
+  }
+
+  span {
+    right: 0px;
+    left: 13.6em;
+    bottom: 1.8em;
+    width: 20px;
+    height: 20px;
+  }
+
+  a,
+  .user,
+  .novo-post {
+    font-size: 15px;
+  }
+
+  .icons,
+  .config-image {
+    width: 30px;
+    height: 30px;
+  }
+
+  .user-image {
+    width: 35px;
+    height: 35px;
+  }
+
+  .user {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 90%;
+    gap: 1em;
+  }
+}

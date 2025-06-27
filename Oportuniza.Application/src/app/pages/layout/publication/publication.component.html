@@ -1,0 +1,116 @@
+<div class="container">
+  <div class="conteudo">
+    <div class="conteudo-left">
+      <div class="preview" *ngIf="previewUrl">
+        <label> Pré-visualização</label>
+        <img
+          [src]="previewUrl"
+          alt="Preview da Imagem da Vaga"
+          class="preview-image"
+        />
+      </div>
+      <div class="preview-placeholder" *ngIf="!previewUrl">
+        <p>A pré-visualização da imagem aparecerá aqui.</p>
+      </div>
+    </div>
+
+    <div class="conteudo-right">
+      <form (ngSubmit)="post()" #publicationForm="ngForm">
+        <div class="content">
+          <p class="form-title">POSTAR VAGA</p>
+
+          <div class="author-select-wrapper">
+            <label for="authorSelect" class="author-select-label">Postar como:</label>
+            <select
+              id="authorSelect"
+              name="author"
+              class="author-select"
+              [(ngModel)]="selectedAuthorId"
+              required
+            >
+              <option *ngIf="userProfile" [value]="userProfile.id">
+                {{ userProfile.name }} (Perfil Pessoal)
+              </option>
+
+              <option disabled *ngIf="userCompanies.length > 0">--- Minhas Empresas ---</option>
+
+              <option *ngFor="let company of userCompanies" [value]="company.id">
+                {{ company.name }}
+              </option>
+            </select>
+          </div>
+          <input
+            type="text"
+            name="title"
+            [(ngModel)]="publication.title"
+            placeholder="Título da vaga"
+            required
+          />
+
+          <textarea
+            name="content"
+            [(ngModel)]="publication.content"
+            placeholder="Descreva a vaga, requisitos, etc."
+            required
+            rows="5"
+          ></textarea>
+
+          <div class="opcoes">
+            <label> Salário </label>
+            <div class="opcoes-botoes">
+              <button
+                type="button"
+                class="btn-salario"
+                (click)="selectSalary('R$100 a R$1000')"
+                [ngClass]="{'active': selectedSalary === 'R$100 a R$1000'}">
+                R$100 a R$1000
+              </button>
+              <button
+                type="button"
+                class="btn-salario"
+                (click)="selectSalary('R$1000 a R$2000')"
+                [ngClass]="{'active': selectedSalary === 'R$1000 a R$2000'}">
+                R$1000 a R$2000
+              </button>
+              <button
+                type="button"
+                class="btn-salario"
+                (click)="selectSalary('Mais de R$2000')"
+                [ngClass]="{'active': selectedSalary === 'Mais de R$2000'}">
+                Mais de R$2000
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="drop-zone"
+            (click)="fileInput.click()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            [class.dragging]="isDragging"
+          >
+            <mat-icon>cloud_upload</mat-icon>
+            <p><small>Arraste e solte a imagem aqui</small></p>
+            <p class="drop-zone-subtext">ou clique para selecionar</p>
+          </div>
+
+          <input
+            hidden
+            type="file"
+            #fileInput
+            (change)="onFileSelected($event)"
+            accept="image/*"
+          />
+
+          <div class="submit">
+            <button class="submit-button" type="submit" [disabled]="publicationForm.invalid || isSubmitting">
+                <span *ngIf="!isSubmitting">Publicar</span>
+                <span *ngIf="isSubmitting">Publicando...</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

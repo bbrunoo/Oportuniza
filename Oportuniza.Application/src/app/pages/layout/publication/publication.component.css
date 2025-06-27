@@ -1,0 +1,289 @@
+* {
+  border: none;
+}
+
+.container {
+  width: 90em;
+  height: 55em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  color: white;
+  border-radius: 25px;
+  font-weight: 600;
+}
+
+.conteudo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  width: 95%;
+  height: 90%;
+  border-radius: 20px;
+  background-color: rgb(226, 226, 226);
+  padding: 15px;
+  gap: 10px;
+}
+
+.conteudo-right,
+.conteudo-left {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+}
+
+.conteudo-right {
+  background-color: rgba(202, 202, 202, 0.363);
+  border-radius: 20px;
+}
+
+form {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  color: black;
+  width: 100%;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 35em;
+  height: 42em;
+  gap: .5em;
+}
+
+p {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+input[type="text"] {
+  width: 32em;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 15px;
+  height: 30px;
+  font-weight: 500;
+}
+
+textarea {
+  height: 12em;
+  width: 32em;
+  resize: none;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.opcoes {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+  width: 35em;
+  gap: 5px;
+  font-size: 14px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+}
+
+.opcoes-botoes {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.btn-salario {
+  text-align: center;
+  background-color: #818181;
+  color: white;
+  font-size: 13px;
+  width: 10em;
+  font-weight: 600;
+  border-radius: 10px;
+  height: 2.5em;
+  padding-left: 5px;
+  padding-right: 5px;
+  transition: 0.2s;
+}
+
+.btn-salario:hover {
+  transition: 0.2s;
+  transform: scale(1.03);
+}
+
+.opcoes-botoes .btn-salario.active {
+  background-color: #0077ff;
+  color: white;
+  border: dashed 1px #0051e7;
+}
+
+.submit{
+  margin-top: 5px;
+}
+
+.submit-button {
+  width: 8em;
+  height: 3em;
+  border-radius: 10px;
+  background-color: #3D50CA;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+.submit-button:hover {
+  transition: .3s;
+  transform: scale(1.02);
+}
+
+
+
+input {
+  margin-top: 1rem;
+}
+
+input::file-selector-button {
+  font-weight: bold;
+  color: rgb(20, 33, 46);
+  padding: 0.5em;
+  border-radius: 3px;
+  border: none;
+}
+
+.conteudo-left {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+}
+
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 2px dashed #a9a9a9;
+  background-color: #f9f9f9;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  margin-bottom: 1rem;
+  width: 26.6em;
+  height: 8em;
+}
+
+small {
+  font-size: 20px;
+}
+
+.drop-zone:hover {
+  border-color: #007bff;
+  background-color: #f0f8ff;
+}
+
+.drop-zone.dragging {
+  border-color: #28a745;
+  background-color: #e9f7eb;
+  transform: scale(1.02);
+}
+
+.drop-zone mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #007bff;
+}
+
+.drop-zone p {
+  margin: 0.5rem 0 0 0;
+}
+
+.drop-zone-subtext {
+  font-size: 0.8em;
+  color: #6c757d;
+}
+
+.preview {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  color: black;
+  gap: 5px;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  font-size: 20px;
+}
+
+.preview-image {
+  width: 95%;
+  min-height: 70%;
+}
+
+.preview-placeholder {
+  padding-top: 20px;
+  font-weight: 500;
+  color: #7e7e7e;
+}
+
+@media screen and (max-width: 1920px) {
+  .container {
+    width: 80em;
+    height: 48em;
+  }
+}
+
+@media screen and (max-width: 1400px) {
+
+  .opcoes {
+    width: 30em;
+  }
+
+  .content {
+    width: 29em;
+    height: 33em;
+  }
+
+  .conteudo {
+    width: 100%;
+    height: 95%;
+  }
+
+  .container {
+    width: 66em;
+    height: 40em;
+  }
+
+  input[type="text"] {
+    width: 27em;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 15px;
+    height: 20px;
+    font-weight: 500;
+  }
+
+  textarea {
+    height: 20em;
+    width: 27em;
+  }
+
+  .drop-zone {
+    width: 22em;
+  }
+}

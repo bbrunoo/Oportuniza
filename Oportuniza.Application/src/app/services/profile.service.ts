@@ -11,7 +11,7 @@ import { AllUsersInfoModel } from '../models/AllUsersInfo.model';
 export class ProfileService {
 
   constructor(private http: HttpClient) { }
-  apiUrl = 'https://localhost:5000/api/Profile';
+  apiUrl = 'http://localhost:5000/api/Profile';
 
   getUserProfile(id: string) {
     return this.http.get<UserProfile>(`${this.apiUrl}/${id}`,);

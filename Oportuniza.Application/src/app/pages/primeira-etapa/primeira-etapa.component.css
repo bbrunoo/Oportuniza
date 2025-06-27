@@ -125,16 +125,25 @@ button.disabled {
   align-items: center;
   justify-content: center;
   padding-top: 5px;
+  gap: 1em;
 }
 
 .title {
   font-size: 20px;
   font-weight: 600;
-  padding-bottom: 25px;
+  padding-bottom: 10px;
+}
+
+.subtitle{
+  padding-bottom: 10px;
 }
 
 .indicate-text {
   font-weight: 500;
+}
+
+.footer{
+  width: 80%;
 }
 
 .center {

@@ -1,0 +1,26 @@
+.container{
+  background-color: rgba(255, 255, 255, 0.26);
+  width: 90em;
+  height: 55em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  color: white;
+  border-radius: 25px;
+  font-weight: 600;
+}
+
+@media screen and (max-width: 1920px) {
+  .container {
+    width: 80em;
+    height: 48em;
+  }
+}
+
+@media screen and (max-width: 1400px) {
+  .container {
+    width: 65em;
+    height: 38em;
+  }
+}

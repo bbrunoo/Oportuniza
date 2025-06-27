@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Oportuniza.API.Viewmodel;
+using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
@@ -24,7 +25,7 @@ namespace Oportuniza.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<UserToken>> Register([FromBody] UserRegisterViewmodel model)
+        public async Task<ActionResult<UserByIdDTO>> Register([FromBody] UserRegisterViewmodel model)
         {
             if (model == null || IsInvalidInput(model.Name) || IsInvalidInput(model.Email) || IsInvalidInput(model.Password))
                 return BadRequest("Todos os campos são obrigatórios.");
@@ -34,6 +35,9 @@ namespace Oportuniza.API.Controllers
 
             if (model.Password.Contains(" "))
                 return BadRequest("A senha não pode conter espaços em branco.");
+
+            if (!IsValidPassword(model.Password))
+                return BadRequest("A senha contém caracteres inválidos. Use apenas letras, números e os símbolos: ! @ # $ % ^ & * _ - + .");
 
             if (!IsValidEmail(model.Email))
                 return BadRequest("Formato de e-mail inválido.");
@@ -50,25 +54,26 @@ namespace Oportuniza.API.Controllers
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                FullName = model.Name,
+                FullName = model.Name.Trim(),
                 Name = model.Email.Split('@')[0],
                 Email = model.Email.Trim(),
-                IsACompany = false,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt
+                //PasswordHash = passwordHash,
+                //PasswordSalt = passwordSalt,
+                Active = true
             };
 
-            var result = await _userRepository.Add(user);
+            var result = await _userRepository.AddAsync(user);
             if (result == null)
                 return StatusCode(500, "Erro interno ao registrar o usuário.");
 
-            return Ok(new UserByIdDTO
+            var userDto = new UserByIdDTO
             {
                 Id = user.Id,
                 Name = user.Name,
-                Email = user.Email,
-                isACompany = user.IsACompany
-            });
+                Email = user.Email
+            };
+
+            return Ok(userDto);
         }
 
         [HttpPost("login")]
@@ -97,11 +102,16 @@ namespace Oportuniza.API.Controllers
             }
 
             var user = await _authenticateUser.GetUserByEmail(loginRequestDTO.Email);
-            var token = _authenticateUser.GenerateToken(user.Id, user.Email, user.IsACompany, user.Name);
+            var token = _authenticateUser.GenerateToken(user.Id, user.Email, user.Name);
 
             return Ok(new UserToken { Token = token });
         }
 
+        private static bool IsValidPassword(string password)
+        {
+            var regex = new Regex(@"^[a-zA-Z0-9!@#$%^&*_\-+.]+$");
+            return regex.IsMatch(password);
+        }
         private bool IsValidEmail(string email)
         {
             var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");

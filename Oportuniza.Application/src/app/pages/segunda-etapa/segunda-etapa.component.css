@@ -1,15 +1,15 @@
-*{
+* {
   margin: 0;
   padding: 0;
   text-decoration: none;
 }
+
 .logo {
   position: absolute;
   top: 20px;
   left: 20px;
   width: 100px;
 }
-
 
 .overlay {
   position: absolute;
@@ -20,7 +20,21 @@
   background: rgba(0, 0, 0, 0.5);
 }
 
-.container{
+.right {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background-color: #001641;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 25em;
+}
+
+.checkboxes label {
+  padding: 5px;
+}
+
+.container {
   background-image: url("../../../assets/etapas/background.png");
   background-size: cover;
   background-repeat: no-repeat;
@@ -32,7 +46,7 @@
   justify-content: center;
 }
 
-.center-content{
+.center-content {
   background-color: white;
   width: 45em;
   height: 28em;
@@ -46,7 +60,7 @@
   z-index: 10;
 }
 
-.head{
+.head {
   display: flex;
   width: 90%;
   gap: 1.5em;
@@ -55,14 +69,18 @@
   justify-content: center;
 }
 
-.step1, .step2, .step3 {
+.step1,
+.step2,
+.step3 {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.step1 span, .step2 span, .step3 span{
+.step1 span,
+.step2 span,
+.step3 span {
   margin-bottom: 5px;
   background-color: rgb(199, 199, 199);
   display: flex;
@@ -74,11 +92,13 @@
   border-radius: 100px;
 }
 
-.step1 span, .step2 span{
+.step1 span,
+.step2 span,
+.step3 span {
   background-color: blue;
 }
 
-.main-content{
+.main-content {
   width: 90%;
   height: 20em;
   display: flex;
@@ -86,87 +106,71 @@
   align-items: center;
   justify-content: center;
   padding-top: 5px;
-}
-
-.title{
-  font-size: 20px;
-  font-weight: 600;
-  padding-bottom: 25px;
-}
-
-.indicate-text{
-  font-weight: 500;
-}
-
-.center{
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-  gap: 2em;
-  height: 15em;
-}
-
-.right, .left{
-  background-color: #d1d1d1;
-  width: 12em;
-  height: 5em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.right:hover, .left:hover{
-  background-color: #e4e4e4;
-}
-.img-content{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height:8em;
-  padding: 10px;
-}
-
-.img-content .plus{
-  position: relative;
-  right: -2em;
-  top: -3em;
-  cursor: pointer;
-}
-
-.form{
-  height: 5em;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
   gap: 1em;
 }
 
-.input-text input{
-  text-decoration: none;
-  border: none;
-  border-bottom: 1.5px solid black;
-  width: 18em;
-  height: 1.8em;
-  background-color: transparent;
-  font-size: 18px;
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  height: 30%;
+}
+
+.footer{
+  width: 80%;
+}
+
+.indicate-text {
   font-weight: 500;
 }
 
-.send-button{
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+
+.tag {
+  background-color: #e0e0e0;
+  border-radius: 20px;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.tag button {
+  background: none;
+  border: none;
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  height: 20em;
+  width: 30em;
+}
+
+.title p {
+  font-weight: 500;
+  font-size: 17px;
+}
+
+.send-button {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-direction: row;
   width: 100%;
 }
-.send-button button{
+
+.send-button button {
   background-color: #2E3FFF;
   border: none;
   padding: 10px;
@@ -177,11 +181,99 @@
   cursor: pointer;
 }
 
-button.disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+
+.multi-select-dropdow {
+  position: relative;
+  width: auto;
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-*:focus {
+.multi-select-dropdow .input-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 5px;
+  border: 2px solid #727272;
+  border-radius: 10px;
+  background-color: #ffffff;
+  width: 25em;
+}
+
+.multi-select-dropdow .input-container input {
+  flex-grow: 1;
+  border: none;
   outline: none;
+  padding: 5px;
+  font-size: 14px;
+}
+
+.multi-select-dropdow .selected-item {
+  display: flex;
+  align-items: center;
+  margin: 2px;
+  padding: 8px 10px;
+  background-color: #e1ecf4;
+  border-radius: 16px;
+  font-size: 14px;
+}
+
+.multi-select-dropdow .selected-item button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #4a90e2;
+  margin-left: 8px;
+  line-height: 1;
+}
+
+.multi-select-dropdow .dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 160px;
+  overflow-y: auto;
+  background-color: #ffffff;
+  border: 1px solid #4a90e2;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.multi-select-dropdow .dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.multi-select-dropdow .dropdown-item:hover {
+  background-color: #f0f8ff;
+}
+
+.multi-select-dropdow .checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 3px;
+  margin-right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.multi-select-dropdow .checkbox.checked {
+  background-color: #4a90e2;
+  border-color: #4a90e2;
+}
+
+.multi-select-dropdow .checkmark {
+  color: white;
+  font-size: 14px;
 }

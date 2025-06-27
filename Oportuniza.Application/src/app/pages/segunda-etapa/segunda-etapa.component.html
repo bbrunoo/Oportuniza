@@ -2,37 +2,58 @@
 <div class="container">
   <div class="center-content">
     <div class="head">
-      <button class="logo-btn" style="cursor: pointer; background: transparent; border: transparent">
-        <img src="assets/logo.png" class="logo" alt="Logo" />
+      <button
+        class="logo-btn"
+        style="cursor: pointer; background: transparent; border: transparent"
+      >
+        <img src="assets/logo.png" routerLink="/inicio" class="logo" alt="Logo" />
       </button>
-      <div class="step1">
-        <span></span>
-        <p>1° Etapa</p>
-      </div>
-      <div class="step2">
-        <span></span>
-        <p>2° Etapa</p>
-      </div>
-      <div class="step3">
-        <span></span>
-        <p>3° Etapa</p>
-      </div>
     </div>
     <div class="main-content">
       <div class="title">COMPLETE SEU PERFIL</div>
       <div class="center">
-        <div class="right" [ngStyle]="{backgroundColor: getBackgroundColor('contratado'), color: getFontColor('contratado')}"(click)="selecionarBotao('contratado')">
-          <p>Eu quero ser <br /> contratado </p>
+        <div class="title">
+          <p>Selecione sua área de interesse:</p>
         </div>
-        <div class="left" [ngStyle]="{ backgroundColor: getBackgroundColor('contratar'), color: getFontColor('contratar')}" (click)="selecionarBotao('contratar')">
-          <p>Eu quero <br /> contratar </p>
+
+        <div class="multi-select-dropdow" #dropdownContainer>
+          <div class="input-container">
+            <ng-container *ngFor="let area of allAreas">
+              <div class="selected-item" *ngIf="area.selected">
+                {{ area.interestArea }}
+                <button (click)="removeItem(area, $event)">x</button>
+              </div>
+            </ng-container>
+            <input
+              type="text"
+              (focus)="showDropdown()"
+              (input)="filterItems($event)"
+              [placeholder]="
+                selectedAreaIds.length > 0 ? '' : 'Selecione uma área'
+              "
+            />
+          </div>
+
+          <div *ngIf="isDropdownVisible" class="dropdown-list">
+            <div
+              *ngFor="let area of filteredAreas"
+              class="dropdown-item"
+              (click)="toggleItem(area, $event)"
+            >
+              <span class="checkbox" [class.checked]="area.selected">
+                <span *ngIf="area.selected" class="checkmark">✔</span>
+              </span>
+              {{ area.interestArea }}
+            </div>
+          </div>
         </div>
       </div>
-      <div class="send-button">
-        <button [routerLink]="['/primeira-etapa']">Voltar</button>
-        <button [disabled]="!selectedButton" [ngClass]="{ 'disabled': !selectedButton }" (click)="proximaEtapa()">Próximo</button> </div>
-      <div class="send"></div>
+      <div class="footer">
+        <div class="send-button">
+          <button routerLink='/primeira-etapa'>Voltar</button>
+          <button (click)="concluirCadastro()">Concluir</button>
+        </div>
+      </div>
     </div>
-    <div class="footer"></div>
   </div>
 </div>

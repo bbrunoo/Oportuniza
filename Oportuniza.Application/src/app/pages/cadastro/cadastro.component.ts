@@ -124,7 +124,6 @@ export class CadastroComponent {
       name: this.email.split('@')[0],
       email: this.email,
       password: this.password,
-      isACompany: false,
     };
 
     this.isLoading = true;
@@ -253,7 +252,7 @@ export class CadastroComponent {
   openModal() {
     const dialogRef = this.dialog.open(TermosModalComponent, {
       width: '35em',
-      height: '32em',
+      height: '35em',
       maxWidth: 'none',
     });
 

@@ -4,16 +4,17 @@ import { Observable } from 'rxjs';
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { isPlatformBrowser } from '@angular/common';
+import { MsalService } from "@azure/msal-angular";
 
 @Injectable({
   providedIn: 'root',
 })
 
 export class AuthService {
-  apiUrl = 'https://localhost:5000/api/v1/Auth';
+  apiUrl = 'http://localhost:5000/api/v1/Auth';
   private tokenKey = 'access_token';
 
-  constructor(private http: HttpClient, private router: Router, @Inject(PLATFORM_ID) private platformId: Object) { }
+  constructor(private http: HttpClient, private router: Router, @Inject(PLATFORM_ID) private platformId: Object, private msalService:MsalService) { }
 
   login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials);
@@ -48,8 +49,10 @@ export class AuthService {
   }
 
   logout() {
-    this.clearToken();
-    this.router.navigate(['/login']);
+    this.msalService.logoutRedirect();
+    sessionStorage.clear();
+    localStorage.clear();
+    this.router.navigate(['/']);
   }
 
   isAuthenticated(): boolean {

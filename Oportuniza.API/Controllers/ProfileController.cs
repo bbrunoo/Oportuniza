@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 
@@ -20,7 +21,7 @@ namespace Oportuniza.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProfileById(Guid id)
         {
-            var user = await _userRepository.GetById(id);
+            var user = await _userRepository.GetByIdAsync(id);
 
             if (user == null) return NotFound();
 
@@ -35,7 +36,7 @@ namespace Oportuniza.API.Controllers
         [HttpGet("profile-data/{id}")]
         public async Task<IActionResult> GetProfileDatas(Guid id)
         {
-            var user = await _userRepository.GetById(id);
+            var user = await _userRepository.GetByIdAsync(id);
             if (user == null) return NotFound("Usuario nao encontrado");
 
             var result = await _userRepository.GetUserInfoAsync(id);
