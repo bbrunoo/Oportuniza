@@ -37,11 +37,12 @@ namespace Oportuniza.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var publications = await _publicationRepository.GetAllAsync(
+                 filter: p => p.Status == PublicationStatus.Approved,
                  orderBy: q => q.OrderByDescending(c => c.CreationDate),
                  includes: new Expression<Func<Publication, object>>[]
                  {
                     p => p.AuthorUser,
-                    p => p.AuthorCompany 
+                    p => p.AuthorCompany
                  }
             );
 

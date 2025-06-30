@@ -32,9 +32,9 @@ import {
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../environments/environment';
 
-export function loggerCallback(logLevel: LogLevel, message: string) {
-  console.log(message);
-}
+// export function loggerCallback(logLevel: LogLevel, message: string) {
+//   console.log(message);
+// }
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication({
@@ -50,7 +50,7 @@ export function MSALInstanceFactory(): IPublicClientApplication {
     system: {
       allowPlatformBroker: false,
       loggerOptions: {
-        loggerCallback,
+        // loggerCallback,
         logLevel: LogLevel.Info,
         piiLoggingEnabled: false,
       },

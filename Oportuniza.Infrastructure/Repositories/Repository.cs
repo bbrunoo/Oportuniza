@@ -106,5 +106,24 @@ namespace Oportuniza.Infrastructure.Repositories
 
             return await query.ToListAsync();
         }
+
+        public async Task<IEnumerable<T>> GetAllAsync(
+            Expression<Func<T, bool>> filter,
+            Expression<Func<T, object>> include,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)
+                {
+                    IQueryable<T> query = _dbSet;
+
+                    if (filter != null)
+                        query = query.Where(filter);
+
+                    if (include != null)
+                        query = query.Include(include);
+
+                    if (orderBy != null)
+                        query = orderBy(query);
+
+                    return await query.ToListAsync();
+                }
     }
 }

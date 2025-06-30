@@ -17,6 +17,6 @@ namespace Oportuniza.Domain.Models
         public virtual User? AuthorUser { get; set; }
         public Guid? AuthorCompanyId { get; set; }
         public virtual Company? AuthorCompany { get; set; }
-
+        public PublicationStatus Status { get; set; } = PublicationStatus.Pending;
     }
 }

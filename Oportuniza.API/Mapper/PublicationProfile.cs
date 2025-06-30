@@ -25,8 +25,9 @@ namespace Oportuniza.API.Mapper
                      : src.AuthorUser.ImageUrl))
 
              .ForMember(dest => dest.AuthorType, opt => opt.MapFrom(src =>
-                 src.AuthorCompanyId.HasValue ? "Company" : "User"));
+                 src.AuthorCompanyId.HasValue ? "Company" : "User"))
 
+             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
 
             CreateMap<PublicationCreateDto, Publication>();
         }
