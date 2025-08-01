@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,7 @@ namespace Oportuniza.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PublicationController : ControllerBase
     {
         private readonly IPublicationRepository _publicationRepository;
@@ -34,10 +36,10 @@ namespace Oportuniza.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var publications = await _publicationRepository.GetAllAsync(
-                 filter: p => p.Status == PublicationStatus.Approved,
                  orderBy: q => q.OrderByDescending(c => c.CreationDate),
                  includes: new Expression<Func<Publication, object>>[]
                  {
@@ -57,6 +59,7 @@ namespace Oportuniza.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(Guid id)
         {
             var publications = await _publicationRepository.GetByIdAsync(id);
@@ -69,13 +72,12 @@ namespace Oportuniza.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> Post([FromForm] PublicationCreateDto dto, IFormFile image)
         {
             if (dto == null) return BadRequest("Dados inválidos.");
             if (image == null || image.Length == 0) return BadRequest("A imagem é obrigatória.");
 
-            var userIdClaim = User.FindFirst(ClaimConstants.ObjectId)?.Value;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!Guid.TryParse(userIdClaim, out Guid userGuid))
             {
                 return Unauthorized("Token inválido.");

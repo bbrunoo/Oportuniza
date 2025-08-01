@@ -53,7 +53,7 @@ namespace Oportuniza.API.Controllers
         [HttpGet("user-companies")]
         public async Task<IActionResult> GetCompaniesByUser()
         {
-            var userIdClaim = User.FindFirst(ClaimConstants.ObjectId)?.Value;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userGuid))
                 return Unauthorized("Token inválido.");
@@ -72,7 +72,7 @@ namespace Oportuniza.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userIdClaim = User.FindFirst(ClaimConstants.ObjectId)?.Value;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!Guid.TryParse(userIdClaim, out Guid userGuid))
             {
                 return Unauthorized("Token inválido ou ID do usuário ausente.");

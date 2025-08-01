@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Oportuniza.API.Viewmodel;
 using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,11 +21,14 @@ namespace Oportuniza.API.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IAuthenticateUser _authenticateUser;
-
-        public AuthController(IUserRepository userRepository, IAuthenticateUser authenticateUser)
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly KeycloakAuthService _authService;
+        public AuthController(IUserRepository userRepository, IAuthenticateUser authenticateUser, IHttpClientFactory httpClientFactory, KeycloakAuthService authService)
         {
             _userRepository = userRepository;
             _authenticateUser = authenticateUser;
+            _httpClientFactory = httpClientFactory;
+            _authService = authService;
         }
 
         [HttpPost("register")]
@@ -107,6 +114,74 @@ namespace Oportuniza.API.Controllers
             return Ok(new UserToken { Token = token });
         }
 
+        [HttpPost("register-keycloak")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        {
+            var token = await GetAdminToken();
+
+            var userPayload = new
+            {
+                username = request.Email,
+                email = request.Email,
+                enabled = true,
+                emailVerified = true,
+                credentials = new[]
+                {
+                new
+                {
+                    type = "password",
+                    value = request.Password,
+                    temporary = false
+                }
+            }
+            };
+
+            var client = _httpClientFactory.CreateClient();
+            var req = new HttpRequestMessage(HttpMethod.Post, "http://localhost:9090/admin/realms/oportuniza/users");
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            req.Content = new StringContent(JsonConvert.SerializeObject(userPayload), Encoding.UTF8, "application/json");
+
+            var response = await client.SendAsync(req);
+            if (response.IsSuccessStatusCode)
+            {
+                return Ok();
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return StatusCode((int)response.StatusCode, error);
+        }
+
+        [HttpPost("login-keycloak")]
+        public async Task<IActionResult> LoginKeycloak([FromBody] LoginRequestDto login)
+        {
+            var result = await _authService.LoginWithCredentialsAsync(login.Email, login.Password);
+
+            if (string.IsNullOrEmpty(result))
+            {
+                return Unauthorized(new { error = "Usuário ou senha inválidos" });
+            }
+
+            return Ok(result); 
+        }
+        private async Task<string> GetAdminToken()
+        {
+            var client = _httpClientFactory.CreateClient();
+            var parameters = new Dictionary<string, string>
+            {
+                ["grant_type"] = "password",
+                ["client_id"] = "admin-cli",
+                ["username"] = "admin",
+                ["password"] = "admin" 
+            };
+
+            var content = new FormUrlEncodedContent(parameters);
+            var response = await client.PostAsync("http://localhost:9090/realms/master/protocol/openid-connect/token", content);
+
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            dynamic obj = JsonConvert.DeserializeObject(json)!;
+            return obj.access_token;
+        }
         private static bool IsValidPassword(string password)
         {
             var regex = new Regex(@"^[a-zA-Z0-9!@#$%^&*_\-+.]+$");

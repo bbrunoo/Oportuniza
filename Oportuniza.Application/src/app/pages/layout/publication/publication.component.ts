@@ -141,10 +141,8 @@ export class PublicationComponent implements OnInit {
 
     this.isSubmitting = true;
 
-    // Verifica se o ID selecionado pertence a uma empresa ou ao usuário
     const isCompanyPost = this.selectedAuthorId !== this.userProfile?.id;
 
-    // Monta o DTO para enviar ao backend
     const dto: PublicationCreate = {
       title: this.publication.title,
       content: this.publication.content,
@@ -159,12 +157,11 @@ export class PublicationComponent implements OnInit {
         this.isSubmitting = false;
         Swal.fire('Sucesso!', 'Publicação criada com sucesso!', 'success');
 
-        // Limpa o formulário
         this.publicationForm.resetForm();
         this.previewUrl = null;
         this.selectedImage = undefined;
         this.selectedSalary = null;
-        this.selectedAuthorId = this.userProfile?.id ?? null; // Reseta o autor
+        this.selectedAuthorId = this.userProfile?.id ?? null; 
       },
       error: (err) => {
         this.isSubmitting = false;
