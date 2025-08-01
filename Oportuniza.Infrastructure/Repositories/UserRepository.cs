@@ -54,14 +54,15 @@ namespace Oportuniza.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<User> GetByAzureAdObjectIdAsync(Guid azureAdObjectId)
-        {
-            return await _context.User.FirstOrDefaultAsync(u => u.AzureAdObjectId == azureAdObjectId);
-        }
-
         public async Task<User?> GetById(Guid id)
         {
             return await _context.User.FindAsync(id);
+        }
+
+        public async Task<User?> GetByIdentityProviderIdAsync(string identityProviderId, string identityProviderType)
+        {
+            return await _context.User
+                       .FirstOrDefaultAsync(u => u.IdentityProviderId == identityProviderId && u.IdentityProvider == identityProviderType);
         }
 
         public async Task<User?> GetByIdWithInterests(Guid id)

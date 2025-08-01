@@ -4,6 +4,7 @@ import { Component, Inject, OnDestroy, OnInit, Optional, PLATFORM_ID } from '@an
 import { Router, RouterOutlet } from '@angular/router';
 import { MSAL_GUARD_CONFIG, MsalBroadcastService, MsalGuardConfiguration, MsalService } from '@azure/msal-angular';
 import { EventMessage, EventType, InteractionStatus } from '@azure/msal-browser';
+// import { KeycloakService } from 'keycloak-angular';
 import { filter, Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -13,8 +14,7 @@ import { filter, Subject, takeUntil } from 'rxjs';
   template: `<router-outlet></router-outlet>`,
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, OnDestroy {
-
+export class AppComponent implements OnInit, OnDestroy{
   isIframe = false;
   loginDisplay = false;
   private readonly _destroying$ = new Subject<void>();
@@ -25,10 +25,10 @@ export class AppComponent implements OnInit, OnDestroy {
     @Optional() @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
     @Optional() private authService: MsalService,
     @Optional() private msalBroadcastService: MsalBroadcastService,
-    private router: Router
+    private router: Router,
   ) { }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (isPlatformBrowser(this.platformId)) {
       this.isIframe = window.self !== window.top;
 
@@ -42,17 +42,17 @@ export class AppComponent implements OnInit, OnDestroy {
         });
       }
 
-      if (this.msalBroadcastService) {
-        this.msalBroadcastService.inProgress$
-          .pipe(
-            filter((status: InteractionStatus) => status === InteractionStatus.None),
-            takeUntil(this._destroying$)
-          )
-          .subscribe(() => {
-            this.setLoginDisplay();
-            this.checkAndSetActiveAccount();
-          });
-      }
+      // if (this.msalBroadcastService) {
+      //   this.msalBroadcastService.inProgress$
+      //     .pipe(
+      //       filter((status: InteractionStatus) => status === InteractionStatus.None),
+      //       takeUntil(this._destroying$)
+      //     )
+      //     .subscribe(() => {
+      //       this.setLoginDisplay();
+      //       this.checkAndSetActiveAccount();
+      //     });
+      // }
     }
   }
 
@@ -83,5 +83,5 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   title = 'Oportuniza.Application';
-
 }
+

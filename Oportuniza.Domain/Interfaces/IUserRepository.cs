@@ -11,6 +11,6 @@ namespace Oportuniza.Domain.Interfaces
         Task<UserInfoDTO> GetUserInfoAsync(Guid id);
         Task<IEnumerable<AllUsersInfoDTO>> GetAllUserInfosAsync();
         Task<User?> GetByIdWithInterests(Guid id);
-        Task<User> GetByAzureAdObjectIdAsync(Guid azureAdObjectId);
+        Task<User?> GetByIdentityProviderIdAsync(string identityProviderId, string identityProviderType);
     }
 }

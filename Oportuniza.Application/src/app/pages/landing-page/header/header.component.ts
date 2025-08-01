@@ -17,23 +17,8 @@ export class HeaderComponent {
   lastScrollTop = 0;
   isHeaderHidden = false;
   scrollThreshold = 100;
-  loginDisplay = false;
 
-  constructor(private router: Router, private authService: MsalService, @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration) { }
-
-  loginRedirect() {
-    if (this.msalGuardConfig.authRequest) {
-      this.authService.loginRedirect({
-        ...this.msalGuardConfig.authRequest,
-      } as RedirectRequest);
-    } else {
-      this.authService.loginRedirect();
-    }
-  }
-
-  setLoginDisplay() {
-    this.loginDisplay = this.authService.instance.getAllAccounts().length > 0;
-  }
+  constructor(private router: Router) { }
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {

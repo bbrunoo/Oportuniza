@@ -1,14 +1,13 @@
-import { ApplicationConfig, importProvidersFrom, inject, PLATFORM_ID, Provider, provideZoneChangeDetection } from '@angular/core';
+import { AutoRefreshTokenService, KeycloakBearerInterceptor, KeycloakService, UserActivityService, withAutoRefreshToken } from 'keycloak-angular';
+import { APP_INITIALIZER, ApplicationConfig, EnvironmentProviders, importProvidersFrom, inject, makeEnvironmentProviders, PLATFORM_ID, provideAppInitializer, Provider, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
-// import { authInterceptor } from './interceptor/auth.interceptor';
 import { provideToastr } from 'ngx-toastr';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideNgxMask } from 'ngx-mask';
-import { MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 
 import {
   MSAL_GUARD_CONFIG,
@@ -29,12 +28,25 @@ import {
   LogLevel,
   PublicClientApplication
 } from '@azure/msal-browser';
-import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../environments/environment';
 
-export function loggerCallback(logLevel: LogLevel, message: string) {
-  console.log(message);
-}
+import {
+  createInterceptorCondition,
+  IncludeBearerTokenCondition,
+  INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG
+} from 'keycloak-angular';
+
+import { AuthTokenInterceptor } from './interceptor/auth-token.interceptor';
+
+const urlCondition = createInterceptorCondition<IncludeBearerTokenCondition>({
+  urlPattern: /^(http:\/\/localhost:8181)(\/.*)?$/i,
+  bearerPrefix: 'Bearer'
+});
+
+import { JWT_OPTIONS, JwtHelperService } from "@auth0/angular-jwt";
+import { KeycloakOperationService } from './services/keycloak.service';
+
+const IS_BROWSER = typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
 export function MSALInstanceFactory(): IPublicClientApplication {
   return new PublicClientApplication({
@@ -50,7 +62,7 @@ export function MSALInstanceFactory(): IPublicClientApplication {
     system: {
       allowPlatformBroker: false,
       loggerOptions: {
-        loggerCallback,
+        // loggerCallback,
         logLevel: LogLevel.Info,
         piiLoggingEnabled: false,
       },
@@ -81,8 +93,6 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   };
 }
 
-const IS_BROWSER = typeof window !== 'undefined' && typeof window.document !== 'undefined';
-
 const provideMsal = (): Provider[] => {
   if (IS_BROWSER) {
     return [
@@ -104,24 +114,49 @@ const provideMsal = (): Provider[] => {
         useFactory: MSALInterceptorConfigFactory,
       },
       MsalService,
-      MsalGuard,
       MsalBroadcastService,
     ];
   }
-  // No servidor (SSR), não fornecemos nada relacionado ao MSAL.
   return [];
 };
+
+export function kcFactory(kcService: KeycloakOperationService) {
+  return () => kcService.init();
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes), provideClientHydration(withEventReplay()),
+    provideRouter(routes),
+    provideClientHydration(withEventReplay()),
     provideHttpClient(withInterceptorsFromDi(), withFetch()),
     provideToastr(),
-    [provideZoneChangeDetection({ eventCoalescing: true }), importProvidersFrom(TranslateModule.forRoot()),],
+    importProvidersFrom(TranslateModule.forRoot()),
     provideNgxMask(),
-    ...provideMsal(),
+    MsalService,
+    MsalBroadcastService,
+    {
+      provide: MSAL_INSTANCE,
+      useFactory: MSALInstanceFactory,
+    },
+    {
+      provide: MSAL_GUARD_CONFIG,
+      useFactory: MSALGuardConfigFactory,
+    },
+    {
+      provide: MSAL_INTERCEPTOR_CONFIG,
+      useFactory: MSALInterceptorConfigFactory,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthTokenInterceptor,
+      multi: true,
+    },
+    { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
+    JwtHelperService,
+    provideAppInitializer(() => {
+      const kcService = inject(KeycloakOperationService);
+      return kcService.init();
+    })
   ]
 };
-
-

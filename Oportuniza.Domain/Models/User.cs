@@ -19,7 +19,8 @@
         public bool IsAdmin { get; set; }
         public bool Active { get; set; }
         public bool IsProfileCompleted { get; set; }
-        public Guid AzureAdObjectId { get; set; }
+        public string IdentityProviderId { get; set; }
+        public string IdentityProvider { get; set; }
         public UserType UserType { get; set; }
         public ICollection<CompanyEmployee> CompanyLinks { get; set; } = new List<CompanyEmployee>();
         public ICollection<UserAreaOfInterest> UserAreasOfInterest { get; set; } = new List<UserAreaOfInterest>();

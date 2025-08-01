@@ -1,4 +1,3 @@
-import { TokenService } from './token.service';
 import { PublicationCreate } from './../models/publication-create.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -8,12 +7,11 @@ import { Publication } from '../models/Publications.model';
   providedIn: 'root'
 })
 export class PublicationService {
-  constructor(private http: HttpClient, private tokenService: TokenService) { }
+  constructor(private http: HttpClient) { }
   apiUrl = 'http://localhost:5000/api/Publication';
 
   getPublications() {
-    const header = new HttpHeaders().set("Content-Type", "application/json");
-    return this.http.get<Publication[]>(`${this.apiUrl}`, { headers: header });
+    return this.http.get<Publication[]>(`${this.apiUrl}`);
   }
 
   createPublication(dto: PublicationCreate, image: File) {

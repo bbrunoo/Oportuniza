@@ -5,6 +5,8 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { UsersAPIResponse } from 'stream-chat';
 import { UserService } from '../../services/user.service';
 import { CommonModule } from '@angular/common';
+import { KeycloakOperationService } from '../../services/keycloak.service';
+import { MsalService } from '@azure/msal-angular';
 
 @Component({
   selector: 'app-configs',
@@ -16,7 +18,7 @@ import { CommonModule } from '@angular/common';
 export class ConfigsComponent implements OnInit {
   showCompleteProfileButton = true;
 
-  constructor(private authService: AuthService, private router: Router, public dialogRef: MatDialogRef<ConfigsComponent>, private userService: UserService) { }
+  constructor(private authService: AuthService, private router: Router, public dialogRef: MatDialogRef<ConfigsComponent>, private msalSerivce: MsalService, private userService: UserService, private keycloakService: KeycloakOperationService) { }
 
   containerHeight = '200px';
 
@@ -36,12 +38,12 @@ export class ConfigsComponent implements OnInit {
   }
 
 
-  logout() {
-    this.authService.logout()
+  async logout() {
+    localStorage.clear();
+    sessionStorage.clear();
     this.router.navigate(['/']);
     this.dialogRef.close();
   }
-
 
   completePerfil() {
     this.router.navigate(['/primeira-etapa']);

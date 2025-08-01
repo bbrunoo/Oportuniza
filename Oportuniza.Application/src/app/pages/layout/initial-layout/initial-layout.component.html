@@ -25,25 +25,27 @@
       </nav>
     </div>
 
-    <div class="user-content" >
+    <div class="user-content">
       <button class="novo-post" routerLink="criar-empresa">
         Criar Empresa
       </button>
       <button class="novo-post" routerLink="post">+ Novo Post</button>
       <div class="user" *ngIf="loginDisplay">
         <img
-        class="user-image"
-        [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'"
-        alt=""
+          class="user-image"
+          [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'"
+          alt=""
         />
         {{ userProfile.name }}
         <img
-        class="config-image"
-        (click)="openDialog()"
-        src="../../../../assets/home-assets/settings.png"
-        alt=""
+          class="config-image"
+          (click)="openDialog()"
+          src="../../../../assets/home-assets/settings.png"
+          alt=""
         />
-        <span *ngIf="showCompleteProfileicon"><img src="../../../../assets/exclamation.png" alt=""></span>
+        <span *ngIf="showCompleteProfileicon"
+          ><img src="../../../../assets/exclamation.png" alt=""
+        /></span>
       </div>
     </div>
   </aside>

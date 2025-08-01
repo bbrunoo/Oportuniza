@@ -3,21 +3,20 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 // import { useAuth } from '../authConfig';
-import { TokenService } from './token.service';
+// import { TokenService } from './token.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
-  constructor(private http: HttpClient, private tokenService: TokenService) { }
+  constructor(private http: HttpClient) { }
 
   apiUrl = 'http://localhost:5000/api/v1/User';
   uploadApi = 'http://localhost:5000/api/Upload/upload-profile-picture';
 
   getOwnProfile() {
-    const header = new HttpHeaders().set("Content-Type", "application/json");
-    return this.http.get<UserProfile>(`${this.apiUrl}/profile`, { headers: header});
+    return this.http.get<UserProfile>(`${this.apiUrl}/profile`);
   }
 
   updateProfile(profileData: {

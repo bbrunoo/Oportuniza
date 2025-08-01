@@ -6,8 +6,14 @@ export const environment = {
       authority: 'https://oportunizaapp.ciamlogin.com/3af5d8b9-4cdf-4cb3-819e-ef412714d63f',
     },
   },
-   apiConfig: {
+  apiConfig: {
     scopes: ['api://a863e08f-99f4-4e08-ae28-afbc4d562269/oportuniza.read'],
     uri: 'http://localhost:5000/',
   },
+  keycloak: {
+    url: 'http://localhost:9090',
+    realm: 'oportuniza',
+    clientId: 'oportuniza-client',
+    secret: 'Sr1LFcfOHwtFckn8HAHHAf7IxklDiBI3',
+  }
 };

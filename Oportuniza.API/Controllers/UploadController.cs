@@ -6,9 +6,9 @@ using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UploadController : ControllerBase
     {
         private readonly AzureBlobService _azureBlobService;
@@ -31,7 +31,7 @@ namespace Oportuniza.API.Controllers
         {
             if (file == null) return BadRequest("File not found");
 
-            var userIdStr = User.FindFirst(ClaimConstants.ObjectId)?.Value;
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new { message = "Usuário não autenticado" });
@@ -56,7 +56,7 @@ namespace Oportuniza.API.Controllers
         {
             if (file == null) return BadRequest("File not found");
 
-            var userIdStr = User.FindFirst(ClaimConstants.ObjectId)?.Value;
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new { message = "Usuário não autenticado" });
@@ -81,7 +81,7 @@ namespace Oportuniza.API.Controllers
         {
             if (file == null) return BadRequest("File not found");
 
-            var userIdStr = User.FindFirst(ClaimConstants.ObjectId)?.Value;
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized(new { message = "Usuário não autenticado" });

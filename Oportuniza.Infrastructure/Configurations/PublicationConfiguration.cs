@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Models;
 
 namespace Oportuniza.Infrastructure.Configurations
@@ -27,13 +28,18 @@ namespace Oportuniza.Infrastructure.Configurations
             builder.Property(p => p.Salary)
                 .HasMaxLength(20);
 
+            builder.Property(p => p.Status)
+            .IsRequired()
+            .HasConversion<int>()
+            .HasDefaultValue(PublicationStatus.Pending);
+
             builder.Property(p => p.Expired)
                 .IsRequired();
 
             builder.HasOne(p => p.CreatedByUser)
                .WithMany(u => u.CreatedPublications)
                .HasForeignKey(p => p.CreatedByUserId)
-               .OnDelete(DeleteBehavior.Restrict); // SEJA EXPLÍCITO
+               .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(p => p.AuthorUser)
                 .WithMany(u => u.AuthoredAsUserPublications)
