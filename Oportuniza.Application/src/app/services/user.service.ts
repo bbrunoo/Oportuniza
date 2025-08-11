@@ -2,8 +2,6 @@ import { UserProfile } from './../models/UserProfile.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-// import { useAuth } from '../authConfig';
-// import { TokenService } from './token.service';
 
 @Injectable({
   providedIn: 'root'
@@ -39,5 +37,4 @@ export class UserService {
 
     return this.http.post<{ imageUrl: string }>(`${this.uploadApi}`, formData);
   }
-
 }

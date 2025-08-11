@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 })
 export class KeycloakOperationService {
   private isBrowser: boolean;
+
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
     private http: HttpClient,
     private router: Router
@@ -19,7 +20,7 @@ export class KeycloakOperationService {
 
   async init(): Promise<void> {
     if (this.isBrowser) {
-      console.log("KeycloakOperationService: Iniciando (modo API de token puro).");
+      console.log("keycloak initialized.");
     }
     return Promise.resolve();
   }
@@ -39,6 +40,15 @@ export class KeycloakOperationService {
     });
   }
 
+   saveTokens(tokens: any): void {
+    if (this.isBrowser && tokens.access_token) {
+      sessionStorage.setItem('access_token', tokens.access_token);
+      sessionStorage.setItem('refresh_token', tokens.refresh_token);
+      sessionStorage.setItem('id_token', tokens.id_token);
+      sessionStorage.setItem('loginWithKeycloak', 'true');
+    }
+  }
+  
   getAdminToken(): Observable<any> {
     const body = new HttpParams()
       .set('grant_type', 'password')

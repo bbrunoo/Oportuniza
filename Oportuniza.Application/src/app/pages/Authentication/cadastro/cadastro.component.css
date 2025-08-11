@@ -226,6 +226,11 @@ input:focus {
   transform: scale(1.03);
 }
 
+.password-criteria div.notMet {
+  color: #cf0d0d;
+  font-weight: 500;
+}
+
 
 @media screen and (max-width: 1000px) {
 

@@ -1,10 +1,8 @@
-// import { authConfig, useAuth } from './authConfig';
 import { isPlatformBrowser } from '@angular/common';
 import { Component, Inject, OnDestroy, OnInit, Optional, PLATFORM_ID } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { MSAL_GUARD_CONFIG, MsalBroadcastService, MsalGuardConfiguration, MsalService } from '@azure/msal-angular';
 import { EventMessage, EventType, InteractionStatus } from '@azure/msal-browser';
-// import { KeycloakService } from 'keycloak-angular';
 import { filter, Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -41,18 +39,6 @@ export class AppComponent implements OnInit, OnDestroy{
           }
         });
       }
-
-      // if (this.msalBroadcastService) {
-      //   this.msalBroadcastService.inProgress$
-      //     .pipe(
-      //       filter((status: InteractionStatus) => status === InteractionStatus.None),
-      //       takeUntil(this._destroying$)
-      //     )
-      //     .subscribe(() => {
-      //       this.setLoginDisplay();
-      //       this.checkAndSetActiveAccount();
-      //     });
-      // }
     }
   }
 

@@ -2,11 +2,15 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import Swal from "sweetalert2";
+import Swal from 'sweetalert2';
 import { MatDialog } from '@angular/material/dialog';
 import { TermosModalComponent } from '../../../extras/termos-modal/termos-modal.component';
 import { firstValueFrom } from 'rxjs';
-import { MSAL_GUARD_CONFIG, MsalGuardConfiguration, MsalService } from '@azure/msal-angular';
+import {
+  MSAL_GUARD_CONFIG,
+  MsalGuardConfiguration,
+  MsalService,
+} from '@azure/msal-angular';
 import { RedirectRequest } from '@azure/msal-browser';
 import { KeycloakOperationService } from '../../../services/keycloak.service';
 
@@ -39,7 +43,8 @@ export class CadastroComponent {
     hasUppercase: false,
     hasNumber: false,
     hasSymbol: false,
-    hasMinLength: false
+    hasMinLength: false,
+    equalsPassword: false,
   };
 
   passwordStatus = {
@@ -47,20 +52,37 @@ export class CadastroComponent {
     hasUppercase: false,
     hasNumber: false,
     hasSymbol: false,
-    hasMinLength: false
+    hasMinLength: false,
+    equalsPassword: false,
   };
 
   timeoutMap: any = {};
 
-  criteriaList: { key: keyof typeof CadastroComponent.prototype['passwordCriteria']; message: string }[] = [];
+  criteriaList: {
+    key: keyof (typeof CadastroComponent.prototype)['passwordCriteria'];
+    message: string;
+  }[] = [];
 
-  constructor(private router: Router, private dialog: MatDialog, private keyAuth: KeycloakOperationService, private msalService: MsalService, @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration) {
+  constructor(
+    private router: Router,
+    private dialog: MatDialog,
+    private keyAuth: KeycloakOperationService,
+    private msalService: MsalService,
+    @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration
+  ) {
     this.criteriaList = [
       { key: 'hasLowercase', message: 'A senha deve conter letras minúsculas' },
       { key: 'hasUppercase', message: 'A senha deve conter letras maiúsculas' },
       { key: 'hasNumber', message: 'A senha deve conter números' },
-      { key: 'hasSymbol', message: 'A senha deve conter símbolos (ex: @, #, $)' },
-      { key: 'hasMinLength', message: 'A senha deve ter no mínimo 8 caracteres' }
+      {
+        key: 'hasSymbol',
+        message: 'A senha deve conter símbolos (ex: @, #, $)',
+      },
+      {
+        key: 'hasMinLength',
+        message: 'A senha deve ter no mínimo 8 caracteres',
+      },
+      { key: 'equalsPassword', message: 'As senhas devem ser iguais' },
     ];
   }
 
@@ -78,7 +100,6 @@ export class CadastroComponent {
     this.loginDisplay = this.msalService.instance.getAllAccounts().length > 0;
   }
 
-
   togglePassword() {
     this.passwordVisible = !this.passwordVisible;
   }
@@ -93,8 +114,54 @@ export class CadastroComponent {
   }
 
   validatePassword(password: string): boolean {
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+    const passwordPattern =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
     return passwordPattern.test(password);
+  }
+
+  async proceedRegistration() {
+    this.isLoading = true;
+
+    try {
+      const response = await firstValueFrom(
+        this.keyAuth.registerUser({
+          email: this.email,
+          password: this.password,
+        })
+      );
+      console.log('Resposta do registro:', response);
+
+      console.log('Usuário registrado com sucesso no Keycloak!', response);
+
+      const tokens = await firstValueFrom(
+        this.keyAuth.loginWithCredentials(this.email, this.password)
+      );
+      console.log('Login bem-sucedido, tokens recebidos:', tokens);
+
+      this.keyAuth.saveTokens(tokens);
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Cadastro realizado!',
+        text: 'Seu cadastro foi efetuado com sucesso. Você será redirecionado.',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      this.router.navigate(['/inicio']);
+    } catch (error) {
+      console.error('Erro no processo de registro:', error);
+      this.errorMessage =
+        'Ocorreu um erro ao tentar realizar o cadastro. Verifique os dados ou tente novamente mais tarde.';
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro no Cadastro',
+        text: this.errorMessage,
+      });
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   async register() {
@@ -104,51 +171,24 @@ export class CadastroComponent {
       Swal.fire({
         icon: 'warning',
         title: 'Email inválido',
-        text: 'Por favor, insira um e-mail válido.'
+        text: 'Por favor, insira um e-mail válido.',
       });
       return;
     }
 
     if (this.password !== this.confirmPassword) {
-      Swal.fire({ icon: 'warning', title: 'Senhas diferentes', text: 'As senhas não coincidem.' });
-      return;
-    }
-    if (!this.acceptTerms) {
-      Swal.fire({ icon: 'info', title: 'Termos não aceitos', text: 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.' });
-      return;
-    }
-
-    this.isLoading = true;
-
-    try {
-      const response = await firstValueFrom(this.keyAuth.registerUser({ email: this.email, password: this.password }));
-      console.log('Usuário registrado com sucesso no Keycloak!', response);
-
-      const tokens = await firstValueFrom(this.keyAuth.loginWithCredentials(this.email, this.password));
-      console.log('Login bem-sucedido, tokens recebidos:', tokens);
-
-      await Swal.fire({
-        icon: 'success',
-        title: 'Cadastro realizado!',
-        text: 'Seu cadastro foi efetuado com sucesso. Você será redirecionado.',
-        timer: 2000,
-        showConfirmButton: false
-      });
-
-      this.router.navigate(['/inicio']);
-
-    } catch (error) {
-      console.error('Erro no processo de registro:', error);
-      this.errorMessage = 'Ocorreu um erro ao tentar realizar o cadastro. Verifique os dados ou tente novamente mais tarde.';
-
       Swal.fire({
-        icon: 'error',
-        title: 'Erro no Cadastro',
-        text: this.errorMessage
+        icon: 'warning',
+        title: 'Senhas diferentes',
+        text: 'As senhas não coincidem.',
       });
+      return;
+    }
 
-    } finally {
-      this.isLoading = false;
+    if (!this.acceptTerms) {
+      this.openModal()
+    } else {
+      this.proceedRegistration();
     }
   }
 
@@ -160,7 +200,7 @@ export class CadastroComponent {
       hasUppercase: /[A-Z]/.test(pwd),
       hasNumber: /\d/.test(pwd),
       hasSymbol: /[^\w\s]/.test(pwd),
-      hasMinLength: pwd.length >= 8
+      hasMinLength: pwd.length >= 8,
     };
 
     Object.entries(checks).forEach(([key, value]) => {
@@ -186,6 +226,9 @@ export class CadastroComponent {
 
   checkPasswordsMatch() {
     const match = this.password === this.confirmPassword;
+
+    this.passwordCriteria.equalsPassword = match;
+
     if (match && !this.passwordsMatch) {
       this.passwordsMatchStatus = true;
       if (this.passwordMatchTimeout) clearTimeout(this.passwordMatchTimeout);
@@ -224,10 +267,11 @@ export class CadastroComponent {
       maxWidth: 'none',
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result === 'aceito') {
         this.acceptTerms = true;
         this.termsAcceptedInternally = true;
+        this.proceedRegistration();
       }
     });
   }

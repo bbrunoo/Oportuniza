@@ -112,8 +112,6 @@ export class PublicationComponent implements OnInit {
 
     };
 
-    console.log(imageBase64);
-
     const dialogRef = this.dialog.open(CropperDialogComponent, {
       minWidth: '1000px',
       minHeight: '600px',
@@ -150,8 +148,6 @@ export class PublicationComponent implements OnInit {
       postAsCompanyId: isCompanyPost ? this.selectedAuthorId : null
     };
 
-      console.log('Enviando para o backend:', dto);
-
     this.publicationService.createPublication(dto, this.selectedImage).subscribe({
       next: () => {
         this.isSubmitting = false;
@@ -161,7 +157,7 @@ export class PublicationComponent implements OnInit {
         this.previewUrl = null;
         this.selectedImage = undefined;
         this.selectedSalary = null;
-        this.selectedAuthorId = this.userProfile?.id ?? null; 
+        this.selectedAuthorId = this.userProfile?.id ?? null;
       },
       error: (err) => {
         this.isSubmitting = false;

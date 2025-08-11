@@ -1,15 +1,7 @@
 <div class="cadastro-container">
   <div class="cadastro-left">
-    <img
-      src="assets/cadastro/cadastro.png"
-      class="cadastro-image"
-      alt="Imagem de fundo"
-    />
-    <button
-      type="button"
-      class="logo-btn"
-      style="cursor: pointer; background: transparent; border: transparent"
-    >
+    <img src="assets/cadastro/cadastro.png" class="cadastro-image" alt="Imagem de fundo" />
+    <button type="button" class="logo-btn" style="cursor: pointer; background: transparent; border: transparent">
       <img src="assets/logo.png" class="logo" alt="Logo" />
     </button>
   </div>
@@ -19,55 +11,43 @@
 
     <form (ngSubmit)="register()" #registerForm="ngForm" class="loginform">
       <div class="input-container">
-        <input
-          type="email"
-          name="email"
-          placeholder="E-mail"
-          [(ngModel)]="email"
-          maxlength="100"
-        />
+        <input type="email" name="email" placeholder="E-mail" [(ngModel)]="email" maxlength="100" />
       </div>
 
       <div class="input-container password-container">
-        <input
-          [type]="passwordVisible ? 'text' : 'password'"
-          id="password"
-          placeholder="Senha"
-          name="password"
-          [(ngModel)]="password"
-          (input)="onPasswordInput()"
-          maxlength="20"
-        />
+        <input [type]="passwordVisible ? 'text' : 'password'" id="password" placeholder="Senha" name="password"
+          [(ngModel)]="password" (input)="onPasswordInput()" maxlength="20" />
         <button class="show-password" type="button" (click)="togglePassword()">
-          <img
-            [src]="
+          <img [src]="
               passwordVisible
                 ? 'assets/cadastro/openeye.png'
                 : 'assets/cadastro/closeeye.png'
-            "
-            alt=""
-          />
+            " alt="" />
         </button>
       </div>
 
       <div class="input-container password-container">
-        <input [type]="confirmPasswordVisible ? 'text' : 'password'" id="confirmPassword"placeholder="Confirmar Senha" name="confirmPassword" [(ngModel)]="confirmPassword" maxlength="20" />
-        <button class="show-password" type="button" (click)="toggleConfirmPassword()" >
-          <img [src]="confirmPasswordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'" alt=""/>
+        <input [type]="confirmPasswordVisible ? 'text' : 'password'" id="confirmPassword" placeholder="Confirmar Senha"
+          name="confirmPassword" [(ngModel)]="confirmPassword" (input)="onConfirmPasswordInput()" maxlength="20" />
+        <button class="show-password" type="button" (click)="toggleConfirmPassword()">
+          <img [src]="confirmPasswordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'" alt="" />
         </button>
       </div>
 
-      <div class="terms-container">
-        <input type="checkbox" [(ngModel)]="acceptTerms" [disabled]="!termsAcceptedInternally" (click)="$event.preventDefault()" name="terms" />
+      <!-- <div class="terms-container">
+        <input type="checkbox" [(ngModel)]="acceptTerms" [disabled]="!termsAcceptedInternally"
+          (click)="$event.preventDefault()" name="terms" />
         <p>
           Li e aceito os
           <a (click)="openModal()" style="color: blue">Termos de Uso</a> e a
           <a (click)="openModal()" style="color: blue">Política de Privacidade</a>
         </p>
-      </div>
+      </div> -->
 
       <div class="password-criteria">
-        <div *ngFor="let criterion of criteriaList" [class.met]="getPasswordCriteria(criterion.key)" [class.highlight]="getPasswordStatus(criterion.key)" > {{ criterion.message }}
+        <div *ngFor="let criterion of criteriaList" [class.notMet]="!getPasswordCriteria(criterion.key)"
+          [class.met]="getPasswordCriteria(criterion.key)" [class.highlight]="getPasswordStatus(criterion.key)">
+          {{ criterion.message }}
         </div>
       </div>
 
@@ -77,11 +57,7 @@
       <p class="or-text">Entrar com:</p>
 
       <button class="btn-microsoft" type="button">
-        <img
-        (click)="microsoftLogin()"
-        src="../../../../assets/microsoft.png"
-        alt="Microsoft"
-        />
+        <img (click)="microsoftLogin()" src="../../../../assets/microsoft.png" alt="Microsoft" />
       </button>
 
       <p class="register-text">

@@ -41,16 +41,13 @@ export class ConfigsComponent implements OnInit {
     this.dialogRef.close();
 
     if (this.msalService.instance.getAllAccounts().length > 0) {
-      console.log("Fazendo logout do MSAL...");
       await this.msalService.logoutRedirect();
     }
 
     else if (await this.keycloakService.isLoggedIn()) {
-      console.log("Fazendo logout do Keycloak...");
       await this.keycloakService.logout();
     }
     else {
-      console.warn("Nenhum provedor de identidade ativo detectado. Limpando o armazenamento local como fallback.");
       localStorage.clear();
       sessionStorage.clear();
       this.router.navigate(['/']);
