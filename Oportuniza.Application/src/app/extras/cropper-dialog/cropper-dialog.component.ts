@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from "@angular/materia
 import { ImageCroppedEvent, ImageCropperComponent, ImageTransform } from "ngx-image-cropper";
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; // <-- IMPORTAR ISSO
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import Swal from 'sweetalert2';
 
 export interface CropperDialogData {
@@ -12,7 +12,7 @@ export interface CropperDialogData {
 }
 @Component({
   selector: 'app-cropper-dialog',
-  standalone: true, // Componentes modernos do Angular podem ser standalone
+  standalone: true,
   imports: [
     CommonModule,
     MatDialogModule,
@@ -25,7 +25,7 @@ export class CropperDialogComponent {
 
   imageBase64: string = '';
   croppedImage: string = '';
-  selectedImageFile?: File; // <-- Adiciona isso aqui ✅
+  selectedImageFile?: File;
 
   isImageLoaded = false;
   loadImageError = false;
@@ -45,7 +45,6 @@ export class CropperDialogComponent {
 
   rotateLeft() {
     this.rotation -= 90;
-    // Cria um novo objeto de transformação para o Angular detectar a mudança
     this.transform = { ...this.transform, rotate: this.rotation };
   }
 
@@ -80,7 +79,6 @@ export class CropperDialogComponent {
     reader.readAsDataURL(file);
     reader.onload = () => {
       this.imageBase64 = reader.result as string;
-      // Resetar transformações ao carregar nova imagem
       this.rotation = 0;
       this.scale = 1;
       this.flipH = false;
