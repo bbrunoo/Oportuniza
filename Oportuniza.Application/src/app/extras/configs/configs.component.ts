@@ -18,7 +18,7 @@ import { MsalService } from '@azure/msal-angular';
 export class ConfigsComponent implements OnInit {
   showCompleteProfileButton = true;
 
-  constructor(private authService: AuthService, private router: Router, public dialogRef: MatDialogRef<ConfigsComponent>, private msalSerivce: MsalService, private userService: UserService, private keycloakService: KeycloakOperationService) { }
+  constructor(private authService: AuthService, private router: Router, public dialogRef: MatDialogRef<ConfigsComponent>, private msalService: MsalService, private userService: UserService, private keycloakService: KeycloakOperationService) { }
 
   containerHeight = '200px';
 
@@ -37,13 +37,25 @@ export class ConfigsComponent implements OnInit {
     });
   }
 
-
   async logout() {
-    localStorage.clear();
-    sessionStorage.clear();
-    this.router.navigate(['/']);
     this.dialogRef.close();
-  }
+
+    if (this.msalService.instance.getAllAccounts().length > 0) {
+      console.log("Fazendo logout do MSAL...");
+      await this.msalService.logoutRedirect();
+    }
+
+    else if (await this.keycloakService.isLoggedIn()) {
+      console.log("Fazendo logout do Keycloak...");
+      await this.keycloakService.logout();
+    }
+    else {
+      console.warn("Nenhum provedor de identidade ativo detectado. Limpando o armazenamento local como fallback.");
+      localStorage.clear();
+      sessionStorage.clear();
+      this.router.navigate(['/']);
+    }
+  }
 
   completePerfil() {
     this.router.navigate(['/primeira-etapa']);
@@ -51,7 +63,6 @@ export class ConfigsComponent implements OnInit {
   }
 
   changeAccount() {
-    this.authService.logout()
     this.router.navigate(['']);
     this.dialogRef.close();
   }
