@@ -97,22 +97,6 @@ export class CadastroComponent {
     return passwordPattern.test(password);
   }
 
-  // register() {
-  //   this.keyAuth
-  //     .registerUser({
-  //       email: this.email,
-  //       password: this.password,
-  //     });
-  //     .subscribe({
-  //       next: () => {
-  //         this.router.navigate(['/login']);
-  //       },
-  //       error: (error) => {
-  //         console.error('Error to register', error);
-  //       },
-  //     });
-  // }
-
   async register() {
     this.errorMessage = '';
 

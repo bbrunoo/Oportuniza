@@ -1,3 +1,4 @@
+import { ComofuncionaComponent } from './pages/landing-page/comofunciona/comofunciona.component';
 import { CadastroComponent } from './pages/Authentication/cadastro/cadastro.component';
 import { Routes } from '@angular/router';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
@@ -13,6 +14,7 @@ import { MeuspostsComponent } from './pages/layout/meusposts/meusposts.component
 import { CriarEmpresaComponent } from './pages/layout/criar-empresa/criar-empresa.component';
 import { AuthTypeGuard } from './guards/auth-type.guard';
 import { LoginComponent } from './pages/Authentication/login/login.component';
+import { LoadingComponent } from './extras/loading/loading.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -21,6 +23,7 @@ export const routes: Routes = [
   { path: 'segunda-etapa', component: SegundaEtapaComponent },
   { path: 'cadastro', component: CadastroComponent },
   { path: 'login', component: LoginComponent },
+  { path:'loading', component:LoadingComponent},
   {
     path: "inicio",
     component: InitialLayoutComponent,

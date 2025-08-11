@@ -2,7 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UserService } from '../../../services/user.service';
 import { UserProfile } from '../../../models/UserProfile.model';
 import { ConfigsComponent } from '../../../extras/configs/configs.component';
@@ -10,6 +10,7 @@ import { AuthenticationResult, EventMessage, EventType, InteractionStatus } from
 import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
 import { filter, Subject, take, takeUntil } from 'rxjs';
 import { KeycloakOperationService } from '../../../services/keycloak.service';
+import { LoadingComponent } from '../../../extras/loading/loading.component';
 
 @Component({
   selector: 'app-initial-layout',
@@ -18,6 +19,9 @@ import { KeycloakOperationService } from '../../../services/keycloak.service';
   styleUrl: './initial-layout.component.css'
 })
 export class InitialLayoutComponent implements OnInit, OnDestroy {
+  isInitializing = true;
+  private loadingDialogRef: MatDialogRef<LoadingComponent> | null = null;
+
   userProfile: UserProfile = {
     id: '',
     name: '',
@@ -43,6 +47,14 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    this.loadingDialogRef = this.dialog.open(LoadingComponent, {
+      height: "300px",
+      width: "450px",
+      disableClose: true,
+      panelClass: 'loading-dialog-panel',
+      backdropClass: 'loading-dialog-backdrop'
+    });
+
     const loggedWithKeycloakFlag = sessionStorage.getItem('loginWithKeycloak') === 'true';
     const loggedWithMicrosoftFlag = sessionStorage.getItem('loginWithMicrosoft') === 'true';
 
@@ -109,9 +121,13 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
         this.userProfile = profile;
         this.showCompleteProfileicon = !profile.isProfileCompleted;
         console.log("Perfil do usuário carregado:", this.userProfile);
+        this.loadingDialogRef?.close();
+        this.isInitializing = false;
       },
       error: (error: any) => {
         console.error('Erro ao carregar perfil do usuário:', error);
+        this.loadingDialogRef?.close();
+        this.isInitializing = false;
         console.warn('Erro ao obter perfil. Redirecionando para login.');
         this.router.navigate(['/login']);
         sessionStorage.removeItem('loginWithKeycloak');
@@ -185,7 +201,6 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
     }
   }
 
-
   async checkKeycloakLogin(): Promise<boolean> {
     const loggedIn = await this.keycloakService.isLoggedIn();
     if (loggedIn) {
@@ -202,6 +217,11 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
   }
 
   openDialog() {
+    if (this.isInitializing) {
+      console.log('Aguardando a inicialização do perfil do usuário...');
+      return;
+    }
+
     const dialogRef = this.dialog.open(ConfigsComponent, {
       minWidth: '230px',
       minHeight: '130px',

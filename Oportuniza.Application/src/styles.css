@@ -10,21 +10,21 @@
 body {
   margin: 0;
   background-color: #F4F5FE;
-
-}
-
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  height: 100%;
 }
 
 .custom-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
   border-radius: 25px;
   background-color: #272623;
+}
 
+.loading-dialog-panel .mdc-dialog__surface {
+  background-color: transparent;
+  box-shadow: none !important;
+}
+
+.loading-dialog-backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
 }
