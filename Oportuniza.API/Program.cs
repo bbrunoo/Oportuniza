@@ -60,6 +60,7 @@ builder.Services.AddSingleton<SmsService>();
 builder.Services.AddSingleton<OtpCacheService>();
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<OpenAIService>();
 
 builder.Services.AddHttpClient<KeycloakAuthService>();
 

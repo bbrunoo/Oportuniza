@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using Oportuniza.API.Services;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
@@ -17,10 +18,12 @@ namespace Oportuniza.API.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        public UserController(IUserRepository userRepository, IMapper mapper)
+        private readonly OpenAIService _openAIService;
+        public UserController(IUserRepository userRepository, IMapper mapper, OpenAIService openAIService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _openAIService = openAIService;
         }
 
         [HttpGet]
@@ -50,81 +53,77 @@ namespace Oportuniza.API.Controllers
             var userUniqueId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userUniqueId))
-            {
                 return Unauthorized("User unique identifier (NameIdentifier) claim not found in token.");
-            }
-
 
             var identityProvider = User.FindFirst("idp")?.Value;
 
-            var email = User.FindFirst("preferred_username")?.Value ?? User.FindFirst(ClaimTypes.Email)?.Value;
-            var name = User.FindFirst("name")?.Value ?? User.FindFirst(ClaimTypes.Name)?.Value ?? User.FindFirst("given_name")?.Value;
-            var givenName = User.FindFirst("given_name")?.Value;
-            var familyName = User.FindFirst("family_name")?.Value;
+            var email = User.FindFirst("preferred_username")?.Value ??
+                        User.FindFirst(ClaimTypes.Email)?.Value;
+
+            var name = User.FindFirst("name")?.Value ??
+                       User.FindFirst(ClaimTypes.Name)?.Value ??
+                       User.FindFirst("given_name")?.Value;
 
             Console.WriteLine($"Backend: Profile request from IDP: {identityProvider ?? "Azure AD"}, UserID: {userUniqueId}, Email: {email}, Name: {name}");
-
 
             var user = await _userRepository.GetByIdentityProviderIdAsync(userUniqueId, identityProvider ?? "Azure AD");
 
             if (user == null)
             {
- 
                 Guid userIdFromToken;
                 if (Guid.TryParse(userUniqueId, out userIdFromToken))
                 {
+                    var finalName = await _openAIService.GetFirstEmailName(email);
+
                     var newUser = new User
                     {
                         Id = userIdFromToken,
                         IdentityProviderId = userUniqueId,
                         IdentityProvider = identityProvider ?? "Azure AD",
                         Email = email,
-                        Name = name,
-                        FullName = name
+                        Name = Convert.ToString(finalName),
+                        FullName = Convert.ToString(finalName)
                     };
 
                     await _userRepository.AddAsync(newUser);
+                    user = newUser;
                     Console.WriteLine($"Backend: Novo perfil criado e salvo para {email} via {identityProvider ?? "Azure AD"}.");
                 }
-                else
-                {
-                    var finalName = GenerateNameFromEmail(email);
+                //else
+                //{
 
-                    var newUser = new User
-                    {
-                        Id = Guid.NewGuid(),
-                        IdentityProviderId = userUniqueId,
-                        IdentityProvider = identityProvider ?? "Azure AD",
-                        Email = email,
-                        Name = finalName,
-                        FullName = finalName
-                    };
+                //    var newUser = new User
+                //    {
+                //        Id = Guid.NewGuid(),
+                //        IdentityProviderId = userUniqueId,
+                //        IdentityProvider = identityProvider ?? "Azure AD",
+                //        Email = email,
+                //        Name =  Convert.ToString(finalName),
+                //        FullName = Convert.ToString(finalName)
+                //    };
 
-                    await _userRepository.AddAsync(newUser);
-                    Console.WriteLine($"Backend: Novo perfil criado e salvo com ID gerado para {email} via {identityProvider ?? "Azure AD"}.");
-                }
+                //    await _userRepository.AddAsync(newUser);
+                //    user = newUser;
+                //    Console.WriteLine($"Backend: Novo perfil criado e salvo com ID gerado para {email} via {identityProvider ?? "Azure AD"}.");
+                //}
             }
-
 
             var response = _mapper.Map<UserDTO>(user);
             return StatusCode(200, response);
         }
 
-        private string GenerateNameFromEmail(string? email)
+        private string GenerateFirstNameFromEmail(string? email)
         {
             if (string.IsNullOrEmpty(email) || !email.Contains('@'))
-            {
                 return "Usuário";
-            }
 
-            string name = email.Split('@')[0];
+            string beforeAt = email.Split('@')[0];
+            string firstName = beforeAt.Split(new[] { '.', ' ' }, StringSplitOptions.RemoveEmptyEntries)[0];
 
-            if (name.Length > 0)
-            {
-                name = char.ToUpper(name[0]) + name.Substring(1);
-            }
+            if (firstName.Length > 0)
+                firstName = char.ToUpper(firstName[0]) + firstName.Substring(1).ToLower();
 
-            return name;
+            return firstName;
         }
 
         [HttpPut("completar-perfil/{id}")]

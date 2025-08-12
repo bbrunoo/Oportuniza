@@ -51,23 +51,32 @@
       </div>
 
       <div class="input-container password-container">
-        <input [type]="confirmPasswordVisible ? 'text' : 'password'" id="confirmPassword"placeholder="Confirmar Senha" name="confirmPassword" [(ngModel)]="confirmPassword" maxlength="20" />
-        <button class="show-password" type="button" (click)="toggleConfirmPassword()" >
-          <img [src]="confirmPasswordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'" alt=""/>
+        <input
+          [type]="confirmPasswordVisible ? 'text' : 'password'"
+          id="confirmPassword"
+          placeholder="Confirmar Senha"
+          name="confirmPassword"
+          [(ngModel)]="confirmPassword"
+          (input)="onConfirmPasswordInput()"  maxlength="20"
+        />
+        <button
+          class="show-password"
+          type="button"
+          (click)="toggleConfirmPassword()"
+        >
+          <img
+            [src]="confirmPasswordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'"
+            alt=""
+          />
         </button>
       </div>
 
-      <div class="terms-container">
-        <input type="checkbox" [(ngModel)]="acceptTerms" [disabled]="!termsAcceptedInternally" (click)="$event.preventDefault()" name="terms" />
-        <p>
-          Li e aceito os
-          <a (click)="openModal()" style="color: blue">Termos de Uso</a> e a
-          <a (click)="openModal()" style="color: blue">Política de Privacidade</a>
-        </p>
-      </div>
-
       <div class="password-criteria">
-        <div *ngFor="let criterion of criteriaList" [class.met]="getPasswordCriteria(criterion.key)" [class.highlight]="getPasswordStatus(criterion.key)" > {{ criterion.message }}
+        <div *ngFor="let criterion of criteriaList"
+        [class.met]="getPasswordCriteria(criterion.key)"
+        [class.notMet]="!getPasswordCriteria(criterion.key)"
+        [class.highlight]="getPasswordStatus(criterion.key)">
+        {{ criterion.message }}
         </div>
       </div>
 

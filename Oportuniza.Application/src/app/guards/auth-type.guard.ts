@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
 import { MsalService } from '@azure/msal-angular';
-import { KeycloakOperationService } from '../services/keycloak.service'; // Ajuste o caminho
+import { KeycloakOperationService } from '../services/keycloak.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthTypeGuard implements CanActivate {
+
   constructor(
     private msalService: MsalService,
     private keycloakService: KeycloakOperationService,
@@ -24,40 +25,12 @@ export class AuthTypeGuard implements CanActivate {
     let isAuthenticated = false;
 
     if (loggedWithKeycloakFlag) {
-      const accessToken = sessionStorage.getItem('access_token');
-      if (accessToken && !this.keycloakService.isTokenExpired(accessToken)) {
-        isAuthenticated = true;
-      } else {
-        sessionStorage.removeItem('loginWithKeycloak');
-        sessionStorage.removeItem('access_token');
-      }
+        isAuthenticated = await this.keycloakService.isLoggedIn();
     }
 
     if (!isAuthenticated && loggedWithMicrosoftFlag) {
-      const accounts = this.msalService.instance.getAllAccounts();
-      if (accounts.length > 0) {
-        this.msalService.instance.setActiveAccount(accounts[0]);
-        isAuthenticated = true;
-      } else {
-        sessionStorage.removeItem('loginWithMicrosoft');
-      }
+        isAuthenticated = this.msalService.instance.getAllAccounts().length > 0;
     }
-
-    if (!isAuthenticated) {
-        const msalAccounts = this.msalService.instance.getAllAccounts();
-        if (msalAccounts.length > 0) {
-            this.msalService.instance.setActiveAccount(msalAccounts[0]);
-            sessionStorage.setItem('loginWithMicrosoft', 'true');
-            isAuthenticated = true;
-        } else {
-            const keycloakLoggedIn = await this.keycloakService.isLoggedIn();
-            if (keycloakLoggedIn) {
-                sessionStorage.setItem('loginWithKeycloak', 'true');
-                isAuthenticated = true;
-            }
-        }
-    }
-
 
     if (isAuthenticated) {
       return true;

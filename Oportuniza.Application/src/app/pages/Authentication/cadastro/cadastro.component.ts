@@ -39,7 +39,8 @@ export class CadastroComponent {
     hasUppercase: false,
     hasNumber: false,
     hasSymbol: false,
-    hasMinLength: false
+    hasMinLength: false,
+    passwordsMatch: false
   };
 
   passwordStatus = {
@@ -47,7 +48,8 @@ export class CadastroComponent {
     hasUppercase: false,
     hasNumber: false,
     hasSymbol: false,
-    hasMinLength: false
+    hasMinLength: false,
+    passwordsMatch: false
   };
 
   timeoutMap: any = {};
@@ -60,7 +62,8 @@ export class CadastroComponent {
       { key: 'hasUppercase', message: 'A senha deve conter letras maiúsculas' },
       { key: 'hasNumber', message: 'A senha deve conter números' },
       { key: 'hasSymbol', message: 'A senha deve conter símbolos (ex: @, #, $)' },
-      { key: 'hasMinLength', message: 'A senha deve ter no mínimo 8 caracteres' }
+      { key: 'hasMinLength', message: 'A senha deve ter no mínimo 8 caracteres' },
+      { key: 'passwordsMatch', message: 'As senhas devem ser iguais' }
     ];
   }
 
@@ -97,27 +100,7 @@ export class CadastroComponent {
     return passwordPattern.test(password);
   }
 
-  async register() {
-    this.errorMessage = '';
-
-    if (!this.email || !this.validateEmail(this.email)) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Email inválido',
-        text: 'Por favor, insira um e-mail válido.'
-      });
-      return;
-    }
-
-    if (this.password !== this.confirmPassword) {
-      Swal.fire({ icon: 'warning', title: 'Senhas diferentes', text: 'As senhas não coincidem.' });
-      return;
-    }
-    if (!this.acceptTerms) {
-      Swal.fire({ icon: 'info', title: 'Termos não aceitos', text: 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.' });
-      return;
-    }
-
+  async proceedRegistration() {
     this.isLoading = true;
 
     try {
@@ -126,6 +109,8 @@ export class CadastroComponent {
 
       const tokens = await firstValueFrom(this.keyAuth.loginWithCredentials(this.email, this.password));
       console.log('Login bem-sucedido, tokens recebidos:', tokens);
+
+      this.keyAuth.saveTokens(tokens);
 
       await Swal.fire({
         icon: 'success',
@@ -149,6 +134,30 @@ export class CadastroComponent {
 
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  async register() {
+    this.errorMessage = '';
+
+    if (!this.email || !this.validateEmail(this.email)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Email inválido',
+        text: 'Por favor, insira um e-mail válido.'
+      });
+      return;
+    }
+
+    if (this.password !== this.confirmPassword) {
+      Swal.fire({ icon: 'warning', title: 'Senhas diferentes', text: 'As senhas não coincidem.' });
+      return;
+    }
+
+    if (!this.acceptTerms) {
+      this.openModal();
+    } else {
+      this.proceedRegistration();
     }
   }
 
@@ -186,6 +195,7 @@ export class CadastroComponent {
 
   checkPasswordsMatch() {
     const match = this.password === this.confirmPassword;
+    this.passwordCriteria.passwordsMatch = match;
     if (match && !this.passwordsMatch) {
       this.passwordsMatchStatus = true;
       if (this.passwordMatchTimeout) clearTimeout(this.passwordMatchTimeout);
@@ -228,6 +238,7 @@ export class CadastroComponent {
       if (result === 'aceito') {
         this.acceptTerms = true;
         this.termsAcceptedInternally = true;
+        this.proceedRegistration();
       }
     });
   }

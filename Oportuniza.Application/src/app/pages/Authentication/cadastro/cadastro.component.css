@@ -221,6 +221,12 @@ input:focus {
   font-weight: 500;
 }
 
+.password-criteria div.notMet {
+  color: #e80b0b;
+  font-weight: 500;
+}
+
+
 .password-criteria div.highlight {
   font-weight: bold;
   transform: scale(1.03);

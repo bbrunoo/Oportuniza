@@ -31,21 +31,14 @@
       </button>
       <button class="novo-post" routerLink="post">+ Novo Post</button>
       <div class="user" *ngIf="loginDisplay">
-        <img
-          class="user-image"
-          [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'"
-          alt=""
-        />
+        <img class="user-image" [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'" alt=""/>
         {{ userProfile.name }}
-        <img
-          class="config-image"
-          (click)="openDialog()"
-          src="../../../../assets/home-assets/settings.png"
-          alt=""
-        />
-        <span *ngIf="showCompleteProfileicon"
-          ><img src="../../../../assets/exclamation.png" alt=""
-        /></span>
+        <div class="config-button">
+          <img class="config-image" (click)="openDialog()" src="../../../../assets/home-assets/settings.png" alt="" />
+          <span *ngIf="showCompleteProfileicon">
+            <img src="../../../../assets/exclamation.png" alt=""/>
+          </span>
+        </div>
       </div>
     </div>
   </aside>

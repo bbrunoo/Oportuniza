@@ -24,6 +24,15 @@ export class KeycloakOperationService {
     return Promise.resolve();
   }
 
+  saveTokens(tokens: any): void {
+    if (this.isBrowser && tokens.access_token) {
+      sessionStorage.setItem('access_token', tokens.access_token);
+      sessionStorage.setItem('refresh_token', tokens.refresh_token);
+      sessionStorage.setItem('id_token', tokens.id_token);
+      sessionStorage.setItem('loginWithKeycloak', 'true');
+    }
+  }
+
   loginWithCredentials(username: string, password: string): Observable<any> {
     const body = new HttpParams()
       .set('grant_type', 'password')
