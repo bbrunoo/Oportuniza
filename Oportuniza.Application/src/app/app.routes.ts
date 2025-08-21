@@ -15,6 +15,12 @@ import { CriarEmpresaComponent } from './pages/layout/criar-empresa/criar-empres
 import { AuthTypeGuard } from './guards/auth-type.guard';
 import { LoginComponent } from './pages/Authentication/login/login.component';
 import { LoadingComponent } from './extras/loading/loading.component';
+import { MinhasEmpresasComponent } from './pages/layout/minhas-empresas/minhas-empresas.component';
+import { InformacoesComponent } from './pages/empresa-management/informacoes/informacoes.component';
+import { EditarEmpresaComponent } from './pages/empresa-management/editar-empresa/editar-empresa.component';
+import { FuncionariosComponent } from './pages/empresa-management/funcionarios/funcionarios.component';
+import { AdicionarFuncionarioComponent } from './pages/empresa-management/adicionar-funcionario/adicionar-funcionario.component';
+import { EmpresaComponent } from './pages/empresa-management/empresa/empresa.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -23,19 +29,28 @@ export const routes: Routes = [
   { path: 'segunda-etapa', component: SegundaEtapaComponent },
   { path: 'cadastro', component: CadastroComponent },
   { path: 'login', component: LoginComponent },
-  { path:'loading', component:LoadingComponent},
+  { path: 'loading', component: LoadingComponent },
   {
     path: "inicio",
     component: InitialLayoutComponent,
     canActivate: [AuthTypeGuard],
     children: [
       { path: "", redirectTo: "feed", pathMatch: "full" },
+      { path: 'minhas-empresas', component: MinhasEmpresasComponent },
       { path: 'criar-empresa', component: CriarEmpresaComponent },
       { path: "feed", component: FeedComponent },
       { path: "interessados", component: InteressadosComponent },
       { path: "perfil", component: MeuperfilComponent },
       { path: "post", component: PublicationComponent },
       { path: "meus-posts", component: MeuspostsComponent }
+    ]
+  },
+  {
+    path: "empresa", component: EmpresaComponent, children: [
+      { path: "informacoes", component: InformacoesComponent },
+      { path: "editar-empresa", component: EditarEmpresaComponent },
+      { path: "funcionarios", component: FuncionariosComponent },
+      { path: "adicionar-funcionario", component: AdicionarFuncionarioComponent }
     ]
   }
 ];

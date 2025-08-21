@@ -16,6 +16,7 @@ namespace Oportuniza.Infrastructure.Data
         public DbSet<Curriculum> Curriculum { get; set; }
         public DbSet<Education> Education { get; set; }
         public DbSet<Experience> Experience { get; set; }
+        public DbSet<CandidateApplication> CandidateApplication { get; set; }
         public DbSet<Publication> Publication { get; set; }
         public DbSet<UserAreaOfInterest> UserAreaOfInterest { get; set; }
         public DbSet<CompanyEmployee> CompanyEmployee { get; set; }
@@ -35,6 +36,7 @@ namespace Oportuniza.Infrastructure.Data
             modelBuilder.ApplyConfiguration(new PublicationConfiguration());
             modelBuilder.ApplyConfiguration(new UserAreaOfInterestConfiguration());
             modelBuilder.ApplyConfiguration(new CompanyEmployeeConfiguration());
+            modelBuilder.ApplyConfiguration(new CandidateApplicationConfiguration());
 
 
             base.OnModelCreating(modelBuilder);

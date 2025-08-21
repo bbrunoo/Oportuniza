@@ -1,0 +1,33 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Oportuniza.Domain.Models;
+
+namespace Oportuniza.Infrastructure.Configurations
+{
+    public class CandidateApplicationConfiguration : IEntityTypeConfiguration<CandidateApplication>
+    {
+        public void Configure(EntityTypeBuilder<CandidateApplication> builder)
+        {
+            builder.HasKey(ca => ca.Id);
+
+            builder.Property(ca => ca.ApplicationDate)
+                   .IsRequired();
+
+            builder.Property(ca => ca.Status)
+                   .HasConversion<int>()
+                   .IsRequired();
+
+            builder.HasOne(ca => ca.User)
+                   .WithMany() // se quiser, pode criar ICollection<CandidateApplication> no User
+                   .HasForeignKey(ca => ca.UserId)
+                   .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(ca => ca.Publication)
+                   .WithMany() // se quiser, pode criar ICollection<CandidateApplication> no Publication
+                   .HasForeignKey(ca => ca.PublicationId)
+                   .OnDelete(DeleteBehavior.Cascade);
+
+            builder.ToTable("CandidateApplications");
+        }
+    }
+}

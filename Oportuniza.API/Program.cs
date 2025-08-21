@@ -55,6 +55,7 @@ builder.Services.AddScoped<IAreaOfInterest, AreaOfInterestRepository>();
 builder.Services.AddScoped<ICurriculumRepository, CurriculumRepository>();
 builder.Services.AddScoped<IPublicationRepository, PublicationRepository>();
 builder.Services.AddScoped<IUserAreaOfInterestRepository, UserAreaOfInterestRepository>();
+builder.Services.AddScoped<ICandidateApplicationRepository, CandidateApplicationRepository>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddSingleton<SmsService>();
 builder.Services.AddSingleton<OtpCacheService>();
