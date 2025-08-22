@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Oportuniza.API.Services;
-using Oportuniza.Domain.DTOs;
 
 namespace Oportuniza.API.Controllers
 {

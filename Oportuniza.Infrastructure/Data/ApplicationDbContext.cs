@@ -13,7 +13,6 @@ namespace Oportuniza.Infrastructure.Data
         public DbSet<Certification> Certification { get; set; }
         public DbSet<City> City { get; set; }
         public DbSet<Company> Company { get; set; }
-        public DbSet<Curriculum> Curriculum { get; set; }
         public DbSet<Education> Education { get; set; }
         public DbSet<Experience> Experience { get; set; }
         public DbSet<CandidateApplication> CandidateApplication { get; set; }
@@ -30,7 +29,6 @@ namespace Oportuniza.Infrastructure.Data
             modelBuilder.ApplyConfiguration(new CertificationConfiguration());
             modelBuilder.ApplyConfiguration(new CityConfiguration());
             modelBuilder.ApplyConfiguration(new CompanyConfiguration());
-            modelBuilder.ApplyConfiguration(new CurriculumConfiguration());
             modelBuilder.ApplyConfiguration(new EducationConfiguration());
             modelBuilder.ApplyConfiguration(new ExperienceConfiguration());
             modelBuilder.ApplyConfiguration(new PublicationConfiguration());

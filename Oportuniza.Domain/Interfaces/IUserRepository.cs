@@ -1,6 +1,4 @@
-﻿
-using Oportuniza.Domain.DTOs.Company;
-using Oportuniza.Domain.DTOs.User;
+﻿using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Models;
 
 namespace Oportuniza.Domain.Interfaces

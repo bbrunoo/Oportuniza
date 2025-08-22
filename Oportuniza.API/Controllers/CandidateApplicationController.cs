@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.DTOs.Candidates;
+using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
-using Oportuniza.Infrastructure.Repositories;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers
@@ -124,6 +124,18 @@ namespace Oportuniza.API.Controllers
         {
             var stats = await _repository.GetPublicationStatisticsAsync(publicationId);
             return Ok(stats);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme + "," + "KeycloakScheme")]
+        public async Task<IActionResult> Cancel(Guid id)
+        {
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity == null) return NotFound("Candidatura não encontrada.");
+
+            await _repository.DeleteAsync(entity.Id);
+
+            return NoContent();
         }
     }
 }

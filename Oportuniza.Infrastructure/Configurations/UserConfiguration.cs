@@ -54,11 +54,6 @@ namespace Oportuniza.Infrastructure.Configurations
                    .HasForeignKey(e => e.UserId)
                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(u => u.Curriculum)
-                .WithOne()
-                .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             builder.HasMany(u => u.UserAreasOfInterest)
                 .WithOne()
                 .HasForeignKey(a => a.UserId)

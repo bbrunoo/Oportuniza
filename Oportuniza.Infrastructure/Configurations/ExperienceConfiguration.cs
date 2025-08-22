@@ -17,10 +17,6 @@ namespace Oportuniza.Infrastructure.Configurations
                    .IsRequired()
                    .HasMaxLength(100);
 
-            builder.HasOne(x => x.Curriculum)
-                   .WithMany(c => c.Experiences)
-                   .HasForeignKey(x => x.CurriculumId)
-                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -10,8 +10,5 @@ namespace Oportuniza.Domain.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public bool InProgress { get; set; }
-        public Guid CurriculumId { get; set; }
-        [JsonIgnore]
-        public Curriculum Curriculum { get; set; }
     }
 }

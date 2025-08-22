@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
 using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;

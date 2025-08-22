@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.DTOs.AreasOfInterest;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
-using Oportuniza.Infrastructure.Data;
-using Oportuniza.Infrastructure.Repositories;
-using System.Text.Json;
 
 namespace Oportuniza.API.Controllers
 {

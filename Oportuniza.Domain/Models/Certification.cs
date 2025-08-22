@@ -8,7 +8,5 @@ namespace Oportuniza.Domain.Models
         public string Name { get; set; }
         public string? FileUrl { get; set; }
         public Guid CurriculumId { get; set; }
-        [JsonIgnore]
-        public Curriculum Curriculum { get; set; }
     }
 }

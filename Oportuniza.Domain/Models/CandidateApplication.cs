@@ -1,12 +1,7 @@
-﻿namespace Oportuniza.Domain.Models
-{
-    public enum CandidateApplicationStatus
-    {
-        Pending = 0,
-        Approved = 1,
-        Rejected = 2
-    }
+﻿using Oportuniza.Domain.Enums;
 
+namespace Oportuniza.Domain.Models
+{
     public class CandidateApplication
     {
         public Guid Id { get; set; }

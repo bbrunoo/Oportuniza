@@ -25,7 +25,6 @@
         public ICollection<CandidateApplication> CandidateApplication { get; set; }
         public ICollection<CompanyEmployee> CompanyLinks { get; set; } = new List<CompanyEmployee>();
         public ICollection<UserAreaOfInterest> UserAreasOfInterest { get; set; } = new List<UserAreaOfInterest>();
-        public ICollection<Curriculum> Curriculum { get; set; } = new List<Curriculum>();
         public virtual ICollection<Publication> CreatedPublications { get; set; }
         public virtual ICollection<Publication> AuthoredAsUserPublications { get; set; }
         public virtual ICollection<Company> CompaniesOwned { get; set; } = new List<Company>();

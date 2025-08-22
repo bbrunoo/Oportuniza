@@ -1,4 +1,5 @@
-﻿using Oportuniza.Domain.Models;
+﻿using Oportuniza.Domain.Enums;
+using Oportuniza.Domain.Models;
 
 namespace Oportuniza.Domain.DTOs.Candidates
 {

@@ -16,11 +16,6 @@ namespace Oportuniza.Infrastructure.Configurations
 
             builder.Property(x => x.FileUrl)
                    .HasMaxLength(300);
-
-            builder.HasOne(x => x.Curriculum)
-                   .WithMany(c => c.Certifications)
-                   .HasForeignKey(x => x.CurriculumId)
-                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

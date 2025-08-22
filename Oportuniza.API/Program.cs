@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Oportuniza.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Tokens;
+using Oportuniza.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Oportuniza.Domain.Interfaces;
 using Microsoft.OpenApi.Models;
 using Oportuniza.API.Services;
-using Oportuniza.Domain.Interfaces;
-using Oportuniza.Infrastructure.Data;
-using Oportuniza.Infrastructure.Repositories;
 using System.Security.Claims;
+using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,7 +52,6 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthenticateUser, AuthenticateUser>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IAreaOfInterest, AreaOfInterestRepository>();
-builder.Services.AddScoped<ICurriculumRepository, CurriculumRepository>();
 builder.Services.AddScoped<IPublicationRepository, PublicationRepository>();
 builder.Services.AddScoped<IUserAreaOfInterestRepository, UserAreaOfInterestRepository>();
 builder.Services.AddScoped<ICandidateApplicationRepository, CandidateApplicationRepository>();
