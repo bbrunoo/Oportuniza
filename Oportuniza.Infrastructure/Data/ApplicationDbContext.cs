@@ -19,6 +19,7 @@ namespace Oportuniza.Infrastructure.Data
         public DbSet<Publication> Publication { get; set; }
         public DbSet<UserAreaOfInterest> UserAreaOfInterest { get; set; }
         public DbSet<CompanyEmployee> CompanyEmployee { get; set; }
+        public DbSet<UserLogin> UserLogin { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

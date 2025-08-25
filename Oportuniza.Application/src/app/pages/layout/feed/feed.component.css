@@ -20,6 +20,7 @@
   font-weight: 600;
 }
 
+
 .user-datas {
   display: flex;
   align-items: center;
@@ -109,7 +110,8 @@
   justify-content: end;
 }
 
-.bottom button {
+.bottom .apply-button,
+.applied-button {
   border: none;
   font-size: 15px;
   width: 9em;
@@ -117,9 +119,16 @@
   border-radius: 10px;
   font-weight: 500;
   color: white;
-  background-color: #3D50CA;
   transition: .2s;
   cursor: pointer;
+}
+
+.apply-button {
+  background-color: #3D50CA;
+}
+
+.applied-button {
+  background-color: #e55621;
 }
 
 .bottom button:hover {

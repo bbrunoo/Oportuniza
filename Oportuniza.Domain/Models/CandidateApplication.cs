@@ -5,7 +5,6 @@ namespace Oportuniza.Domain.Models
     public class CandidateApplication
     {
         public Guid Id { get; set; }
-
         public Guid PublicationId { get; set; }
         public virtual Publication Publication { get; set; }
 

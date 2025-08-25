@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,8 @@ export class KeycloakOperationService {
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private jwtHelper: JwtHelperService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -48,7 +50,7 @@ export class KeycloakOperationService {
       sessionStorage.setItem('loginWithKeycloak', 'true');
     }
   }
-  
+
   getAdminToken(): Observable<any> {
     const body = new HttpParams()
       .set('grant_type', 'password')
@@ -61,6 +63,23 @@ export class KeycloakOperationService {
     return this.http.post(adminTokenUrl, body, {
       headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' })
     });
+  }
+
+  getUserIdFromToken(): string | undefined {
+    if (!this.isBrowser) {
+      return undefined;
+    }
+    const token = sessionStorage.getItem('access_token');
+    if (token) {
+      try {
+        const decodedToken = this.jwtHelper.decodeToken(token);
+        return decodedToken.sub;
+      } catch (e) {
+        console.error('Erro ao decodificar o token para obter o ID do usuário:', e);
+        return undefined;
+      }
+    }
+    return undefined;
   }
 
   registerUser(user: { email: string; password: string }): Observable<any> {

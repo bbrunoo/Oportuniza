@@ -55,5 +55,11 @@ namespace Oportuniza.Infrastructure.Repositories
                 rejected = apps.Count(ca => ca.Status == CandidateApplicationStatus.Rejected)
             };
         }
+
+        public async Task<CandidateApplication> GetApplicationByPublicationAndUserAsync(Guid publicationId, Guid userId)
+        {
+            return await _context.CandidateApplication
+                                 .FirstOrDefaultAsync(ca => ca.PublicationId == publicationId && ca.UserId == userId);
+        }
     }
 }

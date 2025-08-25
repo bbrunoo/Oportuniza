@@ -4,6 +4,9 @@ import { PublicationService } from '../../../services/publication.service';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../services/user.service';
 import { CandidateService } from '../../../services/candidate.service';
+import { forkJoin, map, Observable, take } from 'rxjs';
+import { KeycloakOperationService } from '../../../services/keycloak.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-feed',
@@ -15,19 +18,21 @@ export class FeedComponent implements OnInit {
   publications: Publication[] = [];
   currentIndex: number = 0;
   @Input() publicationId!: string;
-  @Input() userId!: string;
-
+  userId: string | undefined;
+  appliedStatus: { [publicationId: string]: boolean } = {};
+  applicationIds: { [publicationId: string]: string } = {};
   hasApplied = false;
 
   constructor(
     private publicationService: PublicationService,
-    private userService: UserService,
-    private candidateService: CandidateService
-  ) {}
+    private candidateService: CandidateService,
+    private userService: UserService
+  ) { }
 
   ngOnInit() {
-    this.getPublications();
+    this.getUserIdAndPublications();
   }
+
 
   goBack() {
     if (this.currentIndex > 0) {
@@ -41,42 +46,176 @@ export class FeedComponent implements OnInit {
     }
   }
 
-  getPublications() {
-    this.publicationService.getPublications().subscribe({
-      next: (publication: Publication[]) => {
-        this.publications = publication;
+  getUserIdAndPublications() {
+    this.userService.getUserId().pipe(take(1)).subscribe({
+      next: (userId) => {
+        this.userId = userId;
+        if (this.userId) {
+          this.getPublications();
+        } else {
+          console.error('ID do usuário não encontrado. O usuário pode não estar logado.');
+        }
       },
-      error: (error: any) => {
-        console.log(error);
+      error: (err) => {
+        console.error('Erro ao obter o ID do usuário:', err);
       },
     });
   }
 
+  getPublications() {
+    this.publicationService.getPublications().subscribe({
+      next: (publications: Publication[]) => {
+        this.publications = publications;
+        if (this.publications.length > 0 && this.userId) {
+          // Chama o método para buscar todas as candidaturas do usuário
+          this.getApplicationsForUser();
+        }
+      },
+      error: (error: any) => {
+        console.log('Erro ao carregar publicações:', error);
+      },
+    });
+  }
+
+  getApplicationsForUser() {
+    this.candidateService.getMyApplications(this.userId!).subscribe({
+      next: (applications: any[]) => {
+        applications.forEach(app => {
+          // Preenche appliedStatus e applicationIds para todas as candidaturas
+          this.appliedStatus[app.publicationId] = true;
+          this.applicationIds[app.publicationId] = app.id;
+        });
+      },
+      error: (err) => {
+        console.error('Erro ao carregar candidaturas do usuário:', err);
+      }
+    });
+  }
+
+  private checkAllAppliedStatus() {
+    if (this.userId) {
+      this.publications.forEach(pub => {
+        this.candidateService.hasApplied(pub.id, this.userId!).subscribe({
+          next: (response) => {
+            this.appliedStatus[pub.id] = response.hasApplied;
+          },
+          error: (err) => {
+            console.error('Erro ao verificar candidatura:', err);
+            this.appliedStatus[pub.id] = false;
+          }
+        });
+      });
+    }
+  }
+
+  apply(publicationId: string) {
+    this.candidateService.applyToJob(publicationId).subscribe({
+      next: (response) => {
+        this.appliedStatus[publicationId] = true;
+        this.applicationIds[publicationId] = response.applicationId;
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Candidatura enviada!',
+          text: 'Você se candidatou a esta vaga com sucesso.',
+          confirmButtonText: 'Ok'
+        });
+      },
+      error: (err) => {
+        console.error(err);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Erro ao se candidatar. Tente novamente mais tarde.',
+          confirmButtonText: 'Fechar'
+        });
+      },
+    });
+  }
+
+  cancelApplication(publicationId: string) {
+    Swal.fire({
+      title: 'Tem certeza?',
+      text: "Você não poderá reverter isso!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sim, cancelar candidatura!',
+      cancelButtonText: 'Não, manter',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this._executeCancel(publicationId);
+      }
+    });
+  }
+  
   handleImgError(event: Event) {
     const target = event.target as HTMLImageElement;
     target.src = '../../../../assets/logo.png';
   }
 
-  apply() {
-    this.candidateService.applyToJob(this.publicationId).subscribe({
-      next: () => {
-        this.hasApplied = true;
-        alert('Você se candidatou com sucesso!');
-      },
-      error: (err) => {
-        console.error(err);
-        alert('Erro ao se candidatar. Tente novamente.');
-      },
-    });
+  private _executeCancel(publicationId: string) {
+    const applicationId = this.applicationIds[publicationId];
+    if (!applicationId) {
+      console.error('ID da candidatura não encontrado localmente. Tentando obter da API...');
+
+      this.candidateService.getMyApplications(this.userId!).pipe(take(1)).subscribe({
+        next: (applications) => {
+          const app = applications.find(a => a.publicationId === publicationId);
+          if (app) {
+            this.applicationIds[publicationId] = app.id;
+            this._performApiCancel(app.id, publicationId);
+          } else {
+            console.error('ID da candidatura não encontrado após nova busca.');
+            Swal.fire({
+              icon: 'error',
+              title: 'Erro!',
+              text: 'Não foi possível encontrar o ID da candidatura para cancelar.',
+              confirmButtonText: 'Fechar'
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Erro ao buscar candidaturas do usuário:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Erro!',
+            text: 'Falha na comunicação com o servidor. Tente novamente.',
+            confirmButtonText: 'Fechar'
+          });
+        }
+      });
+    } else {
+      this._performApiCancel(applicationId, publicationId);
+    }
   }
 
-  cancel(applicationId: string) {
+  private _performApiCancel(applicationId: string, publicationId: string) {
     this.candidateService.cancelApplication(applicationId).subscribe({
       next: () => {
-        this.hasApplied = false;
-        alert('Candidatura cancelada.');
+        this.appliedStatus[publicationId] = false;
+        delete this.applicationIds[publicationId];
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Candidatura cancelada!',
+          text: 'Sua candidatura foi cancelada com sucesso.',
+          confirmButtonText: 'Ok'
+        });
       },
-      error: (err) => console.error(err),
+      error: (err) => {
+        console.error('Erro ao cancelar candidatura:', err);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Erro ao cancelar a candidatura. Por favor, tente novamente.',
+          confirmButtonText: 'Fechar'
+        });
+      }
     });
   }
 }

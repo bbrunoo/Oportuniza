@@ -1,7 +1,7 @@
 import { KeycloakOperationService } from './../services/keycloak.service';
 import { Injectable } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
-import { Observable, from, of } from 'rxjs';
+import { Observable, from, of, throwError } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { MsalService } from '@azure/msal-angular';
 import { InteractionType } from '@azure/msal-browser';
@@ -9,11 +9,10 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class AuthTokenInterceptor implements HttpInterceptor {
-
   constructor(
     private msalService: MsalService,
     private keycloakService: KeycloakOperationService
-  ) {}
+  ) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const isProtectedApi = request.url.startsWith(environment.apiConfig.uri);
@@ -39,13 +38,15 @@ export class AuthTokenInterceptor implements HttpInterceptor {
               }
             }));
           } else {
-            console.warn('AuthTokenInterceptor: Flag Keycloak TRUE, mas nenhum token disponível. Prosseguindo sem token.');
-            return next.handle(request);
+            // Se o token for nulo, jogue um erro para parar a requisição
+            console.warn('AuthTokenInterceptor: Flag Keycloak TRUE, mas nenhum token disponível.');
+            return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized', url: request.url, error: 'No Keycloak token available' }));
           }
         }),
         catchError(error => {
           console.error('AuthTokenInterceptor: Erro ao obter token Keycloak:', error);
-          return next.handle(request);
+          // Jogue o erro para que a requisição pare
+          return throwError(() => error);
         })
       );
     } else if (loggedWithMicrosoft) {
@@ -65,18 +66,21 @@ export class AuthTokenInterceptor implements HttpInterceptor {
                 }
               }));
             } else {
-              console.warn('AuthTokenInterceptor: Flag MSAL TRUE, mas nenhum token disponível. Prosseguindo sem token.');
-              return next.handle(request);
+              // Se o token for nulo, jogue um erro para parar a requisição
+              console.warn('AuthTokenInterceptor: Flag MSAL TRUE, mas nenhum token disponível.');
+              return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized', url: request.url, error: 'No MSAL token available' }));
             }
           }),
           catchError(error => {
             console.error('AuthTokenInterceptor: Erro na aquisição silenciosa de token MSAL:', error);
-            return next.handle(request);
+            // Jogue o erro para que a requisição pare
+            return throwError(() => error);
           })
         );
       } else {
-        console.warn('AuthTokenInterceptor: Flag MSAL TRUE, mas nenhuma conta MSAL ativa. Prosseguindo sem token.');
-        return next.handle(request);
+        // Se não houver conta ativa, jogue um erro para parar a requisição
+        console.warn('AuthTokenInterceptor: Flag MSAL TRUE, mas nenhuma conta MSAL ativa.');
+        return throwError(() => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized', url: request.url, error: 'No MSAL account active' }));
       }
     } else {
       console.log('AuthTokenInterceptor: Nenhuma flag de login. Prosseguindo sem token.');

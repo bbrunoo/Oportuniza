@@ -28,6 +28,7 @@
         public virtual ICollection<Publication> CreatedPublications { get; set; }
         public virtual ICollection<Publication> AuthoredAsUserPublications { get; set; }
         public virtual ICollection<Company> CompaniesOwned { get; set; } = new List<Company>();
+        public ICollection<UserLogin> Logins { get; set; } = new List<UserLogin>();
 
     }
 }

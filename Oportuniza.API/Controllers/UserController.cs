@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
+using Oportuniza.Infrastructure.Services;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-
+    [ServiceFilter(typeof(UserRegistrationFilterAttribute))]
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
@@ -43,72 +44,117 @@ namespace Oportuniza.API.Controllers
         }
 
         [HttpGet("profile")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme + "," + "KeycloakScheme")]
+        [Authorize]
         public async Task<IActionResult> GetOwnProfile()
         {
-            var userUniqueId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userUniqueId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
 
-            if (string.IsNullOrEmpty(userUniqueId))
-            {
-                return Unauthorized("User unique identifier (NameIdentifier) claim not found in token.");
-            }
+            // Use o ID do token que já foi verificado pelo filtro
+            var user = await _userRepository.GetByIdentityProviderIdAsync(userUniqueId, User.FindFirst("idp")?.Value ?? "Azure AD");
 
-
-            var identityProvider = User.FindFirst("idp")?.Value;
-
-            var email = User.FindFirst("preferred_username")?.Value ?? User.FindFirst(ClaimTypes.Email)?.Value;
-            var name = User.FindFirst("name")?.Value ?? User.FindFirst(ClaimTypes.Name)?.Value ?? User.FindFirst("given_name")?.Value;
-            var givenName = User.FindFirst("given_name")?.Value;
-            var familyName = User.FindFirst("family_name")?.Value;
-
-            Console.WriteLine($"Backend: Profile request from IDP: {identityProvider ?? "Azure AD"}, UserID: {userUniqueId}, Email: {email}, Name: {name}");
-
-
-            var user = await _userRepository.GetByIdentityProviderIdAsync(userUniqueId, identityProvider ?? "Azure AD");
-
-            if (user == null)
-            {
- 
-                Guid userIdFromToken;
-                if (Guid.TryParse(userUniqueId, out userIdFromToken))
-                {
-                    var newUser = new User
-                    {
-                        Id = userIdFromToken,
-                        IdentityProviderId = userUniqueId,
-                        IdentityProvider = identityProvider ?? "Azure AD",
-                        Email = email,
-                        Name = name,
-                        FullName = name
-                    };
-
-                    await _userRepository.AddAsync(newUser);
-                    Console.WriteLine($"Backend: Novo perfil criado e salvo para {email} via {identityProvider ?? "Azure AD"}.");
-                }
-                else
-                {
-                    var finalName = GenerateNameFromEmail(email);
-
-                    var newUser = new User
-                    {
-                        Id = Guid.NewGuid(),
-                        IdentityProviderId = userUniqueId,
-                        IdentityProvider = identityProvider ?? "Azure AD",
-                        Email = email,
-                        Name = finalName,
-                        FullName = finalName
-                    };
-
-                    await _userRepository.AddAsync(newUser);
-                    Console.WriteLine($"Backend: Novo perfil criado e salvo com ID gerado para {email} via {identityProvider ?? "Azure AD"}.");
-                }
-            }
-
-
+            // O usuário sempre existirá aqui, então o `if (user == null)` não é mais necessário.
             var response = _mapper.Map<UserDTO>(user);
             return StatusCode(200, response);
         }
 
+        //[HttpGet("profile")]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme + "," + "KeycloakScheme")]
+        //public async Task<IActionResult> GetOwnProfile()
+        //{
+        //    var userUniqueId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        //    if (string.IsNullOrEmpty(userUniqueId))
+        //    {
+        //        return Unauthorized("User unique identifier (NameIdentifier) claim not found in token.");
+        //    }
+
+        //    var identityProvider = User.FindFirst("idp")?.Value;
+
+        //    var email = User.FindFirst("preferred_username")?.Value ?? User.FindFirst(ClaimTypes.Email)?.Value;
+        //    var name = User.FindFirst("name")?.Value ?? User.FindFirst(ClaimTypes.Name)?.Value ?? User.FindFirst("given_name")?.Value;
+        //    var givenName = User.FindFirst("given_name")?.Value;
+        //    var familyName = User.FindFirst("family_name")?.Value;
+
+        //    Console.WriteLine($"Backend: Profile request from IDP: {identityProvider ?? "Azure AD"}, UserID: {userUniqueId}, Email: {email}, Name: {name}");
+
+
+        //    var user = await _userRepository.GetByIdentityProviderIdAsync(userUniqueId, identityProvider ?? "Azure AD");
+
+        //    if (user == null)
+        //    {
+
+        //        Guid userIdFromToken;
+        //        if (Guid.TryParse(userUniqueId, out userIdFromToken))
+        //        {
+        //            var newUser = new User
+        //            {
+        //                Id = userIdFromToken,
+        //                IdentityProviderId = userUniqueId,
+        //                IdentityProvider = identityProvider ?? "Azure AD",
+        //                Email = email,
+        //                Name = name,
+        //                FullName = name
+        //            };
+
+        //            await _userRepository.AddAsync(newUser);
+        //            Console.WriteLine($"Backend: Novo perfil criado e salvo para {email} via {identityProvider ?? "Azure AD"}.");
+        //        }
+        //        else
+        //        {
+        //            var finalName = GenerateNameFromEmail(email);
+
+        //            var newUser = new User
+        //            {
+        //                Id = Guid.NewGuid(),
+        //                IdentityProviderId = userUniqueId,
+        //                IdentityProvider = identityProvider ?? "Azure AD",
+        //                Email = email,
+        //                Name = finalName,
+        //                FullName = finalName
+        //            };
+
+        //            await _userRepository.AddAsync(newUser);
+        //            Console.WriteLine($"Backend: Novo perfil criado e salvo com ID gerado para {email} via {identityProvider ?? "Azure AD"}.");
+        //        }
+        //    }
+
+
+        //    var response = _mapper.Map<UserDTO>(user);
+        //    return StatusCode(200, response);
+        //}
+
+        //[HttpGet("getUserId")]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme + "," + "KeycloakScheme")]
+        //public async Task<IActionResult> GetUserId()
+        //{
+        //    var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+        //                          ?? User.FindFirst("sub")?.Value;
+
+        //    if (string.IsNullOrEmpty(userIdFromToken))
+        //    {
+        //        return Unauthorized("User unique identifier claim not found in token.");
+        //    }
+
+        //    var identityProvider = User.FindFirst("idp")?.Value ?? "Azure AD";
+        //    var user = await _userRepository.GetByIdentityProviderIdAsync(userIdFromToken, identityProvider);
+
+        //    if (user == null)
+        //    {
+        //        return NotFound("User not registered in the system.");
+        //    }
+        //    return Ok(new { id = user.Id });
+        //}
+
+        [HttpGet("getUserId")]
+        [Authorize]
+        public async Task<IActionResult> GetUserId()
+        {
+            var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+
+            var user = await _userRepository.GetByIdentityProviderIdAsync(userIdFromToken, User.FindFirst("idp")?.Value ?? "Azure AD");
+
+            return Ok(new { id = user.Id });
+        }
         private string GenerateNameFromEmail(string? email)
         {
             if (string.IsNullOrEmpty(email) || !email.Contains('@'))

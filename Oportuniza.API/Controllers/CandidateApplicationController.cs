@@ -126,8 +126,22 @@ namespace Oportuniza.API.Controllers
             return Ok(stats);
         }
 
+        [HttpGet("Status")]
+        public async Task<IActionResult> GetApplicationStatus(Guid publicationId, Guid userId)
+        {
+            var application = await _repository.GetApplicationByPublicationAndUserAsync(publicationId, userId);
+
+            if (application == null)
+            {
+                // Retorna null ou um valor específico se não houver candidatura
+                return Ok(new { status = (int?)null });
+            }
+
+            return Ok(new { status = (int)application.Status });
+        }
+
         [HttpDelete("{id}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme + "," + "KeycloakScheme")]
+        [Authorize]
         public async Task<IActionResult> Cancel(Guid id)
         {
             var entity = await _repository.GetByIdAsync(id);
