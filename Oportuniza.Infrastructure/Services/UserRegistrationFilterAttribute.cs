@@ -17,51 +17,59 @@ namespace Oportuniza.Infrastructure.Services
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var userUniqueId = context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                             ?? context.HttpContext.User.FindFirst("sub")?.Value;
+            var keycloakId = context.HttpContext.User.FindFirst("sub")?.Value;
 
-            if (string.IsNullOrEmpty(userUniqueId))
+            if (string.IsNullOrEmpty(keycloakId))
             {
                 context.Result = new UnauthorizedResult();
                 return;
             }
 
-            var identityProvider = context.HttpContext.User.FindFirst("idp")?.Value ?? "AzureAD";
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
 
-            // Tente encontrar um login existente
-            var userLogin = await _userRepository.GetUserLoginAsync(identityProvider, userUniqueId);
-
-            // Se o login não existir, crie o usuário e o login
-            if (userLogin == null)
+            if (user == null)
             {
                 var email = context.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
-                var name = context.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value
-                         ?? context.HttpContext.User.FindFirst("given_name")?.Value
-                         ?? "Usuário";
 
-                var user = new User
+                var name = context.HttpContext.User.FindFirst("given_name")?.Value
+                               ?? context.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+
+                if (string.IsNullOrEmpty(name))
                 {
+                    name = GenerateNameFromEmail(email);
+                }
+
+                user = new User
+                {
+                    Id = Guid.Parse(keycloakId),
+                    KeycloakId = keycloakId,
                     Email = email,
                     Name = name,
                     FullName = name,
-                    IdentityProvider = identityProvider,
-                    IdentityProviderId = userUniqueId
+                    IsProfileCompleted = false,
                 };
 
                 await _userRepository.AddAsync(user);
-
-                var login = new UserLogin
-                {
-                    UserId = user.Id, // Use o Id do usuário recém-criado
-                    IdentityProvider = identityProvider,
-                    ProviderId = userUniqueId
-                };
-
-                await _userRepository.AddUserLoginAsync(login);
             }
 
-            // O próximo filtro ou a ação do controller serão executados
             await next();
+        }
+
+        private string GenerateNameFromEmail(string? email)
+        {
+            if (string.IsNullOrEmpty(email) || !email.Contains('@'))
+            {
+                return "Usuário";
+            }
+
+            string name = email.Split('@')[0];
+
+            if (name.Length > 0)
+            {
+                name = char.ToUpper(name[0]) + name.Substring(1);
+            }
+
+            return name;
         }
     }
 }

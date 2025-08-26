@@ -93,30 +93,20 @@ namespace Oportuniza.Infrastructure.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<UserLogin?> GetUserLoginAsync(string identityProvider, string providerId)
-        {
-            return await _context.UserLogin
-                .Include(ul => ul.User)
-                .FirstOrDefaultAsync(ul =>
-                    ul.IdentityProvider == identityProvider &&
-                    ul.ProviderId == providerId);
-        }
-        public async Task AddUserLoginAsync(UserLogin login)
-        {
-            _context.UserLogin.Add(login);
-            await _context.SaveChangesAsync();
-        }
-        public async Task<User?> GetByIdAsync(Guid userId)
-        {
-            return await _context.User
-                .Include(u => u.Logins)
-                .FirstOrDefaultAsync(u => u.Id == userId);
-        }
-
         public async Task AddAsync(User user)
         {
             _context.User.Add(user);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<User> GetUserByKeycloakIdAsync(string keycloakId)
+        {
+           
+            if (Guid.TryParse(keycloakId, out var userIdGuid))
+            {
+                return await _context.User.FirstOrDefaultAsync(u => u.Id == userIdGuid);
+            }
+            return null; 
         }
     }
 }

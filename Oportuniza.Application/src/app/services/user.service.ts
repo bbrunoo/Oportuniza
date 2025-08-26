@@ -1,21 +1,24 @@
 import { UserProfile } from './../models/UserProfile.model';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { MsalService } from '@azure/msal-angular';
 import { jwtDecode } from 'jwt-decode';
 import { map, Observable } from 'rxjs';
+import { KeycloakOperationService } from './keycloak.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
-  constructor(private http: HttpClient, private msalService: MsalService) { }
+  constructor(
+    private http: HttpClient,
+    private keycloakService: KeycloakOperationService
+  ) { }
 
   apiUrl = 'http://localhost:5000/api/v1/User';
   uploadApi = 'http://localhost:5000/api/Upload/upload-profile-picture';
 
-  getOwnProfile() {
+  getOwnProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${this.apiUrl}/profile`);
   }
 
@@ -40,24 +43,22 @@ export class UserService {
     return this.http.post<{ imageUrl: string }>(`${this.uploadApi}`, formData);
   }
 
-  getLoggedInUserId(): string | undefined {
-    const activeMsalAccount = this.msalService.instance.getActiveAccount();
-    if (activeMsalAccount) {
-      return activeMsalAccount.homeAccountId;
-    }
+  async getLoggedInUserId(): Promise<string | undefined> {
+  try {
+    const isLoggedIn = await this.keycloakService.isLoggedIn();
+    if (isLoggedIn) {
+      const token = await this.keycloakService.getToken();
 
-    const token = sessionStorage.getItem('access_token');
-    if (token) {
-      try {
+      if (token) {
         const decodedToken: any = jwtDecode(token);
-        return decodedToken.sub || decodedToken.nameid;
-      } catch (e) {
-        console.error('Falha ao decodificar o token:', e);
-        return undefined;
+        return decodedToken.sub || decodedToken.id;
       }
     }
-    return undefined;
+  } catch (e) {
+    console.error('Falha ao obter o ID do usuário do Keycloak:', e);
   }
+  return undefined;
+}
 
   getUserId(): Observable<string> {
     return this.http.get<{ id: string }>(`${this.apiUrl}/getUserId`).pipe(

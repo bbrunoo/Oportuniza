@@ -47,12 +47,20 @@ namespace Oportuniza.API.Controllers
         [Authorize]
         public async Task<IActionResult> GetOwnProfile()
         {
-            var userUniqueId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var keycloakId = User.FindFirst("sub")?.Value;
 
-            // Use o ID do token que já foi verificado pelo filtro
-            var user = await _userRepository.GetByIdentityProviderIdAsync(userUniqueId, User.FindFirst("idp")?.Value ?? "Azure AD");
+            if (string.IsNullOrEmpty(keycloakId))
+            {
+                return Unauthorized("Token 'sub' claim is missing.");
+            }
 
-            // O usuário sempre existirá aqui, então o `if (user == null)` não é mais necessário.
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
             var response = _mapper.Map<UserDTO>(user);
             return StatusCode(200, response);
         }
@@ -149,27 +157,14 @@ namespace Oportuniza.API.Controllers
         [Authorize]
         public async Task<IActionResult> GetUserId()
         {
-            var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var keycloakId = User.FindFirst("sub")?.Value;
 
-            var user = await _userRepository.GetByIdentityProviderIdAsync(userIdFromToken, User.FindFirst("idp")?.Value ?? "Azure AD");
-
-            return Ok(new { id = user.Id });
-        }
-        private string GenerateNameFromEmail(string? email)
-        {
-            if (string.IsNullOrEmpty(email) || !email.Contains('@'))
+            if (string.IsNullOrEmpty(keycloakId))
             {
-                return "Usuário";
+                return Unauthorized("Token 'sub' claim is missing.");
             }
 
-            string name = email.Split('@')[0];
-
-            if (name.Length > 0)
-            {
-                name = char.ToUpper(name[0]) + name.Substring(1);
-            }
-
-            return name;
+            return Ok(new { id = keycloakId });
         }
 
         [HttpPut("completar-perfil/{id}")]

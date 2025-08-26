@@ -33,9 +33,9 @@ namespace Oportuniza.API.Controllers
             if (string.IsNullOrEmpty(userUniqueId))
                 return Unauthorized("Identificador do usuário não encontrado no token.");
 
-            var identityProvider = User.FindFirst("idp")?.Value ?? "Azure AD";
+            var keycloakId = User.FindFirst("sub")?.Value;
 
-            var user = await _userRepository.GetByIdentityProviderIdAsync(userUniqueId, identityProvider);
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
             if (user == null)
                 return Unauthorized("Usuário não registrado no sistema.");
 

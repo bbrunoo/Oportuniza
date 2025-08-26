@@ -2,14 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from "@angular/router";
 import { MatDialogRef } from '@angular/material/dialog';
-import { UsersAPIResponse } from 'stream-chat';
 import { UserService } from '../../services/user.service';
 import { CommonModule } from '@angular/common';
 import { KeycloakOperationService } from '../../services/keycloak.service';
-import { MsalService } from '@azure/msal-angular';
 
 @Component({
   selector: 'app-configs',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './configs.component.html',
   styleUrl: './configs.component.css'
@@ -17,16 +16,20 @@ import { MsalService } from '@azure/msal-angular';
 
 export class ConfigsComponent implements OnInit {
   showCompleteProfileButton = true;
-
-  constructor(private authService: AuthService, private router: Router, public dialogRef: MatDialogRef<ConfigsComponent>, private msalService: MsalService, private userService: UserService, private keycloakService: KeycloakOperationService) { }
-
   containerHeight = '200px';
+
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    public dialogRef: MatDialogRef<ConfigsComponent>,
+    private userService: UserService,
+    private keycloakService: KeycloakOperationService
+  ) { }
 
   ngOnInit(): void {
     this.userService.getOwnProfile().subscribe({
       next: (profile) => {
         this.showCompleteProfileButton = !profile.isProfileCompleted;
-
         this.containerHeight = this.showCompleteProfileButton ? '200px' : '130px';
       },
       error: (err) => {
@@ -37,29 +40,17 @@ export class ConfigsComponent implements OnInit {
     });
   }
 
-  async logout() {
+  async logout(): Promise<void> {
     this.dialogRef.close();
+    await this.keycloakService.logout();
+  }
 
-    if (this.msalService.instance.getAllAccounts().length > 0) {
-      await this.msalService.logoutRedirect();
-    }
-
-    else if (await this.keycloakService.isLoggedIn()) {
-      await this.keycloakService.logout();
-    }
-    else {
-      localStorage.clear();
-      sessionStorage.clear();
-      this.router.navigate(['/']);
-    }
-  }
-
-  completePerfil() {
+  completePerfil(): void {
     this.router.navigate(['/primeira-etapa']);
     this.dialogRef.close();
   }
 
-  changeAccount() {
+  changeAccount(): void {
     this.router.navigate(['']);
     this.dialogRef.close();
   }

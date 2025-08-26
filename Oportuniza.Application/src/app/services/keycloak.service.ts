@@ -2,7 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Observable } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
@@ -39,7 +39,15 @@ export class KeycloakOperationService {
 
     return this.http.post(tokenUrl, body, {
       headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' })
-    });
+    }).pipe(
+      tap(tokens => {
+        this.saveTokens(tokens);
+      }),
+      catchError(error => {
+        console.error('KeycloakOperationService: Erro ao autenticar com credenciais:', error);
+        return throwError(() => new Error('Falha na autenticação.'));
+      })
+    );
   }
 
    saveTokens(tokens: any): void {

@@ -37,6 +37,9 @@ namespace Oportuniza.Infrastructure.Configurations
             builder.Property(x => x.ImageUrl)
                    .HasMaxLength(300);
 
+            builder.Property(x => x.KeycloakId)
+                .HasMaxLength(100);
+
             builder.Property(x => x.IsAdmin)
                    .HasDefaultValue(false);
 

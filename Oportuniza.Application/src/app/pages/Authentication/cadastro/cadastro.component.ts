@@ -6,12 +6,6 @@ import Swal from 'sweetalert2';
 import { MatDialog } from '@angular/material/dialog';
 import { TermosModalComponent } from '../../../extras/termos-modal/termos-modal.component';
 import { firstValueFrom } from 'rxjs';
-import {
-  MSAL_GUARD_CONFIG,
-  MsalGuardConfiguration,
-  MsalService,
-} from '@azure/msal-angular';
-import { RedirectRequest } from '@azure/msal-browser';
 import { KeycloakOperationService } from '../../../services/keycloak.service';
 
 @Component({
@@ -67,8 +61,6 @@ export class CadastroComponent {
     private router: Router,
     private dialog: MatDialog,
     private keyAuth: KeycloakOperationService,
-    private msalService: MsalService,
-    @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration
   ) {
     this.criteriaList = [
       { key: 'hasLowercase', message: 'A senha deve conter letras minúsculas' },
@@ -84,20 +76,6 @@ export class CadastroComponent {
       },
       { key: 'equalsPassword', message: 'As senhas devem ser iguais' },
     ];
-  }
-
-  microsoftLogin() {
-    if (this.msalGuardConfig.authRequest) {
-      this.msalService.loginRedirect({
-        ...this.msalGuardConfig.authRequest,
-      } as RedirectRequest);
-    } else {
-      this.msalService.loginRedirect();
-    }
-  }
-
-  setLoginDisplay() {
-    this.loginDisplay = this.msalService.instance.getAllAccounts().length > 0;
   }
 
   togglePassword() {
@@ -132,13 +110,6 @@ export class CadastroComponent {
       console.log('Resposta do registro:', response);
 
       console.log('Usuário registrado com sucesso no Keycloak!', response);
-
-      const tokens = await firstValueFrom(
-        this.keyAuth.loginWithCredentials(this.email, this.password)
-      );
-      console.log('Login bem-sucedido, tokens recebidos:', tokens);
-
-      this.keyAuth.saveTokens(tokens);
 
       await Swal.fire({
         icon: 'success',

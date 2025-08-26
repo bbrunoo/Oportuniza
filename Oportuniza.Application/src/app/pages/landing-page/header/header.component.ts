@@ -1,8 +1,6 @@
 import { Component, HostListener, Inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { MSAL_GUARD_CONFIG, MsalGuardConfiguration, MsalService } from '@azure/msal-angular';
-import { RedirectRequest } from '@azure/msal-browser';
 
 @Component({
   selector: 'app-header',

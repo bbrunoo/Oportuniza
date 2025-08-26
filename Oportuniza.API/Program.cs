@@ -38,11 +38,11 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityRequirement(new OpenApiSecurityRequirement { { securityScheme, Array.Empty<string>() } });
 });
 
-var authBuilder = builder.Services.AddAuthentication();
-
-authBuilder.AddMicrosoftIdentityWebApi(
-    jwtBearerScheme: "AzureAD",
-    configurationSection: builder.Configuration.GetSection("AzureAd"));
+var authBuilder = builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = "Keycloak";
+    options.DefaultChallengeScheme = "Keycloak";
+});
 
 authBuilder.AddJwtBearer("Keycloak", options =>
 {
@@ -55,7 +55,7 @@ authBuilder.AddJwtBearer("Keycloak", options =>
 builder.Services.AddAuthorization(options =>
 {
     options.DefaultPolicy = new AuthorizationPolicyBuilder()
-        .AddAuthenticationSchemes("AzureAD", "Keycloak")
+        .AddAuthenticationSchemes("Keycloak")
         .RequireAuthenticatedUser()
         .Build();
 });

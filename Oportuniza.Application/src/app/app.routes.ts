@@ -12,7 +12,6 @@ import { MeuperfilComponent } from './pages/layout/meuperfil/meuperfil.component
 import { PublicationComponent } from './pages/layout/publication/publication.component';
 import { MeuspostsComponent } from './pages/layout/meusposts/meusposts.component';
 import { CriarEmpresaComponent } from './pages/layout/criar-empresa/criar-empresa.component';
-import { AuthTypeGuard } from './guards/auth-type.guard';
 import { LoginComponent } from './pages/Authentication/login/login.component';
 import { LoadingComponent } from './extras/loading/loading.component';
 import { MinhasEmpresasComponent } from './pages/layout/minhas-empresas/minhas-empresas.component';
@@ -21,6 +20,7 @@ import { EditarEmpresaComponent } from './pages/empresa-management/editar-empres
 import { FuncionariosComponent } from './pages/empresa-management/funcionarios/funcionarios.component';
 import { AdicionarFuncionarioComponent } from './pages/empresa-management/adicionar-funcionario/adicionar-funcionario.component';
 import { EmpresaComponent } from './pages/empresa-management/empresa/empresa.component';
+import { AuthTypeGuard } from './guards/auth-type.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
