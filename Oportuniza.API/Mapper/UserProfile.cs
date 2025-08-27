@@ -15,12 +15,14 @@ namespace Oportuniza.API.Mapper
             CreateMap<CompleteProfileDTO, User>();
 
             CreateMap<User, UserDTO>()
-                .ForMember(dest => dest.Phone, opt => opt.MapFrom(x => x.Phone))
-                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(x=>x.ImageUrl));
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Phone))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
+                .ForMember(dest => dest.IsProfileCompleted, opt => opt.MapFrom(src => src.IsProfileCompleted));
 
             CreateMap<User, UserByIdDTO>();
             CreateMap<User, UserInfoDTO>();
-            CreateMap<UserProfile, AllUsersInfoDTO>();
+
+            CreateMap<User, AllUsersInfoDTO>();
         }
     }
 }

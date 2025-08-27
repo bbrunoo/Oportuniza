@@ -28,58 +28,6 @@ namespace Oportuniza.API.Controllers
             _authService = authService;
         }
 
-        [HttpPost("register")]
-        public async Task<ActionResult<UserByIdDTO>> Register([FromBody] UserRegisterViewmodel model)
-        {
-            if (model == null || IsInvalidInput(model.Name) || IsInvalidInput(model.Email) || IsInvalidInput(model.Password))
-                return BadRequest("Todos os campos são obrigatórios.");
-
-            if (model.Email.Contains(" "))
-                return BadRequest("O e-mail não pode conter espaços em branco.");
-
-            if (model.Password.Contains(" "))
-                return BadRequest("A senha não pode conter espaços em branco.");
-
-            if (!IsValidPassword(model.Password))
-                return BadRequest("A senha contém caracteres inválidos. Use apenas letras, números e os símbolos: ! @ # $ % ^ & * _ - + .");
-
-            if (!IsValidEmail(model.Email))
-                return BadRequest("Formato de e-mail inválido.");
-
-            if (model.Password.Length < 8)
-                return BadRequest("A senha deve conter no mínimo 8 caracteres.");
-
-            var emailJaExiste = await _authenticateUser.UserExists(model.Email);
-            if (emailJaExiste)
-                return Conflict("Este e-mail já está cadastrado.");
-
-            CreatePasswordHash(model.Password, out byte[] passwordHash, out byte[] passwordSalt);
-
-            var user = new User
-            {
-                Id = Guid.NewGuid(),
-                FullName = model.Name.Trim(),
-                Name = model.Email.Split('@')[0],
-                Email = model.Email.Trim(),
-                //PasswordHash = passwordHash,
-                //PasswordSalt = passwordSalt,
-                Active = true
-            };
-
-            var result = await _userRepository.AddAsync(user);
-            if (result == null)
-                return StatusCode(500, "Erro interno ao registrar o usuário.");
-
-            var userDto = new UserByIdDTO
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email
-            };
-
-            return Ok(userDto);
-        }
-
         [HttpPost("login")]
         public async Task<ActionResult<UserToken>> Login([FromBody] LoginRequestDto loginRequestDTO)
         {
@@ -111,26 +59,32 @@ namespace Oportuniza.API.Controllers
             return Ok(new UserToken { Token = token });
         }
 
-        [HttpPost("register-keycloak")]
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            var token = await GetAdminToken();
+            // Validação de entrada
+            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest("Email e senha são obrigatórios.");
+            }
 
+            // 1. Tenta registrar o usuário no Keycloak
+            var token = await GetAdminToken();
             var userPayload = new
             {
-                username = request.Email,
-                email = request.Email,
-                enabled = true,
-                emailVerified = true,
-                credentials = new[]
-                {
-                new
-                {
-                    type = "password",
-                    value = request.Password,
-                    temporary = false
+                    username = request.Email,
+                    email = request.Email,
+                    enabled = true,
+                    emailVerified = false, // Deixe como false para permitir a verificação posterior
+                    credentials = new[]
+                    {
+                    new
+                    {
+                        type = "password",
+                        value = request.Password,
+                        temporary = false
+                    }
                 }
-            }
             };
 
             var client = _httpClientFactory.CreateClient();
@@ -139,13 +93,52 @@ namespace Oportuniza.API.Controllers
             req.Content = new StringContent(JsonConvert.SerializeObject(userPayload), Encoding.UTF8, "application/json");
 
             var response = await client.SendAsync(req);
-            if (response.IsSuccessStatusCode)
+
+            if (!response.IsSuccessStatusCode)
             {
-                return Ok();
+                var error = await response.Content.ReadAsStringAsync();
+                return StatusCode((int)response.StatusCode, error);
             }
 
-            var error = await response.Content.ReadAsStringAsync();
-            return StatusCode((int)response.StatusCode, error);
+
+            var location = response.Headers.Location;
+            if (location == null)
+            {
+                return StatusCode(500, "Erro ao obter o ID do usuário do Keycloak.");
+            }
+
+            // Ex: http://localhost:9090/admin/realms/oportuniza/users/91b7d55f-b883-488f-9a70-38c2c7322987
+            var keycloakId = location.Segments.Last();
+
+            var existingUser = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+            if (existingUser != null)
+            {
+                return Ok(new { message = "Usuário já registrado localmente." });
+            }
+
+            var newUser = new User
+            {
+                Id = Guid.NewGuid(),
+                KeycloakId = keycloakId,
+                Email = request.Email,
+                Name = GenerateNameFromEmail(request.Email),
+                FullName = request.Email ?? GenerateNameFromEmail(request.Email),
+                IsProfileCompleted = false,
+                //VerifiedEmail=false,
+                Active = true
+            };
+
+            try
+            {
+                await _userRepository.AddAsync(newUser);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, "Erro ao registrar o usuário localmente. Por favor, tente novamente.");
+            }
+
+            return Ok(new { message = "Usuário registrado com sucesso." });
         }
 
         [HttpPost("login-keycloak")]
@@ -158,7 +151,7 @@ namespace Oportuniza.API.Controllers
                 return Unauthorized(new { error = "Usuário ou senha inválidos" });
             }
 
-            return Ok(result); 
+            return Ok(result);
         }
         private async Task<string> GetAdminToken()
         {
@@ -168,7 +161,7 @@ namespace Oportuniza.API.Controllers
                 ["grant_type"] = "password",
                 ["client_id"] = "admin-cli",
                 ["username"] = "admin",
-                ["password"] = "admin" 
+                ["password"] = "admin"
             };
 
             var content = new FormUrlEncodedContent(parameters);
@@ -193,6 +186,20 @@ namespace Oportuniza.API.Controllers
         private bool IsInvalidInput(string value)
         {
             return string.IsNullOrWhiteSpace(value);
+        }
+        private string GenerateNameFromEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email) || !email.Contains('@'))
+            {
+                return "Usuário";
+            }
+
+            string name = email.Split('@')[0];
+            if (name.Length > 0)
+            {
+                name = char.ToUpper(name[0]) + name.Substring(1);
+            }
+            return name;
         }
 
         private void CreatePasswordHash(string password, out byte[] hash, out byte[] salt)

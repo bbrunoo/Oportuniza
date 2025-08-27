@@ -18,8 +18,9 @@ export class AuthTokenInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // Definir as URLs não protegidas como strings parciais para evitar problemas com barras finais
     const unprotectedEndpoints = [
-      'Auth/register-keycloak',
-      'Auth/login-keycloak' // Adicionar login também como não protegido
+      'Auth/register',
+      'Auth/login', // Adicionar login também como não protegido
+      'Verification/send-verification' // Adicionar login também como não protegido
     ];
 
     // Checar se a URL da requisição termina com algum dos endpoints não protegidos

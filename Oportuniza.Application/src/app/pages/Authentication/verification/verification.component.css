@@ -1,0 +1,105 @@
+.verification-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f2f5;
+  font-family: Arial, sans-serif;
+}
+
+.card {
+  background: #fff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.subtitle strong {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.code-input-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.code-input {
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  text-align: center;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.code-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+.code-input:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.btn-verify {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  color: #fff;
+  background-color: #28a745;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-verify:hover:not([disabled]) {
+  background-color: #218838;
+}
+
+.btn-verify:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.status-message-container {
+  margin-top: 20px;
+}
+
+.status-message {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.resend-link {
+  font-size: 14px;
+  color: #007bff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.resend-link:hover {
+  text-decoration: underline;
+}

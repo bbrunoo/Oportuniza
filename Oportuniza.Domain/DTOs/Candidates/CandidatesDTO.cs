@@ -10,6 +10,7 @@ namespace Oportuniza.Domain.DTOs.Candidates
         public string PublicationTitle { get; set; }
         public Guid UserId { get; set; }
         public string UserName { get; set; }
+        public string UserIdKeycloak { get; set; }
         public DateTime ApplicationDate { get; set; }
         public CandidateApplicationStatus Status { get; set; }
     }

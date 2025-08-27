@@ -21,6 +21,7 @@ import { FuncionariosComponent } from './pages/empresa-management/funcionarios/f
 import { AdicionarFuncionarioComponent } from './pages/empresa-management/adicionar-funcionario/adicionar-funcionario.component';
 import { EmpresaComponent } from './pages/empresa-management/empresa/empresa.component';
 import { AuthTypeGuard } from './guards/auth-type.guard';
+import { VerificationComponent } from './pages/Authentication/verification/verification.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -29,6 +30,7 @@ export const routes: Routes = [
   { path: 'segunda-etapa', component: SegundaEtapaComponent },
   { path: 'cadastro', component: CadastroComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'verify/:email', component: VerificationComponent },
   { path: 'loading', component: LoadingComponent },
   {
     path: "inicio",

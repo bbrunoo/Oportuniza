@@ -16,28 +16,39 @@ namespace Oportuniza.API.Controllers
     {
         private readonly ICandidateApplicationRepository _repository;
         private readonly IUserRepository _userRepository;
+        private readonly IPublicationRepository _publicationRepository;
         private readonly IMapper _mapper;
-        public CandidateApplicationController(ICandidateApplicationRepository repository, IUserRepository userRepository, IMapper mapper)
+
+        public CandidateApplicationController(
+            ICandidateApplicationRepository repository,
+            IUserRepository userRepository,
+            IPublicationRepository publicationRepository,
+            IMapper mapper)
         {
             _repository = repository;
             _userRepository = userRepository;
+            _publicationRepository = publicationRepository;
             _mapper = mapper;
         }
 
         [HttpPost]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme + "," + "KeycloakScheme")]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateCandidatesDTO dto)
         {
-            var userUniqueId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                               ?? User.FindFirst("sub")?.Value; 
-            if (string.IsNullOrEmpty(userUniqueId))
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(keycloakId))
                 return Unauthorized("Identificador do usuário não encontrado no token.");
-
-            var keycloakId = User.FindFirst("sub")?.Value;
 
             var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
             if (user == null)
                 return Unauthorized("Usuário não registrado no sistema.");
+
+            var publication = await _publicationRepository.GetByIdAsync(dto.PublicationId);
+            if (publication == null)
+                return NotFound("Publicação não encontrada.");
+
+            if (publication.AuthorUserId == user.Id)
+                return BadRequest("Você não pode se candidatar na sua própria postagem.");
 
             if (await _repository.HasAppliedAsync(dto.PublicationId, user.Id))
                 return BadRequest("Você já se candidatou para esta vaga.");
@@ -46,6 +57,7 @@ namespace Oportuniza.API.Controllers
             {
                 PublicationId = dto.PublicationId,
                 UserId = user.Id,
+                UserIdKeycloak = keycloakId,
                 ApplicationDate = DateTime.UtcNow,
                 Status = CandidateApplicationStatus.Pending
             };
@@ -106,6 +118,29 @@ namespace Oportuniza.API.Controllers
         public async Task<IActionResult> GetApplicationsByUser(Guid userId)
         {
             var apps = await _repository.GetApplicationsByUserAsync(userId);
+            var result = _mapper.Map<IEnumerable<CandidatesDTO>>(apps);
+            return Ok(result);
+        }
+
+        // GET: api/CandidateApplication/ByUser/{userId}
+        [HttpGet("MyApplications")]
+        public async Task<IActionResult> GetMyApplications()
+        {
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(keycloakId))
+            {
+                return Unauthorized("Token 'sub' claim is missing.");
+            }
+
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+
+            if (user == null)
+            {
+                return NotFound("Usuário não encontrado no banco de dados local.");
+            }
+
+            var apps = await _repository.GetApplicationsLoggedUser(keycloakId);
             var result = _mapper.Map<IEnumerable<CandidatesDTO>>(apps);
             return Ok(result);
         }

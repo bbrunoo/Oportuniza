@@ -6,10 +6,57 @@
   align-items: center;
   justify-content: center;
   flex-direction: row;
-  color: white;
   border-radius: 25px;
   font-weight: 600;
 }
+
+.quadrado {
+  background-color: white;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.lista-conteudos {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.titulos {
+  display: flex;
+  margin: 20px;
+  justify-content: center;
+  padding: 20px;
+  gap: 5em;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+  font-size: 20px;
+}
+
+
+.conteudo1 {
+    margin-top: 18%;
+    justify-items: center;
+    align-items: center;
+}
+
+p {
+    text-align: center;
+} 
 
 @media screen and (max-width: 1920px) {
   .container {

@@ -78,7 +78,7 @@ export class FeedComponent implements OnInit {
   }
 
   getApplicationsForUser() {
-    this.candidateService.getMyApplications(this.userId!).subscribe({
+    this.candidateService.getMyApplications().subscribe({
       next: (applications: any[]) => {
         applications.forEach(app => {
           // Preenche appliedStatus e applicationIds para todas as candidaturas
@@ -151,7 +151,7 @@ export class FeedComponent implements OnInit {
       }
     });
   }
-  
+
   handleImgError(event: Event) {
     const target = event.target as HTMLImageElement;
     target.src = '../../../../assets/logo.png';
@@ -162,7 +162,7 @@ export class FeedComponent implements OnInit {
     if (!applicationId) {
       console.error('ID da candidatura não encontrado localmente. Tentando obter da API...');
 
-      this.candidateService.getMyApplications(this.userId!).pipe(take(1)).subscribe({
+      this.candidateService.getMyApplications().pipe(take(1)).subscribe({
         next: (applications) => {
           const app = applications.find(a => a.publicationId === publicationId);
           if (app) {

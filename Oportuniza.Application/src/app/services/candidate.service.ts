@@ -15,8 +15,8 @@ export class CandidateService {
     return this.http.post(`${this.apiUrl}`, { publicationId });
   }
 
-  getMyApplications(userId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/ByUser/${userId}`);
+  getMyApplications(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/MyApplications`);
   }
 
   getApplicantsByJob(publicationId: string): Observable<any[]> {

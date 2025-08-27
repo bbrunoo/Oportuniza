@@ -8,6 +8,7 @@ using Oportuniza.Domain.Interfaces;
 using Oportuniza.Infrastructure.Data;
 using Oportuniza.Infrastructure.Repositories;
 using Oportuniza.Infrastructure.Services;
+using static Oportuniza.API.Services.AzureEmailService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,13 +73,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthenticateUser, AuthenticateUser>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<ICompanyEmployeeRepository, CompanyEmployeeRepository>();
 builder.Services.AddScoped<IAreaOfInterest, AreaOfInterestRepository>();
 builder.Services.AddScoped<IPublicationRepository, PublicationRepository>();
 builder.Services.AddScoped<IUserAreaOfInterestRepository, UserAreaOfInterestRepository>();
 builder.Services.AddScoped<ICandidateApplicationRepository, CandidateApplicationRepository>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
-builder.Services.AddSingleton<SmsService>();
-builder.Services.AddSingleton<OtpCacheService>();
+
+builder.Services.AddScoped<IVerificationCodeService, VerificationCodeService>();
+builder.Services.AddScoped<AzureEmailService.IEmailService, AzureEmailService.EmailService>();
+
 builder.Services.AddScoped<UserRegistrationFilterAttribute>();
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

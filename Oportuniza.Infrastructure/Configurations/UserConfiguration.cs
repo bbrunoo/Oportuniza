@@ -10,23 +10,15 @@ namespace Oportuniza.Infrastructure.Configurations
         {
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.IdentityProviderId)
-                   .IsRequired()
-                   .HasMaxLength(256);
-
-            builder.Property(x => x.IdentityProvider)
-                    .IsRequired()
-                    .HasMaxLength(50); 
-
-            builder.HasIndex(x => new { x.IdentityProviderId, x.IdentityProvider })
-                   .IsUnique();
-
             builder.Property(x => x.Name)
                    .IsRequired()
                    .HasMaxLength(100);
 
             builder.Property(x => x.FullName)
                    .HasMaxLength(150);
+
+            //builder.Property(x => x.VerifiedEmail)
+            //     .IsRequired();
 
             builder.Property(x => x.Email)
                    .HasMaxLength(150);

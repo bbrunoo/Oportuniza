@@ -5,6 +5,7 @@ using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Data;
+using Oportuniza.Infrastructure.Repositories;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers
@@ -14,11 +15,16 @@ namespace Oportuniza.API.Controllers
     public class CompanyController : ControllerBase
     {
         private readonly ICompanyRepository _companyRepository;
+        private readonly ICompanyEmployeeRepository _companyEmployeeRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
-        public CompanyController(ICompanyRepository companyRepository, IMapper mapper, ApplicationDbContext context)
+
+        public CompanyController(ICompanyRepository companyRepository, ICompanyEmployeeRepository companyEmployeeRepository, IUserRepository userRepository, IMapper mapper, ApplicationDbContext context)
         {
             _companyRepository = companyRepository;
+            _companyEmployeeRepository = companyEmployeeRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
             _context = context;
         }
@@ -51,12 +57,21 @@ namespace Oportuniza.API.Controllers
         [HttpGet("user-companies")]
         public async Task<IActionResult> GetCompaniesByUser()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
 
-            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userGuid))
-                return Unauthorized("Token inválido.");
+            if (string.IsNullOrEmpty(keycloakId))
+            {
+                return Unauthorized("Token 'sub' claim is missing.");
+            }
 
-            var companies = await _companyRepository.GetByUserIdAsync(userGuid);
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+
+            if (user == null)
+            {
+                return NotFound("Usuário não encontrado no banco de dados local.");
+            }
+
+            var companies = await _companyRepository.GetByUserIdAsync(user.Id);
 
             var response = _mapper.Map<List<CompanyListDto>>(companies);
 
@@ -68,21 +83,26 @@ namespace Oportuniza.API.Controllers
         public async Task<IActionResult> Post([FromBody] CompanyCreateDto dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!Guid.TryParse(userIdClaim, out Guid userGuid))
             {
-                return Unauthorized("Token inválido ou ID do usuário ausente.");
+                return BadRequest(ModelState);
             }
 
-            var user = await _context.User.FindAsync(userGuid);
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(keycloakId))
+            {
+                return Unauthorized("Token 'sub' claim is missing.");
+            }
+
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+
             if (user == null)
             {
-                return BadRequest($"Usuário com Id {userGuid} não existe no banco de dados.");
+                return NotFound("Usuário não encontrado no banco de dados local.");
             }
 
             var company = _mapper.Map<Company>(dto);
+
             company.UserId = user.Id;
 
             var companyEmployeeLink = new CompanyEmployee
@@ -93,9 +113,8 @@ namespace Oportuniza.API.Controllers
                 CanPostJobs = true
             };
 
-            await _context.CompanyEmployee.AddAsync(companyEmployeeLink);
-            await _context.Company.AddAsync(company);
-            await _context.SaveChangesAsync();
+            _companyRepository.AddAsync(company);
+            _companyEmployeeRepository.AddAsync(companyEmployeeLink);
 
             var companyDtoToReturn = _mapper.Map<CompanyDTO>(company);
             return CreatedAtAction(nameof(GetById), new { id = company.Id }, companyDtoToReturn);

@@ -30,9 +30,6 @@
     </div>
 
     <div class="user-content">
-      <button class="novo-post" routerLink="criar-empresa">
-        Criar Empresa
-      </button>
       <button class="novo-post" routerLink="post">+ Novo Post</button>
       <div class="user" *ngIf="loginDisplay">
         <img class="user-image" [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'" alt="" />

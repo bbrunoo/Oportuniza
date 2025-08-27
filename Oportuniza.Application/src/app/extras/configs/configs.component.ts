@@ -27,6 +27,16 @@ export class ConfigsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.keycloakService.isLoggedIn().then(isLoggedIn => {
+      if (isLoggedIn) {
+        this.loadUserProfile();
+      } else {
+        this.showCompleteProfileButton = false;
+      }
+    });
+  }
+
+  private loadUserProfile(): void {
     this.userService.getOwnProfile().subscribe({
       next: (profile) => {
         this.showCompleteProfileButton = !profile.isProfileCompleted;
@@ -34,14 +44,16 @@ export class ConfigsComponent implements OnInit {
       },
       error: (err) => {
         console.error("Erro ao buscar perfil", err);
-        this.showCompleteProfileButton = false;
-        this.containerHeight = '140px';
+
+        this.showCompleteProfileButton = true;
+        this.containerHeight = '200px';
       }
     });
   }
 
   async logout(): Promise<void> {
     this.dialogRef.close();
+    this.router.navigate(['']);
     await this.keycloakService.logout();
   }
 
@@ -50,9 +62,10 @@ export class ConfigsComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  changeAccount(): void {
-    this.router.navigate(['']);
+  async changeAccount(): Promise<void> {
+    this.router.navigate(['/login']);
     this.dialogRef.close();
+    await this.keycloakService.logout();
   }
 
   closeDialog(): void {

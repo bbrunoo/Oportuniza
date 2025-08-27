@@ -6,6 +6,8 @@ namespace Oportuniza.Domain.Interfaces
     {
         Task<IEnumerable<CandidateApplication>> GetCandidatesByPublicationAsync(Guid publicationId);
         Task<IEnumerable<CandidateApplication>> GetApplicationsByUserAsync(Guid userId);
+        Task<IEnumerable<CandidateApplication>> GetApplicationsLoggedUser(string userId);
+
         Task<bool> HasAppliedAsync(Guid publicationId, Guid userId);
         Task<object> GetPublicationStatisticsAsync(Guid publicationId);
         Task<CandidateApplication> GetApplicationByPublicationAndUserAsync(Guid publicationId, Guid userId);

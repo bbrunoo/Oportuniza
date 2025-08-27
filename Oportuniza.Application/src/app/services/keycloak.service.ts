@@ -91,7 +91,7 @@ export class KeycloakOperationService {
   }
 
   registerUser(user: { email: string; password: string }): Observable<any> {
-    return this.http.post('http://localhost:5000/api/v1/Auth/register-keycloak', user);
+    return this.http.post('http://localhost:5000/api/v1/Auth/register', user);
   }
 
   async isLoggedIn(): Promise<boolean> {

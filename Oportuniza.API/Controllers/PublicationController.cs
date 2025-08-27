@@ -5,6 +5,7 @@ using Oportuniza.API.Services;
 using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
+using Oportuniza.Infrastructure.Repositories;
 using System.Linq.Expressions;
 using System.Security.Claims;
 
@@ -19,14 +20,16 @@ namespace Oportuniza.API.Controllers
         private readonly AzureBlobService _azureBlobService;
         private readonly IConfiguration _configuration;
         private readonly ICompanyRepository _companyRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public PublicationController(IPublicationRepository publicationRepository, AzureBlobService azureBlobService, IConfiguration configuration, ICompanyRepository companyRepository, IMapper mapper)
+        public PublicationController(IPublicationRepository publicationRepository, AzureBlobService azureBlobService, IConfiguration configuration, ICompanyRepository companyRepository, IUserRepository userRepository, IMapper mapper)
         {
             _publicationRepository = publicationRepository;
             _azureBlobService = azureBlobService;
             _configuration = configuration;
             _companyRepository = companyRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
@@ -67,28 +70,46 @@ namespace Oportuniza.API.Controllers
         }
 
         [HttpPost]
+        [Authorize] 
         public async Task<IActionResult> Post([FromForm] PublicationCreateDto dto, IFormFile image)
         {
-            if (dto == null) return BadRequest("Dados inválidos.");
-            if (image == null || image.Length == 0) return BadRequest("A imagem é obrigatória.");
-
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!Guid.TryParse(userIdClaim, out Guid userGuid))
+            if (dto == null)
             {
-                return Unauthorized("Token inválido.");
+                return BadRequest("Dados inválidos.");
             }
+
+            if (image == null || image.Length == 0)
+            {
+                return BadRequest("A imagem é obrigatória.");
+            }
+
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(keycloakId))
+            {
+                return Unauthorized("Token 'sub' claim is missing.");
+            }
+
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+
+            if (user == null)
+            {
+                return NotFound("Usuário não encontrado no banco de dados local.");
+            }
+
+            var userLocalId = user.Id;
 
             var publication = new Publication
             {
                 Title = dto.Title,
                 Description = dto.Description,
                 Salary = dto.Salary,
-                CreatedByUserId = userGuid
+                CreatedByUserId = userLocalId
             };
 
             if (dto.PostAsCompanyId.HasValue)
             {
-                bool userOwnsCompany = await _companyRepository.UserHasAccessToCompanyAsync(userGuid, dto.PostAsCompanyId.Value);
+                bool userOwnsCompany = await _companyRepository.UserHasAccessToCompanyAsync(userLocalId, dto.PostAsCompanyId.Value);
                 if (!userOwnsCompany)
                 {
                     return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para postar em nome desta empresa.");
@@ -98,7 +119,7 @@ namespace Oportuniza.API.Controllers
             }
             else
             {
-                publication.AuthorUserId = userGuid;
+                publication.AuthorUserId = userLocalId;
             }
 
             try
@@ -108,7 +129,10 @@ namespace Oportuniza.API.Controllers
                 publication.ImageUrl = imageUrl;
 
                 await _publicationRepository.AddAsync(publication);
-                return CreatedAtAction(nameof(GetById), new { id = publication.Id }, publication);
+
+                var publicationDto = _mapper.Map<PublicationDto>(publication);
+
+                return CreatedAtAction(nameof(GetById), new { id = publication.Id }, publicationDto);
             }
             catch (Exception ex)
             {

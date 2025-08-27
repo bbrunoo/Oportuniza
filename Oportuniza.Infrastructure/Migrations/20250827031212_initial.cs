@@ -24,6 +24,20 @@ namespace Oportuniza.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Certification",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FileUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    CurriculumId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Certification", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "City",
                 columns: table => new
                 {
@@ -34,6 +48,38 @@ namespace Oportuniza.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_City", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Education",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Institution = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Course = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    InProgress = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Education", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Experience",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Position = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Company = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsPrincipal = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Experience", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -64,8 +110,7 @@ namespace Oportuniza.Infrastructure.Migrations
                     IsAdmin = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     Active = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     IsProfileCompleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    IdentityProviderId = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
-                    IdentityProvider = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    KeycloakId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     UserType = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -93,34 +138,6 @@ namespace Oportuniza.Infrastructure.Migrations
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Curriculum",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Objective = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Curriculum", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Curriculum_City_CityId",
-                        column: x => x.CityId,
-                        principalTable: "City",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Curriculum_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -217,75 +234,64 @@ namespace Oportuniza.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Certification",
+                name: "CandidateApplications",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    FileUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    CurriculumId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    PublicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserIdKeycloak = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    ApplicationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    PublicationId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UserId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Certification", x => x.Id);
+                    table.PrimaryKey("PK_CandidateApplications", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Certification_Curriculum_CurriculumId",
-                        column: x => x.CurriculumId,
-                        principalTable: "Curriculum",
+                        name: "FK_CandidateApplications_Publication_PublicationId",
+                        column: x => x.PublicationId,
+                        principalTable: "Publication",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Education",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Institution = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Course = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    InProgress = table.Column<bool>(type: "bit", nullable: false),
-                    CurriculumId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Education", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Education_Curriculum_CurriculumId",
-                        column: x => x.CurriculumId,
-                        principalTable: "Curriculum",
+                        name: "FK_CandidateApplications_Publication_PublicationId1",
+                        column: x => x.PublicationId1,
+                        principalTable: "Publication",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_CandidateApplications_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Experience",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Position = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Company = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsPrincipal = table.Column<bool>(type: "bit", nullable: false),
-                    CurriculumId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Experience", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Experience_Curriculum_CurriculumId",
-                        column: x => x.CurriculumId,
-                        principalTable: "Curriculum",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_CandidateApplications_User_UserId1",
+                        column: x => x.UserId1,
+                        principalTable: "User",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Certification_CurriculumId",
-                table: "Certification",
-                column: "CurriculumId");
+                name: "IX_CandidateApplications_PublicationId",
+                table: "CandidateApplications",
+                column: "PublicationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CandidateApplications_PublicationId1",
+                table: "CandidateApplications",
+                column: "PublicationId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CandidateApplications_UserId",
+                table: "CandidateApplications",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CandidateApplications_UserId1",
+                table: "CandidateApplications",
+                column: "UserId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Company_UserId",
@@ -303,26 +309,6 @@ namespace Oportuniza.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Curriculum_CityId",
-                table: "Curriculum",
-                column: "CityId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Curriculum_UserId",
-                table: "Curriculum",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Education_CurriculumId",
-                table: "Education",
-                column: "CurriculumId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Experience_CurriculumId",
-                table: "Experience",
-                column: "CurriculumId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Publication_AuthorCompanyId",
                 table: "Publication",
                 column: "AuthorCompanyId");
@@ -336,12 +322,6 @@ namespace Oportuniza.Infrastructure.Migrations
                 name: "IX_Publication_CreatedByUserId",
                 table: "Publication",
                 column: "CreatedByUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_User_IdentityProviderId_IdentityProvider",
-                table: "User",
-                columns: new[] { "IdentityProviderId", "IdentityProvider" },
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserAreaOfInterest_AreaOfInterestId",
@@ -358,7 +338,13 @@ namespace Oportuniza.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "CandidateApplications");
+
+            migrationBuilder.DropTable(
                 name: "Certification");
+
+            migrationBuilder.DropTable(
+                name: "City");
 
             migrationBuilder.DropTable(
                 name: "CompanyEmployee");
@@ -373,22 +359,16 @@ namespace Oportuniza.Infrastructure.Migrations
                 name: "LoginAttempt");
 
             migrationBuilder.DropTable(
-                name: "Publication");
-
-            migrationBuilder.DropTable(
                 name: "UserAreaOfInterest");
 
             migrationBuilder.DropTable(
-                name: "Curriculum");
-
-            migrationBuilder.DropTable(
-                name: "Company");
+                name: "Publication");
 
             migrationBuilder.DropTable(
                 name: "AreasOfInterest");
 
             migrationBuilder.DropTable(
-                name: "City");
+                name: "Company");
 
             migrationBuilder.DropTable(
                 name: "User");

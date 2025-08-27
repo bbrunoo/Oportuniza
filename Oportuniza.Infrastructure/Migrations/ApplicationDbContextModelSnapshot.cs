@@ -62,6 +62,11 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.Property<Guid?>("UserId1")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("UserIdKeycloak")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PublicationId");
@@ -346,16 +351,6 @@ namespace Oportuniza.Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<string>("IdentityProvider")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("IdentityProviderId")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
@@ -388,9 +383,6 @@ namespace Oportuniza.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("IdentityProviderId", "IdentityProvider")
-                        .IsUnique();
 
                     b.ToTable("User");
                 });

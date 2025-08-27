@@ -17,6 +17,10 @@ export class ProfileService {
     return this.http.get<UserProfile>(`${this.apiUrl}/${id}`,);
   }
 
+  getMyProfile() {
+    return this.http.get<UserProfile>(this.apiUrl);
+  }
+
   getUserProfileData(id: string): Observable<UserInfoModel> {
     return this.http.get<UserInfoModel>(`${this.apiUrl}/profile-data/${id}`);
   }

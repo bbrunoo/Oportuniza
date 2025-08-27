@@ -1,3 +1,47 @@
 <div class="container">
-  <p>Meu perfil!</p>
+  <div class="background-container">
+    <div class="card-title">Informações de perfil</div>
+
+    <div *ngIf="isLoading" class="loading-state">
+      <p>Carregando perfil...</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="error-state">
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <div *ngIf="userProfile && !isLoading" class="profile-card">
+      <div class="profile-content">
+        <div class="profile-image">
+          <img
+            [src]="userProfile.imageUrl || 'assets/default-avatar.png'"
+            alt="Foto de perfil"
+          />
+        </div>
+        <div class="profile-info">
+          <p class="username">{{ userProfile.name }}</p>
+          <p>
+            <strong>Objetivo Profissional:</strong>
+            Futuramente
+            <!-- {{ userProfile.professionalObjective }} -->
+          </p>
+          <p><strong>E-mail:</strong> {{ userProfile.email }}</p>
+          <p>
+            <strong>Área de interesse:</strong>
+            Futuramente
+          </p>
+          <p>
+            <strong>Localização:</strong>
+            Futuramente
+          </p>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="edit-button" href="#" (click)="$event.preventDefault()"
+          >EDITAR DADOS</a
+        >
+        <span class="edit-icon"></span>
+      </div>
+    </div>
+  </div>
 </div>

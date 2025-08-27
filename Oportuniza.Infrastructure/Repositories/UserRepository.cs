@@ -59,12 +59,6 @@ namespace Oportuniza.Infrastructure.Repositories
             return await _context.User.FindAsync(id);
         }
 
-        public async Task<User?> GetByIdentityProviderIdAsync(string identityProviderId, string identityProviderType)
-        {
-            return await _context.User
-                       .FirstOrDefaultAsync(u => u.IdentityProviderId == identityProviderId && u.IdentityProvider == identityProviderType);
-        }
-
         public async Task<User?> GetByIdWithInterests(Guid id)
         {
             return await _context.User
@@ -87,26 +81,10 @@ namespace Oportuniza.Infrastructure.Repositories
             if (userInfo == null) throw new KeyNotFoundException("User not found");
             return userInfo;
         }
-        public async Task<bool> Update(User user)
-        {
-            _context.User.Update(user);
-            return await _context.SaveChangesAsync() > 0;
-        }
-
-        public async Task AddAsync(User user)
-        {
-            _context.User.Add(user);
-            await _context.SaveChangesAsync();
-        }
 
         public async Task<User> GetUserByKeycloakIdAsync(string keycloakId)
         {
-           
-            if (Guid.TryParse(keycloakId, out var userIdGuid))
-            {
-                return await _context.User.FirstOrDefaultAsync(u => u.Id == userIdGuid);
-            }
-            return null; 
+            return await _context.User.FirstOrDefaultAsync(u => u.KeycloakId == keycloakId);
         }
     }
 }

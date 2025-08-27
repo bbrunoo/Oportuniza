@@ -17,6 +17,9 @@ namespace Oportuniza.Infrastructure.Configurations
                    .HasConversion<int>()
                    .IsRequired();
 
+            builder.Property(ca => ca.UserIdKeycloak)
+                   .HasMaxLength(128);
+
             builder.HasOne(ca => ca.User)
                    .WithMany() // se quiser, pode criar ICollection<CandidateApplication> no User
                    .HasForeignKey(ca => ca.UserId)

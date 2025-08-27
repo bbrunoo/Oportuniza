@@ -9,12 +9,10 @@ namespace Oportuniza.Infrastructure.Repositories
     public class CandidateApplicationRepository : Repository<CandidateApplication>, ICandidateApplicationRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly DbSet<Publication> _dbSet;
 
         public CandidateApplicationRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
-            _dbSet = context.Set<Publication>();
         }
 
         public async Task<IEnumerable<CandidateApplication>> GetCandidatesByPublicationAsync(Guid publicationId)
@@ -61,5 +59,15 @@ namespace Oportuniza.Infrastructure.Repositories
             return await _context.CandidateApplication
                                  .FirstOrDefaultAsync(ca => ca.PublicationId == publicationId && ca.UserId == userId);
         }
+
+        public async Task<IEnumerable<CandidateApplication>> GetApplicationsLoggedUser(string userId)
+        {
+            return await _context.CandidateApplication
+                .Include(ca => ca.User)
+                .Include(ca => ca.Publication)
+                .Where(ca => ca.UserIdKeycloak == userId)
+                .ToListAsync();
+        }
+
     }
 }
