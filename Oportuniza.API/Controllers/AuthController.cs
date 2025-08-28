@@ -62,20 +62,18 @@ namespace Oportuniza.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            // Validação de entrada
             if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
             {
                 return BadRequest("Email e senha são obrigatórios.");
             }
 
-            // 1. Tenta registrar o usuário no Keycloak
             var token = await GetAdminToken();
             var userPayload = new
             {
                     username = request.Email,
                     email = request.Email,
                     enabled = true,
-                    emailVerified = false, // Deixe como false para permitir a verificação posterior
+                    emailVerified = false,
                     credentials = new[]
                     {
                     new
@@ -107,7 +105,6 @@ namespace Oportuniza.API.Controllers
                 return StatusCode(500, "Erro ao obter o ID do usuário do Keycloak.");
             }
 
-            // Ex: http://localhost:9090/admin/realms/oportuniza/users/91b7d55f-b883-488f-9a70-38c2c7322987
             var keycloakId = location.Segments.Last();
 
             var existingUser = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);

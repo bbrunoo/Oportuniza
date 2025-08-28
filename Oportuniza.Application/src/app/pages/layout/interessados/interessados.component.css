@@ -56,7 +56,7 @@ a {
 
 p {
     text-align: center;
-} 
+}
 
 @media screen and (max-width: 1920px) {
   .container {
@@ -67,8 +67,8 @@ p {
 
 @media screen and (max-width: 1400px) {
   .container {
-    width: 65em;
-    height: 38em;
+    width: 60em;
+    height: 32em;
   }
 }
 
