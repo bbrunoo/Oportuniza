@@ -12,6 +12,9 @@ namespace Oportuniza.Domain.DTOs.Publication
         public string? ImageUrl { get; set; }
         public string Salary { get; set; }
         public bool Expired { get; set; }
+        public string Contract { get; set; }
+        public string Shift { get; set; }
+        public string Local { get; set; }
         public Guid AuthorId { get; set; }
         public string AuthorName { get; set; }
         public string AuthorType { get; set; }

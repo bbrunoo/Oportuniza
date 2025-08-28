@@ -50,7 +50,7 @@ export class KeycloakOperationService {
     );
   }
 
-   saveTokens(tokens: any): void {
+  saveTokens(tokens: any): void {
     if (this.isBrowser && tokens.access_token) {
       sessionStorage.setItem('access_token', tokens.access_token);
       sessionStorage.setItem('refresh_token', tokens.refresh_token);
@@ -116,6 +116,34 @@ export class KeycloakOperationService {
       return true;
     }
   }
+
+  // refreshToken(): Observable<any> {
+  //   const refreshToken = sessionStorage.getItem('refresh_token');
+  //   if (!this.isBrowser || !refreshToken) {
+  //     return throwError(() => new Error('Refresh token não encontrado.'));
+  //   }
+
+  //   const body = new HttpParams()
+  //     .set('grant_type', 'refresh_token')
+  //     .set('client_id', environment.keycloak.clientId)
+  //     .set('client_secret', environment.keycloak.secret)
+  //     .set('refresh_token', refreshToken);
+
+  //   const tokenUrl = `${environment.keycloak.url}/realms/${environment.keycloak.realm}/protocol/openid-connect/token`;
+
+  //   return this.http.post(tokenUrl, body, {
+  //     headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' })
+  //   }).pipe(
+  //     tap(tokens => {
+  //       this.saveTokens(tokens);
+  //     }),
+  //     catchError(error => {
+  //       console.error('KeycloakOperationService: Erro ao renovar o token:', error);
+  //       this.logout();
+  //       return throwError(() => new Error('Falha na renovação do token.'));
+  //     })
+  //   );
+  // }
 
   async logout(): Promise<void> {
     if (this.isBrowser) {

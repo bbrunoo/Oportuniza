@@ -10,6 +10,10 @@ namespace Oportuniza.Domain.Models
         public DateTime CreationDate { get; set; } = DateTime.Now;
         public string ImageUrl { get; set; }
         public string Salary { get; set; }
+        public string Shift { get; set; }
+        public string Contract { get; set; }
+        public string Local { get; set; }
+        public DateTime ExpirationDate { get; set; }
         public bool Expired { get; set; }
         public Guid CreatedByUserId { get; set; } 
         public virtual User CreatedByUser { get; set; }

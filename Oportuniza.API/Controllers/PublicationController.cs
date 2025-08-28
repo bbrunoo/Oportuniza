@@ -104,6 +104,10 @@ namespace Oportuniza.API.Controllers
                 Title = dto.Title,
                 Description = dto.Description,
                 Salary = dto.Salary,
+                Local = dto.Local,
+                Shift = dto.Shift,
+                ExpirationDate = dto.ExpirationDate,
+                Contract = dto.Contract,
                 CreatedByUserId = userLocalId
             };
 

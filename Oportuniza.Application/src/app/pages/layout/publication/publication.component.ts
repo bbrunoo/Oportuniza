@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CompanyListDto } from '../../../models/company-list-dto-model';
 import { CompanyService } from '../../../services/company.service';
 import { PublicationCreate } from '../../../models/publication-create.model';
+import { Publication } from '../../../models/Publications.model';
 @Component({
   selector: 'app-publication',
   imports: [CommonModule, FormsModule, MatToolbarModule, MatIconModule],
@@ -22,8 +23,26 @@ import { PublicationCreate } from '../../../models/publication-create.model';
 export class PublicationComponent implements OnInit {
   @ViewChild('publicationForm') publicationForm!: NgForm;
 
-  publication: { title: string; content: string } = { title: '', content: '' };
-  selectedSalary: string | null = null;
+  publication: Publication & { tags: string[] } = {
+    hasApplied: false,
+    id: '',
+    title: '',
+    description: '',
+    creationDate: '',
+    imageUrl: '',
+    expired: false,
+    authorId: '',
+    authorType: 0,
+    authorName: '',
+    shift: '',
+    local: '',
+    expirationDate: '',
+    contract: '',
+    salary: '',
+    authorImageUrl: '',
+    tags: [] // Propriedade adicional apenas para o formulário de criação
+  };
+
   selectedImage?: File;
   previewUrl: any;
 
@@ -127,25 +146,56 @@ export class PublicationComponent implements OnInit {
     });
   }
 
-  selectSalary(salaryRange: string): void {
-    this.selectedSalary = salaryRange;
+  selectAuthor(authorId: string): void {
+    this.selectedAuthorId = authorId;
   }
 
-   post(): void {
-    if (this.publicationForm.invalid || !this.selectedImage || !this.selectedSalary || !this.selectedAuthorId) {
-      Swal.fire('Atenção', 'Por favor, preencha todos os campos e selecione um autor, uma imagem e um salário.', 'warning');
+  selectTitle(title: string): void {
+    this.publication.title = title;
+  }
+
+  selectSalary(salaryRange: string): void {
+    this.publication.salary = salaryRange;
+  }
+
+  selectShift(shift: string): void {
+    this.publication.shift = shift;
+  }
+
+  selectContract(contract: string): void {
+    this.publication.contract = contract;
+  }
+
+  post(): void {
+    if (
+      this.publicationForm.invalid ||
+      !this.selectedImage ||
+      !this.publication.title ||
+      !this.publication.salary ||
+      !this.publication.shift ||
+      !this.publication.contract ||
+      !this.publication.local ||
+      !this.publication.expirationDate ||
+      !this.selectedAuthorId
+    ) {
+      Swal.fire('Atenção', 'Por favor, preencha todos os campos e selecione um autor, uma imagem, um título, salário, turno, tipo de contrato e localização.', 'warning');
       return;
     }
 
     this.isSubmitting = true;
 
-    const isCompanyPost = this.selectedAuthorId !== this.userProfile?.id;
+    const isCompanyPost = this.userCompanies.some(company => company.id === this.selectedAuthorId);
 
     const dto: PublicationCreate = {
       title: this.publication.title,
-      content: this.publication.content,
-      salary: this.selectedSalary!,
-      postAsCompanyId: isCompanyPost ? this.selectedAuthorId : null
+      content: this.publication.description,
+      salary: this.publication.salary,
+      shift: this.publication.shift,
+      contract: this.publication.contract,
+      local: this.publication.local,
+      expirationDate: this.publication.expirationDate,
+      tags: [],
+      postAsCompanyId: isCompanyPost ? this.selectedAuthorId! : null!
     };
 
     this.publicationService.createPublication(dto, this.selectedImage).subscribe({
@@ -156,7 +206,12 @@ export class PublicationComponent implements OnInit {
         this.publicationForm.resetForm();
         this.previewUrl = null;
         this.selectedImage = undefined;
-        this.selectedSalary = null;
+        this.publication.title = '';
+        this.publication.salary = '';
+        this.publication.shift = '';
+        this.publication.contract = '';
+        this.publication.local = '';
+        this.publication.expirationDate = '';
         this.selectedAuthorId = this.userProfile?.id ?? null;
       },
       error: (err) => {

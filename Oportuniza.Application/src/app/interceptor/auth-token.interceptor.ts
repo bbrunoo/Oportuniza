@@ -16,18 +16,15 @@ export class AuthTokenInterceptor implements HttpInterceptor {
   constructor(private keycloakService: KeycloakOperationService) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Definir as URLs não protegidas como strings parciais para evitar problemas com barras finais
     const unprotectedEndpoints = [
       'Auth/register',
       'Auth/login', // Adicionar login também como não protegido
       'Verification/send-verification' // Adicionar login também como não protegido
     ];
 
-    // Checar se a URL da requisição termina com algum dos endpoints não protegidos
     const isUnprotectedEndpoint = unprotectedEndpoints.some(endpoint => request.url.endsWith(endpoint));
 
-    // Se a URL não é uma API protegida ou se é um endpoint não protegido,
-    // pule a lógica de anexo de token.
+
     if (!request.url.startsWith(environment.apiConfig.uri) || isUnprotectedEndpoint) {
       console.log(`[AuthTokenInterceptor] URL não é protegida. Pulando: ${request.url}`);
       return next.handle(request);

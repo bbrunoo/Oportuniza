@@ -67,7 +67,6 @@ export class FeedComponent implements OnInit {
       next: (publications: Publication[]) => {
         this.publications = publications;
         if (this.publications.length > 0 && this.userId) {
-          // Chama o método para buscar todas as candidaturas do usuário
           this.getApplicationsForUser();
         }
       },
@@ -81,7 +80,6 @@ export class FeedComponent implements OnInit {
     this.candidateService.getMyApplications().subscribe({
       next: (applications: any[]) => {
         applications.forEach(app => {
-          // Preenche appliedStatus e applicationIds para todas as candidaturas
           this.appliedStatus[app.publicationId] = true;
           this.applicationIds[app.publicationId] = app.id;
         });

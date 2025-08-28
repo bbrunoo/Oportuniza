@@ -21,6 +21,14 @@ export class PublicationService {
     formData.append('Description', dto.content);
     formData.append('Salary', dto.salary);
 
+    formData.append('Shift', dto.shift);
+    formData.append('Contract', dto.contract);
+    formData.append('Local', dto.local);
+    formData.append('ExpirationDate', dto.expirationDate);
+
+    formData.append('Tags', JSON.stringify(dto.tags));
+
+
     if (dto.postAsCompanyId) {
       formData.append('PostAsCompanyId', dto.postAsCompanyId);
     }
