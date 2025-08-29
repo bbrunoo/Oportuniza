@@ -53,12 +53,18 @@ export class PublicationComponent implements OnInit {
   userCompanies: CompanyListDto[] = [];
   selectedAuthorId: string | null = null;
 
+  today='';
+
   constructor(
     private publicationService: PublicationService,
     private userService: UserService,
     private dialog: MatDialog,
     private companyService: CompanyService
-  ) { }
+  ) {
+
+    const date = new Date();
+    this.today = date.toISOString().split('T')[0];
+  }
 
   ngOnInit(): void {
     this.loadInitialData();

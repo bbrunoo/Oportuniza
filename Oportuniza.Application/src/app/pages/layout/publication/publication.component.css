@@ -4,7 +4,7 @@
 
 .container {
   width: 65em;
-  height: 44em;
+  height: 38em;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,16 +35,18 @@
 
 .author-option {
   display: flex;
+  text-align: center;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 5em;
-  padding: 8px;
+  height: 4.5em;
+  padding: 10px;
   border-radius: 10px;
-  font-size: 12px;
   background-color: #969696;
   color: rgb(255, 255, 255);
   transition: ease .5s;
+  font-size: 10px;
+  cursor: pointer;
 }
 
 .author-option.active {
@@ -56,8 +58,8 @@
 }
 
 .author-image {
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   border-radius: 100%;
 }
 
@@ -93,7 +95,6 @@
   align-content: center;
   justify-content: center;
   overflow-y: auto;
-  padding-top: 10px;
 }
 
 form {
@@ -104,28 +105,28 @@ form {
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
 }
 
 .form-section {
   margin-top: 5px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
 }
 
 .input-label {
   font-weight: 600;
   color: #555;
-  font-size: 12px;
+  font-size: 10px;
 }
 
 .form-input {
-  width: 80%;
+  width: 9em;
   padding: 8px 10px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 10px;
 }
 
 .form-textarea {
@@ -137,6 +138,7 @@ form {
   resize: vertical;
   min-height: 60px;
   height: 70px;
+  resize: none;
 }
 
 .option-buttons {
@@ -146,7 +148,7 @@ form {
 }
 
 .option-button {
-  padding: 6px 6px;
+  padding: 5px 5px;
   border-radius: 6px;
   background-color: #e9ecef;
   color: #495057;
@@ -166,7 +168,7 @@ form {
 .form-inline-group {
   margin-top: 10px;
   display: flex;
-  gap: 20px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -183,7 +185,7 @@ form {
 .input-icon {
   position: absolute;
   right: 0px;
-  top: 33px;
+  top: 25px;
   color: #6c757d;
   font-size: 18px;
 }
@@ -243,7 +245,6 @@ form {
   display: flex;
   width: 100%;
   justify-content: end;
-  margin-top: 20px;
 }
 
 .submit-button {

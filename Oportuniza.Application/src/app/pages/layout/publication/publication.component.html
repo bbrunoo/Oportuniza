@@ -33,12 +33,11 @@
     </div>
 
     <div class="conteudo-right">
-
       <div class="form-section post-as-section">
         <label class="input-label">Postar como</label>
         <div class="author-options">
             <div class="author-option" *ngIf="userProfile" [ngClass]="{ active: selectedAuthorId === userProfile.id }" (click)="selectAuthor(userProfile.id)">
-              <img [src]="userProfile.imageUrl" class="author-image" alt="User Profile Image">
+              <img [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png' " class="author-image" alt="User Profile Image">
               <p class="author-name">{{ userProfile.name }}</p>
             </div>
             <div class="author-option" *ngFor="let company of userCompanies" [ngClass]="{ active: selectedAuthorId === company.id }" (click)="selectAuthor(company.id)">
@@ -202,6 +201,7 @@
             <label class="input-label">Data de Expiração</label>
             <input
               type="date"
+              [min]="today"
               name="expirationDate"
               [(ngModel)]="publication.expirationDate"
               class="form-input icon-input"
