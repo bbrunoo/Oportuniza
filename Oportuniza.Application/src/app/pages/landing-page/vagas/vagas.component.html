@@ -1,77 +1,76 @@
 <div class="vagas-container" id="vagas">
   <h2>VAGAS DISPONÍVEIS</h2>
-<br>
+  <br>
 
-<div class="slide" [hidden]="i !== 0">
-  <div class="job-card">
+  <div class="slide" [hidden]="i !== 0">
+    <div class="job-card">
       <img src="assets/imglanding/vagas/faxineira.png" alt="Empregada Doméstica">
       <div class="job-info">
-          <h3>EMPREGADA DOMESTICA</h3>
-          <p>LOCAL: ARARAQUARA - SP</p>
-          <p>VALOR DA VAGA: R$45,86/H</p>
-          <button [routerLink]="['/cadastro']" class="btn">EU QUERO!</button>
+        <h3>EMPREGADA DOMESTICA</h3>
+        <p>LOCAL: ARARAQUARA - SP</p>
+        <p>VALOR DA VAGA: R$45,86/H</p>
+        <button [routerLink]="['/cadastro']" class="btn">EU QUERO!</button>
       </div>
-  </div>
+    </div>
 
-  <div class="job-card">
+    <div class="job-card">
       <img src="assets/imglanding/vagas/açougueiro.png" alt="Açougueiro">
       <div class="job-info">
-          <h3>AÇOUGUEIRO</h3>
-          <p>LOCAL: TAQUARITINGA - SP</p>
-          <p>VALOR DA VAGA: R$2.000/MÊS</p>
-          <button [routerLink]="['/cadastro']" class="btn">EU QUERO!</button>
+        <h3>AÇOUGUEIRO</h3>
+        <p>LOCAL: TAQUARITINGA - SP</p>
+        <p>VALOR DA VAGA: R$2.000/MÊS</p>
+        <button [routerLink]="['/cadastro']" class="btn">EU QUERO!</button>
       </div>
+    </div>
   </div>
-</div>
 
-<div class="slide" [hidden]="i !== 1">
-  <div class="job-card">
+  <div class="slide" [hidden]="i !== 1">
+    <div class="job-card">
       <img src="assets/imglanding/vagas/padeiro.jpg" alt="Padeiro">
       <div class="job-info">
-          <h3>PADEIRO(A)</h3>
-          <p>LOCAL: JABOTICABAL - SP</p>
-          <p>VALOR DA VAGA: R$1.800/MÊS</p>
-          <button [routerLink]="['/cadastro']" class="btn">EU QUERO!</button>
+        <h3>PADEIRO(A)</h3>
+        <p>LOCAL: JABOTICABAL - SP</p>
+        <p>VALOR DA VAGA: R$1.800/MÊS</p>
+        <button [routerLink]="['/cadastro']" class="btn">EU QUERO!</button>
       </div>
-  </div>
+    </div>
 
-  <div class="job-card">
+    <div class="job-card">
       <img src="assets/imglanding/vagas/operador.jpg" alt="Operador de caixa">
       <div class="job-info">
-          <h3>OPERADOR DE CAIXA</h3>
-          <p>LOCAL: APARECIDA DO TABOADO - MS</p>
-          <p>VALOR DA VAGA: R$2.000/MÊS</p>
-          <button [routerLink]="['/cadastro']" class="btn">EU QUERO!</button>
+        <h3>OPERADOR DE CAIXA</h3>
+        <p>LOCAL: APARECIDA DO TABOADO - MS</p>
+        <p>VALOR DA VAGA: R$2.000/MÊS</p>
+        <button [routerLink]="['/cadastro']" class="btn">EU QUERO!</button>
       </div>
+    </div>
   </div>
-</div>
 
-<div class="slide" [hidden]="i !== 2">
-  <div class="job-card">
+  <div class="slide" [hidden]="i !== 2">
+    <div class="job-card">
       <img src="assets/imglanding/vagas/baba.jpg" alt="Babá">
       <div class="job-info">
-          <h3>BABÁ</h3>
-          <p>LOCAL: ARAÇATUBA - SP</p>
-          <p>VALOR DA VAGA: R$100/DIA</p>
-          <button [routerLink]="['/cadastro']" class="btn">EU QUERO!</button>
+        <h3>BABÁ</h3>
+        <p>LOCAL: ARAÇATUBA - SP</p>
+        <p>VALOR DA VAGA: R$100/DIA</p>
+        <button [routerLink]="['/cadastro']" class="btn">EU QUERO!</button>
       </div>
-  </div>
+    </div>
 
-  <div class="job-card">
+    <div class="job-card">
       <img src="assets/imglanding/vagas/frentista.jpg" alt="Frentista">
       <div class="job-info">
-          <h3>FRENTISTA</h3>
-          <p>LOCAL: URAI - PR</p>
-          <p>VALOR DA VAGA: R$2.500/MÊS</p>
-          <button [routerLink]="['/cadastro']" class="btn">EU QUERO!</button>
+        <h3>FRENTISTA</h3>
+        <p>LOCAL: URAI - PR</p>
+        <p>VALOR DA VAGA: R$2.500/MÊS</p>
+        <button [routerLink]="['/cadastro']" class="btn">EU QUERO!</button>
       </div>
+    </div>
   </div>
-</div>
 
   <div class="navigation">
-      <span class="dot" [class.active]="i === 0" (click)="setSlide(0)"></span>
-      <span class="dot" [class.active]="i === 1" (click)="setSlide(1)"></span>
-      <span class="dot" [class.active]="i === 2" (click)="setSlide(2)"></span>
+    <span class="dot" [class.active]="i === 0" (click)="setSlide(0)"></span>
+    <span class="dot" [class.active]="i === 1" (click)="setSlide(1)"></span>
+    <span class="dot" [class.active]="i === 2" (click)="setSlide(2)"></span>
   </div>
 </div>
-

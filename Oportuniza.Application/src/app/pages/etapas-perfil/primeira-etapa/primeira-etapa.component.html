@@ -2,10 +2,7 @@
 <div class="container">
   <div class="center-content">
     <div class="head">
-      <button
-        class="logo-btn"
-        style="cursor: pointer; background: transparent; border: transparent"
-      >
+      <button class="logo-btn" style="cursor: pointer; background: transparent; border: transparent">
         <img src="assets/logo.png" routerlink="/inicio" class="logo" alt="Logo" />
       </button>
     </div>
@@ -14,32 +11,17 @@
       <p class="subtitle">Adicione uma imagem!</p>
       <div class="center">
         <div class="img-content">
-          <img
-            class="image-preview"
-            *ngIf="previewUrl; else defaultImage"
-            [src]="previewUrl"
-            width="120px"
-            height="120px"
-          />
+          <img class="image-preview" *ngIf="previewUrl; else defaultImage" [src]="previewUrl" width="120px"
+            height="120px" />
           <ng-template #defaultImage>
             <img src="assets/etapas/perfil.png" width="120px" height="120px" />
           </ng-template>
           <label for="profileImageInput">
-            <img
-              class="plus"
-              src="assets/etapas/PlusIcon.png"
-              width="30px"
-              height="30px"
-            />
+            <img class="plus" src="assets/etapas/PlusIcon.png" width="30px" height="30px" />
           </label>
         </div>
-        <input
-          type="file"
-          id="profileImageInput"
-          (change)="onFileSelected($event)"
-          accept=".png,.jpg,.jpeg"
-          style="display: none"
-        />
+        <input type="file" id="profileImageInput" (change)="onFileSelected($event)" accept=".png,.jpg,.jpeg"
+          style="display: none" />
       </div>
       <div class="footer">
         <div class="send-button">

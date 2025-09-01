@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SmsVerifierComponent } from './sms-verifier.component';
+import { PostActionsComponent } from './post-actions.component';
 
-describe('SmsVerifierComponent', () => {
-  let component: SmsVerifierComponent;
-  let fixture: ComponentFixture<SmsVerifierComponent>;
+describe('PostActionsComponent', () => {
+  let component: PostActionsComponent;
+  let fixture: ComponentFixture<PostActionsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SmsVerifierComponent]
+      imports: [PostActionsComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(SmsVerifierComponent);
+    fixture = TestBed.createComponent(PostActionsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

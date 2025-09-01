@@ -9,10 +9,13 @@ export interface Publication {
   authorId: string;
   authorType: number;
   authorName: string;
-  shift:string;
-  local:string;
-  expirationDate:string;
-  contract:string;
-  salary:string;
+  shift: string;
+  local: string;
+  expirationDate: string;
+  contract: string;
+  salary: string;
   authorImageUrl: string;
+  expirationDateString?: string;
+  cityId:string;
+  isActive:number;
 }

@@ -69,6 +69,7 @@ export class FeedComponent implements OnInit {
         if (this.publications.length > 0 && this.userId) {
           this.getApplicationsForUser();
         }
+        console.log(this.publications[this.currentIndex].expirationDate)
       },
       error: (error: any) => {
         console.log('Erro ao carregar publicações:', error);
@@ -107,28 +108,42 @@ export class FeedComponent implements OnInit {
   }
 
   apply(publicationId: string) {
-    this.candidateService.applyToJob(publicationId).subscribe({
-      next: (response) => {
-        this.appliedStatus[publicationId] = true;
-        this.applicationIds[publicationId] = response.applicationId;
+    Swal.fire({
+      title: 'Confirmar candidatura?',
+      text: "Você deseja realmente se candidatar a esta vaga?",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sim, candidatar!',
+      cancelButtonText: 'Não, cancelar',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.candidateService.applyToJob(publicationId).subscribe({
+          next: (response) => {
+            this.appliedStatus[publicationId] = true;
+            this.applicationIds[publicationId] = response.applicationId;
 
-        Swal.fire({
-          icon: 'success',
-          title: 'Candidatura enviada!',
-          text: 'Você se candidatou a esta vaga com sucesso.',
-          confirmButtonText: 'Ok'
-        });
-      },
-      error: (err) => {
-        console.error(err);
+            Swal.fire({
+              icon: 'success',
+              title: 'Candidatura enviada!',
+              text: 'Você se candidatou a esta vaga com sucesso.',
+              confirmButtonText: 'Ok'
+            });
+          },
+          error: (err) => {
+            console.error(err);
 
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Erro ao se candidatar. Tente novamente mais tarde.',
-          confirmButtonText: 'Fechar'
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Erro ao se candidatar. Tente novamente mais tarde.',
+              confirmButtonText: 'Fechar'
+            });
+          },
         });
-      },
+      }
     });
   }
 

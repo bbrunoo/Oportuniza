@@ -48,6 +48,11 @@ namespace Oportuniza.Infrastructure.Configurations
                 .HasConversion<int>()
                 .HasDefaultValue(PublicationStatus.Pending);
 
+            builder.Property(p => p.IsActive)
+               .IsRequired()
+               .HasConversion<int>()
+               .HasDefaultValue(PublicationAvailable.Enabled);
+
             builder.HasOne(p => p.CreatedByUser)
                 .WithMany(u => u.CreatedPublications)
                 .HasForeignKey(p => p.CreatedByUserId)

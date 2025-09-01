@@ -4,24 +4,13 @@
     <p class="subtitle">Insira o código de 8 dígitos enviado para <strong>{{ email }}</strong>.</p>
 
     <div class="code-input-container">
-      <input
-        *ngFor="let char of codeInputs; let i = index"
-        #codeField
-        class="code-input"
-        type="text"
-        maxlength="1"
-        (input)="onInput($event, i)"
-        (keydown)="onKeydown($event, i)"
-        [(ngModel)]="codeInputs[i]"
-        [disabled]="isLoading"
-      >
+      <input *ngFor="let char of codeInputs; let i = index" #codeField class="code-input" type="text" maxlength="1"
+        (input)="onInput($event, i)" (keydown)="onKeydown($event, i)" [(ngModel)]="codeInputs[i]"
+        [disabled]="isLoading">
     </div>
 
-    <button
-      class="btn-verify"
-      (click)="validateCodeAndRegisterUser()"
-      [disabled]="isLoading || codeInputs.join('').length !== codeLength"
-    >
+    <button class="btn-verify" (click)="validateCodeAndRegisterUser()"
+      [disabled]="isLoading || codeInputs.join('').length !== codeLength">
       {{ isLoading ? 'Validando...' : 'Verificar Código' }}
     </button>
 

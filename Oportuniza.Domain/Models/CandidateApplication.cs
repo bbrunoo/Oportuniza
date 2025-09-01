@@ -9,8 +9,8 @@ namespace Oportuniza.Domain.Models
         public virtual Publication Publication { get; set; }
 
         public Guid UserId { get; set; }
-        public string UserIdKeycloak { get; set; }
         public virtual User User { get; set; }
+        public string UserIdKeycloak { get; set; }
 
         public DateTime ApplicationDate { get; set; } = DateTime.UtcNow;
 

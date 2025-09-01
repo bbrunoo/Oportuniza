@@ -2,20 +2,9 @@
   <div class="conteudo">
 
     <div class="conteudo-left">
-      <div
-        class="image-upload-area"
-        (click)="fileInput.click()"
-        (dragover)="onDragOver($event)"
-        (dragleave)="onDragLeave($event)"
-        (drop)="onDrop($event)"
-        [class.dragging]="isDragging"
-      >
-        <img
-          *ngIf="previewUrl"
-          [src]="previewUrl"
-          alt="Preview da Imagem da Vaga"
-          class="preview-image"
-        />
+      <div class="image-upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.dragging]="isDragging">
+        <img *ngIf="previewUrl" [src]="previewUrl" alt="Preview da Imagem da Vaga" class="preview-image" />
 
         <div class="upload-placeholder" *ngIf="!previewUrl">
           <mat-icon>cloud_upload</mat-icon>
@@ -23,56 +12,43 @@
           <p class="upload-subtext">ou clique para selecionar</p>
         </div>
       </div>
-      <input
-        hidden
-        type="file"
-        #fileInput
-        (change)="onFileSelected($event)"
-        accept="image/*"
-      />
+      <input hidden type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" />
     </div>
 
     <div class="conteudo-right">
       <div class="form-section post-as-section">
         <label class="input-label">Postar como</label>
         <div class="author-options">
-            <div class="author-option" *ngIf="userProfile" [ngClass]="{ active: selectedAuthorId === userProfile.id }" (click)="selectAuthor(userProfile.id)">
-              <img [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png' " class="author-image" alt="User Profile Image">
-              <p class="author-name">{{ userProfile.name }}</p>
-            </div>
-            <div class="author-option" *ngFor="let company of userCompanies" [ngClass]="{ active: selectedAuthorId === company.id }" (click)="selectAuthor(company.id)">
-              <img [src]="company.imageUrl" class="author-image" alt="Company Image">
-              <p class="author-name">{{ company.name }}</p>
-            </div>
+          <div class="author-option" *ngIf="userProfile" [ngClass]="{ active: selectedAuthorId === userProfile.id }"
+            (click)="selectAuthor(userProfile.id)">
+            <img [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png' " class="author-image"
+              alt="User Profile Image">
+            <p class="author-name">{{ userProfile.name }}</p>
           </div>
+          <div class="author-option" *ngFor="let company of userCompanies"
+            [ngClass]="{ active: selectedAuthorId === company.id }" (click)="selectAuthor(company.id)">
+            <img [src]="company.imageUrl" class="author-image" alt="Company Image">
+            <p class="author-name">{{ company.name }}</p>
+          </div>
+        </div>
       </div>
 
       <form (ngSubmit)="post()" #publicationForm="ngForm">
         <div class="form-section">
           <label class="input-label">Título da Vaga</label>
           <div class="option-buttons tag-buttons">
-            <button
-              type="button"
-              class="option-button"
+            <button type="button" class="option-button"
               [ngClass]="{ active: publication.title === 'Estamos Contratando' }"
-              (click)="selectTitle('Estamos Contratando')"
-            >
+              (click)="selectTitle('Estamos Contratando')">
               Estamos Contratando
             </button>
-            <button
-              type="button"
-              class="option-button"
-              [ngClass]="{ active: publication.title === 'Vaga em Aberto' }"
-              (click)="selectTitle('Vaga em Aberto')"
-            >
+            <button type="button" class="option-button" [ngClass]="{ active: publication.title === 'Vaga em Aberto' }"
+              (click)="selectTitle('Vaga em Aberto')">
               Vaga em Aberto
             </button>
-            <button
-              type="button"
-              class="option-button"
+            <button type="button" class="option-button"
               [ngClass]="{ active: publication.title === 'Oportunidade Disponível' }"
-              (click)="selectTitle('Oportunidade Disponível')"
-            >
+              (click)="selectTitle('Oportunidade Disponível')">
               Oportunidade Disponível
             </button>
           </div>
@@ -80,41 +56,23 @@
 
         <div class="form-section">
           <label class="input-label">Descrição</label>
-          <textarea
-            name="description"
-            [(ngModel)]="publication.description"
-            placeholder="Descreva a vaga, requisitos, etc."
-            required
-            rows="8"
-            class="form-textarea"
-          ></textarea>
+          <textarea name="description" [(ngModel)]="publication.description"
+            placeholder="Descreva a vaga, requisitos, etc." required rows="8" class="form-textarea"></textarea>
         </div>
 
         <div class="form-section">
           <label class="input-label">Salário</label>
           <div class="option-buttons">
-            <button
-              type="button"
-              class="option-button"
-              [ngClass]="{ active: publication.salary === 'R$100 a R$1000' }"
-              (click)="selectSalary('R$100 a R$1000')"
-            >
+            <button type="button" class="option-button" [ngClass]="{ active: publication.salary === 'R$100 a R$1000' }"
+              (click)="selectSalary('R$100 a R$1000')">
               R$100 a R$1000
             </button>
-            <button
-              type="button"
-              class="option-button"
-              [ngClass]="{ active: publication.salary === 'R$1000 a R$2000' }"
-              (click)="selectSalary('R$1000 a R$2000')"
-            >
+            <button type="button" class="option-button" [ngClass]="{ active: publication.salary === 'R$1000 a R$2000' }"
+              (click)="selectSalary('R$1000 a R$2000')">
               R$1000 a R$2000
             </button>
-            <button
-              type="button"
-              class="option-button"
-              [ngClass]="{ active: publication.salary === 'Mais de R$2000' }"
-              (click)="selectSalary('Mais de R$2000')"
-            >
+            <button type="button" class="option-button" [ngClass]="{ active: publication.salary === 'Mais de R$2000' }"
+              (click)="selectSalary('Mais de R$2000')">
               Mais de R$2000
             </button>
           </div>
@@ -123,36 +81,20 @@
         <div class="form-section">
           <label class="input-label">Turno</label>
           <div class="option-buttons">
-            <button
-              type="button"
-              class="option-button"
-              [ngClass]="{ active: publication.shift === 'Matutino' }"
-              (click)="selectShift('Matutino')"
-            >
+            <button type="button" class="option-button" [ngClass]="{ active: publication.shift === 'Matutino' }"
+              (click)="selectShift('Matutino')">
               Matutino
             </button>
-            <button
-              type="button"
-              class="option-button"
-              [ngClass]="{ active: publication.shift === 'Vespertino' }"
-              (click)="selectShift('Vespertino')"
-            >
+            <button type="button" class="option-button" [ngClass]="{ active: publication.shift === 'Vespertino' }"
+              (click)="selectShift('Vespertino')">
               Vespertino
             </button>
-            <button
-              type="button"
-              class="option-button"
-              [ngClass]="{ active: publication.shift === 'Noturno' }"
-              (click)="selectShift('Noturno')"
-            >
+            <button type="button" class="option-button" [ngClass]="{ active: publication.shift === 'Noturno' }"
+              (click)="selectShift('Noturno')">
               Noturno
             </button>
-            <button
-              type="button"
-              class="option-button"
-              [ngClass]="{ active: publication.shift === 'Escala' }"
-              (click)="selectShift('Escala')"
-            >
+            <button type="button" class="option-button" [ngClass]="{ active: publication.shift === 'Escala' }"
+              (click)="selectShift('Escala')">
               Escala
             </button>
           </div>
@@ -161,36 +103,20 @@
         <div class="form-section">
           <label class="input-label">Contrato</label>
           <div class="option-buttons">
-            <button
-              type="button"
-              class="option-button"
-              [ngClass]="{ active: publication.contract === 'CLT' }"
-              (click)="selectContract('CLT')"
-            >
+            <button type="button" class="option-button" [ngClass]="{ active: publication.contract === 'CLT' }"
+              (click)="selectContract('CLT')">
               CLT
             </button>
-            <button
-              type="button"
-              class="option-button"
-              [ngClass]="{ active: publication.contract === 'Freelancer' }"
-              (click)="selectContract('Freelancer')"
-            >
+            <button type="button" class="option-button" [ngClass]="{ active: publication.contract === 'Freelancer' }"
+              (click)="selectContract('Freelancer')">
               Freelancer
             </button>
-            <button
-              type="button"
-              class="option-button"
-              [ngClass]="{ active: publication.contract === 'Estágio' }"
-              (click)="selectContract('Estágio')"
-            >
+            <button type="button" class="option-button" [ngClass]="{ active: publication.contract === 'Estágio' }"
+              (click)="selectContract('Estágio')">
               Estágio
             </button>
-            <button
-              type="button"
-              class="option-button"
-              [ngClass]="{ active: publication.contract === 'PJ' }"
-              (click)="selectContract('PJ')"
-            >
+            <button type="button" class="option-button" [ngClass]="{ active: publication.contract === 'PJ' }"
+              (click)="selectContract('PJ')">
               PJ
             </button>
           </div>
@@ -199,34 +125,37 @@
         <div class="form-inline-group">
           <div class="form-section inline-item">
             <label class="input-label">Data de Expiração</label>
-            <input
-              type="date"
-              [min]="today"
-              name="expirationDate"
-              [(ngModel)]="publication.expirationDate"
-              class="form-input icon-input"
-            />
+            <input type="date" [min]="today" name="expirationDate" [(ngModel)]="publication.expirationDate"
+              class="form-input" />
           </div>
 
           <div class="form-section inline-item">
             <label class="input-label">Localização</label>
-            <input
-              type="text"
-              name="local"
-              [(ngModel)]="publication.local"
-              placeholder="Ex: São Paulo - SP"
-              class="form-input icon-input"
-            />
-            <mat-icon class="input-icon">location_on</mat-icon>
+
+            <input type="text" [value]="publication.local" placeholder="Selecione a cidade" readonly
+              (click)="openCityModal()"  class="form-input" />
           </div>
+
+          <div class="modal-backdrop" *ngIf="cityModalOpen">
+            <div class="modal">
+              <h3>Selecione a cidade</h3>
+
+              <input type="text" [formControl]="cityControl" placeholder="Digite para buscar" class="custom-input" />
+
+              <ul *ngIf="filteredCities.length > 0" class="custom-options">
+                <li *ngFor="let city of filteredCities" (click)="selectCityFromModal(city)" class="custom-option">
+                  {{ city.name }}
+                </li>
+              </ul>
+
+              <button class="close-btn" (click)="closeCityModal()">Fechar</button>
+            </div>
+          </div>
+
         </div>
 
         <div class="submit-section">
-          <button
-            class="submit-button"
-            type="submit"
-            [disabled]="publicationForm.invalid || isSubmitting"
-          >
+          <button class="submit-button" type="submit" [disabled]="publicationForm.invalid || isSubmitting">
             <span *ngIf="!isSubmitting">Salvar</span>
             <span *ngIf="isSubmitting">Salvando...</span>
           </button>

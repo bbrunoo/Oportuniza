@@ -23,5 +23,6 @@ namespace Oportuniza.Domain.Models
         public virtual Company? AuthorCompany { get; set; }
         public PublicationStatus Status { get; set; } = PublicationStatus.Pending;
         public ICollection<CandidateApplication> CandidateApplication { get; set; }
+        public PublicationAvailable IsActive { get; set; } = PublicationAvailable.Enabled;
     }
 }

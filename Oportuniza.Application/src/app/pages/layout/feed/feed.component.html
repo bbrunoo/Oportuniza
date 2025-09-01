@@ -1,64 +1,80 @@
 <div class="container" *ngIf="publications.length > 0">
-  <div class="navigation-space">
-    <div class="navigation" *ngIf="currentIndex > 0" (click)="goBack()">
-      <img src="../../../../assets/home-assets/left-arrow.png" />
-    </div>
-  </div>
-
   <div class="center-content">
-    <div class="right-image">
-      <img
-        [src]="
-          publications[currentIndex].imageUrl || '../../../assets/logo.png'
-        "
-      />
-    </div>
-    <div class="post-description">
-      <div class="user-datas">
-        <img
-          class="profile-picture"
-          [src]="
-            publications[currentIndex].authorImageUrl ||
-            '../../../../assets/etapas/perfil.png'
-          "
-        />
-        {{ publications[currentIndex].authorName }}
+    <div class="navigation-space">
+      <div class="navigation" *ngIf="currentIndex > 0" (click)="goBack()">
+        <img src="../../../../assets/home-assets/left-arrow.png" />
       </div>
-      <div class="description">
-        <div class="title">{{ publications[currentIndex].title }}</div>
-        <div class="main-description">
-          {{ publications[currentIndex].description }}
+    </div>
+
+    <div class="right-image">
+      <img [src]="publications[currentIndex].imageUrl || '../../../assets/logo.png'" />
+    </div>
+
+    <div class="post-description">
+      <div class="post-content">
+        <div class="user-datas">
+          <img class="profile-picture"
+            [src]="publications[currentIndex].authorImageUrl || '../../../../assets/etapas/perfil.png'" />
+          {{ publications[currentIndex].authorName }}
         </div>
 
-        <div class="title">
-          Salario: <br />{{ publications[currentIndex].salary }}
-        </div>
-        <div class="bottom">
-          <button
-            *ngIf="!appliedStatus[publications[currentIndex].id]"
-            (click)="apply(publications[currentIndex].id)"
-            class="apply-button"
-          >
-            Candidatar-se
-          </button>
+        <div class="description">
 
-          <button
-            *ngIf="appliedStatus[publications[currentIndex].id]"
-            (click)="cancelApplication(publications[currentIndex].id)"
-            class="applied-button"
-          >
-            Candidatado
-          </button>
+          <div class="title">{{ publications[currentIndex].title }}</div>
+
+          <div class="main-description">
+            {{ publications[currentIndex].description }}
+          </div>
+
+        </div>
+
+        <div class="specs">
+          <div class="spec-description">
+            <img src="../../../../assets/Cash.png" alt="">
+            <p>Faixa Salárial</p>
+            <label>{{publications[currentIndex].salary}}</label>
+          </div>
+
+          <div class="spec-description">
+            <img src="../../../../assets/Time.png" alt="">
+            <p>Periodo</p>
+            <label>{{publications[currentIndex].shift}}</label>
+          </div>
+
+          <div class="spec-description">
+            <img src="../../../../assets/Briefcase-b.png" alt="">
+            <p>Tipo de Contrato</p>
+            <label>{{publications[currentIndex].contract}}</label>
+          </div>
+
+          <div class="spec-description">
+            <img src="../../../../assets/Local.png" alt="">
+            <p>Exclusivamente para</p>
+            <label>{{publications[currentIndex].local}}</label>
+          </div>
+
+        </div>
+
+        <div class="final">
+          <p>Data de expiração: {{ publications[currentIndex].expirationDate | date:'dd/MM/yyyy' }}</p>
+
+          <div class="bottom" *ngIf="publications[currentIndex].authorId !== userId">
+            <button *ngIf="!appliedStatus[publications[currentIndex].id]" (click)="apply(publications[currentIndex].id)"
+              class="apply-button">
+              Candidatar-se
+            </button>
+
+            <button *ngIf="appliedStatus[publications[currentIndex].id]"
+              (click)="cancelApplication(publications[currentIndex].id)" class="applied-button">
+              Candidatado
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="navigation-space">
-      <div
-        class="navigation"
-        *ngIf="currentIndex < publications.length - 1"
-        (click)="goForward()"
-      >
+      <div class="navigation" *ngIf="currentIndex < publications.length - 1" (click)="goForward()">
         <img src="../../../../assets/home-assets/right-arrow.png" />
       </div>
     </div>

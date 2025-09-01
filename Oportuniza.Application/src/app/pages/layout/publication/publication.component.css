@@ -122,7 +122,7 @@ form {
 }
 
 .form-input {
-  width: 9em;
+  width: 12em;
   padding: 8px 10px;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -257,4 +257,80 @@ form {
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.2s ease;
   min-width: 100px;
+}
+
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* caixa do modal */
+.modal {
+  display: flex;
+  align-items: start;
+  flex-direction: column;
+  background: #f6f6f6;
+  color: #000000;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+}
+
+/* input preto */
+.custom-input {
+  width: 90%;
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #000000;
+  margin-bottom: 10px;
+}
+
+/* lista */
+.custom-options {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background-color: #ffffff;
+}
+
+.custom-option {
+  padding: 10px;
+  cursor: pointer;
+  color: #000000;
+}
+
+.custom-option:hover {
+  background-color: #d4d4d4;
+}
+
+/* botão fechar */
+.close-btn {
+  margin-top: 15px;
+  padding: 8px 16px;
+  border: none;
+  background: #2b53c9;
+  color: #ffffff;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  background: #555;
 }

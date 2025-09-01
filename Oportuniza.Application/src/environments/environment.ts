@@ -16,5 +16,6 @@ export const environment = {
     clientId: 'oportuniza-client',
     secret:"Sr1LFcfOHwtFckn8HAHHAf7IxklDiBI3"
   },
-  apiUrl: "http://localhost:5000/api"
+  apiUrl: "http://localhost:5000/api",
+  apiUrlNormal: "http://localhost:5000"
 };

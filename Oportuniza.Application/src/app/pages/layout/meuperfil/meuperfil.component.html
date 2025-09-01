@@ -13,10 +13,7 @@
     <div *ngIf="userProfile && !isLoading" class="profile-card">
       <div class="profile-content">
         <div class="profile-image">
-          <img
-            [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'"
-            alt="Foto de perfil"
-          />
+          <img [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'" alt="Foto de perfil" />
         </div>
         <div class="profile-info">
           <p class="username">{{ userProfile.name }}</p>
@@ -37,9 +34,7 @@
         </div>
       </div>
       <div class="actions">
-        <a class="edit-button" href="#" (click)="$event.preventDefault()"
-          >EDITAR DADOS</a
-        >
+        <a class="edit-button" href="#" (click)="$event.preventDefault()">EDITAR DADOS</a>
         <span class="edit-icon"></span>
       </div>
     </div>

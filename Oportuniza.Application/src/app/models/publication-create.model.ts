@@ -8,4 +8,5 @@ export interface PublicationCreate {
   expirationDate:string;
   tags:string[];
   postAsCompanyId?:string;
+  cityId:string;
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oportuniza.API.Services;
 using Oportuniza.Domain.DTOs.Publication;
+using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Repositories;
@@ -43,7 +44,8 @@ namespace Oportuniza.API.Controllers
                  {
                     p => p.AuthorUser,
                     p => p.AuthorCompany
-                 }
+                 },
+                 filter: p => p.IsActive == PublicationAvailable.Enabled
             );
 
             if (publications == null || !publications.Any())
@@ -69,8 +71,42 @@ namespace Oportuniza.API.Controllers
             return StatusCode(200, response);
         }
 
+        [HttpGet("/my")]
+        [Authorize]
+        public async Task<IActionResult> GetByLoggedId([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(keycloakId))
+                return Unauthorized("Token 'sub' claim is missing.");
+
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+            if (user == null)
+                return NotFound("Usuário não encontrado no banco de dados local.");
+
+            var userLocalId = user.Id;
+
+            var (publications, totalCount) = await _publicationRepository.GetMyPublicationsPaged(userLocalId, pageNumber, pageSize);
+
+            if (publications == null || !publications.Any())
+                return NotFound("Publicações não encontradas.");
+
+            var response = _mapper.Map<IEnumerable<PublicationDto>>(publications);
+
+            var result = new
+            {
+                totalCount,
+                pageNumber,
+                pageSize,
+                totalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+                items = response
+            };
+
+            return Ok(result);
+        }
+
         [HttpPost]
-        [Authorize] 
+        [Authorize]
         public async Task<IActionResult> Post([FromForm] PublicationCreateDto dto, IFormFile image)
         {
             if (dto == null)
@@ -108,7 +144,7 @@ namespace Oportuniza.API.Controllers
                 Shift = dto.Shift,
                 ExpirationDate = dto.ExpirationDate,
                 Contract = dto.Contract,
-                CreatedByUserId = userLocalId
+                CreatedByUserId = userLocalId,
             };
 
             if (dto.PostAsCompanyId.HasValue)
@@ -144,7 +180,24 @@ namespace Oportuniza.API.Controllers
             }
         }
 
+        [HttpPatch("disable/{id}")]
+        public async Task<IActionResult> DesactivePost(Guid id)
+        {
+            var publication = await _publicationRepository.GetByIdAsync(id);
+            if (publication == null)
+            {
+                return NotFound();
+            }
+
+            publication.IsActive = PublicationAvailable.Disabled;
+
+            await _publicationRepository.UpdateAsync(publication);
+
+            return NoContent();
+        }
+
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> Put(Guid id, [FromBody] Publication publication)
         {
             if (publication == null || id != publication.Id)
@@ -160,6 +213,7 @@ namespace Oportuniza.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> Delete(Guid id)
         {
             var existingPublication = await _publicationRepository.GetByIdAsync(id);

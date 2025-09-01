@@ -7,9 +7,9 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class CandidateService {
-  apiUrl = `${environment.apiUrl}/CandidateApplication`;
+  private apiUrl = `${environment.apiUrl}/CandidateApplication`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   applyToJob(publicationId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}`, { publicationId });

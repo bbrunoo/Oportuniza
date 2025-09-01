@@ -15,10 +15,12 @@ namespace Oportuniza.Domain.DTOs.Publication
         public string Contract { get; set; }
         public string Shift { get; set; }
         public string Local { get; set; }
+        public DateTime ExpirationDate { get; set; }
         public Guid AuthorId { get; set; }
         public string AuthorName { get; set; }
         public string AuthorType { get; set; }
         public string AuthorImageUrl { get; set; }
         public PublicationStatus Status { get; set; }
+        public PublicationAvailable IsActive { get; set; }
     }
 }

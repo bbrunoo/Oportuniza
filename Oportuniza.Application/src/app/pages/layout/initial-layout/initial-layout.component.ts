@@ -40,7 +40,7 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private keycloakService: KeycloakOperationService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadingDialogRef = this.dialog.open(LoadingComponent, {

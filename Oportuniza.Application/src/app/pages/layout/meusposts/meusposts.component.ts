@@ -1,5 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule, formatDate, NgFor } from '@angular/common';
+import { Publication } from '../../../models/Publications.model';
+import { PublicationService } from '../../../services/publication.service';
+import { PostActionsComponent } from '../../../extras/post-actions/post-actions.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-meusposts',
@@ -7,33 +11,64 @@ import { CommonModule, formatDate, NgFor } from '@angular/common';
   templateUrl: './meusposts.component.html',
   styleUrl: './meusposts.component.css'
 })
-export class MeuspostsComponent {
-  posts = [
-    {
-      imageUrl: 'https://oportuniza.blob.core.windows.net/publications/publication-1a8a841a-048d-455c-a8c4-30b886c4779b-89cb2750-8ee8-4fc0-9cb3-0434b959c63e',
-      name: 'João da Silva',
-      data: '30/07/2025',
-      pendente: true
-    },
-    {
-      imageUrl: 'https://oportuniza.blob.core.windows.net/publications/publication-1a8a841a-048d-455c-a8c4-30b886c4779b-89cb2750-8ee8-4fc0-9cb3-0434b959c63e',
-      name: 'Maria',
-      data: '05/08/2025',
-      pendente: true
-    },
+export class MeuspostsComponent implements OnInit {
+  publications: Publication[] = [];
+  pageNumber = 1;
+  pageSize = 8;
+  totalPages = 0;
 
-    {
-      imageUrl: 'https://oportuniza.blob.core.windows.net/profile-images/92cd10aa-ad9e-47c7-aac0-685c4ae34b91',
-      name: 'Maria',
-      data: '05/08/2025',
-      pendente: true
-    },
+  constructor(
+    private publicationService: PublicationService,
+    private dialog: MatDialog,
+  ) { }
 
-    {
-      imageUrl: 'https://oportuniza.blob.core.windows.net/publications/publication-1a8a841a-048d-455c-a8c4-30b886c4779b-89cb2750-8ee8-4fc0-9cb3-0434b959c63e',
-      name: 'Maria',
-      data: '05/08/2025',
-      pendente: false
+  ngOnInit(): void {
+    this.getPublications();
+  }
+
+  getPublications() {
+    this.publicationService.getMyPublications(this.pageNumber, this.pageSize).subscribe({
+      next: (res: any) => {
+        this.publications = res.items;
+        this.totalPages = res.totalPages;
+      },
+      error: (error: any) => {
+        console.log('Erro ao carregar publicações:', error);
+      },
+    });
+  }
+
+  nextPage() {
+    if (this.pageNumber < this.totalPages) {
+      this.pageNumber++;
+      this.getPublications();
     }
-  ];
+  }
+
+  prevPage() {
+    if (this.pageNumber > 1) {
+      this.pageNumber--;
+      this.getPublications();
+    }
+  }
+
+  openDialog(event: MouseEvent, post: Publication) {
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+
+    const dialogRef = this.dialog.open(PostActionsComponent, {
+      minWidth: '230px',
+      minHeight: '130px',
+      position: {
+        top: `${rect.top}px`,
+        left: `${rect.left}px`,
+      },
+      data: { post: post },
+      panelClass: 'custom-dialog',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+      }
+    });
+  }
 }

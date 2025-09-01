@@ -28,3 +28,16 @@ body {
   background-color: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(2px);
 }
+
+
+#search-form {
+  .mat-form-field-underline {
+    background-color: #6a6a6a;
+  }
+  .mat-form-field-ripple {
+    background-color: black;
+  }
+  .placeholder {
+    display: none;
+  }
+}

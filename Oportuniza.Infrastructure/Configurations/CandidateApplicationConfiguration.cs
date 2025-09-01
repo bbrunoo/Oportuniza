@@ -21,12 +21,12 @@ namespace Oportuniza.Infrastructure.Configurations
                    .HasMaxLength(128);
 
             builder.HasOne(ca => ca.User)
-                   .WithMany() // se quiser, pode criar ICollection<CandidateApplication> no User
+                   .WithMany()
                    .HasForeignKey(ca => ca.UserId)
                    .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(ca => ca.Publication)
-                   .WithMany() // se quiser, pode criar ICollection<CandidateApplication> no Publication
+                   .WithMany()
                    .HasForeignKey(ca => ca.PublicationId)
                    .OnDelete(DeleteBehavior.Cascade);
 

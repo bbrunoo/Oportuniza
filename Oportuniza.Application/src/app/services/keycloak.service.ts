@@ -52,10 +52,10 @@ export class KeycloakOperationService {
 
   saveTokens(tokens: any): void {
     if (this.isBrowser && tokens.access_token) {
-      sessionStorage.setItem('access_token', tokens.access_token);
-      sessionStorage.setItem('refresh_token', tokens.refresh_token);
-      sessionStorage.setItem('id_token', tokens.id_token);
-      sessionStorage.setItem('loginWithKeycloak', 'true');
+      localStorage.setItem('access_token', tokens.access_token);
+      localStorage.setItem('refresh_token', tokens.refresh_token);
+      localStorage.setItem('id_token', tokens.id_token);
+      localStorage.setItem('loginWithKeycloak', 'true');
     }
   }
 
@@ -77,7 +77,7 @@ export class KeycloakOperationService {
     if (!this.isBrowser) {
       return undefined;
     }
-    const token = sessionStorage.getItem('access_token');
+    const token = localStorage.getItem('access_token');
     if (token) {
       try {
         const decodedToken = this.jwtHelper.decodeToken(token);
@@ -98,7 +98,7 @@ export class KeycloakOperationService {
     if (!this.isBrowser) {
       return false;
     }
-    const token = sessionStorage.getItem('access_token');
+    const token = localStorage.getItem('access_token');
     return !!token && !this.isTokenExpired(token);
   }
 
@@ -117,53 +117,87 @@ export class KeycloakOperationService {
     }
   }
 
-  // refreshToken(): Observable<any> {
-  //   const refreshToken = sessionStorage.getItem('refresh_token');
-  //   if (!this.isBrowser || !refreshToken) {
-  //     return throwError(() => new Error('Refresh token não encontrado.'));
-  //   }
+  refreshToken(): Observable<any> {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (!this.isBrowser || !refreshToken) {
+      return throwError(() => new Error('Refresh token não encontrado.'));
+    }
 
-  //   const body = new HttpParams()
-  //     .set('grant_type', 'refresh_token')
-  //     .set('client_id', environment.keycloak.clientId)
-  //     .set('client_secret', environment.keycloak.secret)
-  //     .set('refresh_token', refreshToken);
+    const body = new HttpParams()
+      .set('grant_type', 'refresh_token')
+      .set('client_id', environment.keycloak.clientId)
+      .set('client_secret', environment.keycloak.secret)
+      .set('refresh_token', refreshToken);
 
-  //   const tokenUrl = `${environment.keycloak.url}/realms/${environment.keycloak.realm}/protocol/openid-connect/token`;
+    const tokenUrl = `${environment.keycloak.url}/realms/${environment.keycloak.realm}/protocol/openid-connect/token`;
 
-  //   return this.http.post(tokenUrl, body, {
-  //     headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' })
-  //   }).pipe(
-  //     tap(tokens => {
-  //       this.saveTokens(tokens);
-  //     }),
-  //     catchError(error => {
-  //       console.error('KeycloakOperationService: Erro ao renovar o token:', error);
-  //       this.logout();
-  //       return throwError(() => new Error('Falha na renovação do token.'));
-  //     })
-  //   );
-  // }
+    return this.http.post(tokenUrl, body, {
+      headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' })
+    }).pipe(
+      tap(tokens => {
+        this.saveTokens(tokens);
+      }),
+      catchError(error => {
+        console.error('KeycloakOperationService: Erro ao renovar o token:', error);
+        this.logout();
+        return throwError(() => new Error('Falha na renovação do token.'));
+      })
+    );
+  }
+
+  isTokenAboutToExpire(token: string | undefined | null, buffer: number = 0): boolean {
+    if (!token) {
+      return true;
+    }
+    try {
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      const expirationTimeInSeconds = decodedToken.exp;
+      const nowInSeconds = Date.now() / 1000;
+      return nowInSeconds >= (expirationTimeInSeconds - buffer);
+    } catch (e) {
+      console.error('Erro ao decodificar ou verificar token JWT:', e);
+      return true;
+    }
+  }
 
   async logout(): Promise<void> {
     if (this.isBrowser) {
-      console.log('KeycloakOperationService: Realizando logout (limpando sessionStorage).');
-      sessionStorage.removeItem('access_token');
-      sessionStorage.removeItem('refresh_token');
-      sessionStorage.removeItem('id_token');
-      sessionStorage.removeItem('loginWithKeycloak');
+      console.log('KeycloakOperationService: Realizando logout (limpando localStorage).');
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('id_token');
+      localStorage.removeItem('loginWithKeycloak');
       this.router.navigate(['/']);
     }
     return Promise.resolve();
   }
 
   async getToken(): Promise<string | undefined> {
-    if (this.isBrowser) {
-      const token = sessionStorage.getItem('access_token');
-      if (token && !this.isTokenExpired(token)) {
-        return token;
+    if (!this.isBrowser) {
+      return undefined;
+    }
+
+    const token = localStorage.getItem('access_token') ?? undefined;
+    const refreshToken = localStorage.getItem('refresh_token') ?? undefined;
+
+    if (!token || this.isTokenAboutToExpire(token, 60)) {
+      if (refreshToken && !this.isTokenExpired(refreshToken)) {
+        try {
+          console.log('Renovando token: o token de acesso atual está expirado ou prestes a expirar.');
+          const newTokens = await this.refreshToken().toPromise();
+          return newTokens.access_token;
+        } catch (e) {
+          console.error('Falha ao renovar o token proativamente, fazendo logout.', e);
+          this.logout();
+          return undefined;
+        }
+      } else {
+        console.warn('Refresh token ausente ou expirado, fazendo logout.');
+        this.logout();
+        return undefined;
       }
     }
-    return undefined;
+
+    return token;
   }
 }

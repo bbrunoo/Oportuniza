@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { PublicationService } from '../../../services/publication.service';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormControl, FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
 import { UserProfile } from '../../../models/UserProfile.model';
 import { MatToolbarModule } from "@angular/material/toolbar"
@@ -13,9 +13,19 @@ import { CompanyListDto } from '../../../models/company-list-dto-model';
 import { CompanyService } from '../../../services/company.service';
 import { PublicationCreate } from '../../../models/publication-create.model';
 import { Publication } from '../../../models/Publications.model';
+import { CityService } from '../../../services/city.service';
+import { debounceTime, switchMap } from 'rxjs';
+import { MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
 @Component({
   selector: 'app-publication',
-  imports: [CommonModule, FormsModule, MatToolbarModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatToolbarModule, MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    ReactiveFormsModule
+  ],
   templateUrl: './publication.component.html',
   styleUrl: './publication.component.css'
 })
@@ -40,7 +50,9 @@ export class PublicationComponent implements OnInit {
     contract: '',
     salary: '',
     authorImageUrl: '',
-    tags: [] // Propriedade adicional apenas para o formulário de criação
+    tags: [],
+    cityId: '',
+    isActive: 0,
   };
 
   selectedImage?: File;
@@ -53,13 +65,40 @@ export class PublicationComponent implements OnInit {
   userCompanies: CompanyListDto[] = [];
   selectedAuthorId: string | null = null;
 
-  today='';
+  today = '';
+
+  showCities = false;
+
+  hideCities() {
+    setTimeout(() => this.showCities = false, 200);
+  }
+
+  cityControl = new FormControl('');
+  filteredCities: any[] = [];
+
+  cityModalOpen = false;
+
+  openCityModal() {
+    this.cityModalOpen = true;
+  }
+
+  closeCityModal() {
+    this.cityModalOpen = false;
+  }
+
+  selectCityFromModal(city: any) {
+    this.publication.cityId = city.id;
+    this.publication.local = city.name;
+    this.cityControl.setValue(city.name, { emitEvent: false });
+    this.closeCityModal();
+  }
 
   constructor(
     private publicationService: PublicationService,
     private userService: UserService,
     private dialog: MatDialog,
-    private companyService: CompanyService
+    private companyService: CompanyService,
+    private cityService: CityService
   ) {
 
     const date = new Date();
@@ -68,6 +107,26 @@ export class PublicationComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadInitialData();
+
+    this.cityControl.valueChanges.pipe(
+      debounceTime(300),
+      switchMap(value =>
+        value && value.length > 0
+          ? this.cityService.searchCities(value, 1, 20)
+          : this.cityService.getCities(1, 20)
+      )
+    ).subscribe({
+      next: (cities) => {
+        this.filteredCities = cities;
+      },
+      error: (err) => console.error('Erro ao carregar cidades:', err)
+    });
+  }
+
+  onSelectCity(city: any) {
+    this.cityControl.setValue(city.name, { emitEvent: false }); // mantém o nome no input
+    this.publication.cityId = city.id; // salva o id real
+    this.publication.local = city.name; // opcional: se quiser exibir no DTO também
   }
 
   loadInitialData(): void {
@@ -181,10 +240,11 @@ export class PublicationComponent implements OnInit {
       !this.publication.shift ||
       !this.publication.contract ||
       !this.publication.local ||
+      !this.publication.cityId ||
       !this.publication.expirationDate ||
       !this.selectedAuthorId
     ) {
-      Swal.fire('Atenção', 'Por favor, preencha todos os campos e selecione um autor, uma imagem, um título, salário, turno, tipo de contrato e localização.', 'warning');
+      Swal.fire('Atenção', 'Por favor, selecione uma cidade válida.', 'warning');
       return;
     }
 
@@ -201,7 +261,8 @@ export class PublicationComponent implements OnInit {
       local: this.publication.local,
       expirationDate: this.publication.expirationDate,
       tags: [],
-      postAsCompanyId: isCompanyPost ? this.selectedAuthorId! : null!
+      postAsCompanyId: isCompanyPost ? this.selectedAuthorId! : null!,
+      cityId: this.publication.cityId!
     };
 
     this.publicationService.createPublication(dto, this.selectedImage).subscribe({
