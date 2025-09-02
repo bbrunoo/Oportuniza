@@ -1,0 +1,19 @@
+<div class="search-results-container">
+  <ng-container *ngIf="hasResults; else noResults">
+    <h2>Resultados da Pesquisa</h2>
+    <div class="results-list">
+      <div class="publication-card" *ngFor="let publication of publications" (click)="onPostClick(publication)">
+        <h3>{{ publication.title }}</h3>
+        <p>{{ publication.description }}</p>
+        <img src="{{publication.imageUrl}}" alt="">
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #noResults>
+    <div class="no-results-message">
+      <p>Nenhuma vaga encontrada com os critérios de busca.</p>
+      <p>Tente ajustar os filtros ou a sua pesquisa.</p>
+    </div>
+  </ng-template>
+</div>

@@ -223,5 +223,21 @@ namespace Oportuniza.API.Controllers
             await _publicationRepository.DeleteAsync(id);
             return NoContent();
         }
+
+        [HttpGet("search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromQuery] PublicationFilterDto filters)
+        {
+            var publications = await _publicationRepository.FilterPublicationsAsync(filters);
+
+            if (publications == null || !publications.Any())
+            {
+                return NotFound("Nenhuma publicação encontrada com os critérios de busca.");
+            }
+
+            var response = _mapper.Map<List<PublicationDto>>(publications);
+
+            return Ok(response);
+        }
     }
 }

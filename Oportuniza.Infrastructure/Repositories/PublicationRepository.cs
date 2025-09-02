@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
@@ -14,6 +15,50 @@ namespace Oportuniza.Infrastructure.Repositories
         {
             _context = context;
         }
+
+        public async Task<IEnumerable<Publication>> FilterPublicationsAsync(PublicationFilterDto filters)
+        {
+            var query = _context.Publication
+                .Where(p => p.IsActive == PublicationAvailable.Enabled);
+
+            if (!string.IsNullOrEmpty(filters.SearchTerm))
+            {
+                var searchTerm = filters.SearchTerm.Trim().ToLower();
+                query = query.Where(p => p.Description != null && p.Description.Contains(filters.SearchTerm));
+            }
+
+            if (!string.IsNullOrEmpty(filters.Local))
+            {
+                var localTerm = filters.Local.Trim().ToLower();
+                query = query.Where(p => p.Local != null && p.Local.Contains(filters.Local));
+            }
+
+            if (filters.Contracts != null && filters.Contracts.Any())
+            {
+                var contractFilters = filters.Contracts.Select(c => c.Trim().ToLower()).ToList();
+                query = query.Where(p => p.Contract != null && contractFilters.Contains(p.Contract.ToLower()));
+            }
+
+            if (filters.Shifts != null && filters.Shifts.Any())
+            {
+                var shiftFilters = filters.Shifts.Select(s => s.Trim().ToLower()).ToList();
+                query = query.Where(p => p.Shift != null && shiftFilters.Contains(p.Shift.ToLower()));
+            }
+
+            if (!string.IsNullOrEmpty(filters.SalaryRange))
+            {
+                var salaryFilter = filters.SalaryRange.Trim().ToLower();
+                query = query.Where(p => p.Salary != null && p.Salary.ToLower() == salaryFilter);
+            }
+
+            query = query
+                .Include(p => p.AuthorUser)
+                .Include(p => p.AuthorCompany)
+                .OrderByDescending(p => p.CreationDate);
+
+            return await query.ToListAsync();
+        }
+
 
         public async Task<IEnumerable<Publication>> GetMyPublications(Guid userId)
         {
@@ -32,15 +77,25 @@ namespace Oportuniza.Infrastructure.Repositories
 
         public async Task<(IEnumerable<Publication>, int)> GetMyPublicationsPaged(Guid userId, int pageNumber, int pageSize)
         {
-            var query = _context.Publication.Where(p => p.AuthorUserId == userId).Where(p => p.IsActive == PublicationAvailable.Enabled);
+            var userCompanyIds = await _context.Company
+                .Where(c => c.UserId == userId)
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            var query = _context.Publication
+                    .Where(p => p.AuthorUserId == userId || (p.AuthorCompanyId.HasValue && userCompanyIds.Contains(p.AuthorCompanyId.Value)))
+                    .Where(p => p.IsActive == PublicationAvailable.Enabled);
 
             var totalCount = await query.CountAsync();
 
             var publications = await query
                 .OrderByDescending(p => p.CreationDate)
+                .Include(p => p.AuthorUser)
+                .Include(p => p.AuthorCompany)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+
 
             return (publications, totalCount);
         }

@@ -1,0 +1,36 @@
+.search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+  padding: 5px 5px;
+}
+
+.search-icon {
+  position: relative;
+  left: 85px;
+}
+
+.filter-icon{
+  cursor: pointer;
+  transition: ease 0.1s;
+}
+
+.filter-icon:hover{
+  transition: ease 0.1s;
+  transform: scale(1.03);
+}
+
+input {
+  border: none;
+  width: 520px;
+  font-weight: 600;
+  padding: 12px 8px;
+  padding-left: 45px;
+  border-radius: 15px;
+  margin: 3px;
+}
+
+input::placeholder {
+  color: #252525;
+}

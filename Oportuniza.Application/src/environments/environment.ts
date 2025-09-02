@@ -14,7 +14,7 @@ export const environment = {
     url: 'http://localhost:9090',
     realm: 'oportuniza',
     clientId: 'oportuniza-client',
-    secret:"DS2qkXNCVoyuTgeL9Ke2OA0Srvha6JNB"
+    secret:"Sr1LFcfOHwtFckn8HAHHAf7IxklDiBI3"
   },
   apiUrl: "http://localhost:5000/api",
   apiUrlNormal: "http://localhost:5000"

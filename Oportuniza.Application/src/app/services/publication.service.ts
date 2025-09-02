@@ -1,9 +1,10 @@
 import { PublicationCreate } from './../models/publication-create.model';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Publication } from '../models/Publications.model';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
+import { PublicationFilterDto } from '../models/filter.model';
 
 @Injectable({
   providedIn: 'root'
@@ -54,5 +55,22 @@ export class PublicationService {
     }
 
     return this.http.post(this.apiUrl, formData);
+  }
+
+  filterPublications(filters: PublicationFilterDto): Observable<Publication[]> {
+    let params = new HttpParams();
+
+    if (filters.searchTerm) {
+      params = params.append('searchTerm', filters.searchTerm);
+    }
+    if (filters.local) {
+      params = params.append('local', filters.local);
+    }
+    if (filters.contracts && filters.contracts.length > 0) {
+      filters.contracts.forEach(contract => {
+        params = params.append('contracts', contract);
+      });
+    }
+    return this.http.get<Publication[]>(`${this.apiUrl}/search`, { params });
   }
 }

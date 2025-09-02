@@ -7,10 +7,13 @@ import { CandidateService } from '../../../services/candidate.service';
 import { forkJoin, map, Observable, take } from 'rxjs';
 import { KeycloakOperationService } from '../../../services/keycloak.service';
 import Swal from 'sweetalert2';
+import { SearchbarComponent } from '../../../component/searchbar/searchbar.component';
+import { PublicationFilterDto } from '../../../models/filter.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-feed',
-  imports: [CommonModule],
+  imports: [CommonModule, SearchbarComponent],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.css',
 })
@@ -23,11 +26,24 @@ export class FeedComponent implements OnInit {
   applicationIds: { [publicationId: string]: string } = {};
   hasApplied = false;
 
+
   constructor(
     private publicationService: PublicationService,
     private candidateService: CandidateService,
-    private userService: UserService
+    private userService: UserService,
+    private router: Router
   ) { }
+
+
+  onSearchTriggered(filters: PublicationFilterDto) {
+    const queryParams = {
+      ...filters,
+      contracts: filters.contracts?.join(','),
+      shifts: filters.shifts?.join(',')
+    };
+
+    this.router.navigate(['/inicio/search-result'], { queryParams });
+  }
 
   ngOnInit() {
     this.getUserIdAndPublications();

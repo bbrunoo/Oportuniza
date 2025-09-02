@@ -1,4 +1,5 @@
 <div class="container" *ngIf="publications.length > 0">
+<app-searchbar (search)="onSearchTriggered($event)"></app-searchbar>
   <div class="center-content">
     <div class="navigation-space">
       <div class="navigation" *ngIf="currentIndex > 0" (click)="goBack()">

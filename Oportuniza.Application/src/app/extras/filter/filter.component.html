@@ -1,0 +1,49 @@
+<div class="filter-container">
+  <div class="title">Filtros</div>
+
+  <div class="filter-group">
+    <div class="label">Localização:</div>
+    <input type="text" [(ngModel)]="filters.local" placeholder="Olimpia, SP" />
+  </div>
+
+  <div class="filter-group">
+    <div class="label">Tipo de contrato:</div>
+    <div class="options-grid">
+      <div [class.selected]="filters.contracts?.includes('Estágio')" (click)="toggleContract('Estágio')">() Estágio
+      </div>
+      <div [class.selected]="filters.contracts?.includes('Freelancers')" (click)="toggleContract('Freelancers')">()
+        Freelancers</div>
+      <div [class.selected]="filters.contracts?.includes('CLT')" (click)="toggleContract('CLT')">() CLT</div>
+      <div [class.selected]="filters.contracts?.includes('PJ')" (click)="toggleContract('PJ')">() PJ</div>
+
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <div class="label">Turno:</div>
+    <div class="options-grid">
+      <div [class.selected]="filters.shifts?.includes('Matutino')" (click)="toggleShift('Matutino')">() Matutino</div>
+      <div [class.selected]="filters.shifts?.includes('Vespertino')" (click)="toggleShift('Vespertino')">() Vespertino
+      </div>
+      <div [class.selected]="filters.shifts?.includes('Noturno')" (click)="toggleShift('Noturno')">() Noturno</div>
+      <div [class.selected]="filters.shifts?.includes('Escala')" (click)="toggleShift('Escala')">() Escala</div>
+    </div>
+  </div>
+
+  <div class="filter-group">
+    <div class="label">Faixa salarial:</div>
+    <div class="options-grid">
+      <div [class.selected]="filters.salaryRange === 'Até R$1.000'" (click)="toggleSalary('Até R$1.000')">() Até R$1.000
+      </div>
+      <div [class.selected]="filters.salaryRange === 'R$1.000 a R$2.000'" (click)="toggleSalary('R$1.000 a R$2.000')">()
+        R$1.000 a R$2.000</div>
+      <div [class.selected]="filters.salaryRange === 'Mais de R$2.000'" (click)="toggleSalary('Mais de R$2.000')">()
+        Mais de R$2.000</div>
+    </div>
+  </div>
+
+  <div class="button-group">
+    <button class="clear-button" (click)="clearFilters()">Limpar Tudo</button>
+    <button class="apply-button" (click)="apply()">Aplicar Filtros</button>
+  </div>
+</div>
