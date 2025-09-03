@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Oportuniza.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class @new : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -203,12 +203,17 @@ namespace Oportuniza.Infrastructure.Migrations
                     Description = table.Column<string>(type: "TEXT", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Salary = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Salary = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Shift = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Contract = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Local = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Expired = table.Column<bool>(type: "bit", nullable: false),
                     CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AuthorUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AuthorCompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
+                    Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    IsActive = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
                 },
                 constraints: table =>
                 {

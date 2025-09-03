@@ -19,7 +19,14 @@ export class SearchbarComponent {
   constructor(private dialog: MatDialog) { }
 
   onSearch() {
-    this.currentFilters.searchTerm = this.searchTerm;
+    const newFilters: PublicationFilterDto = {
+      searchTerm: this.searchTerm,
+      local: '',
+      contracts: [],
+      shifts: [],
+      salaryRange: null
+    };
+    this.currentFilters = newFilters;
     this.search.emit(this.currentFilters);
   }
 

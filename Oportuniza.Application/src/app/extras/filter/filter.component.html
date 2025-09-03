@@ -1,49 +1,77 @@
 <div class="filter-container">
-  <div class="title">Filtros</div>
+    <div class="title">Filtros</div>
 
-  <div class="filter-group">
-    <div class="label">Localização:</div>
-    <input type="text" [(ngModel)]="filters.local" placeholder="Olimpia, SP" />
-  </div>
-
-  <div class="filter-group">
-    <div class="label">Tipo de contrato:</div>
-    <div class="options-grid">
-      <div [class.selected]="filters.contracts?.includes('Estágio')" (click)="toggleContract('Estágio')">() Estágio
-      </div>
-      <div [class.selected]="filters.contracts?.includes('Freelancers')" (click)="toggleContract('Freelancers')">()
-        Freelancers</div>
-      <div [class.selected]="filters.contracts?.includes('CLT')" (click)="toggleContract('CLT')">() CLT</div>
-      <div [class.selected]="filters.contracts?.includes('PJ')" (click)="toggleContract('PJ')">() PJ</div>
-
+    <div class="filter-group">
+        <div class="label">Localização:</div>
+        <input type="text" [(ngModel)]="filters.local" placeholder="Olimpia, SP" />
     </div>
-  </div>
 
-  <div class="filter-group">
-    <div class="label">Turno:</div>
-    <div class="options-grid">
-      <div [class.selected]="filters.shifts?.includes('Matutino')" (click)="toggleShift('Matutino')">() Matutino</div>
-      <div [class.selected]="filters.shifts?.includes('Vespertino')" (click)="toggleShift('Vespertino')">() Vespertino
-      </div>
-      <div [class.selected]="filters.shifts?.includes('Noturno')" (click)="toggleShift('Noturno')">() Noturno</div>
-      <div [class.selected]="filters.shifts?.includes('Escala')" (click)="toggleShift('Escala')">() Escala</div>
+    <div class="filter-group">
+        <div class="label">Tipo de contrato:</div>
+        <div class="options-grid">
+            <label>
+                <input type="checkbox" name="contracts" value="Estágio"
+                    [checked]="filters.contracts?.includes('Estágio')"
+                    (change)="toggleContract('Estágio')">Estágio
+            </label>
+            <label>
+                <input type="checkbox" name="contracts" value="Freelancer"
+                    [checked]="filters.contracts?.includes('Freelancer')"
+                    (change)="toggleContract('Freelancer')">Freelancer
+            </label>
+            <label>
+                <input type="checkbox" name="contracts" value="CLT" [checked]="filters.contracts?.includes('CLT')"
+                    (change)="toggleContract('CLT')">CLT
+            </label>
+            <label>
+                <input type="checkbox" name="contracts" value="PJ" [checked]="filters.contracts?.includes('PJ')"
+                    (change)="toggleContract('PJ')">PJ
+            </label>
+        </div>
     </div>
-  </div>
 
-  <div class="filter-group">
-    <div class="label">Faixa salarial:</div>
-    <div class="options-grid">
-      <div [class.selected]="filters.salaryRange === 'Até R$1.000'" (click)="toggleSalary('Até R$1.000')">() Até R$1.000
-      </div>
-      <div [class.selected]="filters.salaryRange === 'R$1.000 a R$2.000'" (click)="toggleSalary('R$1.000 a R$2.000')">()
-        R$1.000 a R$2.000</div>
-      <div [class.selected]="filters.salaryRange === 'Mais de R$2.000'" (click)="toggleSalary('Mais de R$2.000')">()
-        Mais de R$2.000</div>
+    <div class="filter-group">
+        <div class="label">Turno:</div>
+        <div class="options-grid">
+            <label>
+                <input type="checkbox" name="shifts" value="Matutino" [checked]="filters.shifts?.includes('Matutino')"
+                    (change)="toggleShift('Matutino')">Matutino
+            </label>
+            <label>
+                <input type="checkbox" name="shifts" value="Vespertino"
+                    [checked]="filters.shifts?.includes('Vespertino')" (change)="toggleShift('Vespertino')">Vespertino
+            </label>
+            <label>
+                <input type="checkbox" name="shifts" value="Noturno" [checked]="filters.shifts?.includes('Noturno')"
+                    (change)="toggleShift('Noturno')">Noturno
+            </label>
+            <label>
+                <input type="checkbox" name="shifts" value="Escala" [checked]="filters.shifts?.includes('Escala')"
+                    (change)="toggleShift('Escala')">Escala
+            </label>
+        </div>
     </div>
-  </div>
 
-  <div class="button-group">
-    <button class="clear-button" (click)="clearFilters()">Limpar Tudo</button>
-    <button class="apply-button" (click)="apply()">Aplicar Filtros</button>
-  </div>
+    <div class="filter-group">
+        <div class="label">Faixa salarial:</div>
+        <div class="options-grid">
+            <label>
+                <input type="radio" name="salaryRange" value="Até R$1.000"
+                    [(ngModel)]="filters.salaryRange">Até R$1.000
+            </label>
+            <label>
+                <input type="radio" name="salaryRange" value="R$1.000 a R$2.000"
+                    [(ngModel)]="filters.salaryRange">R$1.000 a R$2.000
+            </label>
+            <label>
+                <input type="radio" name="salaryRange" value="Mais de R$2.000"
+                    [(ngModel)]="filters.salaryRange">Mais de R$2.000
+            </label>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button class="clear-button" (click)="clearFilters()">Limpar Tudo</button>
+        <button class="apply-button" (click)="apply()">Aplicar Filtros</button>
+    </div>
 </div>

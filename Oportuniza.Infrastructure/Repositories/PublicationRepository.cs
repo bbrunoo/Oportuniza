@@ -24,13 +24,17 @@ namespace Oportuniza.Infrastructure.Repositories
             if (!string.IsNullOrEmpty(filters.SearchTerm))
             {
                 var searchTerm = filters.SearchTerm.Trim().ToLower();
-                query = query.Where(p => p.Description != null && p.Description.Contains(filters.SearchTerm));
+                query = query.Where(p =>
+                    (p.Description != null && p.Description.ToLower().Contains(searchTerm)) ||
+                    (p.Title != null && p.Title.ToLower().Contains(searchTerm)) ||
+                    (p.Local != null && p.Local.ToLower().Contains(searchTerm))
+                );
             }
 
             if (!string.IsNullOrEmpty(filters.Local))
             {
                 var localTerm = filters.Local.Trim().ToLower();
-                query = query.Where(p => p.Local != null && p.Local.Contains(filters.Local));
+                query = query.Where(p => p.Local != null && p.Local.ToLower().Contains(localTerm));
             }
 
             if (filters.Contracts != null && filters.Contracts.Any())

@@ -1,19 +1,38 @@
-<div class="search-results-container">
-  <ng-container *ngIf="hasResults; else noResults">
-    <h2>Resultados da Pesquisa</h2>
-    <div class="results-list">
-      <div class="publication-card" *ngFor="let publication of publications" (click)="onPostClick(publication)">
-        <h3>{{ publication.title }}</h3>
-        <p>{{ publication.description }}</p>
-        <img src="{{publication.imageUrl}}" alt="">
-      </div>
-    </div>
-  </ng-container>
+<div class="container">
+  <app-searchbar (search)="onSearchTriggered($event)"></app-searchbar>
 
-  <ng-template #noResults>
-    <div class="no-results-message">
-      <p>Nenhuma vaga encontrada com os critérios de busca.</p>
-      <p>Tente ajustar os filtros ou a sua pesquisa.</p>
-    </div>
-  </ng-template>
+  <div class="search-results-container">
+    <ng-container *ngIf="hasResults; else noResults">
+      <h2>Vagas de acordo com a sua pesquisa</h2>
+      <div class="results-list">
+        <div class="publication-card" *ngFor="let publication of publications" (click)="onPostClick(publication)">
+          <div class="left">
+            <img class="author-image" src="{{publication.authorImageUrl || '../../../../assets/etapas/perfil.png'}}" alt="">
+            <div class="left-content">
+              <h3>{{ publication.authorName }}</h3>
+              <p>{{ publication.description }}</p>
+              <div class="left-info">
+                <p>{{ publication.salary }}</p> -
+                <p>{{ publication.shift }}</p> -
+                <p>{{ publication.local }}</p> -
+                <p>{{ publication.contract }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="right">
+            <img class="post-image" src="{{publication.imageUrl}}" width="50px" height="50px" alt="">
+            <button>Saiba mais</button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #noResults>
+      <div class="no-results-message">
+        <p>Nenhuma vaga encontrada com os critérios de busca.</p>
+        <p>Tente ajustar os filtros ou a sua pesquisa.</p>
+      </div>
+    </ng-template>
+  </div>
+
 </div>

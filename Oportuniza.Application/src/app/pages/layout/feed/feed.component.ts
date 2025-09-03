@@ -26,14 +26,12 @@ export class FeedComponent implements OnInit {
   applicationIds: { [publicationId: string]: string } = {};
   hasApplied = false;
 
-
   constructor(
     private publicationService: PublicationService,
     private candidateService: CandidateService,
     private userService: UserService,
     private router: Router
   ) { }
-
 
   onSearchTriggered(filters: PublicationFilterDto) {
     const queryParams = {
@@ -48,7 +46,6 @@ export class FeedComponent implements OnInit {
   ngOnInit() {
     this.getUserIdAndPublications();
   }
-
 
   goBack() {
     if (this.currentIndex > 0) {

@@ -60,7 +60,7 @@ export class FilterComponent {
     this.filters.local = '';
     this.filters.contracts = [];
     this.filters.shifts = [];
-    this.filters.salaryRange = '';
+    this.filters.salaryRange = null; 
   }
 
   apply() {
