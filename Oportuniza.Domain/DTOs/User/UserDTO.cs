@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Oportuniza.Domain.Models;
 
 namespace Oportuniza.Domain.DTOs.User
 {
@@ -13,6 +9,8 @@ namespace Oportuniza.Domain.DTOs.User
         public string Email { get; set; }
         public string Phone { get; set; }
         public string ImageUrl { get; set; }
+        public List<UserAreaOfInterest> AreaOfInterest { get;set; }
+        public string Local { get; set; }
         public bool IsProfileCompleted{ get; set; }
     }
 }

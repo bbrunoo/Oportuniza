@@ -8,14 +8,14 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-filter',
   imports: [CommonModule, FormsModule],
   templateUrl: './filter.component.html',
-  styleUrl: './filter.component.css'
+  styleUrl: './filter.component.css',
 })
 export class FilterComponent {
   filters: PublicationFilterDto = {
     local: '',
     contracts: [],
     shifts: [],
-    salaryRange: null
+    salaryRange: null,
   };
 
   constructor(
@@ -52,7 +52,8 @@ export class FilterComponent {
   }
 
   toggleSalary(salary: string) {
-    this.filters.salaryRange = this.filters.salaryRange === salary ? null : salary;
+    this.filters.salaryRange =
+      this.filters.salaryRange === salary ? null : salary;
   }
 
   clearFilters() {
@@ -60,10 +61,18 @@ export class FilterComponent {
     this.filters.local = '';
     this.filters.contracts = [];
     this.filters.shifts = [];
-    this.filters.salaryRange = null; 
+    this.filters.salaryRange = null;
   }
 
   apply() {
+    this.filters.contracts =
+    this.filters.contracts?.map((c) => c.toLowerCase()) || [];
+    this.filters.shifts =
+    this.filters.shifts?.map((s) => s.toLowerCase()) || [];
+    this.filters.local = this.filters.local?.toLowerCase() || '';
+    this.filters.searchTerm = this.filters.searchTerm?.toLowerCase() || '';
+    this.filters.salaryRange = this.filters.salaryRange?.toLowerCase() || null;
+
     this.dialogRef.close(this.filters);
   }
 }

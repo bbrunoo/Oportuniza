@@ -9,7 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
   selector: 'app-meusposts',
   imports: [CommonModule, NgFor],
   templateUrl: './meusposts.component.html',
-  styleUrl: './meusposts.component.css'
+  styleUrl: './meusposts.component.css',
 })
 export class MeuspostsComponent implements OnInit {
   publications: Publication[] = [];
@@ -19,23 +19,25 @@ export class MeuspostsComponent implements OnInit {
 
   constructor(
     private publicationService: PublicationService,
-    private dialog: MatDialog,
-  ) { }
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.getPublications();
   }
 
   getPublications() {
-    this.publicationService.getMyPublications(this.pageNumber, this.pageSize).subscribe({
-      next: (res: any) => {
-        this.publications = res.items;
-        this.totalPages = res.totalPages;
-      },
-      error: (error: any) => {
-        console.log('Erro ao carregar publicações:', error);
-      },
-    });
+    this.publicationService
+      .getMyPublications(this.pageNumber, this.pageSize)
+      .subscribe({
+        next: (res: any) => {
+          this.publications = res.items;
+          this.totalPages = res.totalPages;
+        },
+        error: (error: any) => {
+          console.log('Erro ao carregar publicações:', error);
+        },
+      });
   }
 
   nextPage() {
@@ -68,6 +70,7 @@ export class MeuspostsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        this.publications = this.publications.filter((p) => p.id !== post.id);
       }
     });
   }

@@ -16,8 +16,7 @@ namespace Oportuniza.Infrastructure.Configurations
                 .HasMaxLength(200);
 
             builder.Property(p => p.Description)
-                .IsRequired()
-                .HasColumnType("TEXT");
+                .IsRequired();
 
             builder.Property(p => p.ImageUrl)
                 .HasMaxLength(300);

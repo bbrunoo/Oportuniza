@@ -27,6 +27,8 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
     phone: '',
     imageUrl: '',
     isProfileCompleted: false,
+    local: '',
+    interestArea: []
   };
 
   loginDisplay = false;

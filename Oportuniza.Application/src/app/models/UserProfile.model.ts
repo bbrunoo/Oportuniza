@@ -4,5 +4,7 @@ export interface UserProfile {
   email: string;
   phone: string;
   imageUrl: string;
+  local:string;
+  interestArea:string[];
   isProfileCompleted: boolean;
 }

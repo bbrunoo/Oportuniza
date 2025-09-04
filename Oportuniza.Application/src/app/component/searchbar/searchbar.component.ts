@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-searchbar',
   imports: [FormsModule],
   templateUrl: './searchbar.component.html',
-  styleUrl: './searchbar.component.css'
+  styleUrl: './searchbar.component.css',
 })
 export class SearchbarComponent {
   @Output() search = new EventEmitter<PublicationFilterDto>();
@@ -16,15 +16,19 @@ export class SearchbarComponent {
 
   searchTerm: string = '';
 
-  constructor(private dialog: MatDialog) { }
+  constructor(private dialog: MatDialog) {}
 
   onSearch() {
+    if (!this.searchTerm.trim()) {
+      return;
+    }
+
     const newFilters: PublicationFilterDto = {
       searchTerm: this.searchTerm,
       local: '',
       contracts: [],
       shifts: [],
-      salaryRange: null
+      salaryRange: null,
     };
     this.currentFilters = newFilters;
     this.search.emit(this.currentFilters);

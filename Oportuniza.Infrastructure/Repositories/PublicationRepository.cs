@@ -26,8 +26,7 @@ namespace Oportuniza.Infrastructure.Repositories
                 var searchTerm = filters.SearchTerm.Trim().ToLower();
                 query = query.Where(p =>
                     (p.Description != null && p.Description.ToLower().Contains(searchTerm)) ||
-                    (p.Title != null && p.Title.ToLower().Contains(searchTerm)) ||
-                    (p.Local != null && p.Local.ToLower().Contains(searchTerm))
+                    (p.Title != null && p.Title.ToLower().Contains(searchTerm))
                 );
             }
 
