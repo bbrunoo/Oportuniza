@@ -52,16 +52,19 @@
 
   <div class="filter-group">
     <div class="label">Faixa salarial:</div>
+
     <div class="options-grid">
       <label>
-        <input type="radio" name="salaryRange" value="Até R$1.000" [(ngModel)]="filters.salaryRange">Até R$1.000
+        <input type="radio" name="salaryRange" value="range1" [(ngModel)]="filters.salaryRange">
+        Até R$1000,00
       </label>
       <label>
-        <input type="radio" name="salaryRange" value="R$1.000 a R$2.000" [(ngModel)]="filters.salaryRange">R$1.000 a
-        R$2.000
+        <input type="radio" name="salaryRange" value="range2" [(ngModel)]="filters.salaryRange">
+        R$1000,00 a R$2000,00
       </label>
       <label>
-        <input type="radio" name="salaryRange" value="Mais de R$2.000" [(ngModel)]="filters.salaryRange">Mais de R$2.000
+        <input type="radio" name="salaryRange" value="range3" [(ngModel)]="filters.salaryRange">
+        Mais de R$2000,00
       </label>
     </div>
   </div>

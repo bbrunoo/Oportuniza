@@ -65,14 +65,22 @@ export class FilterComponent {
   }
 
   apply() {
-    this.filters.contracts =
-    this.filters.contracts?.map((c) => c.toLowerCase()) || [];
-    this.filters.shifts =
-    this.filters.shifts?.map((s) => s.toLowerCase()) || [];
-    this.filters.local = this.filters.local?.toLowerCase() || '';
-    this.filters.searchTerm = this.filters.searchTerm?.toLowerCase() || '';
-    this.filters.salaryRange = this.filters.salaryRange?.toLowerCase() || null;
+    const filtersToSend = {
+      ...this.filters
+    };
 
-    this.dialogRef.close(this.filters);
+    // Normalize os dados para envio
+    filtersToSend.contracts =
+      filtersToSend.contracts?.map((c) => c.toLowerCase()) || [];
+    filtersToSend.shifts =
+      filtersToSend.shifts?.map((s) => s.toLowerCase()) || [];
+    filtersToSend.local = filtersToSend.local?.toLowerCase() || '';
+    filtersToSend.searchTerm = filtersToSend.searchTerm?.toLowerCase() || '';
+    filtersToSend.salaryRange = filtersToSend.salaryRange?.toLowerCase() || null;
+
+    // Adicionado console.log para mostrar o objeto de filtros antes de fechar o dialog
+    console.log('Filtros a serem enviados para a API:', filtersToSend);
+
+    this.dialogRef.close(filtersToSend);
   }
 }

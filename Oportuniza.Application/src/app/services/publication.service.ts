@@ -57,7 +57,7 @@ export class PublicationService {
     return this.http.post(this.apiUrl, formData);
   }
 
-  filterPublications(filters: PublicationFilterDto): Observable<Publication[]> {
+filterPublications(filters: PublicationFilterDto): Observable<Publication[]> {
     let params = new HttpParams();
 
     if (filters.searchTerm) {
@@ -70,6 +70,14 @@ export class PublicationService {
       filters.contracts.forEach(contract => {
         params = params.append('contracts', contract);
       });
+    }
+    if (filters.shifts && filters.shifts.length > 0) {
+        filters.shifts.forEach(shift => {
+          params = params.append('shifts', shift);
+        });
+    }
+    if (filters.salaryRange) {
+        params = params.append('salaryRange', filters.salaryRange);
     }
     return this.http.get<Publication[]>(`${this.apiUrl}/search`, { params });
   }

@@ -1,7 +1,7 @@
 export interface PublicationFilterDto {
   searchTerm?: string;
   local?: string;
-  contracts?: string[];   // agora pode faltar
-  shifts?: string[];      // agora pode faltar
+  contracts?: string[];
+  shifts?: string[];
   salaryRange?: string | null;
 }

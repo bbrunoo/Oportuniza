@@ -33,35 +33,44 @@ namespace Oportuniza.Infrastructure.Repositories
             if (!string.IsNullOrEmpty(filters.Local))
             {
                 var localTerm = filters.Local.Trim().ToLower();
-                query = query.Where(p => p.Local != null && p.Local.ToLower().Contains(localTerm));
+                query = query.Where(p => p.Local != null && p.Local.Trim().ToLower().Contains(localTerm));
             }
 
             if (filters.Contracts != null && filters.Contracts.Any())
             {
                 var contractFilters = filters.Contracts.Select(c => c.Trim().ToLower()).ToList();
-                query = query.Where(p => p.Contract != null && contractFilters.Contains(p.Contract.ToLower()));
+                query = query.Where(p => p.Contract != null && contractFilters.Contains(p.Contract.Trim().ToLower()));
             }
 
             if (filters.Shifts != null && filters.Shifts.Any())
             {
                 var shiftFilters = filters.Shifts.Select(s => s.Trim().ToLower()).ToList();
-                query = query.Where(p => p.Shift != null && shiftFilters.Contains(p.Shift.ToLower()));
+                query = query.Where(p => p.Shift != null && shiftFilters.Contains(p.Shift.Trim().ToLower()));
             }
 
             if (!string.IsNullOrEmpty(filters.SalaryRange))
             {
-                var salaryFilter = filters.SalaryRange.Trim().ToLower();
-                query = query.Where(p => p.Salary != null && p.Salary.ToLower() == salaryFilter);
+                switch (filters.SalaryRange.ToLower())
+                {
+                    case "range1":
+                        query = query.Where(p => p.Salary != null && p.Salary.Contains("Até a R$1000,00"));
+                        break;
+                    case "range2":
+                        query = query.Where(p => p.Salary != null && p.Salary.Contains("R$1000,00 a R$2000,00"));
+                        break;
+                    case "range3":
+                        query = query.Where(p => p.Salary != null && p.Salary.Contains("Mais de R$2000,00"));
+                        break;
+                }
             }
 
             query = query
                 .Include(p => p.AuthorUser)
                 .Include(p => p.AuthorCompany)
                 .OrderByDescending(p => p.CreationDate);
-
+             
             return await query.ToListAsync();
         }
-
 
         public async Task<IEnumerable<Publication>> GetMyPublications(Guid userId)
         {

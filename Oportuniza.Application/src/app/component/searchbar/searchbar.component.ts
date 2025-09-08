@@ -19,19 +19,11 @@ export class SearchbarComponent {
   constructor(private dialog: MatDialog) {}
 
   onSearch() {
-    if (!this.searchTerm.trim()) {
-      return;
-    }
-
-    const newFilters: PublicationFilterDto = {
-      searchTerm: this.searchTerm,
-      local: '',
-      contracts: [],
-      shifts: [],
-      salaryRange: null,
+    const updatedFilters: PublicationFilterDto = {
+      ...this.currentFilters,
+      searchTerm: this.searchTerm.trim(),
     };
-    this.currentFilters = newFilters;
-    this.search.emit(this.currentFilters);
+    this.search.emit(updatedFilters);
   }
 
   openFiltersDialog() {
@@ -41,8 +33,7 @@ export class SearchbarComponent {
 
     dialogRef.afterClosed().subscribe((result: PublicationFilterDto) => {
       if (result) {
-        this.currentFilters = result;
-        this.search.emit(this.currentFilters);
+        this.search.emit(result);
       }
     });
   }
