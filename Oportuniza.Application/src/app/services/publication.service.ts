@@ -5,12 +5,13 @@ import { Publication } from '../models/Publications.model';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { PublicationFilterDto } from '../models/filter.model';
+import { PublicationUpdate } from '../models/PublicationUpdate.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PublicationService {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
   private apiUrl = `${environment.apiUrl}/Publication`;
   private apiUrlNormal = `${environment.apiUrlNormal}`;
 
@@ -18,12 +19,15 @@ export class PublicationService {
     return this.http.get<Publication[]>(`${this.apiUrl}`);
   }
 
-  getMyPublications(pageNumber: number = 1, pageSize: number = 10): Observable<any> {
+  getMyPublications(
+    pageNumber: number = 1,
+    pageSize: number = 10
+  ): Observable<any> {
     return this.http.get<any>(`${this.apiUrlNormal}/my`, {
       params: {
         pageNumber: pageNumber,
-        pageSize: pageSize
-      }
+        pageSize: pageSize,
+      },
     });
   }
 
@@ -32,7 +36,6 @@ export class PublicationService {
   }
 
   createPublication(dto: PublicationCreate, image: File) {
-
     const formData = new FormData();
     formData.append('Title', dto.title);
     formData.append('Description', dto.content);
@@ -45,7 +48,6 @@ export class PublicationService {
 
     formData.append('Tags', JSON.stringify(dto.tags));
 
-
     if (dto.postAsCompanyId) {
       formData.append('PostAsCompanyId', dto.postAsCompanyId);
     }
@@ -57,7 +59,35 @@ export class PublicationService {
     return this.http.post(this.apiUrl, formData);
   }
 
-filterPublications(filters: PublicationFilterDto): Observable<Publication[]> {
+  getPublicationById(id: string): Observable<Publication> {
+    return this.http.get<Publication>(`${this.apiUrl}/${id}`);
+  }
+
+  updatePublication(
+    id: string,
+    dto: PublicationUpdate,
+    image?: File
+  ): Observable<any> {
+    const formData = new FormData();
+    formData.append('title', dto.title);
+    formData.append('content', dto.content);
+    formData.append('salary', dto.salary);
+    formData.append('shift', dto.shift);
+    formData.append('contract', dto.contract);
+    formData.append('local', dto.local);
+    formData.append('expirationDate', dto.expirationDate);
+    formData.append('cityId', dto.cityId);
+    formData.append('authorId', dto.authorId);
+    dto.tags.forEach((tag) => formData.append('tags[]', tag));
+
+    if (image) {
+      formData.append('image', image, image.name);
+    }
+
+    return this.http.put(`${this.apiUrl}/${id}`, formData);
+  }
+
+  filterPublications(filters: PublicationFilterDto): Observable<Publication[]> {
     let params = new HttpParams();
 
     if (filters.searchTerm) {
@@ -67,17 +97,17 @@ filterPublications(filters: PublicationFilterDto): Observable<Publication[]> {
       params = params.append('local', filters.local);
     }
     if (filters.contracts && filters.contracts.length > 0) {
-      filters.contracts.forEach(contract => {
+      filters.contracts.forEach((contract) => {
         params = params.append('contracts', contract);
       });
     }
     if (filters.shifts && filters.shifts.length > 0) {
-        filters.shifts.forEach(shift => {
-          params = params.append('shifts', shift);
-        });
+      filters.shifts.forEach((shift) => {
+        params = params.append('shifts', shift);
+      });
     }
     if (filters.salaryRange) {
-        params = params.append('salaryRange', filters.salaryRange);
+      params = params.append('salaryRange', filters.salaryRange);
     }
     return this.http.get<Publication[]>(`${this.apiUrl}/search`, { params });
   }

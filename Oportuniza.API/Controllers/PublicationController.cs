@@ -198,16 +198,36 @@ namespace Oportuniza.API.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> Put(Guid id, [FromBody] Publication publication)
+        public async Task<IActionResult> Put(Guid id, [FromForm] PublicationUpdateDto dto, IFormFile image)
         {
-            if (publication == null || id != publication.Id)
-                return BadRequest();
-
             var existingPublication = await _publicationRepository.GetByIdAsync(id);
             if (existingPublication == null)
+            {
                 return NotFound();
+            }
 
-            await _publicationRepository.UpdateAsync(publication);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (existingPublication.AuthorUserId != Guid.Parse(userId) && existingPublication.AuthorUserId != dto.AuthorId)
+            {
+                return Forbid();
+            }
+
+            existingPublication.Title = dto.Title;
+            existingPublication.Description = dto.Content;
+            existingPublication.Salary = dto.Salary;
+            existingPublication.Shift = dto.Shift;
+            existingPublication.Contract = dto.Contract;
+            existingPublication.Local = dto.Local;
+            existingPublication.ExpirationDate = dto.ExpirationDate;
+            existingPublication.AuthorUserId = dto.AuthorId;
+
+            if (image != null)
+            {
+                var imageUrl = await _azureBlobService.UploadImageAsync(image);
+                existingPublication.ImageUrl = imageUrl;
+            }
+
+            await _publicationRepository.UpdateAsync(existingPublication);
 
             return NoContent();
         }
