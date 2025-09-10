@@ -40,10 +40,10 @@ export class SegundaEtapaComponent implements OnInit {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-  if (this.dropdownRef && !this.dropdownRef.nativeElement.contains(event.target)) {
-    this.isDropdownVisible = false;
+    if (this.dropdownRef && !this.dropdownRef.nativeElement.contains(event.target)) {
+      this.isDropdownVisible = false;
+    }
   }
-}
 
   ngOnInit() {
     this.areaService.getAllAreas().subscribe({
@@ -123,7 +123,11 @@ export class SegundaEtapaComponent implements OnInit {
 
     this.userService.updateProfile(dados, userId).subscribe({
       next: () => {
-        localStorage.clear();
+        localStorage.removeItem('profileName');
+        localStorage.removeItem('profileTel');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('profileImageUrl');
+
         Swal.fire('Sucesso', 'Perfil atualizado com sucesso.', 'success').then(() => {
           this.router.navigate(['/inicio']);
         });

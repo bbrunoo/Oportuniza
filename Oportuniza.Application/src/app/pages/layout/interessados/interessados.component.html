@@ -70,3 +70,58 @@
     </div> -->
   </div>
 </div>
+
+<!-- 
+<div class="container">
+  <div class="quadrado">
+
+    <div class="titulos">
+      <a [ngClass]="{'ativo': isCandidatos}" (click)="setMode('candidatos')">Candidatos</a>
+      <span>|</span>
+      <a [ngClass]="{'ativo': !isCandidatos}" (click)="setMode('candidaturas')">Minhas Candidaturas</a>
+    </div>
+
+    <div *ngIf="isLoading" class="conteudo1">
+      <p>Carregando...</p>
+    </div>
+
+    <div *ngIf="isCandidatos && !isLoading" class="lista-conteudos">
+      <div *ngIf="candidatos.length === 0" class="conteudo1">
+        <p>No momento nenhuma pessoa se <br>candidatou em uma das suas postagens</p>
+      </div>
+
+      <div *ngFor="let candidato of candidatos" class="conteudo2">
+        <div class="foto">
+          <img [src]="candidato.userId" alt="foto pessoal" />
+        </div>
+        <div class="conteudo-central">
+          <h3>{{ candidato.userName }}</h3>
+          <p>Status: {{ candidato.status }}</p>
+          <p>Data: {{ candidato.applicationDate | date:'short' }}</p>
+        </div>
+        <div class="botao">
+          <button (click)="verPerfil(candidato.id)">Ver Perfil</button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!isCandidatos && !isLoading" class="lista-conteudos">
+      <div *ngIf="minhasCandidaturas.length === 0" class="conteudo1">
+        <p>Você ainda não se candidatou a nenhuma vaga.</p>
+      </div>
+
+      <div *ngFor="let candidatura of minhasCandidaturas" class="conteudo3">
+        <div class="foto2">
+          <img [src]="candidatura.logoEmpresaUrl" alt="logo da empresa" />
+        </div>
+        <div class="conteudo-central2">
+          <h3>{{ candidatura.nomeEmpresa }}</h3>
+          <p>{{ candidatura.tituloVaga }}</p>
+        </div>
+        <div class="botao2">
+          <button class="candidatado" (click)="confirmarRemocao(candidatura)">Candidatado</button>
+          </div>
+      </div>
+    </div>
+  </div>
+</div> -->

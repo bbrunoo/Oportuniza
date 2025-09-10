@@ -1,25 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CandidateService } from '../../../services/candidate.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
-export interface CandidatoDto {
-  id: string;
-  publicationId: string;
-  publicationTitle: string;
-  userId: string;
-  userName: string;
-  userIdKeycloak: string;
-  applicationDate: Date;
-  status: number;
-
-  showModal: boolean;
-
-  userPhotoUrl?: string; // foto do candidato
-  userObs?: string; // obs do candidato
-
-  jobPhotoUrl?: string; // foto da vaga
-}
+import { Candidato, Candidatura, PublicationWithCandidates } from '../../../models/candidatos.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-interessados',
@@ -27,83 +11,129 @@ export interface CandidatoDto {
   templateUrl: './interessados.component.html',
   styleUrl: './interessados.component.css'
 })
-export class InteressadosComponent {
-  // isCandidatos: boolean = true; // true = Modo Candidatos, false = Modo Minhas Candidaturas
-  // candidatos: Candidato[] = [];
-  // minhasCandidaturas: MinhaCandidatura[] = [];
-  // isLoading: boolean = false;
+export class InteressadosComponent implements OnInit {
+  @Input() publicationId?: string;
 
-  // constructor(private candidateService: CandidateService) { }
+  isCandidatos = true;
+  candidatos: Candidato[] = [];
+  minhasCandidaturas: Candidatura[] = [];
+  minhasPublicacoes: PublicationWithCandidates[] = [];
+  isLoading = false;
 
-  // ngOnInit(): void {
-  //   // Carrega os dados iniciais com base no modo
-  //   this.fetchData();
-  // }
+  constructor(private candidateAppService: CandidateService) {
+    console.log('[DEBUG] InteressadosComponent instanciado');
+  }
 
-  // setMode(mode: 'candidatos' | 'candidaturas'): void {
-  //   this.isCandidatos = (mode === 'candidatos');
-  //   this.fetchData(); // Recarrega os dados ao mudar de modo
-  // }
+  ngOnInit(): void {
+    console.log('[DEBUG] ngOnInit chamado. publicationId:', this.publicationId);
+    this.loadData();
+  }
 
-  // fetchData(): void {
-  //   this.isLoading = true;
-  //   if (this.isCandidatos) {
-  //     // Para o modo 'Candidatos', você precisa de um publicationId
-  //     // A lógica para obter esse ID depende de como sua aplicação funciona
-  //     // Exemplo: this.route.paramMap.get('publicationId')
-  //     const publicationId = 'id_da_publicacao_atual';
-  //     this.candidateService.getApplicantsByJob(publicationId).subscribe({
-  //       next: data => {
-  //         this.candidatos = data;
-  //         this.isLoading = false;
-  //       },
-  //       error: error => {
-  //         console.error('Erro ao buscar candidatos:', error);
-  //         this.isLoading = false;
-  //         // Lógica para exibir mensagem de erro na tela
-  //       }
-  //     });
-  //   } else {
-  //     this.candidateService.getMyApplications().subscribe({
-  //       next: data => {
-  //         this.minhasCandidaturas = data.map(c => ({
-  //           applicationId: c.applicationId,
-  //           publicationId: c.publicationId,
-  //           companyLogoUrl: c.companyLogoUrl, // Ajuste para o nome correto
-  //           companyName: c.companyName, // Ajuste para o nome correto
-  //           jobTitle: c.jobTitle, // Ajuste para o nome correto
-  //           showModal: false
-  //         }));
-  //         this.isLoading = false;
-  //       },
-  //       error: error => {
-  //         console.error('Erro ao buscar candidaturas:', error);
-  //         this.isLoading = false;
-  //         // Lógica para exibir mensagem de erro na tela
-  //       }
-  //     });
-  //   }
-  // }
+  loadData(): void {
+    console.log('[DEBUG] loadData iniciado. isCandidatos:', this.isCandidatos, 'publicationId:', this.publicationId);
 
-  // toggleModal(candidatura: MinhaCandidatura): void {
+    if (!this.candidateAppService) {
+      console.error('[ERRO] CandidateService não injetado. Verifique providers/imports.');
+      return;
+    }
+
+    this.isLoading = true;
+
+    if (this.isCandidatos) {
+      if (this.publicationId) {
+        console.log('[DEBUG] Buscando candidatos de uma vaga específica. publicationId:', this.publicationId);
+        this.candidateAppService.getApplicantsByJob(this.publicationId).subscribe({
+          next: (data) => {
+            console.log('[DEBUG] Candidatos carregados com sucesso:', data);
+            this.candidatos = data;
+            this.isLoading = false;
+          },
+          error: (err) => {
+            console.error('[ERRO] Falha ao carregar candidatos da vaga:', this.publicationId, err);
+            this.candidatos = [];
+            this.isLoading = false;
+          }
+        });
+      } else {
+        console.log('[DEBUG] Buscando candidatos de todas as publicações do usuário logado...');
+        this.candidateAppService.getMyPublicationsWithCandidates().subscribe({
+          next: (data) => {
+            console.log('[DEBUG] Publicações com candidatos carregadas com sucesso:', data);
+            this.minhasPublicacoes = data;
+            this.isLoading = false;
+          },
+          error: (err) => {
+            console.error('[ERRO] Falha ao carregar publicações com candidatos:', err);
+            this.minhasPublicacoes = [];
+            this.isLoading = false;
+          },
+          complete: () => {
+            console.log('[DEBUG] Requisição getMyPublicationsWithCandidates finalizada');
+          }
+        });
+      }
+    } else {
+      console.log('[DEBUG] Buscando minhas candidaturas...');
+      this.candidateAppService.getMyApplications().subscribe({
+        next: (data) => {
+          console.log('[DEBUG] Minhas candidaturas carregadas com sucesso:', data);
+          this.minhasCandidaturas = data.map(c => ({ ...c, showModal: false }));
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('[ERRO] Falha ao carregar minhas candidaturas:', err);
+          this.minhasCandidaturas = [];
+          this.isLoading = false;
+        }
+      });
+    }
+  }
+
+  setMode(mode: 'candidatos' | 'candidaturas'): void {
+    console.log('[DEBUG] Alterando modo para:', mode);
+    this.isCandidatos = (mode === 'candidatos');
+    this.loadData();
+  }
+
+  removerCandidatura(id: string): void {
+    console.log('[DEBUG] Tentando remover candidatura. id:', id);
+    this.candidateAppService.cancelApplication(id).subscribe({
+      next: () => {
+        console.log('[DEBUG] Candidatura removida com sucesso. id:', id);
+        this.minhasCandidaturas = this.minhasCandidaturas.filter(c => c.id !== id);
+      },
+      error: (err) => {
+        console.error('[ERRO] Falha ao remover candidatura. id:', id, err);
+      }
+    });
+  }
+
+  // Substitua este método pelo SweetAlert2
+  // toggleModal(candidatura: Candidatura): void {
   //   candidatura.showModal = !candidatura.showModal;
+  //   console.log('[DEBUG] Toggle modal. id:', candidatura.id, 'showModal:', candidatura.showModal);
   // }
 
-  // removerCandidatura(applicationId: string): void {
-  //   this.candidateService.cancelApplication(applicationId).subscribe({
-  //     next: () => {
-  //       // Remove a candidatura da lista no front-end após o sucesso da API
-  //       this.minhasCandidaturas = this.minhasCandidaturas.filter(c => c.applicationId !== applicationId);
-  //     },
-  //     error: error => {
-  //       console.error('Erro ao remover candidatura:', error);
-  //       // Lógica para exibir mensagem de erro na tela
-  //     }
-  //   });
-  // }
+  confirmarRemocao(candidatura: Candidatura): void {
+    Swal.fire({
+      title: 'Deseja remover a candidatura?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sim',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.removerCandidatura(candidatura.id);
+        Swal.fire(
+          'Removido!',
+          'Sua candidatura foi removida com sucesso.',
+          'success'
+        );
+      }
+    });
+  }
 
-  // verPerfil(userId: string): void {
-  //   // Lógica de navegação para a tela de perfil do candidato
-  //   // Ex: this.router.navigate(['/perfil', userId]);
-  // }
+  verPerfil(candidatoId: string): void {
+    console.log('[DEBUG] Ver perfil do candidato. candidatoId:', candidatoId);
+  }
 }

@@ -104,22 +104,6 @@ export class FeedComponent implements OnInit {
     });
   }
 
-  private checkAllAppliedStatus() {
-    if (this.userId) {
-      this.publications.forEach(pub => {
-        this.candidateService.hasApplied(pub.id, this.userId!).subscribe({
-          next: (response) => {
-            this.appliedStatus[pub.id] = response.hasApplied;
-          },
-          error: (err) => {
-            console.error('Erro ao verificar candidatura:', err);
-            this.appliedStatus[pub.id] = false;
-          }
-        });
-      });
-    }
-  }
-
   apply(publicationId: string) {
     Swal.fire({
       title: 'Confirmar candidatura?',
@@ -136,7 +120,7 @@ export class FeedComponent implements OnInit {
         this.candidateService.applyToJob(publicationId).subscribe({
           next: (response) => {
             this.appliedStatus[publicationId] = true;
-            this.applicationIds[publicationId] = response.applicationId;
+            this.applicationIds[publicationId] = response.id; // corrigido
 
             Swal.fire({
               icon: 'success',
@@ -159,6 +143,7 @@ export class FeedComponent implements OnInit {
       }
     });
   }
+
 
   cancelApplication(publicationId: string) {
     Swal.fire({
@@ -192,7 +177,7 @@ export class FeedComponent implements OnInit {
         next: (applications) => {
           const app = applications.find(a => a.publicationId === publicationId);
           if (app) {
-            this.applicationIds[publicationId] = app.id;
+            this.applicationIds[publicationId] = app.id; // corrigido
             this._performApiCancel(app.id, publicationId);
           } else {
             console.error('ID da candidatura não encontrado após nova busca.');

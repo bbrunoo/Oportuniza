@@ -1,12 +1,10 @@
-export interface PublicationUpdate {
+export interface PublicationUpdateDto {
   title: string;
-  content: string;
+  description: string;
   salary: string;
   shift: string;
   contract: string;
   local: string;
   expirationDate: string;
-  tags: string[];
-  cityId: string;
-  authorId: string;
+  authorUserId: string;
 }

@@ -3,14 +3,12 @@
     public class PublicationUpdateDto
     {
         public string Title { get; set; }
-        public string Content { get; set; }
+        public string Description { get; set; }
         public string Salary { get; set; }
         public string Shift { get; set; }
         public string Contract { get; set; }
         public string Local { get; set; }
         public DateTime ExpirationDate { get; set; }
-        public Guid CityId { get; set; }
-        public Guid AuthorId { get; set; }
-        public List<string> Tags { get; set; }
+        public Guid AuthorUserId { get; set; }
     }
 }

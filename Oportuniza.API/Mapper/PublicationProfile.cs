@@ -10,7 +10,7 @@ namespace Oportuniza.API.Mapper
         {
             CreateMap<Publication, PublicationDto>()
                 .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src =>
-                    src.AuthorCompanyId.HasValue ? src.AuthorCompany.Id : src.AuthorUser.Id))
+                    src.AuthorCompanyId.HasValue ? src.AuthorCompany.Id : src.AuthorUser.Id)) 
 
                 .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src =>
                     src.AuthorCompanyId.HasValue ? src.AuthorCompany.Name : src.AuthorUser.Name))
@@ -24,6 +24,9 @@ namespace Oportuniza.API.Mapper
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
 
             CreateMap<PublicationCreateDto, Publication>();
+
+            CreateMap<PublicationUpdateDto, Publication>()
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
         }
     }
 }

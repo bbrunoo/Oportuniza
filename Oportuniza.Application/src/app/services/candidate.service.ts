@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from './../../environments/environment';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Candidato, Candidatura, HasAppliedResponse, PublicationWithCandidates } from '../models/candidatos.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,30 +12,25 @@ export class CandidateService {
 
   constructor(private http: HttpClient) { }
 
-  applyToJob(publicationId: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, { publicationId });
+  getMyApplications(): Observable<Candidatura[]> {
+    return this.http.get<Candidatura[]>(`${this.apiUrl}/MyApplications`);
   }
 
-  getMyApplications(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/MyApplications`);
+  getApplicantsByJob(publicationId: string): Observable<Candidato[]> {
+    return this.http.get<Candidato[]>(`${this.apiUrl}/ByPublication/${publicationId}`);
   }
 
-  getApplicantsByJob(publicationId: string): Observable<any[]> {
-    return this.http.get<any[]>(
-      `${this.apiUrl}/ByPublication/${publicationId}`
-    );
+  cancelApplication(applicationId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${applicationId}`);
   }
 
-  cancelApplication(applicationId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${applicationId}`);
+  applyToJob(publicationId: string): Observable<Candidatura> {
+    return this.http.post<Candidatura>(`${this.apiUrl}`, { publicationId });
   }
 
-  hasApplied(
-    publicationId: string,
-    userId: string
-  ): Observable<{ hasApplied: boolean }> {
-    return this.http.get<{ hasApplied: boolean }>(
-      `${this.apiUrl}/HasApplied?publicationId=${publicationId}&userId=${userId}`
+  getMyPublicationsWithCandidates(): Observable<PublicationWithCandidates[]> {
+    return this.http.get<PublicationWithCandidates[]>(
+      `${this.apiUrl}/MyPublications/Candidates`
     );
   }
 }

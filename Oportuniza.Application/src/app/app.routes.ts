@@ -23,6 +23,7 @@ import { EmpresaComponent } from './pages/empresa-management/empresa/empresa.com
 import { AuthTypeGuard } from './guards/auth-type.guard';
 import { VerificationComponent } from './pages/Authentication/verification/verification.component';
 import { SearchResultComponent } from './pages/layout/search-result/search-result.component';
+import { EditarPostComponent } from './pages/layout/editar-post/editar-post.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -45,6 +46,7 @@ export const routes: Routes = [
       { path: "interessados", component: InteressadosComponent },
       { path: "perfil", component: MeuperfilComponent },
       { path: "post", component: PublicationComponent },
+      { path: "editar-post/:id", component: EditarPostComponent },
       { path: "search-result", component: SearchResultComponent },
       { path: "meus-posts", component: MeuspostsComponent }
     ]

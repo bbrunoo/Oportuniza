@@ -33,7 +33,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 export class PublicationComponent implements OnInit {
   @ViewChild('publicationForm') publicationForm!: NgForm;
 
-  publication: Publication & { tags: string[] } = {
+  publication: Publication = {
     hasApplied: false,
     id: '',
     title: '',
@@ -50,7 +50,6 @@ export class PublicationComponent implements OnInit {
     contract: '',
     salary: '',
     authorImageUrl: '',
-    tags: [],
     cityId: '',
     isActive: 0,
   };
@@ -254,7 +253,7 @@ export class PublicationComponent implements OnInit {
 
     const dto: PublicationCreate = {
       title: this.publication.title,
-      content: this.publication.description,
+      description: this.publication.description,
       salary: this.publication.salary,
       shift: this.publication.shift,
       contract: this.publication.contract,

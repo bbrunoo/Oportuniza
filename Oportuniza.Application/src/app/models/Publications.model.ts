@@ -16,6 +16,6 @@ export interface Publication {
   salary: string;
   authorImageUrl: string;
   expirationDateString?: string;
-  cityId:string;
-  isActive:number;
+  cityId: string;
+  isActive: number;
 }

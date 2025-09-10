@@ -21,6 +21,11 @@ export class PrimeiraEtapaComponent {
   previewUrl: string | ArrayBuffer | null = null;
   selectedImage?: File;
 
+  isImageUploaded: boolean = false;
+
+  isUploading: boolean = false;
+  uploadError: boolean = false;
+
   constructor(private router: Router, private userService: UserService, private dialog: MatDialog,
   ) { }
 
@@ -30,6 +35,12 @@ export class PrimeiraEtapaComponent {
         this.userId = profile.id;
         this.nomeValue = profile.name || '';
         localStorage.setItem("userId", this.userId);
+
+        if (profile.imageUrl) {
+          this.previewUrl = profile.imageUrl;
+          this.isImageUploaded = true;
+          localStorage.setItem("profileImageUrl", profile.imageUrl);
+        }
       },
       error: (err) => {
         console.error('Erro ao buscar perfil:', err);
@@ -80,17 +91,34 @@ export class PrimeiraEtapaComponent {
         this.selectedImage = result;
         this.previewUrl = URL.createObjectURL(result);
 
+        this.isUploading = true;
+        this.isImageUploaded = false;
+        this.uploadError = false;
+
         this.userService.uploadProfilePicture(result).subscribe({
           next: res => {
             localStorage.setItem('profileImageUrl', res.imageUrl);
+            Swal.fire('Sucesso!', 'Imagem de perfil atualizada.', 'success');
+
+            this.isImageUploaded = true;
+            this.isUploading = false;
           },
           error: err => {
             console.error('Erro ao enviar imagem de perfil:', err);
+            let errorMessage = 'Não foi possível atualizar a imagem. Tente novamente.';
+            if (err.error && err.error.message) {
+              errorMessage = err.error.message;
+            }
+            Swal.fire('Erro', errorMessage, 'error');
+
+            this.isUploading = false;
+            this.uploadError = true;
           }
         });
       }
     });
   }
+
 
   proximo() {
     this.router.navigate(['/segunda-etapa']);

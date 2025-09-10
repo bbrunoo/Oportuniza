@@ -5,6 +5,7 @@ import { Publication } from '../../models/Publications.model';
 import { PublicationService } from '../../services/publication.service';
 import Swal from 'sweetalert2';
 import { Subject, takeUntil } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-post-actions',
@@ -12,7 +13,7 @@ import { Subject, takeUntil } from 'rxjs';
   templateUrl: './post-actions.component.html',
   styleUrl: './post-actions.component.css'
 })
-export class PostActionsComponent implements OnDestroy{
+export class PostActionsComponent implements OnDestroy {
   showCompleteProfileButton = true;
   containerHeight = '200px';
 
@@ -21,7 +22,8 @@ export class PostActionsComponent implements OnDestroy{
   constructor(
     public dialogRef: MatDialogRef<PostActionsComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { post: Publication },
-    private publicationService: PublicationService
+    private publicationService: PublicationService,
+    private router: Router
   ) {
     this.post = data.post;
   }
@@ -32,6 +34,7 @@ export class PostActionsComponent implements OnDestroy{
   editarPostagem() {
     console.log('Editando postagem:', this.post.id);
     this.dialogRef.close();
+    this.router.navigate(['/inicio/editar-post', this.post.id]);
   }
 
   private destroy$ = new Subject<void>();

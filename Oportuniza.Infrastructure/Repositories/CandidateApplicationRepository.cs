@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Oportuniza.API.Viewmodel;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
@@ -69,5 +70,20 @@ namespace Oportuniza.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<PublicationWithCandidates>> GetPublicationsWithCandidatesByUserAsync(Guid userId)
+        {
+            var publications = await _context.Publication
+                .Include(p => p.CandidateApplication)
+                    .ThenInclude(ca => ca.User)
+                .Where(p => p.AuthorUserId == userId)
+                .ToListAsync();
+
+            return publications.Select(p => new PublicationWithCandidates
+            {
+                PublicationId = p.Id,
+                Title = p.Title,
+                Candidates = p.CandidateApplication
+            });
+        }
     }
 }

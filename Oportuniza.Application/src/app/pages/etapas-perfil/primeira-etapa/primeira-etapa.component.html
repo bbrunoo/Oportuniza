@@ -25,7 +25,10 @@
       </div>
       <div class="footer">
         <div class="send-button">
-          <button (click)="proximo()">Próximo</button>
+          <button [disabled]="!isImageUploaded" (click)="proximo()">
+            <span *ngIf="isUploading">Carregando...</span>
+            <span *ngIf="!isUploading">Próximo</span>
+          </button>
         </div>
       </div>
     </div>

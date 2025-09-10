@@ -19,32 +19,6 @@ namespace Oportuniza.Infrastructure.Repositories
         {
             return await _dbSet.ToListAsync();
         }
-        public async Task<T> GetByIdAsync(Guid id)
-        {
-            return await _dbSet.FindAsync(id);
-        }
-        public async Task<T> AddAsync(T entity)
-        {
-            await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
-            return entity;
-        }
-        public async Task<T> UpdateAsync(T entity)
-        {
-            _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
-            return entity;
-        }
-        public async Task DeleteAsync(Guid id)
-        {
-            var entity = await GetByIdAsync(id);
-            if (entity != null)
-            {
-                _dbSet.Remove(entity);
-                await _context.SaveChangesAsync();
-            }
-        }
-
         public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
@@ -56,35 +30,12 @@ namespace Oportuniza.Infrastructure.Repositories
 
             return await query.ToListAsync();
         }
-
-        public async Task<T> GetByIdAsync(Guid id, params Expression<Func<T, object>>[] includes)
+        public async Task<IEnumerable<T>> GetAllAsync(
+            Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
-
-            foreach (var include in includes)
-            {
-                query = query.Include(include);
-            }
-
-            return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
-        }
-
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, object>> include = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)
-        {
-            IQueryable<T> query = _dbSet;
-
-            if (include != null)
-                query = query.Include(include);
-
-            if (orderBy != null)
-                query = orderBy(query);
-
-            return await query.ToListAsync();
-        }
-
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includes)
-        {
-            IQueryable<T> query = _context.Set<T>();
 
             if (includes != null)
             {
@@ -106,24 +57,64 @@ namespace Oportuniza.Infrastructure.Repositories
 
             return await query.ToListAsync();
         }
-
         public async Task<IEnumerable<T>> GetAllAsync(
             Expression<Func<T, bool>> filter,
             Expression<Func<T, object>> include,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)
-                {
-                    IQueryable<T> query = _dbSet;
+        {
+            IQueryable<T> query = _dbSet;
 
-                    if (filter != null)
-                        query = query.Where(filter);
+            if (filter != null)
+                query = query.Where(filter);
 
-                    if (include != null)
-                        query = query.Include(include);
+            if (include != null)
+                query = query.Include(include);
 
-                    if (orderBy != null)
-                        query = orderBy(query);
+            if (orderBy != null)
+                query = orderBy(query);
 
-                    return await query.ToListAsync();
-                }
+            return await query.ToListAsync();
+        }
+
+        public async Task<T> GetByIdAsync(Guid id)
+        {
+            return await GetByIdAsync(id, Array.Empty<Expression<Func<T, object>>>());
+        }
+
+        public async Task<T> GetByIdAsync(Guid id, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
+        }
+
+        public async Task<T> AddAsync(T entity)
+        {
+            await _dbSet.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return entity;
+        }
+
+        public async Task<T> UpdateAsync(T entity)
+        {
+            _dbSet.Update(entity);
+            await _context.SaveChangesAsync();
+            return entity;
+        }
+
+        public async Task DeleteAsync(Guid id)
+        {
+            var entity = await GetByIdAsync(id);
+            if (entity != null)
+            {
+                _dbSet.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

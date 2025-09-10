@@ -113,6 +113,23 @@ namespace Oportuniza.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("MyPublications/Candidates")]
+        [Authorize]
+        public async Task<IActionResult> GetMyPublicationsWithCandidates()
+        {
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(keycloakId))
+                return Unauthorized("Identificador do usuário não encontrado no token.");
+
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+            if (user == null)
+                return Unauthorized("Usuário não registrado no sistema.");
+
+            var pubsWithCandidates = await _repository.GetPublicationsWithCandidatesByUserAsync(user.Id);
+
+            return Ok(pubsWithCandidates);
+        }
+
         // GET: api/CandidateApplication/ByUser/{userId}
         [HttpGet("ByUser/{userId}")]
         public async Task<IActionResult> GetApplicationsByUser(Guid userId)

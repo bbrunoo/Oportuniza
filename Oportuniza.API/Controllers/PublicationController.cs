@@ -62,13 +62,18 @@ namespace Oportuniza.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var publications = await _publicationRepository.GetByIdAsync(id);
+            var publication = await _publicationRepository.GetByIdAsync(
+                id,
+                p => p.AuthorUser,
+                p => p.AuthorCompany
+            );
 
-            if (publications == null) return NotFound("Currículo não encontrado.");
+            if (publication == null)
+                return NotFound("Publicação não encontrada.");
 
-            var response = _mapper.Map<PublicationDto>(publications);
+            var response = _mapper.Map<PublicationDto>(publication);
 
-            return StatusCode(200, response);
+            return Ok(response);
         }
 
         [HttpGet("/my")]
@@ -198,7 +203,7 @@ namespace Oportuniza.API.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> Put(Guid id, [FromForm] PublicationUpdateDto dto, IFormFile image)
+        public async Task<IActionResult> Put(Guid id, [FromForm] PublicationUpdateDto dto, IFormFile? image)
         {
             var existingPublication = await _publicationRepository.GetByIdAsync(id);
             if (existingPublication == null)
@@ -206,24 +211,45 @@ namespace Oportuniza.API.Controllers
                 return NotFound();
             }
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (existingPublication.AuthorUserId != Guid.Parse(userId) && existingPublication.AuthorUserId != dto.AuthorId)
+            var keycloakId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(keycloakId))
+            {
+                return Unauthorized("Token 'sub' claim is missing.");
+            }
+
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+            if (user == null)
+            {
+                return Unauthorized("Usuário não encontrado no banco de dados local.");
+            }
+
+            bool isAuthorized = false;
+
+            if (existingPublication.AuthorUserId.HasValue && existingPublication.AuthorUserId.Value == user.Id)
+            {
+                isAuthorized = true;
+            }
+
+            else if (existingPublication.AuthorCompanyId.HasValue)
+            {
+                bool userOwnsCompany = await _companyRepository.UserHasAccessToCompanyAsync(user.Id, existingPublication.AuthorCompanyId.Value);
+                if (userOwnsCompany)
+                {
+                    isAuthorized = true;
+                }
+            }
+
+            if (!isAuthorized)
             {
                 return Forbid();
             }
 
-            existingPublication.Title = dto.Title;
-            existingPublication.Description = dto.Content;
-            existingPublication.Salary = dto.Salary;
-            existingPublication.Shift = dto.Shift;
-            existingPublication.Contract = dto.Contract;
-            existingPublication.Local = dto.Local;
-            existingPublication.ExpirationDate = dto.ExpirationDate;
-            existingPublication.AuthorUserId = dto.AuthorId;
+            _mapper.Map(dto, existingPublication);
 
             if (image != null)
             {
-                var imageUrl = await _azureBlobService.UploadImageAsync(image);
+                var imageUrl = await _azureBlobService.UploadPostImage(image, "publications", Guid.NewGuid());
                 existingPublication.ImageUrl = imageUrl;
             }
 
@@ -231,6 +257,7 @@ namespace Oportuniza.API.Controllers
 
             return NoContent();
         }
+
 
         [HttpDelete("{id}")]
         [Authorize]

@@ -5,13 +5,13 @@ import { Publication } from '../models/Publications.model';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { PublicationFilterDto } from '../models/filter.model';
-import { PublicationUpdate } from '../models/PublicationUpdate.model';
+import { PublicationUpdateDto } from '../models/PublicationUpdate.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PublicationService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
   private apiUrl = `${environment.apiUrl}/Publication`;
   private apiUrlNormal = `${environment.apiUrlNormal}`;
 
@@ -38,9 +38,8 @@ export class PublicationService {
   createPublication(dto: PublicationCreate, image: File) {
     const formData = new FormData();
     formData.append('Title', dto.title);
-    formData.append('Description', dto.content);
+    formData.append('Description', dto.description);
     formData.append('Salary', dto.salary);
-
     formData.append('Shift', dto.shift);
     formData.append('Contract', dto.contract);
     formData.append('Local', dto.local);
@@ -63,25 +62,19 @@ export class PublicationService {
     return this.http.get<Publication>(`${this.apiUrl}/${id}`);
   }
 
-  updatePublication(
-    id: string,
-    dto: PublicationUpdate,
-    image?: File
-  ): Observable<any> {
+  updatePublication(id: string, dto: PublicationUpdateDto, image?: File): Observable<any> {
     const formData = new FormData();
-    formData.append('title', dto.title);
-    formData.append('content', dto.content);
-    formData.append('salary', dto.salary);
-    formData.append('shift', dto.shift);
-    formData.append('contract', dto.contract);
-    formData.append('local', dto.local);
-    formData.append('expirationDate', dto.expirationDate);
-    formData.append('cityId', dto.cityId);
-    formData.append('authorId', dto.authorId);
-    dto.tags.forEach((tag) => formData.append('tags[]', tag));
+    formData.append('Title', dto.title);
+    formData.append('Description', dto.description);
+    formData.append('Salary', dto.salary);
+    formData.append('Shift', dto.shift);
+    formData.append('Contract', dto.contract);
+    formData.append('Local', dto.local);
+    formData.append('ExpirationDate', dto.expirationDate);
+    formData.append('AuthorUserId', dto.authorUserId);
 
     if (image) {
-      formData.append('image', image, image.name);
+      formData.append('Image', image, image.name);
     }
 
     return this.http.put(`${this.apiUrl}/${id}`, formData);
