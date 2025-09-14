@@ -12,8 +12,8 @@ using Oportuniza.Infrastructure.Data;
 namespace Oportuniza.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250903012513_new")]
-    partial class @new
+    [Migration("20250914220122_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,7 +50,11 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.Property<DateTime>("ApplicationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("PublicationAuthorId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("PublicationId")
+                        .HasMaxLength(128)
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("PublicationId1")
@@ -302,7 +306,7 @@ namespace Oportuniza.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("datetime2");
@@ -324,6 +328,10 @@ namespace Oportuniza.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Resumee")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Salary")
                         .IsRequired()

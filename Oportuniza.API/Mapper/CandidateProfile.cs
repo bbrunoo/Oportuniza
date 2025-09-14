@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Oportuniza.Domain.DTOs.Candidates;
+using Oportuniza.Domain.DTOs.Extra;
+using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Models;
 
 namespace Oportuniza.API.Mapper
@@ -13,10 +15,28 @@ namespace Oportuniza.API.Mapper
             CreateMap<PutCandidatesDTO, CandidateApplication>();
 
             CreateMap<CandidateApplication, CandidatesDTO>()
-                .ForMember(dest => dest.PublicationTitle,
-                           opt => opt.MapFrom(src => src.Publication.Title))
-                .ForMember(dest => dest.UserName,
-                           opt => opt.MapFrom(src => src.User.Name));
+                .ForMember(dest => dest.PublicationTitle, opt => opt.MapFrom(src => src.Publication.Title))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Name));
+
+            CreateMap<Publication, PublicationWithCandidatesDto>()
+                .ForMember(dest => dest.Resumee, opt => opt.MapFrom(src => src.Resumee))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
+                .ForMember(dest => dest.AuthorImage, opt => opt.MapFrom(src => src.AuthorUser != null ? src.AuthorUser.ImageUrl : src.CreatedByUser.ImageUrl))
+                .ForMember(dest => dest.Candidates, opt => opt.MapFrom(src => src.CandidateApplication));
+
+
+            CreateMap<CandidateApplication, CandidateDto>()
+                .ForMember(dest => dest.CandidateId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Name))
+                .ForMember(dest => dest.UserImage, opt => opt.MapFrom(src => src.User.ImageUrl))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+
+            CreateMap<CandidateApplication, UserApplicationDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Publication, opt => opt.MapFrom(src => src.Publication));
+
+            CreateMap<Publication, PublicationDto>();
         }
     }
 }

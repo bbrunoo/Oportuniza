@@ -7,6 +7,7 @@ namespace Oportuniza.Domain.Models
         public Guid Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
+        public string Resumee { get; set; }
         public DateTime CreationDate { get; set; } = DateTime.Now;
         public string ImageUrl { get; set; }
         public string Salary { get; set; }

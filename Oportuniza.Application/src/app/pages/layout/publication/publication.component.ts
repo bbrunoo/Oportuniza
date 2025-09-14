@@ -46,6 +46,7 @@ export class PublicationComponent implements OnInit {
     authorName: '',
     shift: '',
     local: '',
+    resumee: '',
     expirationDate: '',
     contract: '',
     salary: '',
@@ -123,9 +124,9 @@ export class PublicationComponent implements OnInit {
   }
 
   onSelectCity(city: any) {
-    this.cityControl.setValue(city.name, { emitEvent: false }); // mantém o nome no input
-    this.publication.cityId = city.id; // salva o id real
-    this.publication.local = city.name; // opcional: se quiser exibir no DTO também
+    this.cityControl.setValue(city.name, { emitEvent: false });
+    this.publication.cityId = city.id;
+    this.publication.local = city.name;
   }
 
   loadInitialData(): void {

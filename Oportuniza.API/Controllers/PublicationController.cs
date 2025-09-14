@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oportuniza.API.Services;
+using Oportuniza.API.Services.Oportuniza.API.Services;
 using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
@@ -23,8 +24,9 @@ namespace Oportuniza.API.Controllers
         private readonly ICompanyRepository _companyRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly GeminiClientService _geminiService;
 
-        public PublicationController(IPublicationRepository publicationRepository, AzureBlobService azureBlobService, IConfiguration configuration, ICompanyRepository companyRepository, IUserRepository userRepository, IMapper mapper)
+        public PublicationController(IPublicationRepository publicationRepository, AzureBlobService azureBlobService, IConfiguration configuration, ICompanyRepository companyRepository, IUserRepository userRepository, IMapper mapper, GeminiClientService geminiService)
         {
             _publicationRepository = publicationRepository;
             _azureBlobService = azureBlobService;
@@ -32,6 +34,7 @@ namespace Oportuniza.API.Controllers
             _companyRepository = companyRepository;
             _userRepository = userRepository;
             _mapper = mapper;
+            _geminiService = geminiService;
         }
 
         [HttpGet]
@@ -173,12 +176,33 @@ namespace Oportuniza.API.Controllers
                 string imageUrl = await _azureBlobService.UploadPostImage(image, containerName, Guid.NewGuid());
                 publication.ImageUrl = imageUrl;
 
+                try
+                {
+                    publication.Resumee = await _geminiService.CreateSummaryAsync(
+                        dto.Description,
+                        dto.Shift,
+                        dto.Local,
+                        dto.Contract,
+                        80,
+                        dto.Salary
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Gemini Error] Falha ao gerar resumo automático: {ex.Message}");
+
+                    publication.Resumee = string.Join(" ", dto.Description
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                        .Take(30));
+                }
+
                 await _publicationRepository.AddAsync(publication);
 
                 var publicationDto = _mapper.Map<PublicationDto>(publication);
 
                 return CreatedAtAction(nameof(GetById), new { id = publication.Id }, publicationDto);
             }
+
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = $"Erro ao criar publicação: {ex.Message}" });

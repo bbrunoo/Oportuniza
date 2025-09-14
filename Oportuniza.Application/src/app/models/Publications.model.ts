@@ -11,6 +11,7 @@ export interface Publication {
   authorName: string;
   shift: string;
   local: string;
+  resumee: string;
   expirationDate: string;
   contract: string;
   salary: string;

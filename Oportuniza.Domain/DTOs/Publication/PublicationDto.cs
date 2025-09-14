@@ -15,6 +15,7 @@ namespace Oportuniza.Domain.DTOs.Publication
         public string Contract { get; set; }
         public string Shift { get; set; }
         public string Local { get; set; }
+        public string Resumee { get; set; }
         public DateTime ExpirationDate { get; set; }
         public Guid AuthorId { get; set; }
         public string AuthorName { get; set; }

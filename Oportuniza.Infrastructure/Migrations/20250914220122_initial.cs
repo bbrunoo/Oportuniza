@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Oportuniza.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class @new : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -200,7 +200,8 @@ namespace Oportuniza.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Resumee = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
                     Salary = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
@@ -243,7 +244,8 @@ namespace Oportuniza.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PublicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PublicationId = table.Column<Guid>(type: "uniqueidentifier", maxLength: 128, nullable: false),
+                    PublicationAuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserIdKeycloak = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     ApplicationDate = table.Column<DateTime>(type: "datetime2", nullable: false),

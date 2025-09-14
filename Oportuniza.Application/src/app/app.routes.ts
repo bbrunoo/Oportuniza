@@ -24,6 +24,7 @@ import { AuthTypeGuard } from './guards/auth-type.guard';
 import { VerificationComponent } from './pages/Authentication/verification/verification.component';
 import { SearchResultComponent } from './pages/layout/search-result/search-result.component';
 import { EditarPostComponent } from './pages/layout/editar-post/editar-post.component';
+import { SpecificPublicationComponent } from './pages/layout/specific-publication/specific-publication.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -48,7 +49,8 @@ export const routes: Routes = [
       { path: "post", component: PublicationComponent },
       { path: "editar-post/:id", component: EditarPostComponent },
       { path: "search-result", component: SearchResultComponent },
-      { path: "meus-posts", component: MeuspostsComponent }
+      { path: "meus-posts", component: MeuspostsComponent },
+      { path: "post/:id", component: SpecificPublicationComponent }
     ]
   },
   {

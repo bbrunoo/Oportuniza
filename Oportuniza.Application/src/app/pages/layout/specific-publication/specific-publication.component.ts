@@ -1,37 +1,46 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { take } from 'rxjs';
+import Swal from 'sweetalert2';
 import { Publication } from '../../../models/Publications.model';
-import { PublicationService } from '../../../services/publication.service';
-import { CommonModule } from '@angular/common';
+import { PublicationFilterDto } from '../../../models/filter.model';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../../services/user.service';
 import { CandidateService } from '../../../services/candidate.service';
-import { forkJoin, map, Observable, take } from 'rxjs';
-import { KeycloakOperationService } from '../../../services/keycloak.service';
-import Swal from 'sweetalert2';
+import { PublicationService } from '../../../services/publication.service';
+import { CommonModule } from '@angular/common';
 import { SearchbarComponent } from '../../../component/searchbar/searchbar.component';
-import { PublicationFilterDto } from '../../../models/filter.model';
-import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
-  selector: 'app-feed',
+  selector: 'app-specific-publication',
   imports: [CommonModule, SearchbarComponent],
-  templateUrl: './feed.component.html',
-  styleUrl: './feed.component.css',
+  templateUrl: './specific-publication.component.html',
+  styleUrl: './specific-publication.component.css'
 })
-export class FeedComponent implements OnInit {
-  publications: Publication[] = [];
-  currentIndex: number = 0;
-  @Input() publicationId!: string;
+export class SpecificPublicationComponent implements OnInit {
+  publication!: Publication; // Changed to a single Publication object
   userId: string | undefined;
   appliedStatus: { [publicationId: string]: boolean } = {};
   applicationIds: { [publicationId: string]: string } = {};
-  hasApplied = false;
 
   constructor(
     private publicationService: PublicationService,
     private candidateService: CandidateService,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
+
+  ngOnInit() {
+    const publicationId = this.route.snapshot.paramMap.get('id');
+
+    if (publicationId) {
+      this.getUserId(publicationId);
+    } else {
+      console.error('ID da publicação não encontrado na URL.');
+      this.router.navigate(['/']);
+    }
+  }
 
   onSearchTriggered(filters: PublicationFilterDto) {
     const queryParams = {
@@ -39,71 +48,52 @@ export class FeedComponent implements OnInit {
       contracts: filters.contracts?.join(','),
       shifts: filters.shifts?.join(',')
     };
-
     this.router.navigate(['/inicio/search-result'], { queryParams });
   }
 
-  ngOnInit() {
-    this.getUserIdAndPublications();
-  }
-
-  goBack() {
-    if (this.currentIndex > 0) {
-      this.currentIndex--;
-    }
-  }
-
-  goForward() {
-    if (this.currentIndex < this.publications.length - 1) {
-      this.currentIndex++;
-    }
-  }
-
-  getUserIdAndPublications() {
+  getUserId(publicationId: string) {
     this.userService.getUserId().pipe(take(1)).subscribe({
       next: (userId) => {
         this.userId = userId;
-        if (this.userId) {
-          this.getPublications();
-        } else {
-          console.error('ID do usuário não encontrado. O usuário pode não estar logado.');
-        }
+        this.getPublication(publicationId);
       },
       error: (err) => {
         console.error('Erro ao obter o ID do usuário:', err);
+        this.getPublication(publicationId);
       },
     });
   }
 
-  getPublications() {
-    this.publicationService.getPublications().subscribe({
-      next: (publications: Publication[]) => {
-        this.publications = publications;
-        if (this.publications.length > 0 && this.userId) {
-          this.getApplicationsForUser();
-        }
-        console.log(this.publications[this.currentIndex].expirationDate)
+  getPublication(publicationId: string) {
+    this.publicationService.getPublicationsById(publicationId).subscribe({
+      next: (publication: Publication) => {
+        this.publication = publication;
+        this.checkAppliedStatus();
       },
       error: (error: any) => {
-        console.log('Erro ao carregar publicações:', error);
+        console.log('Erro ao carregar publicação:', error);
       },
     });
   }
 
-  getApplicationsForUser() {
-    this.candidateService.getMyApplications().subscribe({
-      next: (applications: any[]) => {
-        applications.forEach(app => {
-          if (app.publication?.id) {
-            this.appliedStatus[app.publication.id] = true;
-            this.applicationIds[app.publication.id] = app.id;
+  checkAppliedStatus() {
+    if (this.userId && this.publication?.id) {
+      this.candidateService.getMyApplications().pipe(take(1)).subscribe({
+        next: (applications: any[]) => {
+          const applied = applications.find(app => app.publication?.id === this.publication.id);
+
+          if (applied) {
+            this.appliedStatus[this.publication.id] = true;
+            this.applicationIds[this.publication.id] = applied.id;
+          } else {
+            this.appliedStatus[this.publication.id] = false;
           }
-        });
-      },
-      error: (err) => {
-        console.error('Erro ao carregar candidaturas do usuário:', err);
-      }
-    });
+        },
+        error: (err) => {
+          console.error('Erro ao carregar candidaturas do usuário:', err);
+        }
+      });
+    }
   }
 
   apply(publicationId: string) {
@@ -131,15 +121,25 @@ export class FeedComponent implements OnInit {
               confirmButtonText: 'Ok'
             });
           },
-          error: (err) => {
-            console.error(err);
+          error: (err: HttpErrorResponse) => {
+            console.error('Erro ao se candidatar:', err);
 
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Erro ao se candidatar. Tente novamente mais tarde.',
-              confirmButtonText: 'Fechar'
-            });
+            if (err.status === 400) {
+              const errorMessage = err.error || 'Você já se candidatou a esta vaga.';
+              Swal.fire({
+                icon: 'info',
+                title: 'Ops!',
+                text: errorMessage,
+                confirmButtonText: 'Ok'
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Erro ao se candidatar. Tente novamente mais tarde.',
+                confirmButtonText: 'Fechar'
+              });
+            }
           },
         });
       }
@@ -164,11 +164,6 @@ export class FeedComponent implements OnInit {
     });
   }
 
-  handleImgError(event: Event) {
-    const target = event.target as HTMLImageElement;
-    target.src = '../../../../assets/logo.png';
-  }
-
   private _executeCancel(publicationId: string) {
     const applicationId = this.applicationIds[publicationId];
     if (!applicationId) {
@@ -176,7 +171,7 @@ export class FeedComponent implements OnInit {
 
       this.candidateService.getMyApplications().pipe(take(1)).subscribe({
         next: (applications) => {
-          const app = applications.find(a => a.publication.id === publicationId);
+          const app = applications.find(a => a.publication?.id === publicationId);
           if (app) {
             this.applicationIds[publicationId] = app.id;
             this._performApiCancel(app.id, publicationId);
@@ -229,5 +224,10 @@ export class FeedComponent implements OnInit {
         });
       }
     });
+  }
+
+  handleImgError(event: Event) {
+    const target = event.target as HTMLImageElement;
+    target.src = '../../../../assets/logo.png';
   }
 }

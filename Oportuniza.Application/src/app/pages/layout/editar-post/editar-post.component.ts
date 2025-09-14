@@ -48,6 +48,7 @@ export class EditarPostComponent {
     description: '',
     creationDate: '',
     imageUrl: '',
+    resumee: '',
     expired: false,
     authorId: '',
     authorType: 0,

@@ -25,7 +25,7 @@ export class SearchResultComponent implements OnInit {
     private route: ActivatedRoute,
     private publicationService: PublicationService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
@@ -41,6 +41,10 @@ export class SearchResultComponent implements OnInit {
 
       this.filterPublications();
     });
+  }
+
+  goToPublication(publicationId: string): void {
+    this.router.navigate(['/inicio/post', publicationId]);
   }
 
   filterPublications(): void {

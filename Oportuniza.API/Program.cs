@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using Oportuniza.API.Services;
+using Oportuniza.API.Services.Oportuniza.API.Services;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Infrastructure.Data;
 using Oportuniza.Infrastructure.Repositories;
@@ -88,6 +89,8 @@ builder.Services.AddScoped<UserRegistrationFilterAttribute>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddHttpClient<KeycloakAuthService>();
+
+builder.Services.AddHttpClient<GeminiClientService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

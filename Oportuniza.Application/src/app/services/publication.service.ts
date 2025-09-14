@@ -19,6 +19,10 @@ export class PublicationService {
     return this.http.get<Publication[]>(`${this.apiUrl}`);
   }
 
+  getPublicationsById(id:string) {
+    return this.http.get<Publication>(`${this.apiUrl}/${id}`);
+  }
+
   getMyPublications(
     pageNumber: number = 1,
     pageSize: number = 10

@@ -63,8 +63,8 @@ export class ConfigsComponent implements OnInit {
   }
 
   async changeAccount(): Promise<void> {
-    this.router.navigate(['/login']);
     this.dialogRef.close();
+    this.router.navigate(['/login']);
     await this.keycloakService.logout();
   }
 

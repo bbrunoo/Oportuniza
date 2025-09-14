@@ -20,6 +20,9 @@ namespace Oportuniza.Infrastructure.Configurations
             builder.Property(ca => ca.UserIdKeycloak)
                    .HasMaxLength(128);
 
+                   builder.Property(ca => ca.PublicationId)
+                   .HasMaxLength(128);
+
             builder.HasOne(ca => ca.User)
                    .WithMany()
                    .HasForeignKey(ca => ca.UserId)

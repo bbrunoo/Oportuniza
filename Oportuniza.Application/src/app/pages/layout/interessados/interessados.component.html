@@ -1,127 +1,61 @@
 <div class="container">
   <div class="quadrado">
     <div class="titulos">
-      <a>Candidatos</a>
-      <!-- <a [ngClass]="{'ativo': isCandidatos}" (click)="setMode('candidatos')">Candidatos</a> -->
+      <a (click)="activeTab = 'candidates'; loadData('candidates')" [class.active]="activeTab === 'candidates'">
+        Candidatos
+      </a>
       <span>|</span>
-      <a>Minhas Candidaturas</a>
-      <!-- <a [ngClass]="{'ativo': !isCandidatos}" (click)="setMode('candidaturas')">Minhas Candidaturas</a> -->
+      <a (click)="activeTab = 'inscription'; loadData('inscription')" [class.active]="activeTab === 'inscription'">
+        Minhas Candidaturas
+      </a>
     </div>
 
-    <div class="conteudo1">
-      <p>
-        No momento nenhuma pessoa se <br />candidatou em uma das suas postagens
+    <div class="candidates" *ngIf="activeTab === 'candidates'">
+      <div class="candidates-content" *ngFor="let pub of publicationsWithCandidates">
+        <div class="person-content" *ngFor="let candidate of pub.candidates">
+          <div class="left">
+            <img class="profile" [src]="candidate.userImage || '../../../../assets/etapas/perfil.png'"
+              alt="Foto de Perfil">
+          </div>
+          <div class="center">
+            <p class="title">{{ pub.title }}</p>
+            <p class="name">{{ candidate.userName }}</p>
+            <p class="description">{{ pub.resumee }}</p>
+            <!-- <div class="curriculo">Status: {{ candidate.status }}</div> -->
+          </div>
+          <div class="right">
+            <button class="ver-perfil">Ver Perfil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="inscription" *ngIf="activeTab === 'inscription'">
+      <div class="candidates-content">
+        <div class="person-content" *ngFor="let item of inscriptions">
+          <div class="left">
+            <img class="profile" [src]="item.publication.authorImageUrl || '../../../../assets/etapas/perfil.png' "
+              alt="Foto de Perfil">
+            &#64;{{item.publication.authorName}}
+          </div>
+          <div class="center">
+            <p class="name">{{ item.publication.title }}</p>
+            <p class="description">{{ item.publication.resumee }}</p>
+          </div>
+          <div class="right">
+            <button (click)="cancelApplication(item.id)" class="applied-button">
+              Candidatado
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nothing"
+      *ngIf="(activeTab === 'candidates' && publicationsWithCandidates.length === 0) || (activeTab === 'inscription' && inscriptions.length === 0)">
+      <p class="nothing-text">
+        No momento nenhuma informação disponível.
       </p>
     </div>
-
-    <!-- <div *ngIf="isCandidatos" class="lista-conteudos">
-      <div *ngIf="candidatos.length === 0" class="conteudo1">
-        <p>No momento nenhuma pessoa se <br>candidatou em uma das suas postagens</p>
-      </div>
-
-      <div *ngFor="let candidato of candidatos" class="conteudo2">
-        <div class="foto">
-          <img [src]="candidato.fotoUrl" alt="foto pessoal" />
-        </div>
-        <div class="conteudo-central">
-          <h3>@{{ candidato.username }}</h3>
-          <p>
-            Obs: {{ candidato.observacao }}
-          </p>
-          <div class="Curriculo">
-            <img src="assets/pdf.png" alt="icon arquivo" />
-            <p>{{ candidato.curriculo.nome }}</p>
-            <p>{{ candidato.curriculo.tamanho }}kb</p>
-            <img src="assets/baixar.png" alt="icon baixar" />
-          </div>
-        </div>
-        <div class="botao">
-          <img [src]="candidato.fotoPostagemUrl" alt="foto postagem" />
-          <button (click)="verPerfil(candidato.id)">Ver Perfil</button>
-        </div>
-      </div>
-    </div>
-
-    <div *ngIf="!isCandidatos" class="lista-conteudos">
-      <div *ngIf="minhasCandidaturas.length === 0" class="conteudo1">
-        <p>Você ainda não se candidatou a nenhuma vaga.</p>
-      </div>
-
-      <div *ngFor="let candidatura of minhasCandidaturas" class="conteudo3">
-        <div class="foto2">
-          <img [src]="candidatura.logoEmpresaUrl" alt="logo do estabelecimento" />
-        </div>
-        <div class="conteudo-central2">
-          <h3>{{ candidatura.nomeEmpresa }}</h3>
-          <p>{{ candidatura.tituloVaga }}</p>
-        </div>
-        <div class="botao2">
-          <button class="candidatado" (click)="toggleModal(candidatura)">Candidatado</button>
-
-          <div *ngIf="candidatura.showModal" class="modal">
-            <p>Deseja remover a candidatura?</p>
-            <div class="modal-botoes">
-              <button class="btn1 sim" (click)="removerCandidatura(candidatura.id)">Sim</button>
-              <button class="btn2 cancelar" (click)="toggleModal(candidatura)">Cancelar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> -->
   </div>
 </div>
-
-<!-- 
-<div class="container">
-  <div class="quadrado">
-
-    <div class="titulos">
-      <a [ngClass]="{'ativo': isCandidatos}" (click)="setMode('candidatos')">Candidatos</a>
-      <span>|</span>
-      <a [ngClass]="{'ativo': !isCandidatos}" (click)="setMode('candidaturas')">Minhas Candidaturas</a>
-    </div>
-
-    <div *ngIf="isLoading" class="conteudo1">
-      <p>Carregando...</p>
-    </div>
-
-    <div *ngIf="isCandidatos && !isLoading" class="lista-conteudos">
-      <div *ngIf="candidatos.length === 0" class="conteudo1">
-        <p>No momento nenhuma pessoa se <br>candidatou em uma das suas postagens</p>
-      </div>
-
-      <div *ngFor="let candidato of candidatos" class="conteudo2">
-        <div class="foto">
-          <img [src]="candidato.userId" alt="foto pessoal" />
-        </div>
-        <div class="conteudo-central">
-          <h3>{{ candidato.userName }}</h3>
-          <p>Status: {{ candidato.status }}</p>
-          <p>Data: {{ candidato.applicationDate | date:'short' }}</p>
-        </div>
-        <div class="botao">
-          <button (click)="verPerfil(candidato.id)">Ver Perfil</button>
-        </div>
-      </div>
-    </div>
-
-    <div *ngIf="!isCandidatos && !isLoading" class="lista-conteudos">
-      <div *ngIf="minhasCandidaturas.length === 0" class="conteudo1">
-        <p>Você ainda não se candidatou a nenhuma vaga.</p>
-      </div>
-
-      <div *ngFor="let candidatura of minhasCandidaturas" class="conteudo3">
-        <div class="foto2">
-          <img [src]="candidatura.logoEmpresaUrl" alt="logo da empresa" />
-        </div>
-        <div class="conteudo-central2">
-          <h3>{{ candidatura.nomeEmpresa }}</h3>
-          <p>{{ candidatura.tituloVaga }}</p>
-        </div>
-        <div class="botao2">
-          <button class="candidatado" (click)="confirmarRemocao(candidatura)">Candidatado</button>
-          </div>
-      </div>
-    </div>
-  </div>
-</div> -->

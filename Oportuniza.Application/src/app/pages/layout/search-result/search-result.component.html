@@ -10,7 +10,7 @@
             <img class="author-image" src="{{publication.authorImageUrl || '../../../../assets/etapas/perfil.png'}}" alt="">
             <div class="left-content">
               <h3>{{ publication.authorName }}</h3>
-              <p>{{ publication.description }}</p>
+              <p>{{ publication.resumee }}</p>
               <div class="left-info">
                 <p>{{ publication.salary }}</p> -
                 <p>{{ publication.shift }}</p> -
@@ -21,7 +21,7 @@
           </div>
           <div class="right">
             <img class="post-image" src="{{publication.imageUrl}}" width="50px" height="50px" alt="">
-            <button>Saiba mais</button>
+            <button (click)="goToPublication(publication.id)">Saiba mais</button>
           </div>
         </div>
       </div>

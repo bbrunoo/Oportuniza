@@ -47,7 +47,11 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.Property<DateTime>("ApplicationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("PublicationAuthorId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("PublicationId")
+                        .HasMaxLength(128)
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("PublicationId1")
@@ -321,6 +325,10 @@ namespace Oportuniza.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Resumee")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Salary")
                         .IsRequired()
