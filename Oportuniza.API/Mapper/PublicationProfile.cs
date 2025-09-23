@@ -26,7 +26,7 @@ namespace Oportuniza.API.Mapper
             CreateMap<PublicationCreateDto, Publication>();
 
             CreateMap<PublicationUpdateDto, Publication>()
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+                .ForMember(dest => dest.Resumee, opt => opt.MapFrom(src => src.Resumee));
         }
     }
 }

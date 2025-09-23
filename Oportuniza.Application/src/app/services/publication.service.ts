@@ -69,7 +69,7 @@ export class PublicationService {
   updatePublication(id: string, dto: PublicationUpdateDto, image?: File): Observable<any> {
     const formData = new FormData();
     formData.append('Title', dto.title);
-    formData.append('Description', dto.description);
+    formData.append('Resumee', dto.resumee);
     formData.append('Salary', dto.salary);
     formData.append('Shift', dto.shift);
     formData.append('Contract', dto.contract);

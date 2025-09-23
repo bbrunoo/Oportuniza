@@ -252,7 +252,7 @@ export class EditarPostComponent {
 
     const dto: PublicationUpdateDto = {
       title: this.publication.title,
-      description: this.publication.description,
+      resumee: this.publication.resumee,
       salary: this.publication.salary,
       shift: this.publication.shift,
       contract: this.publication.contract,
