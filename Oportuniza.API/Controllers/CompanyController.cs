@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
@@ -54,6 +55,42 @@ namespace Oportuniza.API.Controllers
         }
 
         [Authorize]
+        [HttpGet("user-companies-paginated")]
+        public async Task<IActionResult> GetCompaniesByUser([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(keycloakId))
+            {
+                return Unauthorized("Token 'sub' claim is missing.");
+            }
+
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+
+            if (user == null)
+            {
+                return NotFound("Usuário não encontrado no banco de dados local.");
+            }
+
+            var totalCompanies = await _context.Company
+                .CountAsync(c => c.UserId == user.Id);
+
+            var companies = await _companyRepository.GetByUserIdAsyncPaginated(user.Id, pageNumber, pageSize);
+
+            var response = _mapper.Map<List<CompanyListDto>>(companies);
+
+            var paginatedResponse = new
+            {
+                TotalCount = totalCompanies,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Items = response
+            };
+
+            return Ok(paginatedResponse);
+        }
+
+        [Authorize]
         [HttpGet("user-companies")]
         public async Task<IActionResult> GetCompaniesByUser()
         {
@@ -72,7 +109,6 @@ namespace Oportuniza.API.Controllers
             }
 
             var companies = await _companyRepository.GetByUserIdAsync(user.Id);
-
             var response = _mapper.Map<List<CompanyListDto>>(companies);
 
             return Ok(response);

@@ -1,5 +1,5 @@
 .container {
-  background-color: rgba(255, 255, 255, 0.26);
+  background-color: #DEDEDE;
   width: 65em;
   height: 38em;
   display: flex;
@@ -11,87 +11,148 @@
   font-weight: 500;
 }
 
-mat-card {
-  max-width: 600px;
-  width: 100%;
-}
-
-.full-width {
-  width: 100%;
-}
-
-/* Estilos para a seção de upload */
-.upload-section {
+.conteudo {
   display: flex;
+  align-items: center;
   justify-content: center;
-  margin-bottom: 0.5rem;
-  padding: 20px;
-  /* Reduzido para aproximar a mensagem de erro */
+  flex-direction: row;
+  gap: 10px;
 }
 
-.preview-container {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  border: 3px dashed #ffffff;
-  cursor: pointer;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  overflow: hidden;
+.conteudo-left,
+.conteudo-right {
+  flex: 1;
+  padding: 15px;
+  border-radius: 15px;
+  color: black;
+}
+
+.conteudo-left{
+  flex: 0.8;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  width: 250px;
+}
+
+.conteudo-right {
+  background-color: #C9C9C9;
+  color: black;
+  width: 600px;
+  height: 500px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 20px;
+}
+
+form {
+  border: none;
+  width: 420px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+input,
+textarea {
+  width: 400px;
+  height: 35px;
+  border: 1px solid black;
+  background-color: transparent;
+  border-radius: 8px;
+  padding: 10px 5px;
+}
+
+textarea {
+  height: 120px;
+  resize: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: black;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  width: 100%;
+}
+
+.btn {
+  border: none;
+  background-color: #3245C3;
+  color: white;
+  padding: 8px 30px;
+  border-radius: 8px;
+  transition: 0.2s ease-in;
+  cursor: pointer;
+}
+
+.btn:hover{
+  transition: 0.2s ease-in;
+  transform: scale(1.05);
+}
+
+.image-upload-area {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  transition: all 0.3s ease;
+  border: 2px dashed #a9a9a9;
+  background-color: #f9f9f9;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  width: 350px;
+  height: 350px;
+  overflow: hidden;
+  border-radius: 100%;
 }
 
-.preview-container:hover {
-  border-color: #3f51b5;
-  background-color: #f0f2f5;
+.image-upload-area .preview-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
 }
-
 
 .upload-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #cccccc;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
   text-align: center;
-  font-size: 0.9em;
 }
 
 .upload-placeholder mat-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
+  font-size: 35px;
+  width: 35px;
+  height: 35px;
 }
 
-.error-container {
-  text-align: center;
-  margin-bottom: 1rem;
+.upload-placeholder p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.actions-container {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
-}
-
-.button-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgb(34, 34, 34);
-  padding: 10px;
-  border-radius: 20px;
-}
-
-.button-content mat-icon,
-.button-spinner {
-  margin-right: 8px;
-}
-
-.button-spinner {
-  display: inline-block;
-  vertical-align: middle;
+.upload-subtext {
+  font-size: 12px;
+  color: #6c757d;
 }

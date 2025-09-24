@@ -9,8 +9,13 @@
         public Guid UserId { get; set; }
         public virtual User Manager { get; set; }
         public string ImageUrl { get; set; }
-        public ICollection<CompanyEmployee> Employees  { get; set; } = new List<CompanyEmployee>();
-        public virtual ICollection<Publication> AuthoredPublications { get; set; }
 
+        public string CityState { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public string Cnpj { get; set; }
+
+        public ICollection<CompanyEmployee> Employees { get; set; } = new List<CompanyEmployee>();
+        public virtual ICollection<Publication> AuthoredPublications { get; set; }
     }
 }

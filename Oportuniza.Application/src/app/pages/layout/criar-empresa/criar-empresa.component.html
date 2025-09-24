@@ -1,58 +1,37 @@
 <div class="container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Criar Nova Empresa</mat-card-title>
-      <mat-card-subtitle>Preencha os dados e adicione o logo da empresa</mat-card-subtitle>
-    </mat-card-header>
+  <div class="conteudo">
+    <div class="conteudo-left">
+      <p>LOGO</p>
+      <div class="image-upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.dragging]="isDragging">
+        <img *ngIf="previewUrl" [src]="previewUrl" alt="Preview da Imagem da Vaga" class="preview-image" />
 
-    <mat-card-content>
-      <form [formGroup]="companyForm" (ngSubmit)="onSubmit()">
-
-        <div class="upload-section">
-          <div class="preview-container" [style.backgroundImage]="'url(' + previewUrl + ')'" (click)="fileInput.click()"
-            mat-ripple>
-
-            <div *ngIf="!previewUrl" class="upload-placeholder">
-              <mat-icon>add_a_photo</mat-icon>
-              <span>Logo da Empresa</span>
-            </div>
-          </div>
-          <input hidden type="file" #fileInput (change)="onFileSelected($event)" accept="image/png, image/jpeg">
+        <div class="upload-placeholder" *ngIf="!previewUrl">
+          <mat-icon>cloud_upload</mat-icon>
+          <p><small>Arraste e solte a imagem aqui</small></p>
+          <p class="upload-subtext">ou clique para selecionar</p>
         </div>
-        <div class="error-container"
-          *ngIf="companyForm.get('image')?.touched && companyForm.get('image')?.hasError('required')">
-          <mat-error>É obrigatório selecionar uma imagem para o logo.</mat-error>
-        </div>
+      </div>
+      <input hidden type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" />
+    </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Nome da Empresa</mat-label>
-          <input matInput formControlName="name" required>
-
-        </mat-form-field>
-
-        <!-- Campo Descrição -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Descrição da Empresa</mat-label>
-          <textarea matInput formControlName="description" rows="4"></textarea>
-          <mat-hint align="end">{{ companyForm.get('description')?.value?.length || 0 }} / 500</mat-hint>
-        </mat-form-field>
-
-        <!-- Botão de Ação -->
-        <div class="actions-container">
-          <button mat-raised-button color="primary" type="submit" routerlink="/inicio"
-            [disabled]="companyForm.invalid || isLoading">
-            <span *ngIf="!isLoading" class="button-content">
-              <mat-icon>save</mat-icon>
-              <span>Criar Empresa</span>
-            </span>
-            <span *ngIf="isLoading" class="button-content">
-              <mat-spinner diameter="24" class="button-spinner"></mat-spinner>
-              <span>Criando...</span>
-            </span>
+    <div class="conteudo-right">
+      <div class="title">Informações</div>
+      <form (ngSubmit)="onSubmit()">
+        <input type="text" placeholder="Nome da empresa" class="form-input" [(ngModel)]="name" name="name" />
+        <input type="text" placeholder="Cidade/Estado" class="form-input" [(ngModel)]="cityState" name="cityState" />
+        <input type="tel" placeholder="Telefone" class="form-input" [(ngModel)]="phone" name="phone" />
+        <input type="email" placeholder="E-mail" class="form-input" [(ngModel)]="email" name="email" />
+        <input type="text" placeholder="CNPJ" class="form-input" [(ngModel)]="cnpj" name="cnpj" />
+        <textarea placeholder="Escreva sobre a empresa..." class="form-textarea" [(ngModel)]="description"
+          name="description"></textarea>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Criar</span>
+            <span *ngIf="isLoading">Criando...</span>
           </button>
         </div>
-
       </form>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 </div>

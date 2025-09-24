@@ -1,5 +1,10 @@
 export interface CompanyListDto {
-  id: string; 
+  id: string;
   name: string;
-  imageUrl: string;
+  description: string;
+  imageUrl: string
+  cityState: string;
+  phone: string;
+  email: string;
+  cnpj: string;
 }

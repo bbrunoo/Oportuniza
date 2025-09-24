@@ -24,10 +24,26 @@ namespace Oportuniza.Infrastructure.Repositories
         }
 
         public async Task<List<Company>> GetByUserIdAsync(Guid userId)
+
         {
+
             return await _context.Company
-                    .Where(c => c.UserId == userId)
-                    .ToListAsync();
+
+                .Where(c => c.UserId == userId)
+
+                .ToListAsync();
+
+        }
+
+        public async Task<List<Company>> GetByUserIdAsyncPaginated(Guid userId, int pageNumber, int pageSize)
+        {
+            var skipAmount = (pageNumber - 1) * pageSize;
+
+            return await _context.Company
+                .Where(c => c.UserId == userId)
+                .Skip(skipAmount)
+                .Take(pageSize)
+                .ToListAsync();
         }
 
         public async Task<bool> UserHasAccessToCompanyAsync(Guid userId, Guid companyId)

@@ -1,4 +1,8 @@
-<div class="container">
+<div *ngIf="isLoading" class="loading-spinner">
+  <p>Carregando empresas...</p>
+</div>
+
+<div class="container" *ngIf="!isLoading && companies.length === 0">
   <div class="quadrado">
     <div class="titulo">
       <img src="../../../../assets/briefcase.png" alt="logo do oportuniza" />
@@ -6,17 +10,39 @@
     </div>
     <div class="textos">
       <p>
-        Aqui aparecerão suas empresas registradas, e você poderá fazer os
+        Aqui aparecerão as empresas registradas por você, e então poderá fazer os
         ajustes necessários para melhor atender às suas necessidades!
       </p>
       <p>
-        Caso ainda nao possua nenhuma empresa registrada, cadastre uma agora!
+        Caso ainda não possua nenhuma empresa registrada, cadastre uma agora!
       </p>
     </div>
-
     <div class="custom-button" routerLink="/inicio/criar-empresa">
       <img src="../../../../assets/plusicon.png" alt="Ícone de mais" />
       <span>Cadastrar Empresa</span>
+    </div>
+  </div>
+</div>
+
+<div class="container" *ngIf="!isLoading && companies.length > 0">
+  <div class="empresas">
+    <div class="header">
+      <img src="../../../../assets/briefcase.png" width="40px" height="40px" alt="">
+      <h2>Minhas Empresas</h2>
+      <button class="create-company" routerLink="/inicio/criar-empresa">+</button>
+    </div>
+    <div class="post-container">
+      <div class="post-card" *ngFor="let company of companies">
+        <img class="post-card-img" [src]="company.imageUrl" />
+        <div class="description">
+          <p> {{ company.name }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="pagination">
+      <button class="change-button" (click)="prevPage()" [disabled]="pageNumber === 1">Anterior</button>
+      <span>Página {{ pageNumber }} de {{ totalPages }}</span>
+      <button class="change-button" (click)="nextPage()" [disabled]="pageNumber === totalPages">Próxima</button>
     </div>
   </div>
 </div>

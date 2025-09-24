@@ -18,7 +18,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrl: './specific-publication.component.css'
 })
 export class SpecificPublicationComponent implements OnInit {
-  publication!: Publication; // Changed to a single Publication object
+  publication!: Publication; 
   userId: string | undefined;
   appliedStatus: { [publicationId: string]: boolean } = {};
   applicationIds: { [publicationId: string]: string } = {};
