@@ -12,7 +12,7 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { provideToastr } from 'ngx-toastr';
 import { TranslateModule } from '@ngx-translate/core';
-import { provideNgxMask } from 'ngx-mask';
+import { provideEnvironmentNgxMask, provideNgxMask } from 'ngx-mask';
 
 import { AuthTokenInterceptor } from './interceptor/auth-token.interceptor';
 import { JWT_OPTIONS, JwtHelperService } from "@auth0/angular-jwt";
@@ -29,6 +29,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideHttpClient(withInterceptorsFromDi(), withFetch()),
     provideToastr(),
+    provideEnvironmentNgxMask(),
     importProvidersFrom(TranslateModule.forRoot()),
     provideNgxMask(),
     {

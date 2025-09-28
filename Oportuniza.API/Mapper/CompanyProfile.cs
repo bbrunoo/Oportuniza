@@ -6,17 +6,36 @@ namespace Oportuniza.API.Mapper
 {
     public class CompanyProfile : Profile
     {
-        public CompanyProfile() {
+        public CompanyProfile()
+        {
             CreateMap<CompanyCreateDto, Company>();
 
             CreateMap<Company, CompanyDTO>()
-                //.ForMember(dest => dest.ManagerName, opt => opt.MapFrom(src => src.Manager.Name))
-                .ForMember(dest => dest.Employees, opt => opt.MapFrom(src => src.Employees));
+                .ForMember(dest => dest.ManagerName, opt => opt.MapFrom(src => src.Manager.Name))
+                .ForMember(dest => dest.Employees, opt => opt.MapFrom(src => src.Employees))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+                .ForMember(dest => dest.CityState, opt => opt.MapFrom(src => src.CityState))
+                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Phone))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.Cnpj, opt => opt.MapFrom(src => src.Cnpj));
 
-            CreateMap<Company, CompanyListDto>();
+            CreateMap<Company, CompanyListDto>()
+                .ForMember(dest => dest.OwnerId, opt => opt.MapFrom(src => src.UserId));
 
             CreateMap<CompanyEmployee, CompanyEmployeeDto>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Name));
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Name))
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.User.ImageUrl))
+                .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.Roles))
+                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+                .ReverseMap();
+
+            CreateMap<CompanyUpdateDto, Company>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl));
         }
     }
 }

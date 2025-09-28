@@ -3,7 +3,7 @@
   list-style: none;
 }
 
-.config-area{
+.config-area {
   display: flex;
   align-content: center;
   justify-content: center;
@@ -142,6 +142,7 @@ button:hover {
 .user-image {
   width: 50px;
   height: 50px;
+  background-color: rgb(215, 215, 215);
   border-radius: 100%;
 }
 

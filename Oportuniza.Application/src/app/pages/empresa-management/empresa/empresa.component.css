@@ -1,221 +1,198 @@
 * {
   text-decoration: none;
   list-style: none;
-}
-
-.config-area{
-  display: flex;
-  align-content: center;
-  justify-content: center;
-}
-
-span {
-  position: absolute;
-  z-index: 2;
-  pointer-events: none
-}
-
-span img {
-  width: 22px;
-  height: 22px;
-  font-size: 15px;
-  left: 10px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .layout-container {
   background-image: url(../../../../assets/home-assets/Fundo.png);
   background-size: cover;
   background-repeat: no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: 100vh;
   width: 100%;
   height: 100vh;
 }
 
 hr {
-  height: 95%;
-}
-
-a {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  font-size: 18px;
-  font-weight: 500;
-  color: white;
-  transition: color 0.3s;
-  position: relative;
-  transition: .3s;
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-
-a:hover {
-  transition: .3s;
-  transform: scale(1.1);
+  display: none;
 }
 
 .sidebar {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  height: 100vh;
-  width: 18%;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .title {
   width: 100%;
-  height: 15%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 0 25px;
+  margin-bottom: 20px;
 }
 
 h2 {
   font-size: 35px;
   color: white;
+  margin-bottom: 15px;
+}
+
+.company-logo {
+  width: 120px;
+  height: 120px;
+  background-color: rgb(215, 215, 215);
+  border-radius: 100%;
+}
+
+.company-datas span {
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
 }
 
 .center-content {
   width: 100%;
-  height: 70%;
+  flex-grow: 1;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: flex-start;
 }
 
 nav {
-  width: 80%;
-  height: 90%;
+  width: 85%;
   display: flex;
   flex-direction: column;
-  align-items: start;
-  justify-content: start;
-  gap: 1.5em;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 5px;
+}
+
+.company-datas {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  font-weight: 500;
+  color: white;
+  transition: 0.3s;
+  gap: 10px;
+  background-color: rgba(9, 9, 9, 0.3);
+  backdrop-filter: blur(2px);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(3px);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.company-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  padding: 12px 15px;
+  transition: 0.3s;
+  background-color: rgba(9, 9, 9, 0.3);
+  backdrop-filter: blur(2px);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(3px);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: none;
+}
+
+.active-link {
+  background-color: rgba(0, 0, 0, 0.723);
+  transform: scale(1.05);
+}
+
+.active-link:hover {
+  background-color: rgba(0, 0, 0, 0.529);
+  transform: scale(1.05);
 }
 
 .user-content {
   width: 100%;
-  height: 20%;
+  height: auto;
   display: flex;
-  gap: 1em;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-bottom: 10px;
+  padding: 20px 0 30px;
 }
 
-.novo-post {
-  border: none;
-  font-size: 17px;
-  width: 70%;
-  height: 30%;
-  font-weight: 500;
-  color: white;
-  background-color: #3D50CA;
-  border-radius: 12px;
-  transition: 0.2s;
-  cursor: pointer;
+.return-button img {
+  width: 30px;
+  height: 30px;
 }
 
-button:hover {
-  transition: 0.2s;
-  transform: scale(1.02);
-}
-
-.user {
-  width: 85%;
+.return-button {
+  gap: 20px;
   display: flex;
-  flex-direction: row;
+  border: none;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  background: #5C5C5C;
   color: white;
+  padding: 13px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
   font-weight: 500;
-  font-size: 18px;
-  gap: .5em;
+  transition: 0.2s;
+  width: 85%;
 }
 
-.user-image {
-  width: 50px;
-  height: 50px;
-  border-radius: 100%;
+.return-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: none;
 }
 
 .content {
-  height: 100%;
-  width: 82%;
+  height: calc(100vh - 40px);
+  width: calc(100% - 40px);
+  margin: 20px;
   display: flex;
-  flex: 1;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-color: rgba(22, 22, 22, 0.5);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border-radius: 10px;
+  padding: 20px;
 }
 
-.icons {
-  filter: invert(1);
-  width: 40px;
-  height: 40px;
-  padding-right: 15px;
+.content>span {
+  display: none;
 }
 
-.icons-white {
-  width: 40px;
-  height: 40px;
-  padding-right: 15px;
-}
-
-.config-image {
-  filter: invert(1);
-  width: 40px;
-  height: 40px;
-  padding-right: 15px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.config-image:hover {
-  transition: 0.2s;
-  transform: scale(1.05);
-}
-
-@media screen and (max-width: 1600px) {
-  h2 {
-    font-size: 32px;
-  }
-
-  span {
-    right: 0px;
-    left: 13.6em;
-    bottom: 1.8em;
-    width: 20px;
-    height: 20px;
-  }
-
-  a,
-  .user,
-  .novo-post {
-    font-size: 15px;
-  }
-
-  .icons,
-  .config-image {
-    width: 30px;
-    height: 30px;
-  }
-
-  .user-image {
-    width: 35px;
-    height: 35px;
-  }
-
-  .user {
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-    width: 90%;
-    gap: 1em;
-  }
+.layout-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }

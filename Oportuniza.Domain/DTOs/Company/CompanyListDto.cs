@@ -9,6 +9,8 @@
         public string Email { get; set; }
         public string Cnpj { get; set; }
         public string? Description { get; set; }
+        public Guid OwnerId { get; set; }
         public string ImageUrl { get; set; }
+        public string UserRole { get; set; }
     }
 }

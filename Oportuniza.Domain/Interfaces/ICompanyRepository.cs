@@ -8,5 +8,12 @@ namespace Oportuniza.Domain.Interfaces
         Task<List<Company>> GetByUserIdAsync(Guid userId);
         Task<bool> UserHasAccessToCompanyAsync(Guid userId, Guid companyId);
         Task<IEnumerable<Company>> GetAllWithEmployeesAndUsersAsync();
+        Task<Company> GetByIdWithEmployeesAndUsersAsync(Guid companyId);
+        Task<(List<Company> Companies, int TotalCount)> GetUserCompaniesPaginatedAsync(
+            Guid userId,
+            int pageNumber,
+            int pageSize
+        );
+
     }
 }

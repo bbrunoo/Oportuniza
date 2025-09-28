@@ -7,4 +7,6 @@ export interface CompanyListDto {
   phone: string;
   email: string;
   cnpj: string;
+  UserRole: string;
+  OwnerId: string;
 }

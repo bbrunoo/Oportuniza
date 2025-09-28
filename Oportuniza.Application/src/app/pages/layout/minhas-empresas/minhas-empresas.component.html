@@ -24,7 +24,7 @@
   </div>
 </div>
 
-<div class="container" *ngIf="!isLoading && companies.length > 0">
+<div class="container-empresas" *ngIf="!isLoading && companies.length > 0">
   <div class="empresas">
     <div class="header">
       <img src="../../../../assets/briefcase.png" width="40px" height="40px" alt="">
@@ -33,9 +33,16 @@
     </div>
     <div class="post-container">
       <div class="post-card" *ngFor="let company of companies">
+        <span (click)="openDialog($event, company)">
+          <img class="dots" src="../../../../assets/dots.png" alt="">
+        </span>
         <img class="post-card-img" [src]="company.imageUrl" />
         <div class="description">
           <p> {{ company.name }}</p>
+        </div>
+        <div class="configure" (click)="goToCompanyConfig(company.id)">
+          <img src="../../../../assets/white-settings.png" alt="" >
+          <span>Configurar</span>
         </div>
       </div>
     </div>

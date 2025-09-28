@@ -20,10 +20,10 @@
       <form (ngSubmit)="onSubmit()">
         <input type="text" placeholder="Nome da empresa" class="form-input" [(ngModel)]="name" name="name" />
         <input type="text" placeholder="Cidade/Estado" class="form-input" [(ngModel)]="cityState" name="cityState" />
-        <input type="tel" placeholder="Telefone" class="form-input" [(ngModel)]="phone" name="phone" />
+        <input type="tel" placeholder="Telefone" class="form-input" [(ngModel)]="phone" name="phone" mask="00 0000-0000" />
         <input type="email" placeholder="E-mail" class="form-input" [(ngModel)]="email" name="email" />
-        <input type="text" placeholder="CNPJ" class="form-input" [(ngModel)]="cnpj" name="cnpj" />
-        <textarea placeholder="Escreva sobre a empresa..." class="form-textarea" [(ngModel)]="description"
+        <input type="text" placeholder="CNPJ" class="form-input" [(ngModel)]="cnpj" name="cnpj" mask="00.000.000/0000-00" />
+        <textarea placeholder="Escreva sobre a empresa..." class="form-textarea" maxlength="300" [(ngModel)]="description"
           name="description"></textarea>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" [disabled]="isLoading">

@@ -1,4 +1,47 @@
-<p>funcionarios works!</p>
 <div class="container">
-  <p>Meu perfil!</p>
+  <div *ngIf="isLoading" class="list-message">
+    <p>Carregando lista de funcionários...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="list-message error">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <div *ngIf="!isLoading && employees.length === 0 && !errorMessage" class="list-message">
+    <p>Nenhum funcionário ativo encontrado para esta empresa.</p>
+  </div>
+
+  <div *ngIf="employees.length > 0 && !isLoading" class="employee-list-panel">
+
+    <h2 class="list-title">Lista de funcionários desta empresa</h2>
+
+    <div class="employee-cards-scroll">
+      <div *ngFor="let employee of employees" class="employee-card">
+
+        <div class="avatar-container">
+          <img [src]="employee.imageUrl || '../../../../assets/etapas/perfil.png'" alt="Avatar de {{ employee.userName }}"
+            class="employee-avatar">
+        </div>
+
+        <div class="employee-info-details">
+          <span class="employee-email">{{ employee.userEmail }}</span>
+          <span *ngIf="employee.roles === 'Owner'" class="owner-badge">DONO</span>
+          <span *ngIf="employee.roles === 'Employee'" class="owner-badge">FUNCIONARIO</span>
+        </div>
+
+        <div class="employee-actions">
+          <span class="status-badge"
+            [class.active]="employee.isActive === 0"
+            [class.inactive]="employee.isActive === 1">
+            {{ employee.isActive === 0 ? 'Ativo' : 'Inativo' }}
+          </span>
+
+          <button class="settings-button" (click)="openSettings(employee.id)">
+            <img src="../../../../assets/home-assets/settings.png" alt="Configurações">
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
 </div>

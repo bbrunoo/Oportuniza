@@ -14,7 +14,6 @@ import { Router } from '@angular/router';
   styleUrl: './post-actions.component.css'
 })
 export class PostActionsComponent implements OnDestroy {
-  showCompleteProfileButton = true;
   containerHeight = '200px';
 
   post: Publication;
@@ -52,13 +51,13 @@ export class PostActionsComponent implements OnDestroy {
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sim, desativar!',
-      cancelButtonText: 'Cancelar',
+      width: '350px',
+      color:'#252525',
       reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
         this.publicationService.disablePublication(this.post.id)
-          .pipe(takeUntil(this.destroy$)) // Add this line
+          .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: () => {
               Swal.fire(

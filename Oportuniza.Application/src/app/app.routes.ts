@@ -54,7 +54,7 @@ export const routes: Routes = [
     ]
   },
   {
-    path: "empresa", component: EmpresaComponent, children: [
+    path: "empresa/:id", component: EmpresaComponent, children: [
       { path: "informacoes", component: InformacoesComponent },
       { path: "editar-empresa", component: EditarEmpresaComponent },
       { path: "funcionarios", component: FuncionariosComponent },

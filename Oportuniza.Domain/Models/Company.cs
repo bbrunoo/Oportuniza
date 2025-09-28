@@ -1,4 +1,6 @@
-﻿namespace Oportuniza.Domain.Models
+﻿using Oportuniza.Domain.Enums;
+
+namespace Oportuniza.Domain.Models
 {
     public class Company
     {
@@ -9,12 +11,12 @@
         public Guid UserId { get; set; }
         public virtual User Manager { get; set; }
         public string ImageUrl { get; set; }
-
         public string CityState { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
         public string Cnpj { get; set; }
-
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public CompanyAvailable IsActive { get; set; } = CompanyAvailable.Enabled;
         public ICollection<CompanyEmployee> Employees { get; set; } = new List<CompanyEmployee>();
         public virtual ICollection<Publication> AuthoredPublications { get; set; }
     }

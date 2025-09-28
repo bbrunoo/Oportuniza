@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Oportuniza.Domain.DTOs.Company;
+using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Data;
@@ -45,14 +46,50 @@ namespace Oportuniza.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var companys = await _companyRepository.GetByIdAsync(id);
+            var company = await _companyRepository.GetByIdWithEmployeesAndUsersAsync(id);
 
-            if (companys == null) return NotFound("Currículo não encontrado.");
+            if (company == null) return NotFound("Empresa não encontrada.");
 
-            var response = _mapper.Map<CompanyDTO>(companys);
+            var response = _mapper.Map<CompanyDTO>(company);
 
             return StatusCode(200, response);
         }
+
+        //[Authorize]
+        //[HttpGet("user-companies-paginated")]
+        //public async Task<IActionResult> GetCompaniesByUser([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        //{
+        //    var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+
+        //    if (string.IsNullOrEmpty(keycloakId))
+        //    {
+        //        return Unauthorized("Token 'sub' claim is missing.");
+        //    }
+
+        //    var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+
+        //    if (user == null)
+        //    {
+        //        return NotFound("Usuário não encontrado no banco de dados local.");
+        //    }
+
+        //    var totalCompanies = await _context.Company
+        //        .CountAsync(c => c.UserId == user.Id);
+
+        //    var companies = await _companyRepository.GetByUserIdAsyncPaginated(user.Id, pageNumber, pageSize);
+
+        //    var response = _mapper.Map<List<CompanyListDto>>(companies);
+
+        //    var paginatedResponse = new
+        //    {
+        //        TotalCount = totalCompanies,
+        //        PageNumber = pageNumber,
+        //        PageSize = pageSize,
+        //        Items = response
+        //    };
+
+        //    return Ok(paginatedResponse);
+        //}
 
         [Authorize]
         [HttpGet("user-companies-paginated")]
@@ -72,10 +109,11 @@ namespace Oportuniza.API.Controllers
                 return NotFound("Usuário não encontrado no banco de dados local.");
             }
 
-            var totalCompanies = await _context.Company
-                .CountAsync(c => c.UserId == user.Id);
-
-            var companies = await _companyRepository.GetByUserIdAsyncPaginated(user.Id, pageNumber, pageSize);
+            var (companies, totalCompanies) = await _companyRepository.GetUserCompaniesPaginatedAsync(
+                user.Id,
+                pageNumber,
+                pageSize
+            );
 
             var response = _mapper.Map<List<CompanyListDto>>(companies);
 
@@ -156,20 +194,46 @@ namespace Oportuniza.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = company.Id }, companyDtoToReturn);
         }
 
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(Guid id, [FromBody] Company company)
+        [HttpPatch("disable/{id}")]
+        public async Task<IActionResult> DesactiveCompany(Guid id)
         {
-            if (company == null || id != company.Id)
-                return BadRequest();
-
-            var existingCompany = await _companyRepository.GetByIdAsync(id);
-            if (existingCompany == null)
+            var company = await _companyRepository.GetByIdAsync(id);
+            if (company == null)
+            {
                 return NotFound();
+            }
+
+            company.IsActive = CompanyAvailable.Disabled;
 
             await _companyRepository.UpdateAsync(company);
 
             return NoContent();
+        }
+
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(Guid id, [FromBody] CompanyUpdateDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var existingCompany = await _companyRepository.GetByIdAsync(id);
+            if (existingCompany == null)
+                return NotFound("Empresa não encontrada.");
+
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+
+            if (user == null || existingCompany.UserId != user.Id)
+            {
+                return Forbid("Você não tem permissão para editar esta empresa.");
+            }
+
+            _mapper.Map(dto, existingCompany);
+
+            await _companyRepository.UpdateAsync(existingCompany);
+
+            return NoContent(); 
         }
 
         [HttpDelete("{id}")]

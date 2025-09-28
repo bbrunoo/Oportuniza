@@ -15,6 +15,7 @@ import { switchMap } from 'rxjs';
 import Swal from 'sweetalert2';
 import { CropperDialogComponent, CropperDialogData } from '../../../extras/cropper-dialog/cropper-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { NgxMaskDirective } from "ngx-mask";
 
 @Component({
   selector: 'app-criar-empresa',
@@ -29,8 +30,9 @@ import { MatDialog } from '@angular/material/dialog';
     MatProgressSpinnerModule,
     MatIconModule,
     RouterModule,
-    FormsModule
-  ],
+    FormsModule,
+    NgxMaskDirective
+],
   templateUrl: './criar-empresa.component.html',
   styleUrls: ['./criar-empresa.component.css']
 })

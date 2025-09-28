@@ -38,7 +38,7 @@
     "lodash": "^4.17.21",
     "ngx-float-ui": "^19.0.1",
     "ngx-image-cropper": "^9.1.5",
-    "ngx-mask": "^19.0.7",
+    "ngx-mask": "^17.0.4",
     "ngx-quill": "^27.0.0",
     "ngx-smart-cropper": "^1.1.9",
     "ngx-toastr": "^19.0.0",

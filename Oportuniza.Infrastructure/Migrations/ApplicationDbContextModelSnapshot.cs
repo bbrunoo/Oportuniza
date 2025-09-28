@@ -149,6 +149,9 @@ namespace Oportuniza.Infrastructure.Migrations
                         .HasMaxLength(18)
                         .HasColumnType("nvarchar(18)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -162,6 +165,9 @@ namespace Oportuniza.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("IsActive")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -189,9 +195,6 @@ namespace Oportuniza.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AzureUserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("CanPostJobs")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -199,6 +202,9 @@ namespace Oportuniza.Infrastructure.Migrations
 
                     b.Property<Guid>("CompanyId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("IsActive")
+                        .HasColumnType("int");
 
                     b.Property<string>("Roles")
                         .IsRequired()

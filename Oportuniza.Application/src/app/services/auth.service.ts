@@ -51,7 +51,7 @@ export class AuthService {
       const decoded: any = jwtDecode(token);
 
       return {
-        id: decoded.sub, // 'sub' é a claim padrão para o ID do usuário no Keycloak
+        id: decoded.sub, 
         email: decoded.email,
         name: decoded.name,
         isACompany: decoded.isACompany

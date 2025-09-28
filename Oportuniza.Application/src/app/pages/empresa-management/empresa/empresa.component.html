@@ -2,41 +2,45 @@
   <aside class="sidebar">
     <div class="title">
       <h2>Oportuniza</h2>
+      <div class="company-datas">
+        <div class="company-info" *ngIf="company as companyData">
+          <img class="company-logo" [src]="companyData.imageUrl" alt="Logo da Empresa">
+          <span>
+            {{ companyData.name }}
+          </span>
+        </div>
+      </div>
     </div>
 
     <div class="center-content">
       <nav>
-        <a routerLink="feed" routerLinkActive="active">
-          <img class="icons" src="../../../../assets/home-assets/home.png" />
-          Início
+        <a routerLink="informacoes" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">
+          Informações
         </a>
-        <a routerLink="meus-posts">
-          <img class="icons" src="../../../../assets/home-assets/feed.png" />
-          Minhas Vagas
+
+        <a routerLink="adicionar-funcionario" routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }">
+          Adicionar Funcionários
         </a>
-        <a routerLink="interessados">
-          <img class="icons" src="../../../../assets/home-assets/sino.png" />
-          Interessados
+
+        <a routerLink="funcionarios" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">
+          Funcionários
         </a>
-        <a routerLink="perfil">
-          <img class="icons" src="../../../../assets/home-assets/perfil.png" />
-          Perfil
+
+        <a routerLink="editar-empresa" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">
+          Editar Empresa
         </a>
-        <a routerLink="minhas-empresas">
-          <img class="icons-white" src="../../../../assets/home-assets/company.png" />
-          Empresas
-        </a>
+
       </nav>
     </div>
 
     <div class="user-content">
-      <button class="novo-post" routerLink="inicio">
+      <button class="return-button" routerLink="/inicio/minhas-empresas">
+        <img src="../../../../assets/undo.png" alt="">
         Voltar ao inicio
       </button>
     </div>
   </aside>
-
-  <hr />
 
   <main class="content">
     <router-outlet class="layout-content"></router-outlet>

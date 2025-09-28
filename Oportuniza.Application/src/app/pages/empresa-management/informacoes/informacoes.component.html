@@ -1,4 +1,46 @@
-<p>informacoes works!</p>
 <div class="container">
-  <p>Meu perfil!</p>
+  <div *ngIf="isLoading" class="loading-container">
+    <p>Carregando informações da empresa...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-container">
+    <h2>Erro!</h2>
+    <p>{{ errorMessage }}</p>
+    <p>Tente recarregar a página ou verifique a rota.</p>
+  </div>
+
+  <h2 class="config-text">
+    INFORMAÇÕES
+  </h2>
+
+  <div *ngIf="company && !isLoading" class="info-panel">
+
+     <div class="company-display">
+      <img [src]="company.imageUrl" alt="Logo da Empresa {{ company.name }}" class="company-logo-main">
+
+      <div class="company-details-main">
+        <h2>{{ company.name }}</h2>
+        <p class="detail-line"> <b>Cidade</b> - {{company.cityState}}</p>
+        <p class="detail-line"><b>Telefone</b> -{{company.phone}}</p>
+        <p class="detail-line"><b>CNPJ</b> -{{company.cnpj}}</p>
+        <p class="company-description">
+          {{ company.description }}
+        </p>
+
+        <div class="employee-count-row">
+          <p>N° de Funcionários ativos no sistema</p>
+          <span class="employee-count-badge">{{ company.employees.length }}</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="creation-info">
+      Criado por <span class="creator-name">{{ company.managerName }}</span> em <span
+        class="creation-date">{{company.createdAt | date:'dd/MM/yyyy'}}</span>
+    </p>
+  </div>
+
+  <div *ngIf="!company && !isLoading && !errorMessage" class="missing-id-message">
+    <p>Não foi possível carregar os dados. ID da empresa ausente ou inválido.</p>
+  </div>
 </div>

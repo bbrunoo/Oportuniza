@@ -9,6 +9,11 @@
         public Guid UserId { get; set; }
         public string ManagerName { get; set; }
         public string ImageUrl { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string CityState { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public string Cnpj { get; set; }
         public List<CompanyEmployeeDto> Employees { get; set; }
     }
 }
