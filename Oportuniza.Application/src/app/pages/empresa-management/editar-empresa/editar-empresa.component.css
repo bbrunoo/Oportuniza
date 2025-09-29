@@ -87,7 +87,6 @@
 }
 
 .config-text{
-  padding-bottom: 20px;
   font-weight: 500;
 }
 
@@ -140,7 +139,7 @@
 
 .textarea-input {
   resize: none;
-  min-height: 150px;
+  min-height: 120px;
   padding-bottom: 30px;
 }
 

@@ -23,5 +23,7 @@ namespace Oportuniza.Domain.DTOs.Publication
         public string AuthorImageUrl { get; set; }
         public PublicationStatus Status { get; set; }
         public PublicationAvailable IsActive { get; set; }
+        public Guid? CompanyOwnerId { get; set; }
+
     }
 }

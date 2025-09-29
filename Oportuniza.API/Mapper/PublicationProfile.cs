@@ -21,6 +21,9 @@ namespace Oportuniza.API.Mapper
                 .ForMember(dest => dest.AuthorType, opt => opt.MapFrom(src =>
                     src.AuthorCompanyId.HasValue ? "Company" : "User"))
 
+                 .ForMember(dest => dest.CompanyOwnerId,
+                    opt => opt.MapFrom(src => src.AuthorCompany != null ? src.AuthorCompany.UserId : (Guid?)null))
+
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
 
             CreateMap<PublicationCreateDto, Publication>();

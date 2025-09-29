@@ -19,4 +19,5 @@ export interface Publication {
   expirationDateString?: string;
   cityId: string;
   isActive: number;
+  companyOwnerId?: string;
 }

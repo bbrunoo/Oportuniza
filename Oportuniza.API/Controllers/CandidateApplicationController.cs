@@ -8,6 +8,7 @@ using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
+using Oportuniza.Infrastructure.Repositories;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers
@@ -17,17 +18,14 @@ namespace Oportuniza.API.Controllers
     public class CandidateApplicationController : ControllerBase
     {
         private readonly ICandidateApplicationRepository _repository;
+        private readonly ICompanyRepository _companyRepository;
         private readonly IUserRepository _userRepository;
         private readonly IPublicationRepository _publicationRepository;
         private readonly IMapper _mapper;
-
-        public CandidateApplicationController(
-            ICandidateApplicationRepository repository,
-            IUserRepository userRepository,
-            IPublicationRepository publicationRepository,
-            IMapper mapper)
+        public CandidateApplicationController(ICandidateApplicationRepository repository, ICompanyRepository companyRepository, IUserRepository userRepository, IPublicationRepository publicationRepository, IMapper mapper)
         {
             _repository = repository;
+            _companyRepository = companyRepository;
             _userRepository = userRepository;
             _publicationRepository = publicationRepository;
             _mapper = mapper;
@@ -51,6 +49,16 @@ namespace Oportuniza.API.Controllers
 
             if (publication.AuthorUserId == user.Id)
                 return BadRequest("Você não pode se candidatar na sua própria postagem.");
+
+            if (publication.AuthorCompanyId is Guid companyId)
+            {
+                var company = await _companyRepository.GetByIdAsync(companyId);
+                if (company != null)
+                {
+                    if (company.UserId == user.Id)
+                        return BadRequest("Você não pode se candidatar em vagas da sua própria empresa.");
+                }
+            }
 
             if (await _repository.HasAppliedAsync(dto.PublicationId, user.Id))
                 return BadRequest("Você já se candidatou para esta vaga.");

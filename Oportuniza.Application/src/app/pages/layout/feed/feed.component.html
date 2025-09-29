@@ -1,5 +1,5 @@
 <div class="container" *ngIf="publications.length > 0">
-<app-searchbar (search)="onSearchTriggered($event)"></app-searchbar>
+  <app-searchbar (search)="onSearchTriggered($event)"></app-searchbar>
   <div class="center-content">
     <div class="navigation-space">
       <div class="navigation" *ngIf="currentIndex > 0" (click)="goBack()">
@@ -59,7 +59,8 @@
         <div class="final">
           <p>Data de expiração: {{ publications[currentIndex].expirationDate | date:'dd/MM/yyyy' }}</p>
 
-          <div class="bottom" *ngIf="publications[currentIndex].authorId !== userId">
+          <div class="bottom" *ngIf="publications[currentIndex].authorId !== userId
+          && publications[currentIndex].companyOwnerId !== userId">
             <button *ngIf="!appliedStatus[publications[currentIndex].id]" (click)="apply(publications[currentIndex].id)"
               class="apply-button">
               Candidatar-se
@@ -70,6 +71,7 @@
               Candidatado
             </button>
           </div>
+
         </div>
       </div>
     </div>

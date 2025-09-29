@@ -146,7 +146,8 @@ namespace Oportuniza.API.Controllers
                 return NotFound("Usuário não encontrado no banco de dados local.");
             }
 
-            var companies = await _companyRepository.GetByUserIdAsync(user.Id);
+            var companies = await _companyRepository.GetAllByUserOrEmployeeAsync(user.Id);
+
             var response = _mapper.Map<List<CompanyListDto>>(companies);
 
             return Ok(response);

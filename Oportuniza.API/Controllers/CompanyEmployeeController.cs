@@ -137,7 +137,7 @@ namespace Oportuniza.API.Controllers
                 Email = request.Email,
                 Name = request.EmployeeName ?? GenerateNameFromEmail(request.Email),
                 FullName = request.EmployeeName ?? GenerateNameFromEmail(request.Email),
-                IsProfileCompleted = false,
+                IsProfileCompleted = true,
                 Active = true,
                 ImageUrl = company.ImageUrl
             };

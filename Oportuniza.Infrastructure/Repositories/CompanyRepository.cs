@@ -56,19 +56,26 @@ namespace Oportuniza.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Company>> GetAllByUserOrEmployeeAsync(Guid userId)
+        {
+            return await _context.Company
+                .Include(c => c.Employees)
+                .Where(c => c.IsActive == CompanyAvailable.Enabled &&
+                           (c.UserId == userId || c.Employees.Any(e => e.UserId == userId)))
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+        }
+
         public async Task<(List<Company> Companies, int TotalCount)> GetUserCompaniesPaginatedAsync(Guid userId, int pageNumber, int pageSize)
         {
-            var ownedCompaniesQuery = _context.Company
-                    .Where(c => c.UserId == userId && c.IsActive == CompanyAvailable.Enabled);
-
-            var employedCompaniesQuery = _context.CompanyEmployee
+            var employedCompanyIds = await _context.CompanyEmployee
                 .Where(ce => ce.UserId == userId)
-                .Select(ce => ce.Company)
-                .Where(c => c.IsActive == CompanyAvailable.Enabled);
+                .Select(ce => ce.CompanyId)
+                .ToListAsync();
 
-            var allUserCompaniesQuery = ownedCompaniesQuery
-                .Union(employedCompaniesQuery)
-                .Distinct()
+            var allUserCompaniesQuery = _context.Company
+                .Where(c => c.IsActive == CompanyAvailable.Enabled)
+                .Where(c => c.UserId == userId || employedCompanyIds.Contains(c.Id))
                 .OrderBy(c => c.Name)
                 .AsQueryable();
 
@@ -84,10 +91,10 @@ namespace Oportuniza.Infrastructure.Repositories
 
         public async Task<bool> UserHasAccessToCompanyAsync(Guid userId, Guid companyId)
         {
-            bool hasAccess = await _context.CompanyEmployee
-                        .AnyAsync(cu => cu.UserId == userId && cu.CompanyId == companyId);
-
-            return hasAccess;
+            return await _context.Company
+                .AnyAsync(c => c.Id == companyId && c.IsActive == CompanyAvailable.Enabled &&
+                              (c.UserId == userId || c.Employees.Any(e => e.UserId == userId)));
         }
+
     }
 }

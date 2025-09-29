@@ -14,6 +14,6 @@ namespace Oportuniza.Domain.Interfaces
             int pageNumber,
             int pageSize
         );
-
+        Task<List<Company>> GetAllByUserOrEmployeeAsync(Guid userId);
     }
 }
