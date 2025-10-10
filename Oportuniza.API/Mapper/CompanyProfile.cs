@@ -26,7 +26,7 @@ namespace Oportuniza.API.Mapper
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Name))
                 .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.User.ImageUrl))
-                .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.Roles))
+                .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.CompanyRole.Name))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ReverseMap();
 
@@ -36,6 +36,19 @@ namespace Oportuniza.API.Mapper
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl));
+
+            CreateMap<CandidateApplication, CompanyCandidateApplicationDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.ApplicationDate, opt => opt.MapFrom(src => src.ApplicationDate))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.UserIdKeycloak, opt => opt.MapFrom(src => src.UserIdKeycloak))
+
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.User.Id))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Name))
+                .ForMember(dest => dest.UserResumee, opt => opt.MapFrom(src => src.Publication.Resumee))
+                .ForMember(dest => dest.UserImageUrl, opt => opt.MapFrom(src => src.User.ImageUrl))
+
+                .ForMember(dest => dest.Publication, opt => opt.MapFrom(src => src.Publication));
         }
     }
 }

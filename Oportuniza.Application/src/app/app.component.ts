@@ -11,6 +11,9 @@ import { Subject } from 'rxjs';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
+  title(title: any) {
+    throw new Error('Method not implemented.');
+  }
   isIframe = false;
   private readonly _destroying$ = new Subject<void>();
 

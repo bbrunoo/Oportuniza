@@ -4,6 +4,8 @@ import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
 import { map, Observable } from 'rxjs';
 import { KeycloakOperationService } from './keycloak.service';
+import { GetProfiles } from '../models/new-models/Profiles.model';
+import { ProfileResponse } from '../models/profile-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +20,8 @@ export class UserService {
   apiUrl = 'http://localhost:5000/api/v1/User';
   uploadApi = 'http://localhost:5000/api/Upload/upload-profile-picture';
 
-  getOwnProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${this.apiUrl}/profile`);
+  getOwnProfile(): Observable<ProfileResponse> {
+    return this.http.get<ProfileResponse>(`${this.apiUrl}/profile`);
   }
 
   updateProfile(profileData: {
@@ -44,21 +46,21 @@ export class UserService {
   }
 
   async getLoggedInUserId(): Promise<string | undefined> {
-  try {
-    const isLoggedIn = await this.keycloakService.isLoggedIn();
-    if (isLoggedIn) {
-      const token = await this.keycloakService.getToken();
+    try {
+      const isLoggedIn = await this.keycloakService.isLoggedIn();
+      if (isLoggedIn) {
+        const token = await this.keycloakService.getToken();
 
-      if (token) {
-        const decodedToken: any = jwtDecode(token);
-        return decodedToken.sub || decodedToken.id;
+        if (token) {
+          const decodedToken: any = jwtDecode(token);
+          return decodedToken.sub || decodedToken.id;
+        }
       }
+    } catch (e) {
+      console.error('Falha ao obter o ID do usuário do Keycloak:', e);
     }
-  } catch (e) {
-    console.error('Falha ao obter o ID do usuário do Keycloak:', e);
+    return undefined;
   }
-  return undefined;
-}
 
   getUserId(): Observable<string> {
     return this.http.get<{ id: string }>(`${this.apiUrl}/getUserId`).pipe(

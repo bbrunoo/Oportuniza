@@ -18,6 +18,7 @@ import { debounceTime, switchMap } from 'rxjs';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { GetProfiles } from '../../../models/new-models/Profiles.model';
 @Component({
   selector: 'app-publication',
   imports: [CommonModule, FormsModule, MatToolbarModule, MatIconModule,
@@ -133,12 +134,32 @@ export class PublicationComponent implements OnInit {
     this.userService.getOwnProfile().subscribe(profile => {
       this.userProfile = profile;
       this.selectedAuthorId = profile.id;
-    });
 
-    this.companyService.getUserCompanies().subscribe(companies => {
-      this.userCompanies = companies;
+      if (profile.isCompany) {
+        this.userCompanies = [
+          {
+            id: profile.id,
+            name: profile.name,
+            description: '',
+            imageUrl: profile.imageUrl ?? '',
+            cityState: '',
+            phone: profile.phone ?? '',
+            email: profile.email ?? '',
+            cnpj: '',
+            UserRole: profile.role ?? '',
+            OwnerId: profile.id,
+            isActive: profile.isActive,
+          }
+        ];
+      }
+      else {
+        this.companyService.getUserCompanies().subscribe(companies => {
+          this.userCompanies = companies;
+        });
+      }
     });
   }
+
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -250,7 +271,7 @@ export class PublicationComponent implements OnInit {
 
     this.isSubmitting = true;
 
-    const isCompanyPost = this.userCompanies.some(company => company.id === this.selectedAuthorId);
+    const selectedCompany = this.userCompanies.find(c => c.id === this.selectedAuthorId);
 
     const dto: PublicationCreate = {
       title: this.publication.title,
@@ -260,9 +281,8 @@ export class PublicationComponent implements OnInit {
       contract: this.publication.contract,
       local: this.publication.local,
       expirationDate: this.publication.expirationDate,
-      tags: [],
-      postAsCompanyId: isCompanyPost ? this.selectedAuthorId! : null!,
-      cityId: this.publication.cityId!
+      cityId: this.publication.cityId!,
+      postAsCompanyId: selectedCompany ? selectedCompany.id : null
     };
 
     this.publicationService.createPublication(dto, this.selectedImage).subscribe({

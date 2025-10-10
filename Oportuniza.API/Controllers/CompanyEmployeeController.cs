@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.DTOs.Company;
+using Oportuniza.Domain.DTOs.Employee;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
@@ -22,14 +23,22 @@ namespace Oportuniza.API.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ICompanyRoleRepository _companyRoleRepository;
 
-        public CompanyEmployeeController(ICompanyEmployeeRepository companyEmployeeRepository, ICompanyRepository companyRepository, IUserRepository userRepository, IMapper mapper, IHttpClientFactory httpClientFactory)
+        public CompanyEmployeeController(
+            ICompanyEmployeeRepository companyEmployeeRepository,
+            ICompanyRepository companyRepository,
+            IUserRepository userRepository,
+            IMapper mapper,
+            IHttpClientFactory httpClientFactory,
+            ICompanyRoleRepository companyRoleRepository)
         {
             _companyEmployeeRepository = companyEmployeeRepository;
             _companyRepository = companyRepository;
             _userRepository = userRepository;
             _mapper = mapper;
             _httpClientFactory = httpClientFactory;
+            _companyRoleRepository = companyRoleRepository;
         }
 
         [HttpGet("{companyId}/employees-ordered")]
@@ -74,129 +83,111 @@ namespace Oportuniza.API.Controllers
         [HttpPost("register-employee")]
         public async Task<IActionResult> RegisterEmployee([FromBody] EmployeeRegisterRequestDto request)
         {
-            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-            {
-                return BadRequest("Email e senha são obrigatórios.");
-            }
+            if (string.IsNullOrWhiteSpace(request.Email))
+                return BadRequest("Email é obrigatório.");
 
             var keycloakIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
-            if (string.IsNullOrEmpty(keycloakIdClaim)) return Unauthorized("Token inválido.");
+            if (string.IsNullOrEmpty(keycloakIdClaim))
+                return Unauthorized("Token inválido.");
 
             var loggedUser = await _userRepository.GetUserByKeycloakIdAsync(keycloakIdClaim);
-            if (loggedUser == null) return NotFound("Usuário logado não encontrado.");
+            if (loggedUser == null)
+                return NotFound("Usuário logado não encontrado.");
 
             var company = await _companyRepository.GetByIdAsync(request.CompanyId);
             if (company == null || company.UserId != loggedUser.Id)
-            {
                 return Forbid("Você não tem permissão para adicionar funcionários a esta empresa.");
-            }
 
-            var token = await GetAdminToken();
+            var existingUser = await _userRepository.GetUserByEmailAsync(request.Email);
+            if (existingUser == null)
+                return NotFound("Usuário com este e-mail não foi encontrado. Apenas usuários existentes podem ser vinculados.");
 
-            var userPayload = new
-            {
-                username = request.Email,
-                email = request.Email,
-                enabled = true,
-                emailVerified = false,
-                credentials = new[]
-                {
-                    new
-                    {
-                        type = "password",
-                        value = request.Password,
-                        temporary = false
-                    }
-                }
-            };
+            var existingEmployee = await _companyEmployeeRepository.GetEmployeeByUserIdAndCompanyIdAsync(existingUser.Id, request.CompanyId);
+            if (existingEmployee != null)
+                return BadRequest("Este usuário já está vinculado a esta empresa.");
 
-            var client = _httpClientFactory.CreateClient();
-            var req = new HttpRequestMessage(HttpMethod.Post, "http://localhost:9090/admin/realms/oportuniza/users");
-            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            var jsonPayload = System.Text.Json.JsonSerializer.Serialize(userPayload);
-            req.Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-
-            var response = await client.SendAsync(req);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                return StatusCode((int)response.StatusCode, $"Erro no Keycloak ao criar usuário: {error}");
-            }
-
-            var location = response.Headers.Location;
-            if (location == null) return StatusCode(500, "Erro ao obter o ID do usuário do Keycloak.");
-
-            var keycloakId = location.Segments.Last();
-
-            var newUser = new User
-            {
-                Id = Guid.NewGuid(),
-                KeycloakId = keycloakId,
-                Email = request.Email,
-                Name = request.EmployeeName ?? GenerateNameFromEmail(request.Email),
-                FullName = request.EmployeeName ?? GenerateNameFromEmail(request.Email),
-                IsProfileCompleted = true,
-                Active = true,
-                ImageUrl = company.ImageUrl
-            };
-
-            await _userRepository.AddAsync(newUser);
+            var defaultRole = await _companyRoleRepository.GetRoleByNameAsync("Worker");
+            if (defaultRole == null)
+                return StatusCode(500, "Erro de configuração: O papel padrão 'Worker' não foi encontrado.");
 
             var companyEmployeeLink = new CompanyEmployee
             {
-                UserId = newUser.Id,
+                UserId = existingUser.Id,
                 CompanyId = request.CompanyId,
-                Roles = "Employee",
+                CompanyRoleId = defaultRole.Id,
                 CanPostJobs = true
             };
 
             await _companyEmployeeRepository.AddAsync(companyEmployeeLink);
 
-            return Ok(new { message = "Funcionário registrado e vinculado à empresa com sucesso." });
+            return Ok(new { message = $"Usuário {existingUser.Email} vinculado à empresa com sucesso." });
         }
 
-        private async Task<string> GetAdminToken()
+        [HttpGet("search-user")]
+        public async Task<IActionResult> SearchUserByEmail([FromQuery] string email)
         {
-            var client = _httpClientFactory.CreateClient();
-            var parameters = new Dictionary<string, string>
+            if (string.IsNullOrWhiteSpace(email)) return BadRequest("Email é obrigatório.");
+            var user = await _userRepository.GetUserByEmailAsync(email);
+            if (user == null) return NotFound();
+
+            var result = new UserSearchResultDto
             {
-                ["grant_type"] = "password",
-                ["client_id"] = "admin-cli",
-                ["username"] = "admin",
-                ["password"] = "admin"
+                Id = user.Id,
+                Email = user.Email,
+                Name = user.Name,
+                ImageUrl = user.ImageUrl
             };
-
-            var content = new FormUrlEncodedContent(parameters);
-            var response = await client.PostAsync("http://localhost:9090/realms/master/protocol/openid-connect/token", content);
-
-            response.EnsureSuccessStatusCode();
-            var json = await response.Content.ReadAsStringAsync();
-
-            using (JsonDocument doc = JsonDocument.Parse(json))
-            {
-                if (doc.RootElement.TryGetProperty("access_token", out JsonElement tokenElement))
-                {
-                    return tokenElement.GetString()!;
-                }
-            }
-            throw new Exception("Falha ao obter access_token do Keycloak.");
+            return Ok(result);
         }
 
-        private string GenerateNameFromEmail(string email)
+        [HttpPatch("roles/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateEmployeeRoles(Guid id, [FromBody] EmployeeRoleUpdateDto dto)
         {
-            if (string.IsNullOrEmpty(email) || !email.Contains('@'))
-            {
-                return "Usuário";
-            }
+            var employee = await _companyEmployeeRepository.GetByIdAsync(id);
+            if (employee == null)
+                return NotFound("Funcionário não encontrado.");
 
-            string name = email.Split('@')[0];
-            if (name.Length > 0)
+            var role = await _companyRoleRepository.GetRoleByNameAsync(dto.IsAdmin ? "Owner" : "Worker");
+            if (role == null)
+                return BadRequest("Cargo inválido.");
+
+            employee.CompanyRoleId = role.Id;
+            employee.CanPostJobs = dto.CanPost;
+
+            await _companyEmployeeRepository.UpdateAsync(employee);
+            return NoContent();
+        }
+
+        [Authorize]
+        [HttpDelete("unlink/{companyId}")]
+        public async Task<IActionResult> UnlinkCurrentUserFromCompany(Guid companyId)
+        {
+            var keycloakIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(keycloakIdClaim))
+                return Unauthorized(new { message = "Token inválido." });
+
+            var loggedUser = await _userRepository.GetUserByKeycloakIdAsync(keycloakIdClaim);
+            if (loggedUser == null)
+                return NotFound(new { message = "Usuário logado não encontrado." });
+
+            var company = await _companyRepository.GetByIdAsync(companyId);
+            if (company == null)
+                return NotFound(new { message = "Empresa não encontrada." });
+
+            var employee = await _companyEmployeeRepository.GetEmployeeByUserIdAndCompanyIdAsync(loggedUser.Id, companyId);
+            if (employee == null)
+                return NotFound(new { message = "O usuário não está vinculado a esta empresa." });
+
+            if (company.UserId == loggedUser.Id)
+                return BadRequest(new { message = "O dono da empresa não pode se desvincular." });
+
+            await _companyEmployeeRepository.DeleteAsync(employee.Id);
+
+            return Ok(new
             {
-                name = char.ToUpper(name[0]) + name.Substring(1);
-            }
-            return name;
+                message = "Usuário desvinculado da empresa com sucesso."
+            });
         }
     }
 }

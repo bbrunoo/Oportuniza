@@ -12,8 +12,8 @@ using Oportuniza.Infrastructure.Data;
 namespace Oportuniza.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250924011422_company")]
-    partial class company
+    [Migration("20251010205544_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -152,6 +152,9 @@ namespace Oportuniza.Infrastructure.Migrations
                         .HasMaxLength(18)
                         .HasColumnType("nvarchar(18)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -165,6 +168,9 @@ namespace Oportuniza.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("IsActive")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -192,9 +198,6 @@ namespace Oportuniza.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AzureUserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("CanPostJobs")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -203,9 +206,11 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.Property<Guid>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Roles")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("CompanyRoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("IsActive")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -214,9 +219,39 @@ namespace Oportuniza.Infrastructure.Migrations
 
                     b.HasIndex("CompanyId");
 
+                    b.HasIndex("CompanyRoleId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("CompanyEmployee");
+                });
+
+            modelBuilder.Entity("Oportuniza.Domain.Models.CompanyRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CompanyRole");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("03338af4-2b09-41a5-bc0e-f72a73b12f47"),
+                            Name = "Administrator"
+                        },
+                        new
+                        {
+                            Id = new Guid("958d58e4-8fa7-4fb4-8afe-ca142b8e82a4"),
+                            Name = "Worker"
+                        });
                 });
 
             modelBuilder.Entity("Oportuniza.Domain.Models.Education", b =>
@@ -511,6 +546,12 @@ namespace Oportuniza.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Oportuniza.Domain.Models.CompanyRole", "CompanyRole")
+                        .WithMany("Employees")
+                        .HasForeignKey("CompanyRoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Oportuniza.Domain.Models.User", "User")
                         .WithMany("CompanyLinks")
                         .HasForeignKey("UserId")
@@ -518,6 +559,8 @@ namespace Oportuniza.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Company");
+
+                    b.Navigation("CompanyRole");
 
                     b.Navigation("User");
                 });
@@ -570,6 +613,11 @@ namespace Oportuniza.Infrastructure.Migrations
                 {
                     b.Navigation("AuthoredPublications");
 
+                    b.Navigation("Employees");
+                });
+
+            modelBuilder.Entity("Oportuniza.Domain.Models.CompanyRole", b =>
+                {
                     b.Navigation("Employees");
                 });
 

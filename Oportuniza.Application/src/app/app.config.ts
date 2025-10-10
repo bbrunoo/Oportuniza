@@ -19,7 +19,20 @@ import { JWT_OPTIONS, JwtHelperService } from "@auth0/angular-jwt";
 import { KeycloakOperationService } from './services/keycloak.service';
 
 export function kcFactory(kcService: KeycloakOperationService) {
-  return () => kcService.init();
+  return async () => {
+    await kcService.init();
+
+    const token = kcService.getToken();
+
+    if (token) {
+      kcService['currentTokenSubject'].next(token);
+      console.log('[APP_INITIALIZER] Token restaurado antes das rotas.');
+    } else {
+      console.warn('[APP_INITIALIZER] Nenhum token encontrado.');
+    }
+
+    return Promise.resolve();
+  };
 }
 
 export const appConfig: ApplicationConfig = {

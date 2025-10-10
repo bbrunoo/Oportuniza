@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
+using Oportuniza.Infrastructure.Repositories;
 using Oportuniza.Infrastructure.Services;
 using System.Security.Claims;
 
@@ -16,10 +17,14 @@ namespace Oportuniza.API.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        public UserController(IUserRepository userRepository, IMapper mapper)
+        private readonly ICompanyEmployeeRepository _companyEmployeeRepository;
+        private readonly ICompanyRepository _companyRepository;
+        public UserController(IUserRepository userRepository, IMapper mapper, ICompanyEmployeeRepository companyEmployeeRepository, ICompanyRepository companyRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _companyEmployeeRepository = companyEmployeeRepository;
+            _companyRepository = companyRepository;
         }
 
         [HttpGet]
@@ -46,29 +51,59 @@ namespace Oportuniza.API.Controllers
         [Authorize]
         public async Task<IActionResult> GetOwnProfile()
         {
-            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var companyIdClaim = User.FindFirst("company_id")?.Value;
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(keycloakId))
-            {
                 return Unauthorized("Token 'sub' claim is missing.");
-            }
 
             var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
-
             if (user == null)
-            {
                 return NotFound("User not found.");
+
+            if (!string.IsNullOrEmpty(companyIdClaim) && Guid.TryParse(companyIdClaim, out Guid companyId))
+            {
+                var company = await _companyRepository.GetByIdAsync(companyId);
+                if (company == null)
+                    return NotFound("Company not found.");
+
+                var employee = await _companyEmployeeRepository.GetByUserAndCompanyAsync(user.Id, companyId);
+                if (employee == null)
+                    return Forbid("You are not associated with this company.");
+
+                return Ok(new
+                {
+                    isCompany = true,
+                    id = company.Id,
+                    name = company.Name,
+                    email = user.Email,  // pode ser nulo ou omitido se quiser
+                    phone = user.Phone,
+                    imageUrl = company.ImageUrl,
+                    role = employee.CompanyRole.Name
+                });
             }
 
+            // SE É PERFIL DE USUÁRIO
             var response = _mapper.Map<UserDTO>(user);
-            return StatusCode(200, response);
+
+            return Ok(new
+            {
+                isCompany = false,
+                id = response.Id,
+                name = response.Name,
+                email = response.Email,
+                phone = response.Phone,
+                imageUrl = response.ImageUrl,
+                local = response.Local,
+                isProfileCompleted = response.IsProfileCompleted
+            });
         }
 
         [HttpGet("getUserId")]
         [Authorize]
         public async Task<IActionResult> GetUserId()
         {
-            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(keycloakId))
             {

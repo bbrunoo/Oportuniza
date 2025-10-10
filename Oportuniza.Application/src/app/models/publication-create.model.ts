@@ -5,8 +5,7 @@ export interface PublicationCreate {
   shift: string;
   contract: string,
   local: string,
-  expirationDate:string;
-  tags:string[];
-  postAsCompanyId?:string;
-  cityId:string;
+  expirationDate: string;
+  cityId: string;
+  postAsCompanyId?: string | null;
 }

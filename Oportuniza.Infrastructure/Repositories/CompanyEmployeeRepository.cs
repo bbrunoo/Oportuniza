@@ -16,11 +16,18 @@ namespace Oportuniza.Infrastructure.Repositories
         public async Task<CompanyEmployee?> GetByUserAndCompanyAsync(Guid userId, Guid companyId)
         {
             return await _context.CompanyEmployee
-                .Include(ce => ce.Company)
-                .Include(ce => ce.User)
-                .FirstOrDefaultAsync(ce => ce.UserId == userId
-                                        && ce.CompanyId == companyId
-                                        && ce.IsActive == CompanyEmployeeStatus.Active);
+                .Include(e => e.CompanyRole)
+                .FirstOrDefaultAsync(e =>
+                    e.UserId == userId &&
+                    e.CompanyId == companyId &&
+                    e.IsActive == CompanyEmployeeStatus.Active);
+        }
+
+        public async Task<IEnumerable<CompanyEmployee>> GetByUserIdAsync(Guid userId)
+        {
+            return await _context.CompanyEmployee
+                .Where(e => e.UserId == userId)
+                .ToListAsync();
         }
 
         public async Task<List<Company>> GetCompaniesByEmployeeAsync(Guid userId)
@@ -31,12 +38,19 @@ namespace Oportuniza.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<CompanyEmployee?> GetEmployeeByUserIdAndCompanyIdAsync(Guid userId, Guid companyId)
+        {
+            return await _context.CompanyEmployee
+                                 .FirstOrDefaultAsync(ce => ce.UserId == userId && ce.CompanyId == companyId);
+        }
+
         public async Task<IEnumerable<CompanyEmployee>> GetEmployeesOrderedByRoleAndCreationAsync(Guid companyId)
         {
             return await _context.CompanyEmployee
                 .Where(ce => ce.CompanyId == companyId && ce.IsActive == CompanyEmployeeStatus.Active)
                 .Include(ce => ce.User)
-                .OrderByDescending(ce => ce.Roles == "Owner")
+                .Include(ce => ce.CompanyRole)
+                .OrderByDescending(ce => ce.CompanyRole.Name == "Owner")
                 .ThenBy(ce => ce.Id)
                 .ToListAsync();
         }

@@ -23,6 +23,7 @@ namespace Oportuniza.API.Controllers
         private readonly IConfiguration _configuration;
         private readonly ICompanyRepository _companyRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IActiveContextService _activeContextService;
         private readonly IMapper _mapper;
         private readonly GeminiClientService _geminiService;
 
@@ -79,14 +80,14 @@ namespace Oportuniza.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("/my")]
+        [HttpGet("my")]
         [Authorize]
         public async Task<IActionResult> GetByLoggedId([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(keycloakId))
-                return Unauthorized("Token 'sub' claim is missing.");
+                return Unauthorized("Token inválido. O identificador Keycloak ('sub') está ausente.");
 
             var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
             if (user == null)
@@ -94,54 +95,107 @@ namespace Oportuniza.API.Controllers
 
             var userLocalId = user.Id;
 
-            var (publications, totalCount) = await _publicationRepository.GetMyPublicationsPaged(userLocalId, pageNumber, pageSize);
+            var companyIdClaim = User.FindFirst("company_id")?.Value;
 
-            if (publications == null || !publications.Any())
-                return NotFound("Publicações não encontradas.");
+            Guid contextId;
+            bool isCompanyContext;
+
+            if (Guid.TryParse(companyIdClaim, out Guid activeCompanyId))
+            {
+                contextId = activeCompanyId;
+                isCompanyContext = true;
+            }
+            else
+            {
+                contextId = userLocalId;
+                isCompanyContext = false;
+            }
+
+            (IEnumerable<Publication> publications, int totalCount) result;
+
+            if (isCompanyContext)
+            {
+                result = await _publicationRepository.GetCompanyPublicationsPaged(contextId, pageNumber, pageSize);
+            }
+            else
+            {
+                result = await _publicationRepository.GetMyPublicationsPaged(userLocalId, pageNumber, pageSize, onlyPersonal: true);
+            }
+
+            var publications = result.publications ?? Enumerable.Empty<Publication>();
+
+            if (!publications.Any())
+                return NotFound("Nenhuma publicação encontrada para o contexto ativo.");
 
             var response = _mapper.Map<IEnumerable<PublicationDto>>(publications);
 
-            var result = new
+            var finalResult = new
             {
-                totalCount,
+                result.totalCount,
                 pageNumber,
                 pageSize,
-                totalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+                totalPages = (int)Math.Ceiling(result.totalCount / (double)pageSize),
                 items = response
             };
 
-            return Ok(result);
+            return Ok(finalResult);
         }
+
+        //[HttpGet("my")]
+        //[Authorize]
+        //public async Task<IActionResult> GetByActiveContext([FromServices] IActiveContextService contextService, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        //{
+        //    var (ctxId, ctxType, _) = await contextService.GetActiveContextAsync(HttpContext);
+
+        //    (IEnumerable<Publication> publications, int totalCount) result;
+
+        //    if (ctxType == "User")
+        //    {
+        //        result = await _publicationRepository.GetMyPublicationsPagedByUser(ctxId, pageNumber, pageSize);
+        //    }
+        //    else if (ctxType == "Company")
+        //    {
+        //        result = await _publicationRepository.GetMyPublicationsPagedByCompany(ctxId, pageNumber, pageSize);
+        //    }
+        //    else
+        //    {
+        //        return BadRequest("Contexto inválido.");
+        //    }
+
+        //    if (result.publications == null || !result.publications.Any())
+        //        return NotFound("Publicações não encontradas.");
+
+        //    var response = _mapper.Map<IEnumerable<PublicationDto>>(result.publications);
+
+        //    var final = new
+        //    {
+        //        result.totalCount,
+        //        pageNumber,
+        //        pageSize,
+        //        totalPages = (int)Math.Ceiling(result.totalCount / (double)pageSize),
+        //        items = response
+        //    };
+
+        //    return Ok(final);
+        //}
 
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Post([FromForm] PublicationCreateDto dto, IFormFile image)
         {
             if (dto == null)
-            {
                 return BadRequest("Dados inválidos.");
-            }
 
             if (image == null || image.Length == 0)
-            {
                 return BadRequest("A imagem é obrigatória.");
-            }
 
             var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
-
             if (string.IsNullOrEmpty(keycloakId))
-            {
                 return Unauthorized("Token 'sub' claim is missing.");
-            }
 
             var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
-
             if (user == null)
-            {
-                return NotFound("Usuário não encontrado no banco de dados local.");
-            }
-
-            var userLocalId = user.Id;
+                return NotFound("Usuário não encontrado no banco local.");
 
             var publication = new Publication
             {
@@ -152,62 +206,147 @@ namespace Oportuniza.API.Controllers
                 Shift = dto.Shift,
                 ExpirationDate = dto.ExpirationDate,
                 Contract = dto.Contract,
-                CreatedByUserId = userLocalId,
+                CreatedByUserId = user.Id,
+                CreationDate = DateTime.UtcNow
             };
+
+            Guid? companyId = null;
+
+            var companyClaim = User.FindFirst("company_id")?.Value;
+            if (!string.IsNullOrEmpty(companyClaim) && Guid.TryParse(companyClaim, out var claimCompanyId))
+            {
+                companyId = claimCompanyId;
+            }
 
             if (dto.PostAsCompanyId.HasValue)
             {
-                bool userOwnsCompany = await _companyRepository.UserHasAccessToCompanyAsync(userLocalId, dto.PostAsCompanyId.Value);
-                if (!userOwnsCompany)
-                {
-                    return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para postar em nome desta empresa.");
-                }
+                bool hasAccess = await _companyRepository.UserHasAccessToCompanyAsync(user.Id, dto.PostAsCompanyId.Value);
+                if (!hasAccess)
+                    return Forbid("Você não tem permissão para postar por esta empresa.");
 
-                publication.AuthorCompanyId = dto.PostAsCompanyId.Value;
+                companyId = dto.PostAsCompanyId;
             }
+
+            if (companyId.HasValue)
+                publication.AuthorCompanyId = companyId.Value;
             else
-            {
-                publication.AuthorUserId = userLocalId;
-            }
+                publication.AuthorUserId = user.Id;
+
+            string imageUrl = await _azureBlobService.UploadPostImage(image, "publications", Guid.NewGuid());
+            publication.ImageUrl = imageUrl;
 
             try
             {
-                string containerName = "publications";
-                string imageUrl = await _azureBlobService.UploadPostImage(image, containerName, Guid.NewGuid());
-                publication.ImageUrl = imageUrl;
-
-                try
-                {
-                    publication.Resumee = await _geminiService.CreateSummaryAsync(
-                        dto.Description,
-                        dto.Shift,
-                        dto.Local,
-                        dto.Contract,
-                        80,
-                        dto.Salary
-                    );
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[Gemini Error] Falha ao gerar resumo automático: {ex.Message}");
-
-                    publication.Resumee = string.Join(" ", dto.Description
-                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                        .Take(30));
-                }
-
-                await _publicationRepository.AddAsync(publication);
-
-                var publicationDto = _mapper.Map<PublicationDto>(publication);
-
-                return CreatedAtAction(nameof(GetById), new { id = publication.Id }, publicationDto);
+                publication.Resumee = await _geminiService.CreateSummaryAsync(
+                    dto.Description, dto.Shift, dto.Local, dto.Contract, 80, dto.Salary);
             }
-
-            catch (Exception ex)
+            catch
             {
-                return StatusCode(500, new { message = $"Erro ao criar publicação: {ex.Message}" });
+                publication.Resumee = string.Join(" ",
+                    dto.Description.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(30));
             }
+
+            await _publicationRepository.AddAsync(publication);
+
+            var publicationDto = _mapper.Map<PublicationDto>(publication);
+            return CreatedAtAction(nameof(GetById), new { id = publication.Id }, publicationDto);
         }
+
+        //[HttpPost]
+        //[Authorize]
+        //public async Task<IActionResult> Post([FromForm] PublicationCreateDto dto, IFormFile image)
+        //{
+        //    if (dto == null)
+        //    {
+        //        return BadRequest("Dados inválidos.");
+        //    }
+
+        //    if (image == null || image.Length == 0)
+        //    {
+        //        return BadRequest("A imagem é obrigatória.");
+        //    }
+
+        //    var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+
+        //    if (string.IsNullOrEmpty(keycloakId))
+        //    {
+        //        return Unauthorized("Token 'sub' claim is missing.");
+        //    }
+
+        //    var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+
+        //    if (user == null)
+        //    {
+        //        return NotFound("Usuário não encontrado no banco de dados local.");
+        //    }
+
+        //    var userLocalId = user.Id;
+
+        //    var publication = new Publication
+        //    {
+        //        Title = dto.Title,
+        //        Description = dto.Description,
+        //        Salary = dto.Salary,
+        //        Local = dto.Local,
+        //        Shift = dto.Shift,
+        //        ExpirationDate = dto.ExpirationDate,
+        //        Contract = dto.Contract,
+        //        CreatedByUserId = userLocalId,
+        //    };
+
+        //    if (dto.PostAsCompanyId.HasValue)
+        //    {
+        //        bool userOwnsCompany = await _companyRepository.UserHasAccessToCompanyAsync(userLocalId, dto.PostAsCompanyId.Value);
+        //        if (!userOwnsCompany)
+        //        {
+        //            return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para postar em nome desta empresa.");
+        //        }
+
+        //        publication.AuthorCompanyId = dto.PostAsCompanyId.Value;
+        //    }
+        //    else
+        //    {
+        //        publication.AuthorUserId = userLocalId;
+        //    }
+
+        //    try
+        //    {
+        //        string containerName = "publications";
+        //        string imageUrl = await _azureBlobService.UploadPostImage(image, containerName, Guid.NewGuid());
+        //        publication.ImageUrl = imageUrl;
+
+        //        try
+        //        {
+        //            publication.Resumee = await _geminiService.CreateSummaryAsync(
+        //                dto.Description,
+        //                dto.Shift,
+        //                dto.Local,
+        //                dto.Contract,
+        //                80,
+        //                dto.Salary
+        //            );
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"[Gemini Error] Falha ao gerar resumo automático: {ex.Message}");
+
+        //            publication.Resumee = string.Join(" ", dto.Description
+        //                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+        //                .Take(30));
+        //        }
+
+        //        await _publicationRepository.AddAsync(publication);
+
+        //        var publicationDto = _mapper.Map<PublicationDto>(publication);
+
+        //        return CreatedAtAction(nameof(GetById), new { id = publication.Id }, publicationDto);
+        //    }
+
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new { message = $"Erro ao criar publicação: {ex.Message}" });
+        //    }
+        //}
 
         [HttpPatch("disable/{id}")]
         public async Task<IActionResult> DesactivePost(Guid id)

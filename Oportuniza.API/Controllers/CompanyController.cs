@@ -55,47 +55,11 @@ namespace Oportuniza.API.Controllers
             return StatusCode(200, response);
         }
 
-        //[Authorize]
-        //[HttpGet("user-companies-paginated")]
-        //public async Task<IActionResult> GetCompaniesByUser([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        //{
-        //    var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
-
-        //    if (string.IsNullOrEmpty(keycloakId))
-        //    {
-        //        return Unauthorized("Token 'sub' claim is missing.");
-        //    }
-
-        //    var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
-
-        //    if (user == null)
-        //    {
-        //        return NotFound("Usuário não encontrado no banco de dados local.");
-        //    }
-
-        //    var totalCompanies = await _context.Company
-        //        .CountAsync(c => c.UserId == user.Id);
-
-        //    var companies = await _companyRepository.GetByUserIdAsyncPaginated(user.Id, pageNumber, pageSize);
-
-        //    var response = _mapper.Map<List<CompanyListDto>>(companies);
-
-        //    var paginatedResponse = new
-        //    {
-        //        TotalCount = totalCompanies,
-        //        PageNumber = pageNumber,
-        //        PageSize = pageSize,
-        //        Items = response
-        //    };
-
-        //    return Ok(paginatedResponse);
-        //}
-
         [Authorize]
         [HttpGet("user-companies-paginated")]
         public async Task<IActionResult> GetCompaniesByUser([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(keycloakId))
             {
@@ -132,7 +96,7 @@ namespace Oportuniza.API.Controllers
         [HttpGet("user-companies")]
         public async Task<IActionResult> GetCompaniesByUser()
         {
-            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(keycloakId))
             {
@@ -153,47 +117,84 @@ namespace Oportuniza.API.Controllers
             return Ok(response);
         }
 
+        [HttpPatch("status/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateCompanyStatus(Guid id, [FromBody] CompanyStatusUpdateDto dto)
+        {
+            var company = await _companyRepository.GetByIdAsync(id);
+            if (company == null)
+            {
+                return NotFound("Empresa não encontrada.");
+            }
+
+            if (!Enum.IsDefined(typeof(CompanyAvailable), dto.NewStatus))
+            {
+                return BadRequest("Status inválido fornecido.");
+            }
+
+            company.IsActive = (CompanyAvailable)dto.NewStatus;
+
+            await _companyRepository.UpdateAsync(company);
+
+            return NoContent();
+        }
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Post([FromBody] CompanyCreateDto dto)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
-
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(keycloakId))
-            {
                 return Unauthorized("Token 'sub' claim is missing.");
-            }
 
             var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
-
             if (user == null)
-            {
                 return NotFound("Usuário não encontrado no banco de dados local.");
-            }
 
             var company = _mapper.Map<Company>(dto);
-
             company.UserId = user.Id;
+
+            var ownerRole = await _context.CompanyRole.FirstOrDefaultAsync(r => r.Name == "Owner");
+            if (ownerRole == null)
+            {
+                ownerRole = new CompanyRole { Id = Guid.NewGuid(), Name = "Owner" };
+                _context.CompanyRole.Add(ownerRole);
+                await _context.SaveChangesAsync();
+            }
 
             var companyEmployeeLink = new CompanyEmployee
             {
-                User = user,
+                UserId = user.Id,
                 Company = company,
-                Roles = "Owner",
+                CompanyRoleId = ownerRole.Id,
+                IsActive = CompanyEmployeeStatus.Active,
                 CanPostJobs = true
             };
 
-            _companyRepository.AddAsync(company);
-            _companyEmployeeRepository.AddAsync(companyEmployeeLink);
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _context.Company.Add(company);
+                await _context.SaveChangesAsync();
+
+                companyEmployeeLink.CompanyId = company.Id;
+                _context.CompanyEmployee.Add(companyEmployeeLink);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"Erro ao criar empresa: {ex.Message}");
+            }
 
             var companyDtoToReturn = _mapper.Map<CompanyDTO>(company);
             return CreatedAtAction(nameof(GetById), new { id = company.Id }, companyDtoToReturn);
         }
+
 
         [HttpPatch("disable/{id}")]
         public async Task<IActionResult> DesactiveCompany(Guid id)
@@ -222,7 +223,7 @@ namespace Oportuniza.API.Controllers
             if (existingCompany == null)
                 return NotFound("Empresa não encontrada.");
 
-            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
 
             if (user == null || existingCompany.UserId != user.Id)

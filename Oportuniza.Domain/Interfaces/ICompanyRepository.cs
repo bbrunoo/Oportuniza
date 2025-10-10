@@ -15,5 +15,6 @@ namespace Oportuniza.Domain.Interfaces
             int pageSize
         );
         Task<List<Company>> GetAllByUserOrEmployeeAsync(Guid userId);
+        Task<bool> UserOwnsCompanyAsync(Guid userId, Guid companyId);
     }
 }

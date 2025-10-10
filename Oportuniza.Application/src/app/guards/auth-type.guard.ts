@@ -9,7 +9,7 @@ export class AuthTypeGuard implements CanActivate {
   constructor(
     private keycloakService: KeycloakOperationService,
     private router: Router
-  ) {}
+  ) { }
 
   async canActivate(
     route: ActivatedRouteSnapshot,

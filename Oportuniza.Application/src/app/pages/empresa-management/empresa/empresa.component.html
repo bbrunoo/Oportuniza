@@ -18,7 +18,7 @@
           Informações
         </a>
 
-        <a routerLink="adicionar-funcionario" routerLinkActive="active-link"
+        <a *ngIf="isUserAdmin" routerLink="adicionar-funcionario" routerLinkActive="active-link"
           [routerLinkActiveOptions]="{ exact: true }">
           Adicionar Funcionários
         </a>
@@ -27,10 +27,14 @@
           Funcionários
         </a>
 
-        <a routerLink="editar-empresa" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">
+        <a routerLink="editar-empresa" *ngIf="isUserAdmin" routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }">
           Editar Empresa
         </a>
 
+        <button *ngIf="isUserAdmin" (click)="desativarEmpresa()">
+          Excluir Empresa
+        </button>
       </nav>
     </div>
 

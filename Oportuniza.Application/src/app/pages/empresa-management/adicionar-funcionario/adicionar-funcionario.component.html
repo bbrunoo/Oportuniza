@@ -1,57 +1,39 @@
-<div class="container">
-  <div class="edit-panel">
-    <h2 class="config-text">
-      ADICIONAR FUNCIONÁRIO
-    </h2>
-    <p class="edit-intro-text">
-      A criação de um acesso para os funcionários é essencial, pois possibilitará que,
-      por meio dessa conta, eles tenham acesso às publicações desta empresa em
-      específico, além de poderem criar novas publicações.
+<div class="conteudo">
+
+  <div class="header-section">
+    <h2>Adicionar Novo Funcionário</h2>
+    <p class="texto-explicativo">
+      Para vincular um usuário à sua empresa, pesquise pelo e-mail cadastrado na plataforma. Após encontrar o perfil,
+      clique em "Adicionar" para que ele faça parte da sua equipe.
     </p>
-    <form (ngSubmit)="onSave()" class="edit-content-wrapper">
-
-      <div *ngIf="isLoading" class="loading-overlay">
-        <p>Carregando...</p>
-      </div>
-
-      <div class="edit-content" [class.content-disabled]="isLoading">
-        <div class="conteudo-left">
-          <p>IMAGEM PADRÃO</p>
-          <div class="image-preview-area">
-            <img [src]="companyImageUrl" alt="Imagem Padrão do Funcionário" class="preview-image" />
-          </div>
-        </div>
-
-        <div class="form-section">
-          <div class="form-field">
-            <label for="employee-name">Nome do Funcionario</label>
-            <input type="text" id="employee-name" placeholder="Nome" [(ngModel)]="employeeName" name="employeeName"
-              maxlength="100" required class="text-input">
-          </div>
-          <div class="form-field">
-            <label for="employee-email">Email do Funcionario</label>
-            <input type="email" id="employee-email" placeholder="email@exemplo.com" [(ngModel)]="employeeEmail"
-              name="employeeEmail" required class="text-input">
-          </div>
-          <div class="form-field">
-            <label for="employee-password">Senha de Acesso</label>
-            <div class="password-input-wrapper">
-              <input [type]="hidePassword ? 'password' : 'text'" id="employee-password"
-                placeholder="Mínimo 6 caracteres" [(ngModel)]="employeePassword" name="employeePassword" required
-                class="text-input">
-              <button type="button" class="toggle-visibility-button" (click)="togglePasswordVisibility('password')">
-                <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
-            </div>
-          </div>
-
-          <div class="button-row">
-            <button type="submit" class="save-button" [disabled]="!isFormValid() || isSubmitting">
-              {{ isSubmitting ? 'Salvando...' : 'Salvar' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </form>
   </div>
+
+  <div class="form-section">
+    <div class="form-field">
+      <label for="link-email">Pesquisar Email do Usuário</label>
+      <div class="input-with-button">
+        <input type="email" id="link-email" placeholder="email@exemplo.com" [(ngModel)]="linkEmail" name="linkEmail"
+        required class="text-input" (keyup.enter)="searchUserByEmail()">
+        <button type="button" class="search-button" (click)="searchUserByEmail()"
+        [disabled]="!isValidEmail(linkEmail) || isSearching">
+        <mat-icon>{{ isSearching ? 'hourglass_empty' : 'search' }}</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="searchedUser" class="search-result-wrapper">
+    <p>
+      <strong>Email:</strong> {{ searchedUser.email }}<br>
+      <strong>Nome:</strong> {{ searchedUser.name || 'Não informado' }}<br>
+    </p>
+    <button type="button" class="save-button" (click)="confirmLinkUser()">
+      <mat-icon>link</mat-icon> Adicionar à Empresa
+    </button>
+  </div>
+
+  <div *ngIf="searchError" class="search-error-wrapper">
+    <p>⚠️ {{ searchError }}</p>
+  </div>
+</div>
+
 </div>

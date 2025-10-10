@@ -1,12 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Configurations;
+using System.Linq.Expressions;
 
 namespace Oportuniza.Infrastructure.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions options) : base(options)
+        {
+        }
+
         public DbSet<LoginAttempt> LoginAttempt { get; set; }
         public DbSet<User> User { get; set; }
         public DbSet<AreaOfInterest> AreasOfInterest { get; set; }
@@ -19,6 +24,7 @@ namespace Oportuniza.Infrastructure.Data
         public DbSet<Publication> Publication { get; set; }
         public DbSet<UserAreaOfInterest> UserAreaOfInterest { get; set; }
         public DbSet<CompanyEmployee> CompanyEmployee { get; set; }
+        public DbSet<CompanyRole> CompanyRole { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new LoginAttemptsEntityConfiguration());
@@ -34,6 +40,7 @@ namespace Oportuniza.Infrastructure.Data
             modelBuilder.ApplyConfiguration(new UserAreaOfInterestConfiguration());
             modelBuilder.ApplyConfiguration(new CompanyEmployeeConfiguration());
             modelBuilder.ApplyConfiguration(new CandidateApplicationConfiguration());
+            modelBuilder.ApplyConfiguration(new CompanyRoleConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }

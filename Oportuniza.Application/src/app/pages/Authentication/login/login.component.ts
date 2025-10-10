@@ -28,6 +28,14 @@ export class LoginComponent {
     this.passwordVisible = !this.passwordVisible;
   }
 
+  sanitizeEmail() {
+    this.email = this.email.replace(/[^a-zA-Z0-9@._%+-]/g, '');
+  }
+
+  sanitizePassword() {
+    this.password = this.password.replace(/[^a-zA-Z0-9!@#$%^&*()_+=\-{}\[\]:;"'<>,.?/|\\~`]/g, '');
+  }
+
   public login(): void {
     this.isLoading = true;
     sessionStorage.setItem('loginWithKeycloak', 'true');
@@ -36,7 +44,10 @@ export class LoginComponent {
       async (res: any) => {
         console.log('Login realizado com sucesso:', res);
         this.isLoading = false;
-        this.router.navigate(["/inicio"]);
+
+        this.keycloakService.setNewAccessToken(res.access_token || res.token);
+
+        this.router.navigate(["/troca"]);
       },
       (err) => {
         console.error('Erro no login:', err);

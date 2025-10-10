@@ -122,6 +122,7 @@
   transform: scale(1.05);
   transition: ease-in 0.1s;
 }
+
 .status-badge.active {
   background-color: #4CAF50;
 }
@@ -162,4 +163,226 @@
   color: #F44336;
   background-color: rgba(244, 67, 54, 0.1);
   border-radius: 5px;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ESTILOS DO MODAL DE PERMISSÕES (NOVO E MELHORADO) */
+/* ------------------------------------------------------------------------- */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Fundo escuro transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  /* Garante que fique acima de outros elementos */
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  width: 90%;
+  max-width: 420px;
+  /* Tamanho do modal ajustado */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transform: translateY(-20px);
+  /* Levemente deslocado para animação */
+  transition: all 0.3s ease-out;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.employee-name-info {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 25px;
+  padding: 5px 10px;
+  background-color: #f7f7f7;
+  border-left: 4px solid #007bff;
+  /* Linha de destaque */
+  border-radius: 4px;
+}
+
+.permission-item {
+  margin-bottom: 25px;
+  padding: 15px 0;
+}
+
+.permission-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.permission-role {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.desc {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.4;
+  margin-top: 5px;
+}
+
+.separator {
+  height: 1px;
+  background-color: #eee;
+  margin: 15px 0;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ESTILOS DO SLIDER (TOGGLE SWITCH) */
+/* ------------------------------------------------------------------------- */
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  /* Largura do switch */
+  height: 28px;
+  /* Altura do switch */
+}
+
+/* Esconde o checkbox padrão */
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  /* Cor de fundo quando DESLIGADO */
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  /* Cor da bolinha */
+  transition: 0.4s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estado LIGADO */
+.toggle-switch input:checked+.slider {
+  background-color: #28a745;
+  /* Cor de fundo quando LIGADO (Verde bonito) */
+}
+
+.toggle-switch input:checked+.slider:before {
+  transform: translateX(22px);
+  /* Move a bolinha para a direita */
+}
+
+/* Estilo Arredondado (Round) */
+.slider.round {
+  border-radius: 28px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Estado DESABILITADO */
+.toggle-switch input:disabled+.slider {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.toggle-switch input:disabled:checked+.slider {
+  background-color: #90ee90;
+  /* Verde claro para desabilitado e checado */
+}
+
+.toggle-switch input:disabled+.slider:before {
+  background-color: #e0e0e0;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ESTILOS DOS BOTÕES E AVISOS */
+/* ------------------------------------------------------------------------- */
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.cancel-button,
+.save-button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.cancel-button {
+  background-color: #f0f0f0;
+  color: #333;
+  border: none;
+}
+
+.cancel-button:hover {
+  background-color: #e0e0e0;
+}
+
+.save-button {
+  background-color: #007bff;
+  /* Azul primário */
+  color: white;
+  border: none;
+}
+
+.save-button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.save-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.self-edit-warning {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #fff3cd;
+  /* Amarelo claro */
+  color: #856404;
+  /* Texto escuro para contraste */
+  border: 1px solid #ffeeba;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  text-align: center;
 }

@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import { ProfileService } from '../../../services/profile.service';
 import { UserProfile } from '../../../models/UserProfile.model';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-meuperfil',
-  imports: [FormsModule,CommonModule],
+  imports: [FormsModule, CommonModule, NgIf],
   templateUrl: './meuperfil.component.html',
   styleUrl: './meuperfil.component.css'
 })

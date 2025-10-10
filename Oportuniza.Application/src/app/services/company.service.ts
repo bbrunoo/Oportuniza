@@ -42,6 +42,11 @@ export class CompanyService {
     return this.http.get<CompanyListDto[]>(`${this.companyApiUrl}/user-companies`);
   }
 
+  updateCompanyStatus(companyId: string, newStatus: number): Observable<void> {
+    const payload = { NewStatus: newStatus };
+    return this.http.patch<void>(`${this.companyApiUrl}/status/${companyId}`, payload);
+  }
+
   getUserCompaniesPaginated(pageNumber: number, pageSize: number): Observable<CompanyPaginatedResponse> {
     const params = {
       pageNumber: pageNumber.toString(),

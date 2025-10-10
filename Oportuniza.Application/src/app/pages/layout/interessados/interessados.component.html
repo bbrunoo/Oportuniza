@@ -2,10 +2,13 @@
   <div class="quadrado">
     <div class="titulos">
       <a (click)="activeTab = 'candidates'; loadData('candidates')" [class.active]="activeTab === 'candidates'">
-        Candidatos
+        {{ isCompany ? 'Candidatos às Minhas Vagas' : 'Candidatos nas Minhas Vagas' }}
       </a>
-      <span>|</span>
-      <a (click)="activeTab = 'inscription'; loadData('inscription')" [class.active]="activeTab === 'inscription'">
+
+      <span *ngIf="!isCompany">|</span>
+
+      <a *ngIf="!isCompany" (click)="activeTab = 'inscription'; loadData('inscription')"
+        [class.active]="activeTab === 'inscription'">
         Minhas Candidaturas
       </a>
     </div>
@@ -15,13 +18,12 @@
         <div class="person-content" *ngFor="let candidate of pub.candidates">
           <div class="left">
             <img class="profile" [src]="candidate.userImage || '../../../../assets/etapas/perfil.png'"
-              alt="Foto de Perfil">
+            alt="Foto de Perfil" />
           </div>
           <div class="center">
             <p class="title">{{ pub.title }}</p>
             <p class="name">{{ candidate.userName }}</p>
             <p class="description">{{ pub.resumee }}</p>
-            <!-- <div class="curriculo">Status: {{ candidate.status }}</div> -->
           </div>
           <div class="right">
             <button class="ver-perfil">Ver Perfil</button>
@@ -30,13 +32,15 @@
       </div>
     </div>
 
-    <div class="inscription" *ngIf="activeTab === 'inscription'">
+    <div class="inscription" *ngIf="activeTab === 'inscription' && !isCompany">
       <div class="candidates-content">
         <div class="person-content" *ngFor="let item of inscriptions">
           <div class="left">
-            <img class="profile" [src]="item.publication.authorImageUrl || '../../../../assets/etapas/perfil.png' "
-              alt="Foto de Perfil">
-            &#64;{{item.publication.authorName}}
+            <img class="profile" [src]="item.publication.authorImageUrl || '../../../../assets/etapas/perfil.png'"
+              alt="Foto de Perfil do Autor" />
+            <span class="author-label">
+              &#64;{{ item.publication.authorName || 'Autor Desconhecido' }}
+            </span>
           </div>
           <div class="center">
             <p class="name">{{ item.publication.title }}</p>
@@ -50,12 +54,8 @@
         </div>
       </div>
     </div>
-
-    <div class="nothing"
-      *ngIf="(activeTab === 'candidates' && publicationsWithCandidates.length === 0) || (activeTab === 'inscription' && inscriptions.length === 0)">
-      <p class="nothing-text">
-        No momento nenhuma informação disponível.
-      </p>
+    <div class="nothing" *ngIf="!loading && !hasData">
+      <p class="nothing-text">No momento nenhuma informação disponível.</p>
     </div>
   </div>
 </div>

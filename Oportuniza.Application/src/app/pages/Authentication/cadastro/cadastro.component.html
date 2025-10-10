@@ -2,7 +2,7 @@
   <div class="cadastro-left">
     <img src="assets/cadastro/cadastro.png" class="cadastro-image" alt="Imagem de fundo" />
     <button type="button" class="logo-btn" style="cursor: pointer; background: transparent; border: transparent">
-      <img src="assets/logo.png" class="logo" alt="Logo" />
+      <img src="assets/logo.png" class="logo" routerLink="/" alt="Logo" />
     </button>
   </div>
 
@@ -34,16 +34,6 @@
         </button>
       </div>
 
-      <!-- <div class="terms-container">
-        <input type="checkbox" [(ngModel)]="acceptTerms" [disabled]="!termsAcceptedInternally"
-          (click)="$event.preventDefault()" name="terms" />
-        <p>
-          Li e aceito os
-          <a (click)="openModal()" style="color: blue">Termos de Uso</a> e a
-          <a (click)="openModal()" style="color: blue">Política de Privacidade</a>
-        </p>
-      </div> -->
-
       <div class="password-criteria">
         <div *ngFor="let criterion of criteriaList" [class.notMet]="!getPasswordCriteria(criterion.key)"
           [class.met]="getPasswordCriteria(criterion.key)" [class.highlight]="getPasswordStatus(criterion.key)">
@@ -53,12 +43,6 @@
 
       <input class="btn-primary" type="submit" value="Cadastrar" />
       <a class="extra-btn" routerLink="/login">Entrar</a>
-
-      <!-- <p class="or-text">Entrar com:</p> -->
-
-      <!-- <button class="btn-microsoft" type="button">
-        <img (click)="microsoftLogin()" src="../../../../assets/microsoft.png" alt="Microsoft" />
-      </button> -->
 
       <p class="register-text">
         Já possui uma conta? <a [routerLink]="['/login']">Entrar</a>

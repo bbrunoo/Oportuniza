@@ -10,20 +10,25 @@ namespace Oportuniza.API.Mapper
         {
             CreateMap<Publication, PublicationDto>()
                 .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src =>
-                    src.AuthorCompanyId.HasValue ? src.AuthorCompany.Id : src.AuthorUser.Id)) 
+                    src.AuthorCompany != null ? src.AuthorCompany.Id :
+                    src.AuthorUser != null ? src.AuthorUser.Id :
+                    src.CreatedByUser != null ? src.CreatedByUser.Id : Guid.Empty))
 
                 .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src =>
-                    src.AuthorCompanyId.HasValue ? src.AuthorCompany.Name : src.AuthorUser.Name))
+                    src.AuthorCompany != null ? src.AuthorCompany.Name :
+                    src.AuthorUser != null ? src.AuthorUser.Name :
+                    src.CreatedByUser != null ? src.CreatedByUser.Name : "Unknown"))
 
                 .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src =>
-                    src.AuthorCompanyId.HasValue ? src.AuthorCompany.ImageUrl : src.AuthorUser.ImageUrl))
+                    src.AuthorCompany != null ? src.AuthorCompany.ImageUrl :
+                    src.AuthorUser != null ? src.AuthorUser.ImageUrl :
+                    src.CreatedByUser != null ? src.CreatedByUser.ImageUrl : null))
 
                 .ForMember(dest => dest.AuthorType, opt => opt.MapFrom(src =>
-                    src.AuthorCompanyId.HasValue ? "Company" : "User"))
+                    src.AuthorCompany != null ? "Company" :
+                    src.AuthorUser != null ? "User" : "Unknown"))
 
-                 .ForMember(dest => dest.CompanyOwnerId,
-                    opt => opt.MapFrom(src => src.AuthorCompany != null ? src.AuthorCompany.UserId : (Guid?)null))
-
+                .ForMember(dest => dest.CompanyOwnerId, opt => opt.MapFrom(src => src.AuthorCompanyId))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
 
             CreateMap<PublicationCreateDto, Publication>();

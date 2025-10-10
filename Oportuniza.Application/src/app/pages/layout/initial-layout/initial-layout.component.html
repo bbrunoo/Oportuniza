@@ -31,14 +31,30 @@
 
     <div class="user-content">
       <button class="novo-post" routerLink="post">+ Novo Post</button>
+
+      <!-- Exibe se o usuário está logado -->
       <div class="user" *ngIf="loginDisplay">
-        <img class="user-image" [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'" alt="" />
-        {{ userProfile.name }}
+
+        <!-- Se for empresa -->
+        <ng-container *ngIf="userProfile.isCompany; else normalUser">
+          <img class="user-image" [src]="userProfile.imageUrl || '../../../../assets/home-assets/company.png'"
+            alt="Logo da Empresa" />
+          {{ userProfile.name }}
+        </ng-container>
+
+        <!-- Se for usuário normal -->
+        <ng-template #normalUser>
+          <img class="user-image" [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'"
+            alt="Foto do Usuário" />
+          {{ userProfile.name }}
+        </ng-template>
+
         <div class="config-area">
-          <span *ngIf="showCompleteProfileicon">
-            <img src="../../../../assets/exclamation.png" alt="" />
+          <span *ngIf="showCompleteProfileicon && !userProfile.isCompany">
+            <img src="../../../../assets/exclamation.png" alt="Completar perfil" />
           </span>
-          <img class="config-image" (click)="openDialog()" src="../../../../assets/home-assets/settings.png" alt="" />
+          <img class="config-image" (click)="openDialog()" src="../../../../assets/home-assets/settings.png"
+            alt="Configurações" />
         </div>
       </div>
     </div>

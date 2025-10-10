@@ -25,6 +25,8 @@ export class FeedComponent implements OnInit {
   appliedStatus: { [publicationId: string]: boolean } = {};
   applicationIds: { [publicationId: string]: string } = {};
   hasApplied = false;
+  isCompany: boolean = false;
+
 
   constructor(
     private publicationService: PublicationService,
@@ -44,7 +46,16 @@ export class FeedComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getUserIdAndPublications();
+    this.userService.getOwnProfile().pipe(take(1)).subscribe({
+      next: (profile: any) => {
+        this.isCompany = profile.isCompany;
+        this.getUserIdAndPublications();
+      },
+      error: (err) => {
+        console.error('Erro ao obter perfil do usuário:', err);
+        this.getUserIdAndPublications();
+      }
+    });
   }
 
   goBack() {

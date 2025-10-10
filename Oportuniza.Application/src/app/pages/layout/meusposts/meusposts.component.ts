@@ -16,26 +16,32 @@ export class MeuspostsComponent implements OnInit {
   pageNumber = 1;
   pageSize = 8;
   totalPages = 0;
+  isLoading = false;
 
   constructor(
     private publicationService: PublicationService,
     private dialog: MatDialog
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getPublications();
   }
 
   getPublications() {
+    this.isLoading = true;
     this.publicationService
       .getMyPublications(this.pageNumber, this.pageSize)
       .subscribe({
         next: (res: any) => {
           this.publications = res.items;
           this.totalPages = res.totalPages;
+          this.isLoading = false;
         },
         error: (error: any) => {
           console.log('Erro ao carregar publicações:', error);
+          this.publications = [];
+          this.totalPages = 0;
+          this.isLoading = false;
         },
       });
   }
@@ -70,7 +76,7 @@ export class MeuspostsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.publications = this.publications.filter((p) => p.id !== post.id);
+        this.getPublications();
       }
     });
   }

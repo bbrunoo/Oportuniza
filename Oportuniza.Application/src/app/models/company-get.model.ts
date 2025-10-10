@@ -24,4 +24,5 @@ export interface CompanyDto {
   email: string;
   cnpj: string;
   employees: CompanyEmployeeDto[];
+  ownerId: string;
 }

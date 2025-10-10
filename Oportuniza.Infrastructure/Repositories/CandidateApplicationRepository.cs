@@ -68,10 +68,15 @@ namespace Oportuniza.Infrastructure.Repositories
         public async Task<IEnumerable<CandidateApplication>> GetApplicationsLoggedUser(Guid userId)
         {
             return await _context.CandidateApplication
-              .Where(ca => ca.UserId == userId)
-              .Include(ca => ca.Publication)
-              .ThenInclude(p => p.AuthorUser)
-              .ToListAsync();
+                .Include(ca => ca.Publication)
+                    .ThenInclude(p => p.AuthorUser)
+                .Include(ca => ca.Publication)
+                    .ThenInclude(p => p.AuthorCompany)
+                .Include(ca => ca.Publication)
+                    .ThenInclude(p => p.CreatedByUser)
+                .Include(ca => ca.User)
+                .Where(ca => ca.UserId == userId)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<Publication>> GetPublicationsWithCandidatesByUserAsync(Guid userId)
@@ -91,6 +96,8 @@ namespace Oportuniza.Infrastructure.Repositories
                 .Include(ca => ca.Publication)
                     .ThenInclude(p => p.AuthorUser)
                 .Include(ca => ca.Publication)
+                    .ThenInclude(p => p.AuthorCompany)
+                .Include(ca => ca.Publication)
                     .ThenInclude(p => p.CreatedByUser)
                 .Include(ca => ca.User)
                 .Where(ca => ca.PublicationAuthorId == publicationAuthorId)
@@ -102,10 +109,22 @@ namespace Oportuniza.Infrastructure.Repositories
                     Description = group.Key.Description,
                     Resumee = group.Key.Resumee,
                     ImageUrl = group.Key.ImageUrl,
+                    CreationDate = group.Key.CreationDate,
+                    AuthorId = group.Key.AuthorUser != null
+                        ? group.Key.AuthorUser.Id
+                        : group.Key.AuthorCompany != null
+                            ? group.Key.AuthorCompany.Id
+                            : group.Key.CreatedByUser.Id,
+                    AuthorName = group.Key.AuthorUser != null
+                        ? group.Key.AuthorUser.Name
+                        : group.Key.AuthorCompany != null
+                            ? group.Key.AuthorCompany.Name
+                            : group.Key.CreatedByUser.Name,
                     AuthorImage = group.Key.AuthorUser != null
                         ? group.Key.AuthorUser.ImageUrl
-                        : group.Key.CreatedByUser.ImageUrl,
-                    CreationDate = group.Key.CreationDate,
+                        : group.Key.AuthorCompany != null
+                            ? group.Key.AuthorCompany.ImageUrl
+                            : group.Key.CreatedByUser.ImageUrl,
                     Candidates = group.Select(ca => new CandidateDto
                     {
                         CandidateId = ca.Id,
@@ -117,6 +136,16 @@ namespace Oportuniza.Infrastructure.Repositories
                         Status = ca.Status.ToString()
                     }).ToList()
                 })
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<CandidateApplication>> GetApplicationsByCompanyAsync(Guid companyId)
+        {
+            return await _context.CandidateApplication
+                .Include(ca => ca.User)
+                .Include(ca => ca.Publication)
+                    .ThenInclude(p => p.AuthorCompany)
+                .Where(ca => ca.Publication.AuthorCompanyId == companyId)
                 .ToListAsync();
         }
     }

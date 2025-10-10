@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.DTOs.Candidates;
+using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
+using Oportuniza.Infrastructure.Repositories;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers
@@ -15,10 +17,12 @@ namespace Oportuniza.API.Controllers
     public class ProfileController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly ICompanyRepository _companyRepository;
         private readonly IMapper _mapper;
-        public ProfileController(IUserRepository userRepository, IMapper mapper)
+        public ProfileController(IUserRepository userRepository, ICompanyRepository companyRepository, IMapper mapper)
         {
             _userRepository = userRepository;
+            _companyRepository = companyRepository;
             _mapper = mapper;
         }
 
@@ -38,25 +42,31 @@ namespace Oportuniza.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetMyProfile()
         {
-            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(keycloakId))
-            {
                 return Unauthorized("Token 'sub' claim is missing.");
+
+            var companyIdClaim = User.FindFirst("company_id")?.Value;
+            if (Guid.TryParse(companyIdClaim, out Guid companyContextId))
+            {
+                var company = await _companyRepository.GetByIdAsync(companyContextId);
+                if (company == null)
+                    return NotFound("Empresa não encontrada.");
+
+                var companyDto = _mapper.Map<CompanyDTO>(company);
+                return Ok(companyDto);
             }
 
             var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
-
             if (user == null)
-            {
                 return NotFound("Usuário não encontrado no banco de dados local.");
-            }
 
-            var own = await _userRepository.GetByIdAsync(user.Id);
-            var result = _mapper.Map<UserDTO>(own);
-            return Ok(result);
+            var userDto = _mapper.Map<UserDTO>(user);
+            return Ok(userDto);
         }
 
         [HttpGet("profile-data/{id}")]

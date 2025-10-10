@@ -10,5 +10,6 @@ namespace Oportuniza.Domain.Interfaces
         Task<IEnumerable<AllUsersInfoDTO>> GetAllUserInfosAsync();
         Task<User?> GetByIdWithInterests(Guid id);
         Task<User> GetUserByKeycloakIdAsync(string keycloakId);
+        Task<User?> GetUserByEmailAsync(string email);
     }
 }

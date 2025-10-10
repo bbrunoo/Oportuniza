@@ -19,7 +19,7 @@
 
             public async Task<string> CreateSummaryAsync(string description, string shift, string local, string contract, int maxWords, string salary)
             {
-                var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={_apiKey}";
+                var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={_apiKey}";
 
                 var prompt = $"Crie um resumo da vaga em no máximo {maxWords} palavras baseado nos seguintes dados: descrição: {description}, turno: {shift}, local: {local}, tipo de contrato: {contract}, salario: {salary}. O resumo deve ser direto e simples, sem caracteres especiais como [] ou {{}}.";
 

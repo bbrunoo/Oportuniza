@@ -5,7 +5,7 @@ namespace Oportuniza.Domain.Models
     public class Company
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public string? Description { get; set; }
         public bool Active { get; set; }
         public Guid UserId { get; set; }
@@ -16,7 +16,7 @@ namespace Oportuniza.Domain.Models
         public string Email { get; set; }
         public string Cnpj { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public CompanyAvailable IsActive { get; set; } = CompanyAvailable.Enabled;
+        public CompanyAvailable IsActive { get; set; } = CompanyAvailable.Active;
         public ICollection<CompanyEmployee> Employees { get; set; } = new List<CompanyEmployee>();
         public virtual ICollection<Publication> AuthoredPublications { get; set; }
     }

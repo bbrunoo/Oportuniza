@@ -17,7 +17,7 @@ export interface PublicationWithCandidates {
   title: string;
   resumee: string;
   authorImageUrl: string;
-  name:string;
+  name: string;
   candidates: CandidateDTO[];
 }
 

@@ -18,7 +18,7 @@ namespace Oportuniza.Infrastructure.Repositories
         public async Task<IEnumerable<Company>> GetAllWithEmployeesAndUsersAsync()
         {
             return await _context.Company
-                            .Where(c => c.IsActive == CompanyAvailable.Enabled)
+                            .Where(c => c.IsActive == CompanyAvailable.Active)
                              .Include(c => c.Employees)
                              .ThenInclude(e => e.User)
                              .AsNoTracking()
@@ -39,7 +39,7 @@ namespace Oportuniza.Infrastructure.Repositories
         public async Task<List<Company>> GetByUserIdAsync(Guid userId)
         {
             return await _context.Company
-               .Where(c => c.IsActive == CompanyAvailable.Enabled)
+               .Where(c => c.IsActive == CompanyAvailable.Active)
                .Where(c => c.UserId == userId)
                .ToListAsync();
         }
@@ -49,7 +49,7 @@ namespace Oportuniza.Infrastructure.Repositories
             var skipAmount = (pageNumber - 1) * pageSize;
 
             return await _context.Company
-                .Where(c => c.IsActive == CompanyAvailable.Enabled)
+                .Where(c => c.IsActive == CompanyAvailable.Active)
                 .Where(c => c.UserId == userId)
                 .Skip(skipAmount)
                 .Take(pageSize)
@@ -60,7 +60,7 @@ namespace Oportuniza.Infrastructure.Repositories
         {
             return await _context.Company
                 .Include(c => c.Employees)
-                .Where(c => c.IsActive == CompanyAvailable.Enabled &&
+                .Where(c => c.IsActive == CompanyAvailable.Active &&
                            (c.UserId == userId || c.Employees.Any(e => e.UserId == userId)))
                 .OrderBy(c => c.Name)
                 .ToListAsync();
@@ -74,7 +74,6 @@ namespace Oportuniza.Infrastructure.Repositories
                 .ToListAsync();
 
             var allUserCompaniesQuery = _context.Company
-                .Where(c => c.IsActive == CompanyAvailable.Enabled)
                 .Where(c => c.UserId == userId || employedCompanyIds.Contains(c.Id))
                 .OrderBy(c => c.Name)
                 .AsQueryable();
@@ -92,9 +91,14 @@ namespace Oportuniza.Infrastructure.Repositories
         public async Task<bool> UserHasAccessToCompanyAsync(Guid userId, Guid companyId)
         {
             return await _context.Company
-                .AnyAsync(c => c.Id == companyId && c.IsActive == CompanyAvailable.Enabled &&
+                .AnyAsync(c => c.Id == companyId && c.IsActive == CompanyAvailable.Active &&
                               (c.UserId == userId || c.Employees.Any(e => e.UserId == userId)));
         }
 
+        public async Task<bool> UserOwnsCompanyAsync(Guid userId, Guid companyId)
+        {
+            return await _context.Company
+                .AnyAsync(c => c.Id == companyId && c.UserId == userId);
+        }
     }
 }

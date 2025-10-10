@@ -25,6 +25,7 @@ import { VerificationComponent } from './pages/Authentication/verification/verif
 import { SearchResultComponent } from './pages/layout/search-result/search-result.component';
 import { EditarPostComponent } from './pages/layout/editar-post/editar-post.component';
 import { SpecificPublicationComponent } from './pages/layout/specific-publication/specific-publication.component';
+import { ContextSwitcherComponent } from './pages/Authentication/context-switcher/context-switcher.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -35,6 +36,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'verify/:email', component: VerificationComponent },
   { path: 'loading', component: LoadingComponent },
+  { path: 'troca', component: ContextSwitcherComponent },
   {
     path: "inicio",
     component: InitialLayoutComponent,

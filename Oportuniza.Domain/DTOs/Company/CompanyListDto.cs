@@ -1,4 +1,6 @@
-﻿namespace Oportuniza.Domain.DTOs.Company
+﻿using Oportuniza.Domain.Enums;
+
+namespace Oportuniza.Domain.DTOs.Company
 {
     public class CompanyListDto
     {
@@ -12,5 +14,8 @@
         public Guid OwnerId { get; set; }
         public string ImageUrl { get; set; }
         public string UserRole { get; set; }
+        public CompanyAvailable IsActive { get; set; }
+        public bool IsDisabled => IsActive == CompanyAvailable.Disabled;
+        public bool IsEnabled => IsActive == CompanyAvailable.Active;
     }
 }

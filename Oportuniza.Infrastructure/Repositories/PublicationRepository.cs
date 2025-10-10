@@ -72,6 +72,23 @@ namespace Oportuniza.Infrastructure.Repositories
             return await query.ToListAsync();
         }
 
+        public async Task<(IEnumerable<Publication> publications, int totalCount)> GetCompanyPublicationsPaged(
+                    Guid companyId, int pageNumber, int pageSize)
+        {
+            var query = _context.Publication
+                .Where(p => p.AuthorCompanyId == companyId);
+
+            var totalCount = await query.CountAsync();
+
+            var publications = await query
+                .OrderByDescending(p => p.CreationDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (publications, totalCount);
+        }
+
         public async Task<IEnumerable<Publication>> GetMyPublications(Guid userId)
         {
             var userCompanyIds = await _context.Company
@@ -108,6 +125,29 @@ namespace Oportuniza.Infrastructure.Repositories
                 .Take(pageSize)
                 .ToListAsync();
 
+
+            return (publications, totalCount);
+        }
+
+        public async Task<(IEnumerable<Publication>, int)> GetMyPublicationsPaged(Guid userId, int pageNumber, int pageSize, bool onlyPersonal)
+        {
+            if (!onlyPersonal)
+            {
+                return await GetMyPublicationsPaged(userId, pageNumber, pageSize);
+            }
+
+            var query = _context.Publication
+                .Where(p => p.AuthorUserId == userId && p.IsActive == PublicationAvailable.Enabled);
+
+            var totalCount = await query.CountAsync();
+
+            var publications = await query
+                .OrderByDescending(p => p.CreationDate)
+                .Include(p => p.AuthorUser)
+                .Include(p => p.AuthorCompany)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             return (publications, totalCount);
         }

@@ -19,7 +19,7 @@ export class PublicationService {
     return this.http.get<Publication[]>(`${this.apiUrl}`);
   }
 
-  getPublicationsById(id:string) {
+  getPublicationsById(id: string) {
     return this.http.get<Publication>(`${this.apiUrl}/${id}`);
   }
 
@@ -27,7 +27,7 @@ export class PublicationService {
     pageNumber: number = 1,
     pageSize: number = 10
   ): Observable<any> {
-    return this.http.get<any>(`${this.apiUrlNormal}/my`, {
+    return this.http.get<any>(`${this.apiUrl}/my`, {
       params: {
         pageNumber: pageNumber,
         pageSize: pageSize,
@@ -48,8 +48,7 @@ export class PublicationService {
     formData.append('Contract', dto.contract);
     formData.append('Local', dto.local);
     formData.append('ExpirationDate', dto.expirationDate);
-
-    formData.append('Tags', JSON.stringify(dto.tags));
+    formData.append('CityId', dto.cityId);
 
     if (dto.postAsCompanyId) {
       formData.append('PostAsCompanyId', dto.postAsCompanyId);

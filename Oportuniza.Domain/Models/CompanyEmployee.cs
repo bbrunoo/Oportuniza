@@ -11,7 +11,8 @@ namespace Oportuniza.Domain.Models
         public Guid CompanyId { get; set; }
         public CompanyEmployeeStatus IsActive { get; set; } = CompanyEmployeeStatus.Active;
         public virtual Company Company { get; set; }
-        public string Roles { get; set; }
+        public Guid CompanyRoleId { get; set; }
+        public virtual CompanyRole CompanyRole { get; set; } = null!;
         public bool CanPostJobs { get; set; }
     }
 }

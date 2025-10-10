@@ -7,12 +7,10 @@ namespace Oportuniza.Domain.Interfaces
     {
         Task<IEnumerable<CandidateApplication>> GetCandidatesByPublicationAsync(Guid publicationId);
         Task<IEnumerable<CandidateApplication>> GetApplicationsByUserAsync(Guid userId);
-        //Task<IEnumerable<Publication>> GetPublicationsWithCandidatesByUserAsync(Guid userId);
         Task<bool> HasAppliedAsync(Guid publicationId, Guid userId);
         Task<object> GetPublicationStatisticsAsync(Guid publicationId);
         Task<CandidateApplication> GetApplicationByPublicationAndUserAsync(Guid publicationId, Guid userId);
-        //Task<IEnumerable<CandidateApplication>> GetApplicationsLoggedUser(Guid userId);
-        //Task<IEnumerable<Publication>> GetApplicationsLoggedUser(Guid userId);
+        Task<IEnumerable<CandidateApplication>> GetApplicationsByCompanyAsync(Guid companyId);
         Task<IEnumerable<CandidateApplication>> GetApplicationsLoggedUser(Guid userId);
         Task<List<PublicationWithCandidatesDto>> GetPublicationsWithCandidatesByAuthorAsync(Guid publicationAuthorId);
     }

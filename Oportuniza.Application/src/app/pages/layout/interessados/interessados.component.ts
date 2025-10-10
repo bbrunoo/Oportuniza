@@ -4,10 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { CandidateDTO, PublicationWithCandidates, UserApplication } from '../../../models/candidate.model';
-import { Publication } from '../../../models/Publications.model';
 
 @Component({
   selector: 'app-interessados',
+  standalone: true,
   imports: [FormsModule, CommonModule],
   templateUrl: './interessados.component.html',
   styleUrls: ['./interessados.component.css']
@@ -18,47 +18,72 @@ export class InteressadosComponent implements OnInit {
   activeTab: 'candidates' | 'inscription' = 'candidates';
   publicationsWithCandidates: PublicationWithCandidates[] = [];
   inscriptions: UserApplication[] = [];
-  appliedStatus: { [publicationId: string]: boolean } = {};
-
   loading = false;
   hasData = true;
+  isCompany = false;
 
   constructor(private candidateService: CandidateService) { }
 
   ngOnInit() {
+    this.detectActiveContext();
     this.loadData('candidates');
+  }
+
+  private detectActiveContext() {
+    const active = localStorage.getItem('active_token');
+    this.isCompany = active === 'company';
   }
 
   loadData(tab: 'candidates' | 'inscription') {
     this.loading = true;
     this.activeTab = tab;
 
+    if (this.isCompany) {
+      if (tab === 'candidates') {
+        this.candidateService.getApplicationsByCompany().subscribe({
+          next: (res: CandidateDTO[]) => {
+            this.publicationsWithCandidates = this.mapToPublicationWithCandidates(res);
+            this.hasData = this.publicationsWithCandidates.length > 0;
+            this.loading = false;
+          },
+          error: () => {
+            Swal.fire('Erro', 'Não foi possível carregar os candidatos.', 'error');
+            this.hasData = false;
+            this.loading = false;
+          }
+        });
+      } else {
+        this.inscriptions = [];
+        this.hasData = false;
+        this.loading = false;
+      }
+
+      return;
+    }
+
     if (tab === 'candidates') {
       this.candidateService.getMyPublicationsWithCandidates().subscribe({
-        next: (res) => {
-          this.publicationsWithCandidates = res.filter(pub => pub.candidates && pub.candidates.length > 0);
+        next: (res: PublicationWithCandidates[]) => {
+          this.publicationsWithCandidates = res;
           this.hasData = this.publicationsWithCandidates.length > 0;
           this.loading = false;
-          console.log("log", res);
         },
-        error: (err) => {
-          console.error(err);
-          Swal.fire('Erro', 'Não foi possível carregar os candidatos. Tente novamente.', 'error');
+        error: () => {
+          Swal.fire('Erro', 'Não foi possível carregar os candidatos.', 'error');
           this.hasData = false;
           this.loading = false;
         }
       });
     } else if (tab === 'inscription') {
-      this.candidateService.getMyApplications().subscribe({
+      // Ver candidaturas que eu me inscrevi
+      this.candidateService.getApplicationsByUser().subscribe({
         next: (res: UserApplication[]) => {
           this.inscriptions = res;
           this.hasData = this.inscriptions.length > 0;
           this.loading = false;
-          console.log("log", res);
         },
-        error: (err) => {
-          console.error(err);
-          Swal.fire('Erro', 'Não foi possível carregar suas candidaturas. Tente novamente.', 'error');
+        error: () => {
+          Swal.fire('Erro', 'Não foi possível carregar suas candidaturas.', 'error');
           this.hasData = false;
           this.loading = false;
         }
@@ -66,6 +91,39 @@ export class InteressadosComponent implements OnInit {
     }
   }
 
+  /** Agrupa os candidatos por publicação */
+  private mapToPublicationWithCandidates(res: CandidateDTO[]): PublicationWithCandidates[] {
+    const map = new Map<string, PublicationWithCandidates>();
+
+    res.forEach(app => {
+      if (!map.has(app.publicationId)) {
+        map.set(app.publicationId, {
+          publicationId: app.publicationId,
+          title: app.publicationTitle,
+          resumee: '',
+          authorImageUrl: '',
+          name: '',
+          candidates: []
+        });
+      }
+
+      map.get(app.publicationId)!.candidates.push({
+        id: app.id,
+        publicationId: app.publicationId,
+        publicationTitle: app.publicationTitle,
+        userId: app.userId,
+        userName: app.userName,
+        userIdKeycloak: app.userIdKeycloak,
+        applicationDate: app.applicationDate,
+        userImage: app.userImage,
+        status: app.status
+      });
+    });
+
+    return Array.from(map.values());
+  }
+
+  /** Cancela uma candidatura */
   cancelApplication(applicationId: string) {
     Swal.fire({
       title: 'Tem certeza?',
@@ -88,22 +146,10 @@ export class InteressadosComponent implements OnInit {
     this.candidateService.cancelApplication(applicationId).subscribe({
       next: () => {
         this.inscriptions = this.inscriptions.filter(app => app.id !== applicationId);
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Candidatura cancelada!',
-          text: 'Sua candidatura foi cancelada com sucesso.',
-          confirmButtonText: 'Ok'
-        });
+        Swal.fire('Sucesso!', 'Sua candidatura foi cancelada.', 'success');
       },
-      error: (err) => {
-        console.error('Erro ao cancelar candidatura:', err);
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Erro ao cancelar a candidatura. Por favor, tente novamente.',
-          confirmButtonText: 'Fechar'
-        });
+      error: () => {
+        Swal.fire('Erro', 'Não foi possível cancelar sua candidatura.', 'error');
       }
     });
   }

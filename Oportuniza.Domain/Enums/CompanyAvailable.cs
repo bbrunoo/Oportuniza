@@ -2,7 +2,7 @@
 {
     public enum CompanyAvailable
     {
-        Enabled = 0,
+        Active = 0,
         Disabled = 1
     }
 }

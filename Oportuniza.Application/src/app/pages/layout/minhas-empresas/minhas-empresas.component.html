@@ -17,7 +17,7 @@
         Caso ainda não possua nenhuma empresa registrada, cadastre uma agora!
       </p>
     </div>
-    <div class="custom-button" routerLink="/inicio/criar-empresa">
+    <div class="custom-button" (click)="createCompany()">
       <img src="../../../../assets/plusicon.png" alt="Ícone de mais" />
       <span>Cadastrar Empresa</span>
     </div>
@@ -27,29 +27,36 @@
 <div class="container-empresas" *ngIf="!isLoading && companies.length > 0">
   <div class="empresas">
     <div class="header">
-      <img src="../../../../assets/briefcase.png" width="40px" height="40px" alt="">
+      <img src="../../../../assets/briefcase.png" width="40" height="40" alt="">
       <h2>Minhas Empresas</h2>
-      <button class="create-company" routerLink="/inicio/criar-empresa">+</button>
+      <button class="create-company" (click)="createCompany()">+</button>
     </div>
+
     <div class="post-container">
-      <div class="post-card" *ngFor="let company of companies">
-        <span (click)="openDialog($event, company)">
-          <img class="dots" src="../../../../assets/dots.png" alt="">
-        </span>
-        <img class="post-card-img" [src]="company.imageUrl" />
+      <div class="post-card" *ngFor="let company of companies" [class.inactive-company]="company.IsDisabled">
+
+        <img class="post-card-img" [src]="company.imageUrl || '../../../../assets/company-placeholder.png'"
+          alt="Logo da empresa" />
+
         <div class="description">
-          <p> {{ company.name }}</p>
+          <p>{{ company.name }}</p>
+          <span *ngIf="company.IsDisabled" class="status-indicator inactive">DESATIVADA</span>
         </div>
-        <div class="configure" (click)="goToCompanyConfig(company.id)">
-          <img src="../../../../assets/white-settings.png" alt="" >
+
+        <div *ngIf="company.IsActiveStatus" class="configure config-button"
+          [class.disabled]="isCompanyContext && company.id !== activeCompanyId" (click)="goToCompanyConfig(company.id)">
+          <img src="../../../../assets/white-settings.png" alt="Configurar">
           <span>Configurar</span>
         </div>
+
+        <div *ngIf="company.IsDisabled" class="configure config-button reativar" (click)="toggleCompanyStatus(company)">
+          <img src="../../../../assets/play-circle.png" alt="Reativar">
+          <span>Reativar</span>
+        </div>
+
       </div>
-    </div>
-    <div class="pagination">
-      <button class="change-button" (click)="prevPage()" [disabled]="pageNumber === 1">Anterior</button>
-      <span>Página {{ pageNumber }} de {{ totalPages }}</span>
-      <button class="change-button" (click)="nextPage()" [disabled]="pageNumber === totalPages">Próxima</button>
+
+      <div class="pagination" *ngIf="totalPages > 1"></div>
     </div>
   </div>
 </div>

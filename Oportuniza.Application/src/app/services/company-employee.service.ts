@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CompanyEmployeeDto } from '../models/company-get.model';
 import { map, Observable } from 'rxjs';
-import { EmployeeRegisterPayload } from '../models/employee-register-request.model';
+import { UserSearchResult } from '../models/user-serach.model';
 
 @Injectable({
   providedIn: 'root'
@@ -21,14 +21,27 @@ export class CompanyEmployeeService {
     return this.http.patch(`${this.apiUrl}/status/${employeeId}`, payload);
   }
 
-  registerEmployee(payload: EmployeeRegisterPayload): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/register-employee`, payload);
-  }
-
-   getUserRoles(companyId: string): Observable<string[]> {
+  getUserRoles(companyId: string): Observable<string[]> {
     return this.http.get<{ roles: string }>(`${this.apiUrl}/${companyId}/roles`)
       .pipe(
         map(response => response.roles.split(',').map(r => r.trim()))
       );
+  }
+
+  searchUserByEmail(email: string): Observable<UserSearchResult> {
+    return this.http.get<UserSearchResult>(`${this.apiUrl}/search-user`, { params: { email } });
+  }
+
+  linkEmployee(email: string, companyId: string): Observable<any> {
+    const payload = { email, companyId };
+    return this.http.post(`${this.apiUrl}/register-employee`, payload);
+  }
+
+  updateEmployeeRoles(employeeId: string, updateData: any): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/roles/${employeeId}`, updateData);
+  }
+
+  unlinkCompany(companyId: string) {
+    return this.http.delete<any>(`${this.apiUrl}/unlink/${companyId}`);
   }
 }

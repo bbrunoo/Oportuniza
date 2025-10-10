@@ -9,4 +9,7 @@ export interface CompanyListDto {
   cnpj: string;
   UserRole: string;
   OwnerId: string;
+  isActive: number;
+  IsDisabled?: boolean;
+  IsActiveStatus?: boolean;
 }

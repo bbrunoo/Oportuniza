@@ -16,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Observable } from 'rxjs';
 import { CompanyEmployeeService } from '../../../services/company-employee.service';
 import { CompanyDto } from '../../../models/company-get.model';
+import { UserSearchResult } from '../../../models/user-serach.model';
 
 @Component({
   selector: 'app-adicionar-funcionario',
@@ -37,20 +38,17 @@ import { CompanyDto } from '../../../models/company-get.model';
 })
 export class AdicionarFuncionarioComponent {
   empresaId: string | null = null;
-  isLoading = true;
+  isLoading = false;
   isSubmitting = false;
 
-  companyImageUrl: string | null = null;
+  employeeName = '';
+  employeeEmail = '';
 
-  employeeName: string = '';
-  employeeEmail: string = '';
-  employeePassword: string = '';
-
-  hidePassword = true;
-  hideConfirmPassword = true;
-
-  private readonly PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
-  private readonly MIN_PASSWORD_LENGTH = 8;
+  addMode: 'create' | 'link' = 'create';
+  linkEmail = '';
+  isSearching = false;
+  searchedUser: UserSearchResult | null = null;
+  searchError: string | null = null;
 
   constructor(
     private companyService: CompanyService,
@@ -59,117 +57,108 @@ export class AdicionarFuncionarioComponent {
     private router: Router,
   ) { }
 
-  validatePasswordComplex(password: string): boolean {
-    return this.PASSWORD_REGEX.test(password);
-  }
-
-  private isValidEmail(email: string): boolean {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailPattern.test(email);
-  }
-
   ngOnInit(): void {
-    const parentId = this.route.parent?.snapshot.paramMap.get('id');
-
-    if (parentId) {
-      this.empresaId = parentId;
-      this.loadCompanyImage(this.empresaId);
-    } else {
-      this.isLoading = false;
-      Swal.fire('Erro', 'ID da Empresa não encontrado na URL.', 'error');
-      console.error('ID da Empresa não encontrado na URL.');
-    }
+    this.empresaId = this.route.parent?.snapshot.paramMap.get('id') ?? null;
   }
 
-  togglePasswordVisibility(field: 'password' | 'confirm'): void {
-    if (field === 'password') {
-      this.hidePassword = !this.hidePassword;
-    } else if (field === 'confirm') {
-      this.hideConfirmPassword = !this.hideConfirmPassword;
-    }
+  isValidEmail(email: string | null | undefined): boolean {
+    if (!email) return false;
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
   }
 
-  loadCompanyImage(id: string): void {
-    this.companyService.getCompanyById(id).subscribe({
-      next: (data: CompanyDto) => {
-        this.companyImageUrl = data.imageUrl;
-        this.isLoading = false;
+  searchUserByEmail(): void {
+    this.searchedUser = null;
+    this.searchError = null;
+
+    if (!this.isValidEmail(this.linkEmail)) {
+      Swal.fire('Aviso', 'Informe um email válido.', 'warning');
+      return;
+    }
+    this.isSearching = true;
+
+    this.employeeService.searchUserByEmail(this.linkEmail).subscribe({
+      next: (user) => {
+        this.searchedUser = user;
+        this.isSearching = false;
       },
-      error: () => {
-        this.isLoading = false;
-        this.companyImageUrl = 'assets/placeholder-company.png';
-        Swal.fire('Aviso', 'Não foi possível carregar o logo da empresa. Usando imagem padrão.', 'warning');
+      error: (err) => {
+        this.isSearching = false;
+        if (err.status === 404) {
+          Swal.fire('Não encontrado', 'Usuário não encontrado.', 'info');
+        } else {
+          Swal.fire('Erro', 'Erro ao buscar usuário. Tente novamente.', 'error');
+        }
       }
     });
   }
 
-  isFormValid(): boolean {
-    const isBaseValid = (
-      !!this.employeeName &&
-      !!this.employeeEmail &&
-      this.employeePassword.length >= this.MIN_PASSWORD_LENGTH
-    );
+  confirmLinkUser(): void {
+    if (!this.searchedUser || !this.empresaId) return;
 
-    const isPasswordComplex = this.validatePasswordComplex(this.employeePassword);
-
-    return isBaseValid && isPasswordComplex;
+    Swal.fire({
+      title: 'Confirmar Vinculação',
+      html: `Deseja vincular <strong>${this.searchedUser.name || this.searchedUser.email}</strong> à sua empresa?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sim, Vincular!',
+      cancelButtonText: 'Cancelar',
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        return this.employeeService.linkEmployee(this.searchedUser!.email, this.empresaId!).toPromise()
+          .then(res => res)
+          .catch(err => {
+            let errorMessage = 'Falha ao vincular o funcionário.';
+            if (err.status === 400) errorMessage = err.error || 'Este usuário já está vinculado à empresa.';
+            else if (err.status === 403) errorMessage = 'Você não tem permissão.';
+            Swal.showValidationMessage(`Erro: ${errorMessage}`);
+            return false;
+          });
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        Swal.fire('Sucesso!', `Usuário ${this.searchedUser!.email} vinculado com sucesso.`, 'success');
+        this.searchedUser = null;
+        this.linkEmail = '';
+        this.router.navigate(['../funcionarios'], { relativeTo: this.route });
+      }
+    });
   }
 
+
   onSave(): void {
-    if (this.isSubmitting || !this.empresaId) {
+    if (this.addMode !== 'create') return;
+    if (this.isSubmitting || !this.empresaId) return;
+
+    if (!this.employeeName || !this.employeeEmail) {
+      Swal.fire('Atenção', 'Preencha Nome e Email.', 'warning');
       return;
     }
-
-    if (!this.employeeName || !this.employeeEmail || !this.employeePassword) {
-      Swal.fire('Atenção', 'Por favor, preencha todos os campos obrigatórios (Nome, Email, Senha).', 'warning');
-      return;
-    }
-
     if (!this.isValidEmail(this.employeeEmail)) {
-      Swal.fire('Email Inválido', 'O formato do endereço de email fornecido não é válido.', 'warning');
-      return;
-    }
-
-    if (!this.validatePasswordComplex(this.employeePassword)) {
-      Swal.fire(
-        'Senha Fraca',
-        `A senha deve ter no mínimo ${this.MIN_PASSWORD_LENGTH} caracteres e incluir letras maiúsculas, minúsculas, números e símbolos.`,
-        'warning'
-      );
+      Swal.fire('Email Inválido', 'Formato de email inválido.', 'warning');
       return;
     }
 
     this.isSubmitting = true;
-    this.isLoading = true;
-
     const payload = {
       email: this.employeeEmail,
-      password: this.employeePassword,
       companyId: this.empresaId,
-      employeeName: this.employeeName,
-      imageUrl: this.companyImageUrl || '../../../../assets/etapas/perfil.png'
+      employeeName: this.employeeName
     };
 
-    this.employeeService.registerEmployee(payload).subscribe({
+    this.employeeService.linkEmployee(this.employeeEmail, this.empresaId!).subscribe({
       next: () => {
-        Swal.fire('Sucesso!', 'Funcionário registrado e vinculado com sucesso.', 'success');
+        Swal.fire('Sucesso!', 'Funcionário vinculado/registrado com sucesso.', 'success');
         this.isSubmitting = false;
-        this.isLoading = false;
         this.router.navigate(['../funcionarios'], { relativeTo: this.route });
       },
       error: (err) => {
-        const errorStatus = err.status;
-        let errorMessage = 'Falha ao registrar o funcionário. Tente novamente mais tarde.';
-
-        if (errorStatus === 409) {
-          errorMessage = 'Este email já está sendo utilizado por outro usuário.';
-        } else if (errorStatus === 403) {
-          errorMessage = 'Você não tem permissão para realizar esta ação.';
-        }
-
-        Swal.fire('Erro', errorMessage, 'error');
+        let msg = 'Falha ao vincular o funcionário. Tente novamente mais tarde.';
+        if (err.status === 409) msg = 'Este email já está sendo utilizado por outra empresa.';
+        else if (err.status === 403) msg = 'Você não tem permissão.';
+        Swal.fire('Erro', msg, 'error');
         this.isSubmitting = false;
-        this.isLoading = false;
       }
     });
   }

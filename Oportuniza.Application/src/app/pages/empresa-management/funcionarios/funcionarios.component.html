@@ -19,19 +19,18 @@
       <div *ngFor="let employee of employees" class="employee-card">
 
         <div class="avatar-container">
-          <img [src]="employee.imageUrl || '../../../../assets/etapas/perfil.png'" alt="Avatar de {{ employee.userName }}"
-            class="employee-avatar">
+          <img [src]="employee.imageUrl || '../../../../assets/etapas/perfil.png'"
+            alt="Avatar de {{ employee.userName }}" class="employee-avatar">
         </div>
 
         <div class="employee-info-details">
           <span class="employee-email">{{ employee.userEmail }}</span>
-          <span *ngIf="employee.roles === 'Owner'" class="owner-badge">DONO</span>
-          <span *ngIf="employee.roles === 'Employee'" class="owner-badge">FUNCIONARIO</span>
+          <span *ngIf="employee.roles === 'Owner'" class="owner-badge">ADMINISTRADOR</span>
+          <span *ngIf="employee.roles === 'Worker'" class="owner-badge">FUNCIONARIO</span>
         </div>
 
         <div class="employee-actions">
-          <span class="status-badge"
-            [class.active]="employee.isActive === 0"
+          <span class="status-badge" [class.active]="employee.isActive === 0"
             [class.inactive]="employee.isActive === 1">
             {{ employee.isActive === 0 ? 'Ativo' : 'Inativo' }}
           </span>
@@ -43,5 +42,56 @@
 
       </div>
     </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="showPermissionModal">
+  <div class="modal-content">
+    <h3 class="modal-title">Defina os acessos do Funcionário</h3>
+
+    <p *ngIf="selectedEmployee" class="employee-name-info">
+      Permissões para: <b> {{ selectedEmployee.userName || selectedEmployee.userEmail }} </b>
+    </p>
+
+    <div class="permission-item">
+      <div class="permission-header">
+        <span class="permission-role">Cargo de Administração</span>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="selectedEmployeeRoles.isAdmin" (ngModelChange)="onAdminChange()"
+            [disabled]="isCurrentUser" />
+          <span class="slider round"></span>
+        </label>
+      </div>
+      <p class="desc">
+        Este cargo terá controle sobre <b>todas as funcionalidades</b> da empresa.
+      </p>
+    </div>
+
+    <div class="separator"></div>
+
+    <div class="permission-item">
+      <div class="permission-header">
+        <span class="permission-role">Cargo de Postagem</span>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="selectedEmployeeRoles.canPost" (ngModelChange)="onPostChange()"
+            [disabled]="isCurrentUser" />
+          <span class="slider round"></span>
+        </label>
+      </div>
+      <p class="desc">
+        Este cargo confere o status de <b>Funcionário Padrão</b>, com acesso APENAS às funcionalidades
+        de postagem.
+      </p>
+    </div>
+
+    <div class="modal-actions">
+      <button class="cancel-button" (click)="closeModal()">Cancelar</button>
+      <button class="save-button" (click)="savePermissions()" [disabled]="isCurrentUser">Salvar</button>
+    </div>
+
+    <div *ngIf="isCurrentUser" class="self-edit-warning">
+      ⚠️ Você não pode modificar suas próprias permissões.
+    </div>
+
   </div>
 </div>

@@ -28,7 +28,8 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
     imageUrl: '',
     isProfileCompleted: false,
     local: '',
-    interestArea: []
+    interestArea: [],
+    isCompany: false
   };
 
   loginDisplay = false;
@@ -88,8 +89,10 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (profile: UserProfile) => {
           this.userProfile = profile;
-          this.showCompleteProfileicon = !profile.isProfileCompleted;
-          console.log('Perfil do usuário carregado:', this.userProfile);
+          if (!profile.isCompany) {
+            this.showCompleteProfileicon = !profile.isProfileCompleted;
+          }
+          console.log('Perfil carregado:', this.userProfile);
           this.loadingDialogRef?.close();
           this.isInitializing = false;
         },

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Oportuniza.API.Viewmodel;
@@ -6,6 +7,7 @@ using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -19,13 +21,55 @@ namespace Oportuniza.API.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IAuthenticateUser _authenticateUser;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ICompanyEmployeeRepository _companyEmployeeRepository;
+        private readonly ICompanyRepository _companyRepository;
         private readonly KeycloakAuthService _authService;
-        public AuthController(IUserRepository userRepository, IAuthenticateUser authenticateUser, IHttpClientFactory httpClientFactory, KeycloakAuthService authService)
+
+        public AuthController(
+            IUserRepository userRepository,
+            IAuthenticateUser authenticateUser,
+            IHttpClientFactory httpClientFactory,
+            ICompanyEmployeeRepository companyEmployeeRepository,
+            ICompanyRepository companyRepository,
+            KeycloakAuthService authService)
         {
             _userRepository = userRepository;
             _authenticateUser = authenticateUser;
             _httpClientFactory = httpClientFactory;
+            _companyEmployeeRepository = companyEmployeeRepository;
+            _companyRepository = companyRepository;
             _authService = authService;
+        }
+
+        [Authorize]
+        [HttpPost("switch-company/{companyId}")]
+        public async Task<IActionResult> SwitchCompany(Guid companyId)
+        {
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(keycloakId))
+                return Unauthorized("Token inválido.");
+
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+            if (user == null)
+                return NotFound("Usuário não encontrado.");
+
+            var isOwner = await _companyRepository.UserOwnsCompanyAsync(user.Id, companyId);
+            var employee = await _companyEmployeeRepository.GetByUserAndCompanyAsync(user.Id, companyId);
+
+            if (!isOwner && employee == null)
+                return Forbid("Você não tem acesso a essa empresa.");
+
+            var roleName = isOwner ? "Owner" : employee.CompanyRole.Name;
+
+            var token = _authenticateUser.GenerateToken(
+                user.Id,
+                user.Email,
+                user.Name,
+                companyId,
+                roleName
+            );
+
+            return Ok(new { token });
         }
 
         [HttpPost("login")]

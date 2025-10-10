@@ -17,10 +17,6 @@ namespace Oportuniza.Infrastructure.Repositories
 
         public async Task<User> Add(User user)
         {
-
-            //if (user.PasswordHash == null || user.PasswordSalt == null)
-            //    throw new ArgumentException("Hash e salt da senha são obrigatórios.");
-
             await _context.User.AddAsync(user);
             await _context.SaveChangesAsync();
             return user;
@@ -85,6 +81,12 @@ namespace Oportuniza.Infrastructure.Repositories
         public async Task<User> GetUserByKeycloakIdAsync(string keycloakId)
         {
             return await _context.User.FirstOrDefaultAsync(u => u.KeycloakId == keycloakId);
+        }
+
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await _context.User
+                                 .FirstOrDefaultAsync(u => u.Email == email);
         }
     }
 }

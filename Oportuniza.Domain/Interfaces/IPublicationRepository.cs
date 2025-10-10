@@ -8,6 +8,9 @@ namespace Oportuniza.Domain.Interfaces
         Task<IEnumerable<Publication>> GetMyPublications(Guid id);
         Task<(IEnumerable<Publication>, int)> GetMyPublicationsPaged(Guid userId, int pageNumber, int pageSize);
         Task<IEnumerable<Publication>> FilterPublicationsAsync(PublicationFilterDto filters);
+        Task<(IEnumerable<Publication> publications, int totalCount)> GetCompanyPublicationsPaged(
+            Guid companyId, int pageNumber, int pageSize);
+        Task<(IEnumerable<Publication>, int)> GetMyPublicationsPaged(Guid userId, int pageNumber, int pageSize, bool onlyPersonal);
 
     }
 }
