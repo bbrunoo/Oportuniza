@@ -266,7 +266,7 @@ namespace Oportuniza.API.Controllers
                 return BadRequest("CompanyId inválido.");
 
             var apps = await _repository.GetApplicationsByCompanyAsync(companyId);
-            var result = _mapper.Map<IEnumerable<CandidatesDTO>>(apps);
+            var result = _mapper.Map<IEnumerable<CandidateApplicationDetailDto>>(apps);
             return Ok(result);
         }
 
@@ -285,6 +285,43 @@ namespace Oportuniza.API.Controllers
             var apps = await _repository.GetApplicationsLoggedUser(user.Id);
             var result = _mapper.Map<IEnumerable<CandidatesDTO>>(apps);
             return Ok(result);
+        }
+
+        [HttpGet("MyApplicationsContext")]
+        [Authorize]
+        public async Task<IActionResult> GetApplicationsByContext()
+        {
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var companyIdClaim = User.FindFirst("company_id")?.Value;
+
+            if (string.IsNullOrEmpty(keycloakId))
+                return Unauthorized("Identificador do usuário não encontrado no token.");
+
+            if (!string.IsNullOrEmpty(companyIdClaim))
+            {
+                if (!Guid.TryParse(companyIdClaim, out var companyId))
+                    return BadRequest("CompanyId inválido.");
+
+                var appsForCompany = await _repository.GetApplicationsByCompanyAsync(companyId);
+
+                if (appsForCompany == null || !appsForCompany.Any())
+                    return NoContent();
+
+                var result = _mapper.Map<IEnumerable<CandidatesDTO>>(appsForCompany);
+                return Ok(result);
+            }
+
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+            if (user == null)
+                return NotFound("Usuário não encontrado.");
+
+            var appsForUser = await _repository.GetApplicationsLoggedUser(user.Id);
+
+            if (appsForUser == null || !appsForUser.Any())
+                return NoContent();
+
+            var userResult = _mapper.Map<IEnumerable<UserApplicationDto>>(appsForUser);
+            return Ok(userResult);
         }
     }
 }

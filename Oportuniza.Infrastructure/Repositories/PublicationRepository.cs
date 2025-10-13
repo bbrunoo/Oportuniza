@@ -23,10 +23,10 @@ namespace Oportuniza.Infrastructure.Repositories
 
             if (!string.IsNullOrEmpty(filters.SearchTerm))
             {
-                var searchTerm = filters.SearchTerm.Trim().ToLower();
+                var searchTerm = $"%{filters.SearchTerm.Trim()}%";
                 query = query.Where(p =>
-                    (p.Description != null && p.Description.ToLower().Contains(searchTerm)) ||
-                    (p.Title != null && p.Title.ToLower().Contains(searchTerm))
+                    (p.Resumee != null && EF.Functions.Like(EF.Functions.Collate(p.Resumee, "Latin1_General_CI_AI"), searchTerm)) ||
+                    (p.Title != null && EF.Functions.Like(EF.Functions.Collate(p.Title, "Latin1_General_CI_AI"), searchTerm))
                 );
             }
 

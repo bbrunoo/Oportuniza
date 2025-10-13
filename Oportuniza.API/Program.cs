@@ -86,7 +86,6 @@ builder.Services.AddAuthentication()
                 var token = authHeader.Substring("Bearer ".Length).Trim();
                 var jwt = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().ReadJwtToken(token);
 
-                // Se tiver claim company_id, é token pessoal
                 if (jwt.Claims.Any(c => c.Type == "company_id"))
                     return "Backend";
 

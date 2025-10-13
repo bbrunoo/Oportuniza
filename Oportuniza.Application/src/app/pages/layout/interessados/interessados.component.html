@@ -17,8 +17,9 @@
       <div class="candidates-content" *ngFor="let pub of publicationsWithCandidates">
         <div class="person-content" *ngFor="let candidate of pub.candidates">
           <div class="left">
-            <img class="profile" [src]="candidate.userImage || '../../../../assets/etapas/perfil.png'"
-            alt="Foto de Perfil" />
+            <img class="profile"
+              [src]="candidate.userImage || pub.authorImage || '../../../../assets/etapas/perfil.png'"
+              alt="Foto de Perfil" />
           </div>
           <div class="center">
             <p class="title">{{ pub.title }}</p>
@@ -26,7 +27,7 @@
             <p class="description">{{ pub.resumee }}</p>
           </div>
           <div class="right">
-            <button class="ver-perfil">Ver Perfil</button>
+            <button *ngIf="isCompany" class="ver-perfil">Ver Perfil</button>
           </div>
         </div>
       </div>

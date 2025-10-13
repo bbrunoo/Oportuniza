@@ -370,53 +370,64 @@ namespace Oportuniza.API.Controllers
         {
             var existingPublication = await _publicationRepository.GetByIdAsync(id);
             if (existingPublication == null)
-            {
-                return NotFound();
-            }
+                return NotFound("Publicação não encontrada.");
 
             var keycloakId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub")?.Value;
-
             if (string.IsNullOrEmpty(keycloakId))
-            {
                 return Unauthorized("Token 'sub' claim is missing.");
-            }
 
             var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
             if (user == null)
-            {
                 return Unauthorized("Usuário não encontrado no banco de dados local.");
-            }
 
+            // Verificação de autorização
             bool isAuthorized = false;
 
             if (existingPublication.AuthorUserId.HasValue && existingPublication.AuthorUserId.Value == user.Id)
             {
                 isAuthorized = true;
             }
-
             else if (existingPublication.AuthorCompanyId.HasValue)
             {
                 bool userOwnsCompany = await _companyRepository.UserHasAccessToCompanyAsync(user.Id, existingPublication.AuthorCompanyId.Value);
                 if (userOwnsCompany)
-                {
                     isAuthorized = true;
-                }
             }
 
             if (!isAuthorized)
-            {
                 return Forbid();
-            }
 
+            // Atualiza campos da publicação
             _mapper.Map(dto, existingPublication);
 
+            // Atualiza imagem se fornecida
             if (image != null)
             {
                 var imageUrl = await _azureBlobService.UploadPostImage(image, "publications", Guid.NewGuid());
                 existingPublication.ImageUrl = imageUrl;
             }
 
-            await _publicationRepository.UpdateAsync(existingPublication);
+            // Define o contexto ativo (company_id)
+            var companyClaim = User.FindFirst("company_id")?.Value;
+            if (!string.IsNullOrEmpty(companyClaim) && Guid.TryParse(companyClaim, out var companyId))
+            {
+                existingPublication.AuthorCompanyId = companyId;
+                existingPublication.AuthorUserId = null; // garante que FK de usuário não será violada
+            }
+            else
+            {
+                existingPublication.AuthorUserId = user.Id;
+                existingPublication.AuthorCompanyId = null; // garante que FK de empresa não será violada
+            }
+
+            try
+            {
+                await _publicationRepository.UpdateAsync(existingPublication);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao atualizar a publicação: {ex.Message}");
+            }
 
             return NoContent();
         }

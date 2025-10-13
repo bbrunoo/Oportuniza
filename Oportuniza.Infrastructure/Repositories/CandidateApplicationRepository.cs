@@ -139,13 +139,36 @@ namespace Oportuniza.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<CandidateApplication>> GetApplicationsByCompanyAsync(Guid companyId)
+        public async Task<IEnumerable<CandidateApplicationDetailDto>> GetApplicationsByCompanyAsync(Guid companyId)
         {
             return await _context.CandidateApplication
+                .Where(ca => ca.Publication.AuthorCompanyId == companyId)
                 .Include(ca => ca.User)
                 .Include(ca => ca.Publication)
                     .ThenInclude(p => p.AuthorCompany)
-                .Where(ca => ca.Publication.AuthorCompanyId == companyId)
+                .OrderByDescending(ca => ca.ApplicationDate)
+                .Select(ca => new CandidateApplicationDetailDto
+                {
+                    // Aplicação
+                    ApplicationId = ca.Id,
+                    Status = ca.Status.ToString(),
+                    CreationDate = ca.Publication.CreationDate,
+
+                    UserId = ca.User.Id,
+                    UserName = ca.User.Name,
+                    UserEmail = ca.User.Email,
+                    ProfileImage = ca.User.ImageUrl,
+
+                    PublicationId = ca.Publication.Id,
+                    Title = ca.Publication.Title,                     
+                    Description = ca.Publication.Description,      
+                    Resumee = ca.Publication.Resumee,           
+                    AuthorImage = ca.User.ImageUrl,                
+                    AuthorId = ca.Publication.AuthorCompany.Id,  
+                    AuthorName = ca.Publication.AuthorCompany.Name,
+
+                    TotalApplicationsForThisJob = ca.Publication.CandidateApplication.Count()
+                })
                 .ToListAsync();
         }
     }
