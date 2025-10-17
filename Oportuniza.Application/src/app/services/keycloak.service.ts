@@ -69,6 +69,7 @@ export class KeycloakOperationService {
 
   loginWithCredentials(username: string, password: string): Observable<any> {
     const url = `${environment.apiUrl}/v1/Auth/login-keycloak`;
+    console.log('➡️ Enviando login para:', url);
     return this.http.post(url, { email: username, password }).pipe(
       tap((res: any) => {
         this.saveTokens(res);

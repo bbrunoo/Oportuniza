@@ -17,7 +17,7 @@
 
       <div class="input-container password-container">
         <input maxlength="20" [type]="passwordVisible ? 'text' : 'password'" id="password" placeholder="Senha"
-          name="password" [(ngModel)]="password" [ngModelOptions]="{ standalone: true }" required
+          name="password" [(ngModel)]="password" required
           pattern="^[a-zA-Z0-9!@#$%^&*()_+=\-{}\[\]:;**'**<>,.?/|\\~`]+$" (input)="sanitizePassword()" />
 
         <button type="button" class="show-password" (click)="togglePassword()">

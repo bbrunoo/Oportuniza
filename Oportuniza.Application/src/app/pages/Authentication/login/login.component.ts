@@ -36,7 +36,8 @@ export class LoginComponent {
     this.password = this.password.replace(/[^a-zA-Z0-9!@#$%^&*()_+=\-{}\[\]:;"'<>,.?/|\\~`]/g, '');
   }
 
-  public login(): void {
+  login(): void {
+    console.log("chamado");
     this.isLoading = true;
     sessionStorage.setItem('loginWithKeycloak', 'true');
 

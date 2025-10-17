@@ -23,10 +23,18 @@ export class AuthTokenInterceptor implements HttpInterceptor {
   ) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const unprotectedEndpoints = ['Auth/register', 'Auth/login', 'Verification/send-verification'];
-    const isUnprotected = unprotectedEndpoints.some(endpoint => request.url.endsWith(endpoint));
+    const unprotectedEndpoints = [
+      'Auth/register',
+      'Auth/login',
+      'Auth/login-keycloak',
+      'Verification/send-verification'
+    ];
 
-    if (!request.url.startsWith(environment.apiConfig.uri) || isUnprotected) {
+    const isUnprotected = unprotectedEndpoints.some(endpoint =>
+      request.url.toLowerCase().includes(endpoint.toLowerCase())
+    );
+
+    if (!request.url.startsWith(environment.apiUrl) || isUnprotected) {
       return next.handle(request);
     }
 

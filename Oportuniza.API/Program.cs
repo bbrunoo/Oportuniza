@@ -167,7 +167,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors();
+app.UseCors(policy =>
+{
+    policy.WithOrigins(
+        "http://localhost:4200",
+        "https://oportuniza.site",
+        "https://www.oportuniza.site"
+    )
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials();
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
