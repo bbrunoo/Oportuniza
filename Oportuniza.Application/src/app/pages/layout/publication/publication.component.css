@@ -258,6 +258,21 @@ form {
   min-width: 100px;
 }
 
+.btn {
+  border: none;
+  background-color: #3245C3;
+  color: white;
+  padding: 8px 30px;
+  border-radius: 8px;
+  transition: 0.2s ease-in;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  transition: 0.2s ease-in;
+  transform: scale(1.05);
+}
 
 .modal-backdrop {
   position: fixed;
@@ -265,14 +280,13 @@ form {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
 }
 
-/* caixa do modal */
 .modal {
   display: flex;
   align-items: start;
@@ -284,10 +298,9 @@ form {
   width: 400px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
 }
 
-/* input preto */
 .custom-input {
   width: 90%;
   padding: 10px;
@@ -298,7 +311,6 @@ form {
   margin-bottom: 10px;
 }
 
-/* lista */
 .custom-options {
   list-style: none;
   padding: 0;
@@ -318,7 +330,6 @@ form {
   background-color: #d4d4d4;
 }
 
-/* botão fechar */
 .close-btn {
   margin-top: 15px;
   padding: 8px 16px;

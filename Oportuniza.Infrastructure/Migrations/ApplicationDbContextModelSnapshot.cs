@@ -84,6 +84,33 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.ToTable("CandidateApplications", (string)null);
                 });
 
+            modelBuilder.Entity("Oportuniza.Domain.Models.CandidateExtra", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CandidateApplicationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Observation")
+                        .HasMaxLength(200)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ResumeUrl")
+                        .HasMaxLength(500)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CandidateApplicationId")
+                        .IsUnique();
+
+                    b.ToTable("CandidateExtra", (string)null);
+                });
+
             modelBuilder.Entity("Oportuniza.Domain.Models.Certification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -241,12 +268,12 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("03338af4-2b09-41a5-bc0e-f72a73b12f47"),
+                            Id = new Guid("60081819-eb25-4649-9db8-516f7a86f0a7"),
                             Name = "Administrator"
                         },
                         new
                         {
-                            Id = new Guid("958d58e4-8fa7-4fb4-8afe-ca142b8e82a4"),
+                            Id = new Guid("0b126768-c816-4c17-b58f-6ae1636777a5"),
                             Name = "Worker"
                         });
                 });
@@ -524,6 +551,17 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Oportuniza.Domain.Models.CandidateExtra", b =>
+                {
+                    b.HasOne("Oportuniza.Domain.Models.CandidateApplication", "CandidateApplication")
+                        .WithOne("Extra")
+                        .HasForeignKey("Oportuniza.Domain.Models.CandidateExtra", "CandidateApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CandidateApplication");
+                });
+
             modelBuilder.Entity("Oportuniza.Domain.Models.Company", b =>
                 {
                     b.HasOne("Oportuniza.Domain.Models.User", "Manager")
@@ -604,6 +642,11 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.Navigation("AreaOfInterest");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Oportuniza.Domain.Models.CandidateApplication", b =>
+                {
+                    b.Navigation("Extra");
                 });
 
             modelBuilder.Entity("Oportuniza.Domain.Models.Company", b =>

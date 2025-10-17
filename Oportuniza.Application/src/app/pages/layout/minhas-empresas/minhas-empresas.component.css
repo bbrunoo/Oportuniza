@@ -266,7 +266,7 @@ a {
 
 .description {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   width: 100%;
   padding: 4px 0;
@@ -391,6 +391,7 @@ a {
   font-weight: 700;
   border-radius: 4px;
   margin-top: 5px;
+  margin-left: 5px;
   text-transform: uppercase;
 }
 
@@ -412,12 +413,11 @@ a {
   filter: none;
 }
 
-.configure.reativar {
+.reativar {
   background-color: #28a745;
-  /* verde */
 }
 
-.configure.reativar:hover {
+.reativar:hover {
   background-color: #218838;
   transform: scale(1.05);
 }

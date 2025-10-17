@@ -193,6 +193,8 @@ export class PublicationComponent implements OnInit {
 
   private handleFile(file: File): void {
     const validTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+    const MIN_SIZE_PX = 400; // Define o tamanho mínimo obrigatório em pixels
+
     if (!validTypes.includes(file.type)) {
       Swal.fire('Tipo inválido', 'Apenas imagens PNG, JPG ou JPEG são permitidas.', 'warning');
       return;
@@ -202,7 +204,24 @@ export class PublicationComponent implements OnInit {
     reader.readAsDataURL(file);
     reader.onload = () => {
       if (typeof reader.result === 'string') {
-        this.openCropperDialog(reader.result, file);
+        const img = new Image();
+        img.onload = () => {
+          if (img.width < MIN_SIZE_PX || img.height < MIN_SIZE_PX) {
+            Swal.fire(
+              'Imagem Pequena',
+              `A imagem deve ter no mínimo ${MIN_SIZE_PX}px de largura e altura.
+             Esta imagem tem ${img.width}px por ${img.height}px.`,
+              'warning'
+            );
+            return;
+          }
+
+          this.openCropperDialog(reader.result as string, file);
+        };
+        img.onerror = () => {
+          Swal.fire('Erro', 'Não foi possível carregar a imagem para verificar as dimensões.', 'error');
+        };
+        img.src = reader.result as string;
       }
     };
     reader.onerror = (error) => {
@@ -303,8 +322,22 @@ export class PublicationComponent implements OnInit {
       },
       error: (err) => {
         this.isSubmitting = false;
-        console.error(err);
-        Swal.fire('Erro!', `Não foi possível criar a publicação: ${err.error?.message || 'Erro desconhecido'}`, 'error');
+        console.error('Erro no envio:', err);
+
+        const backendMessage =
+          err.error?.error ||
+          err.error?.message ||
+          err.error ||
+          'Erro desconhecido.';
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Falha ao criar publicação',
+          text: backendMessage.includes('imprópria')
+            ? 'A imagem foi detectada como imprópria e não pode ser publicada. Escolha outra imagem.'
+            : backendMessage,
+          confirmButtonText: 'Entendi'
+        });
       }
     });
   }

@@ -41,7 +41,6 @@ namespace Oportuniza.API.Services
             return blobClient.Uri.ToString();
         }
 
-
         public async Task<string> UploadProfileImage(IFormFile file, string containerName, Guid userId)
         {
             if (file == null || file.Length == 0)
@@ -157,6 +156,40 @@ namespace Oportuniza.API.Services
             {
                 memoryStream.Dispose();
             }
+        }
+        public async Task<string> UploadResumeAsync(IFormFile file, string containerName, Guid userId)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentNullException("Invalid file: " + nameof(file));
+
+            var allowedExtensions = new[] { ".pdf", ".docx", ".doc" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(fileExtension))
+                throw new InvalidOperationException("Apenas arquivos PDF ou Word são permitidos.");
+
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+
+            var blobServiceClient = new BlobServiceClient(_connectionString);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            await blobContainerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+
+            string blobName = $"resume-{userId}-{Guid.NewGuid()}{fileExtension}";
+            var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+            var uploadOptions = new BlobUploadOptions
+            {
+                HttpHeaders = new BlobHttpHeaders
+                {
+                    ContentType = file.ContentType
+                }
+            };
+
+            await blobClient.UploadAsync(memoryStream, uploadOptions);
+
+            return blobClient.Uri.ToString();
         }
         public async Task<bool> IsImageSafeAsync(Stream originalStream, string contentType)
         {

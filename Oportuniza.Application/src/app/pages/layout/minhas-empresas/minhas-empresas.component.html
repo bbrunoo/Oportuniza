@@ -40,7 +40,6 @@
 
         <div class="description">
           <p>{{ company.name }}</p>
-          <span *ngIf="company.IsDisabled" class="status-indicator inactive">DESATIVADA</span>
         </div>
 
         <div *ngIf="company.IsActiveStatus" class="configure config-button"
@@ -49,8 +48,8 @@
           <span>Configurar</span>
         </div>
 
-        <div *ngIf="company.IsDisabled" class="configure config-button reativar" (click)="toggleCompanyStatus(company)">
-          <img src="../../../../assets/play-circle.png" alt="Reativar">
+        <div *ngIf="company.IsDisabled" class="configure reativar" (click)="toggleCompanyStatus(company)">
+          <img src="../../../../assets/atualizar.png" alt="atualizar">
           <span>Reativar</span>
         </div>
 

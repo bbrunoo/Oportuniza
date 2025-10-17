@@ -130,7 +130,7 @@ namespace Oportuniza.API.Controllers
             };
 
             var client = _httpClientFactory.CreateClient();
-            var req = new HttpRequestMessage(HttpMethod.Post, "http://localhost:9090/admin/realms/oportuniza/users");
+            var req = new HttpRequestMessage(HttpMethod.Post, "https://keycloak.oportuniza.site/admin/realms/oportuniza/users");
             req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             req.Content = new StringContent(JsonConvert.SerializeObject(userPayload), Encoding.UTF8, "application/json");
 
@@ -196,7 +196,13 @@ namespace Oportuniza.API.Controllers
         }
         private async Task<string> GetAdminToken()
         {
-            var client = _httpClientFactory.CreateClient();
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+            };
+
+            using var client = new HttpClient(handler);
+
             var parameters = new Dictionary<string, string>
             {
                 ["grant_type"] = "password",
@@ -206,13 +212,14 @@ namespace Oportuniza.API.Controllers
             };
 
             var content = new FormUrlEncodedContent(parameters);
-            var response = await client.PostAsync("http://localhost:9090/realms/master/protocol/openid-connect/token", content);
+            var response = await client.PostAsync("https://keycloak.oportuniza.site/realms/master/protocol/openid-connect/token", content);
 
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
             dynamic obj = JsonConvert.DeserializeObject(json)!;
             return obj.access_token;
         }
+
         private static bool IsValidPassword(string password)
         {
             var regex = new Regex(@"^[a-zA-Z0-9!@#$%^&*_\-+.]+$");

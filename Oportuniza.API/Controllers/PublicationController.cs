@@ -232,8 +232,19 @@ namespace Oportuniza.API.Controllers
             else
                 publication.AuthorUserId = user.Id;
 
-            string imageUrl = await _azureBlobService.UploadPostImage(image, "publications", Guid.NewGuid());
-            publication.ImageUrl = imageUrl;
+            try
+            {
+                string imageUrl = await _azureBlobService.UploadPostImage(image, "publications", Guid.NewGuid());
+                publication.ImageUrl = imageUrl;
+            }
+            catch (Exception ex) when (ex.Message.Contains("Imagem imprópria"))
+            {
+                return BadRequest(new
+                {
+                    error = "A imagem enviada foi detectada como imprópria e não pôde ser publicada.",
+                    details = ex.Message
+                });
+            }
 
             try
             {
@@ -380,7 +391,6 @@ namespace Oportuniza.API.Controllers
             if (user == null)
                 return Unauthorized("Usuário não encontrado no banco de dados local.");
 
-            // Verificação de autorização
             bool isAuthorized = false;
 
             if (existingPublication.AuthorUserId.HasValue && existingPublication.AuthorUserId.Value == user.Id)
@@ -397,27 +407,24 @@ namespace Oportuniza.API.Controllers
             if (!isAuthorized)
                 return Forbid();
 
-            // Atualiza campos da publicação
             _mapper.Map(dto, existingPublication);
 
-            // Atualiza imagem se fornecida
             if (image != null)
             {
                 var imageUrl = await _azureBlobService.UploadPostImage(image, "publications", Guid.NewGuid());
                 existingPublication.ImageUrl = imageUrl;
             }
 
-            // Define o contexto ativo (company_id)
             var companyClaim = User.FindFirst("company_id")?.Value;
             if (!string.IsNullOrEmpty(companyClaim) && Guid.TryParse(companyClaim, out var companyId))
             {
                 existingPublication.AuthorCompanyId = companyId;
-                existingPublication.AuthorUserId = null; // garante que FK de usuário não será violada
+                existingPublication.AuthorUserId = null;
             }
             else
             {
                 existingPublication.AuthorUserId = user.Id;
-                existingPublication.AuthorCompanyId = null; // garante que FK de empresa não será violada
+                existingPublication.AuthorCompanyId = null;
             }
 
             try

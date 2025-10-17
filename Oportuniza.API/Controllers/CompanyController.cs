@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Oportuniza.API.Services;
 using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
@@ -21,14 +22,21 @@ namespace Oportuniza.API.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
-
-        public CompanyController(ICompanyRepository companyRepository, ICompanyEmployeeRepository companyEmployeeRepository, IUserRepository userRepository, IMapper mapper, ApplicationDbContext context)
+        private readonly CNPJService _cnpjService;
+        public CompanyController(
+            ICompanyRepository companyRepository,
+            ICompanyEmployeeRepository companyEmployeeRepository,
+            IUserRepository userRepository,
+            IMapper mapper,
+            ApplicationDbContext context,
+            CNPJService cnpjService)
         {
             _companyRepository = companyRepository;
             _companyEmployeeRepository = companyEmployeeRepository;
             _userRepository = userRepository;
             _mapper = mapper;
             _context = context;
+            _cnpjService = cnpjService;
         }
 
         [HttpGet]
@@ -138,12 +146,32 @@ namespace Oportuniza.API.Controllers
 
             return NoContent();
         }
+
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Post([FromBody] CompanyCreateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (!_cnpjService.IsValid(dto.Cnpj))
+                return BadRequest("CNPJ inválido.");
+
+            try
+            {
+                var statusAtivo = await _cnpjService.VerificarAtividadeCnpjAsync(dto.Cnpj);
+
+                if (!statusAtivo)
+                    return BadRequest("O CNPJ informado não está ativo na Receita Federal.");
+            }
+            catch (HttpRequestException)
+            {
+                return StatusCode(503, "Serviço de verificação de CNPJ indisponível no momento.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Erro ao consultar CNPJ: {ex.Message}");
+            }
 
             var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(keycloakId))

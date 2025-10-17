@@ -135,12 +135,17 @@ button {
   color: white;
   padding: 13px 8px;
   transition: 0.3s;
-  background-color: rgba(9, 9, 9, 0.3);
+  background-color: rgba(115, 0, 0, 0.3);
   backdrop-filter: blur(2px);
   border: 2px dashed rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(3px);
   border-radius: 10px;
   cursor: pointer;
+}
+
+button:hover {
+  background-color: rgba(96, 0, 0, 0.498);
+  transform: none;
 }
 
 .active-link {

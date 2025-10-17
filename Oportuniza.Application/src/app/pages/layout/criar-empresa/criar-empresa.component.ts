@@ -1,6 +1,6 @@
 import { CompanyCreatePayload, CompanyService } from './../../../services/company.service';
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -11,11 +11,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
-import { switchMap } from 'rxjs';
+import { debounceTime, switchMap } from 'rxjs';
 import Swal from 'sweetalert2';
 import { CropperDialogComponent, CropperDialogData } from '../../../extras/cropper-dialog/cropper-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { NgxMaskDirective } from "ngx-mask";
+import { CityService } from '../../../services/city.service';
 
 @Component({
   selector: 'app-criar-empresa',
@@ -32,12 +33,12 @@ import { NgxMaskDirective } from "ngx-mask";
     RouterModule,
     FormsModule,
     NgxMaskDirective
-],
+  ],
   templateUrl: './criar-empresa.component.html',
   styleUrls: ['./criar-empresa.component.css']
 })
 
-export class CriarEmpresaComponent {
+export class CriarEmpresaComponent implements OnInit {
   name: string = '';
   cityState: string = '';
   phone: string = '';
@@ -53,11 +54,42 @@ export class CriarEmpresaComponent {
   isSubmitting = false;
   isDragging = false;
 
+  cityControl = new FormControl('');
+  filteredCities: any[] = [];
+  cityModalOpen = false;
+  selectedCity: { id: string, name: string } | null = null;
+
   constructor(
     private companyService: CompanyService,
     private router: Router,
     private dialog: MatDialog,
+    private cityService: CityService
   ) { }
+
+  ngOnInit(): void {
+    this.cityControl.valueChanges.pipe(
+      debounceTime(300),
+      switchMap(value =>
+        value && value.length > 0
+          ? this.cityService.searchCities(value, 1, 20)
+          : this.cityService.getCities(1, 20)
+      )
+    ).subscribe({
+      next: (cities) => this.filteredCities = cities,
+      error: (err) => console.error('Erro ao carregar cidades:', err)
+    });
+  }
+
+  openCityModal() { this.cityModalOpen = true; }
+
+  closeCityModal() { this.cityModalOpen = false; }
+
+  selectCity(city: any) {
+    this.selectedCity = city;
+    this.cityControl.setValue(city.name, { emitEvent: false });
+    this.cityState = city.name;
+    this.closeCityModal();
+  }
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -127,8 +159,34 @@ export class CriarEmpresaComponent {
     });
   }
 
+  isValidCnpj(cnpj: string): boolean {
+    if (!cnpj) return false;
+
+    cnpj = cnpj.replace(/[^\d]+/g, '');
+
+    if (cnpj.length !== 14) return false;
+    if (/^(\d)\1+$/.test(cnpj)) return false;
+
+    const t = cnpj.length - 2;
+    const d = cnpj.substring(t);
+    const d1 = parseInt(d.charAt(0), 10);
+    const d2 = parseInt(d.charAt(1), 10);
+    const calc = (x: number) => {
+      let n = 0;
+      let y = x - 7;
+      for (let i = x; i >= 1; i--) {
+        n += parseInt(cnpj.charAt(x - i), 10) * y++;
+        if (y > 9) y = 2;
+      }
+      const r = 11 - (n % 11);
+      return r > 9 ? 0 : r;
+    };
+
+    return calc(12) === d1 && calc(13) === d2;
+  }
+
   onSubmit(): void {
-    if (!this.name || !this.cityState || !this.phone || !this.email || !this.cnpj || !this.selectedImage) {
+    if (!this.name || !this.selectedCity || !this.phone || !this.email || !this.cnpj || !this.selectedImage) {
       Swal.fire({
         icon: 'warning',
         title: 'Atenção',
@@ -137,11 +195,34 @@ export class CriarEmpresaComponent {
       return;
     }
 
+    if (!this.isValidCnpj(this.cnpj)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'CNPJ inválido',
+        text: 'Por favor, insira um CNPJ válido.'
+      });
+      return;
+    }
+
     this.isLoading = true;
 
-    this.companyService.uploadCompanyImage(this.selectedImage).pipe(
+    this.companyService.consultarCnpj(this.cnpj).pipe(
+      switchMap((dados) => {
+        if (!dados.ativo) {
+          Swal.fire({
+            icon: 'error',
+            title: 'CNPJ inativo ou não encontrado',
+            text: 'O CNPJ informado não está ativo na Receita Federal.'
+          });
+          this.isLoading = false;
+          throw new Error('CNPJ inativo');
+        }
+
+        // Se ativo → faz upload da imagem
+        return this.companyService.uploadCompanyImage(this.selectedImage!);
+      }),
       switchMap(uploadResponse => {
-        console.log('Upload response:', uploadResponse);
+        // Monta o payload e envia para o backend
         const companyData: CompanyCreatePayload = {
           name: this.name,
           cityState: this.cityState,
@@ -151,7 +232,7 @@ export class CriarEmpresaComponent {
           description: this.description,
           imageUrl: uploadResponse.imageUrl
         };
-        console.log('Payload enviado:', companyData);
+
         return this.companyService.createCompany(companyData);
       })
     ).subscribe({
@@ -174,15 +255,26 @@ export class CriarEmpresaComponent {
         });
       },
       error: (err) => {
-        this.isLoading = false;
-        console.error('Erro ao criar empresa', err);
+        this.isSubmitting = false;
+        console.error('Erro no envio:', err);
+
+        const backendMessage =
+          err.error?.error ||
+          err.error?.message ||
+          err.error ||
+          'Erro desconhecido.';
+
         Swal.fire({
           icon: 'error',
-          title: 'Erro',
-          text: `Erro ao criar empresa: ${err.message || 'Verifique sua conexão ou dados.'}`
+          title: 'Falha ao criar publicação',
+          text: backendMessage.includes('imprópria')
+            ? 'A imagem foi detectada como imprópria e não pode ser publicada. Escolha outra imagem.'
+            : backendMessage,
+          confirmButtonText: 'Entendi'
         });
       }
     });
   }
+
 }
 

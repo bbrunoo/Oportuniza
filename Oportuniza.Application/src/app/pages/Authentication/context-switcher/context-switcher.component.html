@@ -19,7 +19,7 @@
     <div *ngIf="!loading && contexts.length > 0" class="context-list">
       <div *ngFor="let context of contexts" class="context-item" [class.active]="context.id === currentContextId">
         <div class="image-section" (click)="selectContext(context)">
-          <img *ngIf="context.type === 'User'" [src]="context.imageUrl" alt="Usuário" />
+          <img *ngIf="context.type === 'User'" [src]="context.imageUrl || '../../../../assets/etapas/perfil.png'" alt="Usuário" />
           <img *ngIf="context.type === 'Company'" [src]="context.imageUrl" alt="Microsoft" />
         </div>
 

@@ -68,21 +68,13 @@ export class KeycloakOperationService {
   }
 
   loginWithCredentials(username: string, password: string): Observable<any> {
-    const body = new HttpParams()
-      .set('grant_type', 'password')
-      .set('client_id', environment.keycloak.clientId)
-      .set('client_secret', environment.keycloak.secret)
-      .set('username', username)
-      .set('password', password);
-
-    const tokenUrl = `${environment.keycloak.url}/realms/${environment.keycloak.realm}/protocol/openid-connect/token`;
-
-    return this.http.post(tokenUrl, body, {
-      headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' })
-    }).pipe(
-      tap(tokens => this.saveTokens(tokens)),
+    const url = `${environment.apiUrl}/v1/Auth/login-keycloak`;
+    return this.http.post(url, { email: username, password }).pipe(
+      tap((res: any) => {
+        this.saveTokens(res);
+      }),
       catchError(error => {
-        console.error('KeycloakOperationService: Erro ao autenticar com credenciais:', error);
+        console.error('KeycloakOperationService: Erro ao autenticar via backend:', error);
         return throwError(() => new Error('Falha na autenticação.'));
       })
     );

@@ -13,13 +13,13 @@ public class KeycloakAuthService
 
     public async Task<string?> LoginWithCredentialsAsync(string email, string password)
     {
-        var tokenEndpoint = "http://localhost:9090/realms/oportuniza/protocol/openid-connect/token";
+        var tokenEndpoint = "https://keycloak.oportuniza.site/realms/oportuniza/protocol/openid-connect/token";
 
         var form = new FormUrlEncodedContent(new[]
         {
             new KeyValuePair<string, string>("grant_type", "password"),
             new KeyValuePair<string, string>("client_id", "oportuniza-client"),
-            new KeyValuePair<string, string>("client_secret", "Sr1LFcfOHwtFckn8HAHHAf7IxklDiBI3"),
+            new KeyValuePair<string, string>("client_secret", "RMNT9CAC1mHULvD5vhhyg80NlFX1Kftt"),
             new KeyValuePair<string, string>("username", email),
             new KeyValuePair<string, string>("password", password),
         });

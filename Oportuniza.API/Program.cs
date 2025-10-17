@@ -104,28 +104,6 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-//var authBuilder = builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = "Keycloak";
-//    options.DefaultChallengeScheme = "Keycloak";
-//});
-
-//authBuilder.AddJwtBearer("Keycloak", options =>
-//{
-//    var keycloak = builder.Configuration.GetSection("Keycloak");
-//    options.Authority = keycloak["Authority"];
-//    options.Audience = keycloak["Audience"];
-//    options.RequireHttpsMetadata = false;
-//});
-
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.DefaultPolicy = new AuthorizationPolicyBuilder()
-//        .AddAuthenticationSchemes("Keycloak")
-//        .RequireAuthenticatedUser()
-//        .Build();
-//});
-
 var AZURE_CONNECTION_STRING = Environment.GetEnvironmentVariable("AZURE_SQL_OPORTUNIZA");
 var LOCAL_CONNECTION_STRING = Environment.GetEnvironmentVariable("LOCAL_SQL_OPORTUNIZA");
 
@@ -150,6 +128,8 @@ builder.Services.AddScoped<IVerificationCodeService, VerificationCodeService>();
 builder.Services.AddScoped<AzureEmailService.IEmailService, AzureEmailService.EmailService>();
 
 builder.Services.AddScoped<UserRegistrationFilterAttribute>();
+
+builder.Services.AddHttpClient<CNPJService>();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -184,9 +164,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors();
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();

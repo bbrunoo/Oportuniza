@@ -184,7 +184,7 @@ export class MinhasEmpresasComponent {
 
     const result = await Swal.fire({
       title: `${actionText} Empresa?`,
-      html: `Você está prestes a tornar a empresa <b>${company.name}</b> **${statusText}**.<br>Esta ação afeta o acesso de todos os funcionários. Confirma?`,
+      html: `Você está prestes a tornar a empresa <b>${company.name}</b> <b>${statusText}</b>.<br>Esta ação afeta o acesso de todos os funcionários. Confirma?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: newStatus === 0 ? '#28a745' : '#dc3545',

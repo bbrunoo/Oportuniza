@@ -13,18 +13,24 @@
         </div>
       </div>
       <input hidden type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" />
+      <button type="button" class="btn btn-secondary mt-1" (click)="fileInput.click()">
+        Escolher Imagem 🖼️
+      </button>
     </div>
 
     <div class="conteudo-right">
       <div class="title">Informações</div>
       <form (ngSubmit)="onSubmit()">
         <input type="text" placeholder="Nome da empresa" class="form-input" [(ngModel)]="name" name="name" />
-        <input type="text" placeholder="Cidade/Estado" class="form-input" [(ngModel)]="cityState" name="cityState" />
-        <input type="tel" placeholder="Telefone" class="form-input" [(ngModel)]="phone" name="phone" mask="00 0000-0000" />
+        <input type="text" [value]="selectedCity?.name" placeholder="Selecione a cidade" readonly class="form-input"
+          (click)="openCityModal()" />
+        <input type="tel" placeholder="Telefone" class="form-input" [(ngModel)]="phone" name="phone"
+          mask="00 0000-0000" />
         <input type="email" placeholder="E-mail" class="form-input" [(ngModel)]="email" name="email" />
-        <input type="text" placeholder="CNPJ" class="form-input" [(ngModel)]="cnpj" name="cnpj" mask="00.000.000/0000-00" />
-        <textarea placeholder="Escreva sobre a empresa..." class="form-textarea" maxlength="300" [(ngModel)]="description"
-          name="description"></textarea>
+        <input type="text" placeholder="CNPJ" class="form-input" [(ngModel)]="cnpj" name="cnpj"
+          mask="00.000.000/0000-00" />
+        <textarea placeholder="Escreva sobre a empresa..." class="form-textarea" maxlength="300"
+          [(ngModel)]="description" name="description"></textarea>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" [disabled]="isLoading">
             <span *ngIf="!isLoading">Criar</span>
@@ -33,5 +39,21 @@
         </div>
       </form>
     </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="cityModalOpen">
+  <div class="modal">
+    <h3>Selecione a cidade</h3>
+
+    <input type="text" [formControl]="cityControl" placeholder="Digite para buscar" class="custom-input" />
+
+    <ul *ngIf="filteredCities.length > 0" class="custom-options">
+      <li *ngFor="let city of filteredCities" (click)="selectCity(city)" class="custom-option">
+        {{ city.name }}
+      </li>
+    </ul>
+
+    <button class="close-btn" (click)="closeCityModal()">Fechar</button>
   </div>
 </div>

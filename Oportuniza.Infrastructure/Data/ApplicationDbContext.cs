@@ -41,6 +41,7 @@ namespace Oportuniza.Infrastructure.Data
             modelBuilder.ApplyConfiguration(new CompanyEmployeeConfiguration());
             modelBuilder.ApplyConfiguration(new CandidateApplicationConfiguration());
             modelBuilder.ApplyConfiguration(new CompanyRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new CandidateExtraConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }
