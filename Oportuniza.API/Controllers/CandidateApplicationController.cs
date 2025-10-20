@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.DTOs.Candidates;
@@ -8,7 +7,6 @@ using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
-using Oportuniza.Infrastructure.Repositories;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers

@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Configurations;
-using System.Linq.Expressions;
 
 namespace Oportuniza.Infrastructure.Data
 {

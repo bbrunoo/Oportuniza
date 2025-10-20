@@ -11,7 +11,6 @@ namespace Oportuniza.API.Services
     }
     public class VerificationCodeService : IVerificationCodeService
     {
-        // Armazena código + tempo de expiração
         private static readonly ConcurrentDictionary<string, (string Code, DateTime Expiry)> _codes
             = new ConcurrentDictionary<string, (string, DateTime)>();
 

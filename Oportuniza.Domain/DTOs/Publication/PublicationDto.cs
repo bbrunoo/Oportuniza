@@ -1,5 +1,4 @@
 ﻿using Oportuniza.Domain.Enums;
-using Oportuniza.Domain.Models;
 
 namespace Oportuniza.Domain.DTOs.Publication
 {

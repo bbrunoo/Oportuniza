@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using System.Security.Claims;

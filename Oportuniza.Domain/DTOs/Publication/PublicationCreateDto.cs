@@ -1,7 +1,4 @@
-﻿using Oportuniza.Domain.Enums;
-using Oportuniza.Domain.Models;
-
-namespace Oportuniza.Domain.DTOs.Publication
+﻿namespace Oportuniza.Domain.DTOs.Publication
 {
     public class PublicationCreateDto
     {

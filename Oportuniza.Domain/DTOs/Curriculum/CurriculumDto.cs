@@ -1,6 +1,4 @@
-﻿using Oportuniza.Domain.Models;
-
-namespace Oportuniza.Domain.DTOs.Curriculum
+﻿namespace Oportuniza.Domain.DTOs.Curriculum
 {
     public class CurriculumDto
     {

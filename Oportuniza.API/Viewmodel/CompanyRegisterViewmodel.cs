@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Oportuniza.API.Viewmodel
+﻿namespace Oportuniza.API.Viewmodel
 {
     public class CompanyRegisterViewmodel
     {

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Oportuniza.Domain.DTOs.Company
+﻿namespace Oportuniza.Domain.DTOs.Company
 {
     public class CompanyByIdDTO
     {

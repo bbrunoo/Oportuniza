@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Oportuniza.Domain.DTOs.Candidates;
 using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
-using Oportuniza.Infrastructure.Repositories;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers

@@ -1,6 +1,4 @@
-﻿using Oportuniza.Domain.Models;
-
-namespace Oportuniza.Domain.DTOs.AreasOfInterest
+﻿namespace Oportuniza.Domain.DTOs.AreasOfInterest
 {
     public class CompanyAreaCreateDto
     {

@@ -10,7 +10,6 @@ namespace Oportuniza.Infrastructure.Configurations
         {
             builder.ToTable("CandidateExtra");
 
-            // 🔑 Primary key
             builder.HasKey(e => e.Id);
 
             builder.HasOne(e => e.CandidateApplication)

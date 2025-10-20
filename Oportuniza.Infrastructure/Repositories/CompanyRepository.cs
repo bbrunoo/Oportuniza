@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;

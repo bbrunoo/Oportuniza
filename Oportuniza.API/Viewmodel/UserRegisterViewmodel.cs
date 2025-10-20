@@ -1,5 +1,4 @@
 ﻿using Oportuniza.Domain.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace Oportuniza.API.Viewmodel
 {

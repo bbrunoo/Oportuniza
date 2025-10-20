@@ -6,11 +6,7 @@ using Oportuniza.Domain.DTOs.Employee;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
-using Oportuniza.Infrastructure.Repositories;
-using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 
 namespace Oportuniza.API.Controllers
 {

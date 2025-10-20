@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
-using Oportuniza.Infrastructure.Repositories;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers

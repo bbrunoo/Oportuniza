@@ -151,7 +151,6 @@ export class ContextSwitcherComponent {
 
             let message = 'Não foi possível se desvincular da empresa.';
 
-            // Interpreta mensagens específicas vindas do backend
             switch (err.status) {
               case 400:
                 message = err.error?.message || 'Requisição inválida.';

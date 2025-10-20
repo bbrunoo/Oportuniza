@@ -8,7 +8,6 @@ using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Data;
-using Oportuniza.Infrastructure.Repositories;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers

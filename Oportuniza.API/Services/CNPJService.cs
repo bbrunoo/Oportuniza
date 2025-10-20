@@ -41,7 +41,6 @@ namespace Oportuniza.API.Services
             return cnpj.EndsWith(digito);
         }
 
-        //====================================
         public class CnpjStatusDto
         {
             [JsonPropertyName("cnpj")]

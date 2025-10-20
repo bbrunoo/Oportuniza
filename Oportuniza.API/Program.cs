@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using Oportuniza.API.Services;
 using Oportuniza.API.Services.Oportuniza.API.Services;
@@ -9,7 +7,6 @@ using Oportuniza.Domain.Interfaces;
 using Oportuniza.Infrastructure.Data;
 using Oportuniza.Infrastructure.Repositories;
 using Oportuniza.Infrastructure.Services;
-using static Oportuniza.API.Services.AzureEmailService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,9 +101,6 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-var AZURE_CONNECTION_STRING = Environment.GetEnvironmentVariable("AZURE_SQL_OPORTUNIZA");
-var LOCAL_CONNECTION_STRING = Environment.GetEnvironmentVariable("LOCAL_SQL_OPORTUNIZA");
-
 builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -123,10 +117,8 @@ builder.Services.AddScoped<ICandidateApplicationRepository, CandidateApplication
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICompanyRoleRepository, CompanyRoleRepository>();
 builder.Services.AddScoped<IActiveContextService, ActiveContextService>();
-
 builder.Services.AddScoped<IVerificationCodeService, VerificationCodeService>();
 builder.Services.AddScoped<AzureEmailService.IEmailService, AzureEmailService.EmailService>();
-
 builder.Services.AddScoped<UserRegistrationFilterAttribute>();
 
 builder.Services.AddHttpClient<CNPJService>();
@@ -163,7 +155,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 
 app.UseHttpsRedirection();
 

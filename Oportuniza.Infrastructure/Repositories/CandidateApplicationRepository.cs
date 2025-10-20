@@ -19,7 +19,6 @@ namespace Oportuniza.Infrastructure.Repositories
             _context = context;
             _mapper = mapper;
         }
-
         public async Task<IEnumerable<CandidateApplication>> GetCandidatesByPublicationAsync(Guid publicationId)
         {
             return await _context.CandidateApplication
@@ -28,7 +27,6 @@ namespace Oportuniza.Infrastructure.Repositories
                 .Where(ca => ca.PublicationId == publicationId)
                 .ToListAsync();
         }
-
         public async Task<IEnumerable<CandidateApplication>> GetApplicationsByUserAsync(Guid userId)
         {
             return await _context.CandidateApplication
@@ -37,13 +35,11 @@ namespace Oportuniza.Infrastructure.Repositories
                 .Where(ca => ca.UserId == userId)
                 .ToListAsync();
         }
-
         public async Task<bool> HasAppliedAsync(Guid publicationId, Guid userId)
         {
             return await _context.CandidateApplication
                 .AnyAsync(ca => ca.PublicationId == publicationId && ca.UserId == userId);
         }
-
         public async Task<object> GetPublicationStatisticsAsync(Guid publicationId)
         {
             var apps = await _context.CandidateApplication
@@ -58,13 +54,11 @@ namespace Oportuniza.Infrastructure.Repositories
                 rejected = apps.Count(ca => ca.Status == CandidateApplicationStatus.Rejected)
             };
         }
-
         public async Task<CandidateApplication> GetApplicationByPublicationAndUserAsync(Guid publicationId, Guid userId)
         {
             return await _context.CandidateApplication
                                  .FirstOrDefaultAsync(ca => ca.PublicationId == publicationId && ca.UserId == userId);
         }
-
         public async Task<IEnumerable<CandidateApplication>> GetApplicationsLoggedUser(Guid userId)
         {
             return await _context.CandidateApplication
@@ -78,7 +72,6 @@ namespace Oportuniza.Infrastructure.Repositories
                 .Where(ca => ca.UserId == userId)
                 .ToListAsync();
         }
-
         public async Task<IEnumerable<Publication>> GetPublicationsWithCandidatesByUserAsync(Guid userId)
         {
             var publications = await _context.Publication
@@ -89,7 +82,6 @@ namespace Oportuniza.Infrastructure.Repositories
 
             return publications;
         }
-
         public async Task<List<PublicationWithCandidatesDto>> GetPublicationsWithCandidatesByAuthorAsync(Guid publicationAuthorId)
         {
             return await _context.CandidateApplication
@@ -149,7 +141,6 @@ namespace Oportuniza.Infrastructure.Repositories
                 .OrderByDescending(ca => ca.ApplicationDate)
                 .Select(ca => new CandidateApplicationDetailDto
                 {
-                    // Aplicação
                     ApplicationId = ca.Id,
                     Status = ca.Status.ToString(),
                     CreationDate = ca.Publication.CreationDate,
@@ -160,11 +151,11 @@ namespace Oportuniza.Infrastructure.Repositories
                     ProfileImage = ca.User.ImageUrl,
 
                     PublicationId = ca.Publication.Id,
-                    Title = ca.Publication.Title,                     
-                    Description = ca.Publication.Description,      
-                    Resumee = ca.Publication.Resumee,           
-                    AuthorImage = ca.User.ImageUrl,                
-                    AuthorId = ca.Publication.AuthorCompany.Id,  
+                    Title = ca.Publication.Title,
+                    Description = ca.Publication.Description,
+                    Resumee = ca.Publication.Resumee,
+                    AuthorImage = ca.User.ImageUrl,
+                    AuthorId = ca.Publication.AuthorCompany.Id,
                     AuthorName = ca.Publication.AuthorCompany.Name,
 
                     TotalApplicationsForThisJob = ca.Publication.CandidateApplication.Count()

@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
-using Oportuniza.Infrastructure.Repositories;
-using Oportuniza.Infrastructure.Services;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers
@@ -76,14 +73,13 @@ namespace Oportuniza.API.Controllers
                     isCompany = true,
                     id = company.Id,
                     name = company.Name,
-                    email = user.Email,  // pode ser nulo ou omitido se quiser
+                    email = user.Email,
                     phone = user.Phone,
                     imageUrl = company.ImageUrl,
                     role = employee.CompanyRole.Name
                 });
             }
 
-            // SE É PERFIL DE USUÁRIO
             var response = _mapper.Map<UserDTO>(user);
 
             return Ok(new

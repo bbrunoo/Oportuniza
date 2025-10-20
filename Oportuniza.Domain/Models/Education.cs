@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Oportuniza.Domain.Models
+﻿namespace Oportuniza.Domain.Models
 {
     public class Education
     {
