@@ -22,6 +22,11 @@
         public string KeycloakId { get; set; }
 
         //public bool VerifiedEmail { get; set; }
+
+        public string? Local { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+
         public UserType UserType { get; set; }
         public ICollection<CandidateApplication> CandidateApplication { get; set; }
         public ICollection<CompanyEmployee> CompanyLinks { get; set; } = new List<CompanyEmployee>();

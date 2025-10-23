@@ -1,0 +1,74 @@
+<div class="profile-container">
+  <div class="profile-card">
+    <div *ngIf="isLoading" class="loading">Carregando dados...</div>
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+    <form *ngIf="editableProfile && !isLoading" class="edit-content" (ngSubmit)="saveProfile()">
+
+      <div class="left">
+        <img
+          [src]="editableProfile.imageUrl || '../../../../assets/etapas/perfil.png'"
+          alt="Foto de perfil"
+          class="avatar"
+        />
+        <label for="file-upload" class="change-photo-btn">
+          Mudar Foto
+        </label>
+        <input id="file-upload" type="file" (change)="onFileSelected($event)" style="display: none;">
+      </div>
+
+      <div class="right">
+        <div class="form-group">
+          <label for="name">Nome:</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            [(ngModel)]="editableProfile.name"
+            required
+            class="form-input"
+            placeholder="Seu nome completo"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="email">E-mail:</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [ngModel]="editableProfile.email"
+            disabled
+            class="form-input disabled-input"
+            placeholder="seu.email@exemplo.com"
+          >
+          <small class="hint">Entre em contato com o suporte para alterar o e-mail.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="location">Localização:</label>
+          <input
+            type="text"
+            id="location"
+            name="location"
+            [(ngModel)]="editableProfile.location"
+            class="form-input"
+            placeholder="Cidade, Estado, País (Ex: São Paulo, SP, Brasil)"
+          >
+        </div>
+
+        <div *ngIf="saveSuccess" class="success-message">Perfil atualizado com sucesso! 🎉</div>
+        <div *ngIf="saveError" class="error-message">{{ saveError }}</div>
+
+        <div class="button-group">
+          <button type="submit" [disabled]="isSaving" class="save-btn">
+            {{ isSaving ? 'Salvando...' : 'Salvar Alterações' }}
+          </button>
+          <a routerLink="/perfil" class="cancel-btn">Cancelar</a>
+        </div>
+
+      </div>
+    </form>
+
+  </div>
+</div>

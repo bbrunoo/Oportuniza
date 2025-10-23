@@ -4,7 +4,7 @@
       <h2>Oportuniza</h2>
       <div class="company-datas">
         <div class="company-info" *ngIf="company as companyData">
-          <img class="company-logo" [src]="companyData.imageUrl" alt="Logo da Empresa">
+          <img class="company-logo" [src]="companyData.imageUrl" alt="Logo da Empresa" />
           <span>
             {{ companyData.name }}
           </span>
@@ -18,7 +18,7 @@
           Informações
         </a>
 
-        <a *ngIf="isUserAdmin" routerLink="adicionar-funcionario" routerLinkActive="active-link"
+        <a *ngIf="userRoleInCompany === 'Owner'" routerLink="adicionar-funcionario" routerLinkActive="active-link"
           [routerLinkActiveOptions]="{ exact: true }">
           Adicionar Funcionários
         </a>
@@ -27,12 +27,12 @@
           Funcionários
         </a>
 
-        <a routerLink="editar-empresa" *ngIf="isUserAdmin" routerLinkActive="active-link"
+        <a *ngIf="userRoleInCompany === 'Owner'" routerLink="editar-empresa" routerLinkActive="active-link"
           [routerLinkActiveOptions]="{ exact: true }">
           Editar Empresa
         </a>
 
-        <button *ngIf="isUserAdmin" (click)="desativarEmpresa()">
+        <button *ngIf="userRoleInCompany === 'Owner'" (click)="desativarEmpresa()">
           Desativar Empresa
         </button>
       </nav>
@@ -41,7 +41,7 @@
     <div class="user-content">
       <button class="return-button" routerLink="/inicio/minhas-empresas">
         <img src="../../../../assets/undo.png" alt="">
-        Voltar ao inicio
+        Voltar ao início
       </button>
     </div>
   </aside>

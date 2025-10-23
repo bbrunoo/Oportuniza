@@ -14,6 +14,7 @@ export interface AccessContext {
   imageUrl: string;
   email?: string;
   role?: string;
+  ownerId?: string;
 }
 
 @Component({
@@ -44,12 +45,15 @@ export class ContextSwitcherComponent {
     this.getCurrentActiveContext();
   }
 
+  currentUserId: string = '';
+
   getCurrentActiveContext(): void {
     const token = localStorage.getItem('context_access_token');
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         this.currentContextId = payload['company_id'] || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+        this.currentUserId = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
       } catch (e) {
         console.error("Não foi possível decodificar o token para obter o contexto ativo.");
       }

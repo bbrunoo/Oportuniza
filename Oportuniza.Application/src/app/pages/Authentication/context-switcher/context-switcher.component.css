@@ -15,8 +15,8 @@
 .context-switcher-container {
   max-width: 500px;
   width: 100%;
-  margin: 0 auto;
   padding: 40px 20px;
+  margin: 10px;
   display: flex;
   border-radius: 10px;
   align-items: center;
@@ -162,10 +162,21 @@ h2 {
   border: 1px solid #d0e0ff;
 }
 
-@media (max-width: 550px) {
+@media screen and (max-width: 600px) {
   .context-switcher-container {
-    margin: 20px 10px;
-    padding: var(--spacing);
+    width: 80%;
+    padding: 10px;
+  }
+
+  .header-section{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .description{
+    font-size: 14px;
+    width: 80%;
   }
 
   .context-item {
@@ -179,10 +190,13 @@ h2 {
 
   .info-section {
     flex-grow: 1;
-    max-width: calc(100% - 130px);
   }
 
   .unlink-button {
     margin-left: auto;
+  }
+
+  h2{
+    font-size: 18px;
   }
 }

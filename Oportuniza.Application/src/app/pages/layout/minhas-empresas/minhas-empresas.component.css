@@ -421,3 +421,132 @@ a {
   background-color: #218838;
   transform: scale(1.05);
 }
+
+@media screen and (max-width: 1400px) {
+
+  .container,
+  .container-empresas {
+    width: 65em;
+    height: 40em;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .post-container {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 1.5em;
+  }
+
+  .post-card {
+    width: 200px;
+    height: 250px;
+  }
+
+  .post-card-img {
+    width: 120px;
+    height: 120px;
+  }
+
+  .description {
+    font-size: 13px;
+  }
+
+  .configure {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .configure img {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+/* 📱 2x2 GRID (tablets e celulares) */
+@media screen and (max-width: 768px) {
+
+  .container,
+  .container-empresas {
+    width: 95%;
+    height: auto;
+    flex-direction: column;
+  }
+
+  /* Botão de criar empresa ao lado do texto */
+  .header {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .header h2 {
+    font-size: 20px;
+  }
+
+  .create-company {
+    width: 40px;
+    height: 40px;
+    font-size: 32px;
+  }
+
+  .post-container {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 1.2em;
+  }
+
+  .post-card {
+    width: 160px;
+    height: 200px;
+  }
+
+  .post-card-img {
+    width: 90px;
+    height: 90px;
+  }
+
+  .description {
+    font-size: 12px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .header {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+
+  .header h2 {
+    font-size: 18px;
+  }
+
+  .create-company {
+    width: 35px;
+    height: 35px;
+    font-size: 28px;
+  }
+
+  .post-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1em;
+  }
+
+  .post-card {
+    width: 140px;
+    height: 180px;
+  }
+
+  .post-card-img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .description {
+    font-size: 11px;
+  }
+}

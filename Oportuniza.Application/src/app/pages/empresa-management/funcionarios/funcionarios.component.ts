@@ -166,6 +166,7 @@ export class FuncionariosComponent {
     this.isLoading = true;
     this.errorMessage = null;
 
+    
     this.employeeService.getOrderedEmployees(id).subscribe({
       next: (data) => {
         this.employees = data;

@@ -332,5 +332,34 @@ namespace Oportuniza.API.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet("random-samples")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetRandomPublications()
+        {
+            var publications = await _publicationRepository.GetAllAsync(
+                includes: new Expression<Func<Publication, object>>[]
+                {
+            p => p.AuthorUser,
+            p => p.AuthorCompany
+                },
+                filter: p => p.IsActive == PublicationAvailable.Enabled
+            );
+
+            if (publications == null || !publications.Any())
+            {
+                return NotFound("Nenhuma publicação disponível para amostra.");
+            }
+
+            var random = new Random();
+            var randomPublications = publications
+                .OrderBy(_ => random.Next())
+                .Take(2)
+                .ToList();
+
+            var response = _mapper.Map<List<PublicationDto>>(randomPublications);
+
+            return Ok(response);
+        }
     }
 }

@@ -1,15 +1,14 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs';
 import Swal from 'sweetalert2';
 import { Publication } from '../../../models/Publications.model';
-import { PublicationFilterDto } from '../../../models/filter.model';
-import { ActivatedRoute, Router } from '@angular/router';
-import { UserService } from '../../../services/user.service';
-import { CandidateService } from '../../../services/candidate.service';
 import { PublicationService } from '../../../services/publication.service';
-import { CommonModule } from '@angular/common';
+import { CandidateService } from '../../../services/candidate.service';
+import { UserService } from '../../../services/user.service';
 import { SearchbarComponent } from '../../../component/searchbar/searchbar.component';
-import { HttpErrorResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { PublicationFilterDto } from '../../../models/filter.model';
 
 @Component({
   selector: 'app-specific-publication',
@@ -20,26 +19,43 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class SpecificPublicationComponent implements OnInit {
   publication!: Publication;
   userId: string | undefined;
+  isCompany = false;
+  isMobile = false;
   appliedStatus: { [publicationId: string]: boolean } = {};
   applicationIds: { [publicationId: string]: string } = {};
 
+  isImageModalOpen = false;
+  modalImageUrl: string | null = null;
+
   constructor(
+    private route: ActivatedRoute,
+    private router: Router,
     private publicationService: PublicationService,
     private candidateService: CandidateService,
-    private userService: UserService,
-    private router: Router,
-    private route: ActivatedRoute
+    private userService: UserService
   ) { }
 
   ngOnInit() {
-    const publicationId = this.route.snapshot.paramMap.get('id');
-
-    if (publicationId) {
-      this.getUserId(publicationId);
-    } else {
-      console.error('ID da publicação não encontrado na URL.');
-      this.router.navigate(['/']);
+    this.checkIfMobile();
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.userService.getOwnProfile().pipe(take(1)).subscribe({
+        next: (profile: any) => {
+          this.isCompany = profile.isCompany;
+          this.getUserId(id);
+        },
+        error: () => this.getUserId(id)
+      });
     }
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.checkIfMobile();
+  }
+
+  private checkIfMobile() {
+    this.isMobile = window.innerWidth <= 1024;
   }
 
   onSearchTriggered(filters: PublicationFilterDto) {
@@ -55,179 +71,110 @@ export class SpecificPublicationComponent implements OnInit {
     this.userService.getUserId().pipe(take(1)).subscribe({
       next: (userId) => {
         this.userId = userId;
-        this.getPublication(publicationId);
+        this.loadPublication(publicationId);
       },
-      error: (err) => {
-        console.error('Erro ao obter o ID do usuário:', err);
-        this.getPublication(publicationId);
-      },
+      error: () => this.loadPublication(publicationId)
     });
   }
 
-  getPublication(publicationId: string) {
+  loadPublication(publicationId: string) {
     this.publicationService.getPublicationsById(publicationId).subscribe({
-      next: (publication: Publication) => {
-        this.publication = publication;
+      next: (data: Publication) => {
+        this.publication = data;
         this.checkAppliedStatus();
       },
-      error: (error: any) => {
-        console.log('Erro ao carregar publicação:', error);
-      },
+      error: () => Swal.fire('Erro', 'Falha ao carregar publicação', 'error')
     });
   }
 
   checkAppliedStatus() {
-    if (this.userId && this.publication?.id) {
-      this.candidateService.getMyApplications().pipe(take(1)).subscribe({
-        next: (applications: any[]) => {
-          const applied = applications.find(app => app.publication?.id === this.publication.id);
-
-          if (applied) {
-            this.appliedStatus[this.publication.id] = true;
-            this.applicationIds[this.publication.id] = applied.id;
-          } else {
-            this.appliedStatus[this.publication.id] = false;
-          }
-        },
-        error: (err) => {
-          console.error('Erro ao carregar candidaturas do usuário:', err);
+    if (!this.userId || !this.publication?.id) return;
+    this.candidateService.getMyApplications().pipe(take(1)).subscribe({
+      next: (applications) => {
+        const app = applications.find((a) => a.publication?.id === this.publication.id);
+        if (app) {
+          this.appliedStatus[this.publication.id] = true;
+          this.applicationIds[this.publication.id] = app.id;
         }
-      });
-    }
+      }
+    });
   }
 
   apply(publicationId: string) {
     Swal.fire({
       title: 'Confirmar candidatura?',
-      text: "Você deseja realmente se candidatar a esta vaga?",
+      text: 'Você deseja realmente se candidatar a esta vaga?',
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Sim, candidatar!',
-      cancelButtonText: 'Não, cancelar',
-      reverseButtons: true
+      cancelButtonText: 'Não, cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
         this.candidateService.applyToJob(publicationId).subscribe({
           next: (response) => {
             this.appliedStatus[publicationId] = true;
             this.applicationIds[publicationId] = response.id;
-
-            Swal.fire({
-              icon: 'success',
-              title: 'Candidatura enviada!',
-              text: 'Você se candidatou a esta vaga com sucesso.',
-              confirmButtonText: 'Ok'
-            });
+            Swal.fire('Sucesso!', 'Você se candidatou a esta vaga.', 'success');
           },
-          error: (err: HttpErrorResponse) => {
-            console.error('Erro ao se candidatar:', err);
-
-            if (err.status === 400) {
-              const errorMessage = err.error || 'Você já se candidatou a esta vaga.';
-              Swal.fire({
-                icon: 'info',
-                title: 'Ops!',
-                text: errorMessage,
-                confirmButtonText: 'Ok'
-              });
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Erro ao se candidatar. Tente novamente mais tarde.',
-                confirmButtonText: 'Fechar'
-              });
-            }
-          },
+          error: () => Swal.fire('Erro', 'Não foi possível se candidatar.', 'error')
         });
       }
     });
   }
 
-  public cancelApplication(publicationId: string) {
+  cancelApplication(publicationId: string) {
     Swal.fire({
-      title: 'Tem certeza?',
-      text: "Você não poderá reverter isso!",
+      title: 'Cancelar candidatura?',
+      text: 'Você não poderá reverter isso!',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sim, cancelar candidatura!',
-      cancelButtonText: 'Não, manter',
-      reverseButtons: true
+      confirmButtonText: 'Sim, cancelar',
+      cancelButtonText: 'Não, manter'
     }).then((result) => {
-      if (result.isConfirmed) {
-        this._executeCancel(publicationId);
-      }
+      if (result.isConfirmed) this._executeCancel(publicationId);
     });
   }
 
   private _executeCancel(publicationId: string) {
-    const applicationId = this.applicationIds[publicationId];
-    if (!applicationId) {
-      console.error('ID da candidatura não encontrado localmente. Tentando obter da API...');
-
+    const appId = this.applicationIds[publicationId];
+    if (appId) {
+      this._performApiCancel(appId, publicationId);
+    } else {
       this.candidateService.getMyApplications().pipe(take(1)).subscribe({
-        next: (applications) => {
-          const app = applications.find(a => a.publication?.id === publicationId);
-          if (app) {
-            this.applicationIds[publicationId] = app.id;
-            this._performApiCancel(app.id, publicationId);
-          } else {
-            console.error('ID da candidatura não encontrado após nova busca.');
-            Swal.fire({
-              icon: 'error',
-              title: 'Erro!',
-              text: 'Não foi possível encontrar o ID da candidatura para cancelar.',
-              confirmButtonText: 'Fechar'
-            });
-          }
-        },
-        error: (err) => {
-          console.error('Erro ao buscar candidaturas do usuário:', err);
-          Swal.fire({
-            icon: 'error',
-            title: 'Erro!',
-            text: 'Falha na comunicação com o servidor. Tente novamente.',
-            confirmButtonText: 'Fechar'
-          });
+        next: (apps) => {
+          const found = apps.find((a) => a.publication?.id === publicationId);
+          if (found) this._performApiCancel(found.id, publicationId);
         }
       });
-    } else {
-      this._performApiCancel(applicationId, publicationId);
     }
   }
 
-  private _performApiCancel(applicationId: string, publicationId: string) {
-    this.candidateService.cancelApplication(applicationId).subscribe({
+  private _performApiCancel(appId: string, pubId: string) {
+    this.candidateService.cancelApplication(appId).subscribe({
       next: () => {
-        this.appliedStatus[publicationId] = false;
-        delete this.applicationIds[publicationId];
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Candidatura cancelada!',
-          text: 'Sua candidatura foi cancelada com sucesso.',
-          confirmButtonText: 'Ok'
-        });
+        this.appliedStatus[pubId] = false;
+        delete this.applicationIds[pubId];
+        Swal.fire('Candidatura cancelada!', '', 'success');
       },
-      error: (err) => {
-        console.error('Erro ao cancelar candidatura:', err);
-
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Erro ao cancelar a candidatura. Por favor, tente novamente.',
-          confirmButtonText: 'Fechar'
-        });
-      }
+      error: () => Swal.fire('Erro', 'Falha ao cancelar candidatura', 'error')
     });
   }
 
+  openImageModal(imageUrl: string) {
+    this.modalImageUrl = imageUrl;
+    this.isImageModalOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeImageModal() {
+    this.isImageModalOpen = false;
+    this.modalImageUrl = null;
+    document.body.style.overflow = 'auto';
+  }
+
   handleImgError(event: Event) {
-    const target = event.target as HTMLImageElement;
-    target.src = '../../../../assets/logo.png';
+    (event.target as HTMLImageElement).src = '../../../../assets/logo.png';
   }
 }

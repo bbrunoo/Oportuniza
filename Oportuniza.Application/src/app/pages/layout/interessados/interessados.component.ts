@@ -106,7 +106,6 @@ export class InteressadosComponent implements OnInit {
     if (tab === 'candidates') {
       this.candidateService.getMyPublicationsWithCandidates().subscribe({
         next: (res: PublicationWithCandidates[]) => {
-          // Mapear para CandidateDisplay
           this.publicationsWithCandidates = res.map(pub => ({
             publicationId: pub.publicationId,
             title: pub.title,

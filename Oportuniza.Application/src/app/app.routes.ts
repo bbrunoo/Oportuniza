@@ -26,6 +26,7 @@ import { SearchResultComponent } from './pages/layout/search-result/search-resul
 import { EditarPostComponent } from './pages/layout/editar-post/editar-post.component';
 import { SpecificPublicationComponent } from './pages/layout/specific-publication/specific-publication.component';
 import { ContextSwitcherComponent } from './pages/Authentication/context-switcher/context-switcher.component';
+import { EditarPerfilComponent } from './pages/layout/editar-perfil/editar-perfil.component';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
@@ -51,6 +52,7 @@ export const routes: Routes = [
       { path: "post", component: PublicationComponent },
       { path: "editar-post/:id", component: EditarPostComponent },
       { path: "search-result", component: SearchResultComponent },
+      { path: "editar/:id", component: EditarPerfilComponent },
       { path: "meus-posts", component: MeuspostsComponent },
       { path: "post/:id", component: SpecificPublicationComponent }
     ]

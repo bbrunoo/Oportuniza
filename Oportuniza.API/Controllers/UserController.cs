@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Oportuniza.API.Services;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
@@ -16,12 +17,17 @@ namespace Oportuniza.API.Controllers
         private readonly IMapper _mapper;
         private readonly ICompanyEmployeeRepository _companyEmployeeRepository;
         private readonly ICompanyRepository _companyRepository;
-        public UserController(IUserRepository userRepository, IMapper mapper, ICompanyEmployeeRepository companyEmployeeRepository, ICompanyRepository companyRepository)
+        private readonly AzureBlobService _azureBlobService;
+        private readonly GeolocationService _geolocationService;
+
+        public UserController(IUserRepository userRepository, IMapper mapper, ICompanyEmployeeRepository companyEmployeeRepository, ICompanyRepository companyRepository, AzureBlobService azureBlobService, GeolocationService geolocationService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _companyEmployeeRepository = companyEmployeeRepository;
             _companyRepository = companyRepository;
+            _azureBlobService = azureBlobService;
+            _geolocationService = geolocationService;
         }
 
         [HttpGet]
@@ -142,5 +148,67 @@ namespace Oportuniza.API.Controllers
 
             return NoContent();
         }
+
+        [HttpPut("editar-perfil")]
+        [Authorize]
+        public async Task<IActionResult> EditProfile([FromForm] EditUserProfileDto dto, IFormFile? image)
+        {
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(keycloakId))
+                return Unauthorized("Token inválido: claim 'sub' ausente.");
+
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+            if (user == null)
+                return NotFound("Usuário não encontrado no banco de dados local.");
+
+            if (!string.IsNullOrWhiteSpace(dto.Name))
+                user.FullName = dto.Name;
+
+            if (!string.IsNullOrWhiteSpace(dto.Location))
+            {
+                user.Local = dto.Location;
+
+                try
+                {
+                    var (latitude, longitude) = await _geolocationService.GetCoordinatesAsync(dto.Location);
+                    user.Latitude = latitude;
+                    user.Longitude = longitude;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Falha ao geocodificar localização: {ex.Message}");
+                }
+            }
+
+            if (image != null && image.Length > 0)
+            {
+                try
+                {
+                    var imageUrl = await _azureBlobService.UploadImageAsync(image);
+                    user.ImageUrl = imageUrl;
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Erro ao fazer upload da imagem: {ex.Message}");
+                }
+            }
+
+            var result = await _userRepository.UpdateAsync(user);
+            if (result == null)
+                return StatusCode(500, "Erro ao atualizar perfil do usuário.");
+
+            var response = new
+            {
+                name = user.FullName,
+                email = user.Email,
+                location = user.Local,
+                latitude = user.Latitude,
+                longitude = user.Longitude,
+                imageUrl = user.ImageUrl
+            };
+
+            return Ok(response);
+        }
+
     }
 }

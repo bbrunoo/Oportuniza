@@ -87,18 +87,16 @@ export class MinhasEmpresasComponent {
     this.isLoading = true;
     this.companyService.getUserCompaniesPaginated(this.pageNumber, this.pageSize).subscribe({
       next: (data) => {
-        this.companies = data.items.map(company => ({
+        let allCompanies = data.items.map(company => ({
           ...company,
           IsDisabled: company.isActive !== 0,
           IsActiveStatus: company.isActive === 0
         })) as CompanyListDto[];
 
         if (this.isCompanyContext && this.activeCompanyId) {
-          this.companies.sort((a, b) => {
-            if (a.id === this.activeCompanyId) return -1;
-            if (b.id === this.activeCompanyId) return 1;
-            return 0;
-          });
+          this.companies = allCompanies.filter(c => c.id === this.activeCompanyId);
+        } else {
+          this.companies = allCompanies;
         }
 
         this.totalPages = data.totalPages;
@@ -110,6 +108,7 @@ export class MinhasEmpresasComponent {
       }
     });
   }
+
 
   async goToCompanyConfig(companyId: string | undefined): Promise<void> {
     if (!companyId) {

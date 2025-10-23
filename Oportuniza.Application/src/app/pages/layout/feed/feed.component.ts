@@ -1,11 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, HostListener, ElementRef } from '@angular/core';
 import { Publication } from '../../../models/Publications.model';
 import { PublicationService } from '../../../services/publication.service';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../services/user.service';
 import { CandidateService } from '../../../services/candidate.service';
-import { forkJoin, map, Observable, take } from 'rxjs';
-import { KeycloakOperationService } from '../../../services/keycloak.service';
+import { take } from 'rxjs';
 import Swal from 'sweetalert2';
 import { SearchbarComponent } from '../../../component/searchbar/searchbar.component';
 import { PublicationFilterDto } from '../../../models/filter.model';
@@ -26,26 +25,19 @@ export class FeedComponent implements OnInit {
   applicationIds: { [publicationId: string]: string } = {};
   hasApplied = false;
   isCompany: boolean = false;
-
+  isMobile = false;
 
   constructor(
     private publicationService: PublicationService,
     private candidateService: CandidateService,
     private userService: UserService,
-    private router: Router
-  ) { }
-
-  onSearchTriggered(filters: PublicationFilterDto) {
-    const queryParams = {
-      ...filters,
-      contracts: filters.contracts?.join(','),
-      shifts: filters.shifts?.join(',')
-    };
-
-    this.router.navigate(['/inicio/search-result'], { queryParams });
-  }
+    private router: Router,
+    private elRef: ElementRef
+  ) {}
 
   ngOnInit() {
+    this.checkIfMobile();
+
     this.userService.getOwnProfile().pipe(take(1)).subscribe({
       next: (profile: any) => {
         this.isCompany = profile.isCompany;
@@ -54,8 +46,32 @@ export class FeedComponent implements OnInit {
       error: (err) => {
         console.error('Erro ao obter perfil do usuário:', err);
         this.getUserIdAndPublications();
-      }
+      },
     });
+  }
+
+  isImageModalOpen = false;
+  modalImageUrl: string | null = null;
+
+  openImageModal(imageUrl: string) {
+    this.modalImageUrl = imageUrl;
+    this.isImageModalOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeImageModal() {
+    this.isImageModalOpen = false;
+    this.modalImageUrl = null;
+    document.body.style.overflow = 'auto';
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.checkIfMobile();
+  }
+
+  private checkIfMobile() {
+    this.isMobile = window.innerWidth <= 1024;
   }
 
   goBack() {
@@ -68,6 +84,15 @@ export class FeedComponent implements OnInit {
     if (this.currentIndex < this.publications.length - 1) {
       this.currentIndex++;
     }
+  }
+
+  onSearchTriggered(filters: PublicationFilterDto) {
+    const queryParams = {
+      ...filters,
+      contracts: filters.contracts?.join(','),
+      shifts: filters.shifts?.join(','),
+    };
+    this.router.navigate(['/inicio/search-result'], { queryParams });
   }
 
   getUserIdAndPublications() {
@@ -93,7 +118,6 @@ export class FeedComponent implements OnInit {
         if (this.publications.length > 0 && this.userId) {
           this.getApplicationsForUser();
         }
-        console.log(this.publications[this.currentIndex].expirationDate)
       },
       error: (error: any) => {
         console.log('Erro ao carregar publicações:', error);
@@ -104,7 +128,7 @@ export class FeedComponent implements OnInit {
   getApplicationsForUser() {
     this.candidateService.getMyApplications().subscribe({
       next: (applications: any[]) => {
-        applications.forEach(app => {
+        applications.forEach((app) => {
           if (app.publication?.id) {
             this.appliedStatus[app.publication.id] = true;
             this.applicationIds[app.publication.id] = app.id;
@@ -113,43 +137,41 @@ export class FeedComponent implements OnInit {
       },
       error: (err) => {
         console.error('Erro ao carregar candidaturas do usuário:', err);
-      }
+      },
     });
   }
 
   apply(publicationId: string) {
     Swal.fire({
       title: 'Confirmar candidatura?',
-      text: "Você deseja realmente se candidatar a esta vaga?",
+      text: 'Você deseja realmente se candidatar a esta vaga?',
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Sim, candidatar!',
       cancelButtonText: 'Não, cancelar',
-      reverseButtons: true
+      reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
         this.candidateService.applyToJob(publicationId).subscribe({
           next: (response) => {
             this.appliedStatus[publicationId] = true;
             this.applicationIds[publicationId] = response.id;
-
             Swal.fire({
               icon: 'success',
               title: 'Candidatura enviada!',
               text: 'Você se candidatou a esta vaga com sucesso.',
-              confirmButtonText: 'Ok'
+              confirmButtonText: 'Ok',
             });
           },
           error: (err) => {
             console.error(err);
-
             Swal.fire({
               icon: 'error',
               title: 'Oops...',
               text: 'Erro ao se candidatar. Tente novamente mais tarde.',
-              confirmButtonText: 'Fechar'
+              confirmButtonText: 'Fechar',
             });
           },
         });
@@ -160,14 +182,14 @@ export class FeedComponent implements OnInit {
   public cancelApplication(publicationId: string) {
     Swal.fire({
       title: 'Tem certeza?',
-      text: "Você não poderá reverter isso!",
+      text: 'Você não poderá reverter isso!',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Sim, cancelar candidatura!',
       cancelButtonText: 'Não, manter',
-      reverseButtons: true
+      reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
         this._executeCancel(publicationId);
@@ -175,41 +197,24 @@ export class FeedComponent implements OnInit {
     });
   }
 
-  handleImgError(event: Event) {
-    const target = event.target as HTMLImageElement;
-    target.src = '../../../../assets/logo.png';
-  }
-
   private _executeCancel(publicationId: string) {
     const applicationId = this.applicationIds[publicationId];
     if (!applicationId) {
-      console.error('ID da candidatura não encontrado localmente. Tentando obter da API...');
-
       this.candidateService.getMyApplications().pipe(take(1)).subscribe({
         next: (applications) => {
-          const app = applications.find(a => a.publication.id === publicationId);
+          const app = applications.find((a) => a.publication.id === publicationId);
           if (app) {
             this.applicationIds[publicationId] = app.id;
             this._performApiCancel(app.id, publicationId);
           } else {
-            console.error('ID da candidatura não encontrado após nova busca.');
             Swal.fire({
               icon: 'error',
               title: 'Erro!',
               text: 'Não foi possível encontrar o ID da candidatura para cancelar.',
-              confirmButtonText: 'Fechar'
+              confirmButtonText: 'Fechar',
             });
           }
         },
-        error: (err) => {
-          console.error('Erro ao buscar candidaturas do usuário:', err);
-          Swal.fire({
-            icon: 'error',
-            title: 'Erro!',
-            text: 'Falha na comunicação com o servidor. Tente novamente.',
-            confirmButtonText: 'Fechar'
-          });
-        }
       });
     } else {
       this._performApiCancel(applicationId, publicationId);
@@ -221,24 +226,22 @@ export class FeedComponent implements OnInit {
       next: () => {
         this.appliedStatus[publicationId] = false;
         delete this.applicationIds[publicationId];
-
         Swal.fire({
           icon: 'success',
           title: 'Candidatura cancelada!',
           text: 'Sua candidatura foi cancelada com sucesso.',
-          confirmButtonText: 'Ok'
+          confirmButtonText: 'Ok',
         });
       },
       error: (err) => {
         console.error('Erro ao cancelar candidatura:', err);
-
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
           text: 'Erro ao cancelar a candidatura. Por favor, tente novamente.',
-          confirmButtonText: 'Fechar'
+          confirmButtonText: 'Fechar',
         });
-      }
+      },
     });
   }
 }

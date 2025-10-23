@@ -116,7 +116,7 @@ export class EmpresaComponent implements OnInit, OnDestroy {
   desativarEmpresa() {
     Swal.fire({
       text: 'Tem certeza que deseja excluir a empresa?',
-      icon:'warning',
+      icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',

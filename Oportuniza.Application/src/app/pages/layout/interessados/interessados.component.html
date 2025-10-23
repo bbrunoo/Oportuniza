@@ -1,13 +1,27 @@
 <div class="container">
+  <div class="mobile-titulos">
+    <a class="mobile-button" (click)="activeTab = 'candidates'; loadData('candidates')"
+      [class.active]="activeTab === 'candidates'">
+      {{ isCompany ? 'Meus Candidatos' : 'Meus Candidatos' }}
+    </a>
+
+    <a class="mobile-button" *ngIf="!isCompany" (click)="activeTab = 'inscription'; loadData('inscription')"
+      [class.active]="activeTab === 'inscription'">
+      Minhas Candidaturas
+    </a>
+  </div>
   <div class="quadrado">
+    <div class="mobile-title">
+    </div>
+
     <div class="titulos">
-      <a (click)="activeTab = 'candidates'; loadData('candidates')" [class.active]="activeTab === 'candidates'">
+      <a class="opcoes-button" (click)="activeTab = 'candidates'; loadData('candidates')" [class.active]="activeTab === 'candidates'">
         {{ isCompany ? 'Candidatos às Minhas Vagas' : 'Candidatos nas Minhas Vagas' }}
       </a>
 
       <span *ngIf="!isCompany">|</span>
 
-      <a *ngIf="!isCompany" (click)="activeTab = 'inscription'; loadData('inscription')"
+      <a class="opcoes-button"  *ngIf="!isCompany" (click)="activeTab = 'inscription'; loadData('inscription')"
         [class.active]="activeTab === 'inscription'">
         Minhas Candidaturas
       </a>
@@ -58,5 +72,8 @@
     <div class="nothing" *ngIf="!loading && !hasData">
       <p class="nothing-text">No momento nenhuma informação disponível.</p>
     </div>
+
+
   </div>
+
 </div>

@@ -7,10 +7,11 @@
       <div class="results-list">
         <div class="publication-card" *ngFor="let publication of publications" (click)="onPostClick(publication)">
           <div class="left">
-            <img class="author-image" src="{{publication.authorImageUrl || '../../../../assets/etapas/perfil.png'}}" alt="">
+            <img class="author-image" src="{{publication.authorImageUrl || '../../../../assets/etapas/perfil.png'}}"
+              alt="">
             <div class="left-content">
               <h3>{{ publication.authorName }}</h3>
-              <p>{{ publication.resumee }}</p>
+              <p class="resumee">{{ publication.resumee }}</p>
               <div class="left-info">
                 <p>{{ publication.salary }}</p> -
                 <p>{{ publication.shift }}</p> -

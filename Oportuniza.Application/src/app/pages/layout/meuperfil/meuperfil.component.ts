@@ -3,6 +3,7 @@ import { ProfileService } from '../../../services/profile.service';
 import { UserProfile } from '../../../models/UserProfile.model';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, NgIf } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-meuperfil',
@@ -15,7 +16,7 @@ export class MeuperfilComponent {
   isLoading: boolean = true;
   errorMessage: string | null = null;
 
-  constructor(private profileService: ProfileService) { }
+  constructor(private profileService: ProfileService, private router: Router) { }
 
   ngOnInit(): void {
     this.fetchUserProfile();
@@ -34,5 +35,9 @@ export class MeuperfilComponent {
         console.error('Erro ao buscar perfil:', error);
       }
     });
+  }
+
+  goToProfile(userId: string): void {
+    this.router.navigate(['/inicio/editar', userId]);
   }
 }

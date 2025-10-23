@@ -1,41 +1,21 @@
-<div class="container">
-  <div class="background-container">
-    <div class="card-title">Informações de perfil</div>
+<div class="profile-container">
+  <div class="profile-card">
+    <div *ngIf="isLoading" class="loading">Carregando perfil...</div>
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
 
-    <div *ngIf="isLoading" class="loading-state">
-      <p>Carregando perfil...</p>
-    </div>
-
-    <div *ngIf="errorMessage" class="error-state">
-      <p>{{ errorMessage }}</p>
-    </div>
-
-    <div *ngIf="userProfile && !isLoading" class="profile-card">
-      <div class="profile-content">
-        <div class="profile-image">
-          <img [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'" alt="Foto de perfil" />
-        </div>
-        <div class="profile-info">
-          <p class="username">{{ userProfile.name }}</p>
-          <p>
-            <strong>Objetivo Profissional:</strong>
-            Futuramente
-            <!-- {{ userProfile.professionalObjective }} -->
-          </p>
-          <p><strong>E-mail:</strong> {{ userProfile.email }}</p>
-          <p>
-            <strong>Área de interesse:</strong>
-            Futuramente
-          </p>
-          <p>
-            <strong>Localização:</strong>
-                Futuramente
-          </p>
-        </div>
+    <div *ngIf="userProfile && !isLoading" class="content">
+      <div class="left">
+        <img [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'" alt="Foto de perfil"
+          class="avatar" />
+        <a *ngIf="userProfile" (click)="goToProfile(userProfile.id)" class="edit-btn">
+          Editar Perfil
+        </a>
       </div>
-      <div class="actions">
-        <a class="edit-button" href="#" (click)="$event.preventDefault()">EDITAR DADOS</a>
-        <span class="edit-icon"></span>
+
+      <div class="right">
+        <h2 class="username">{{ userProfile.name }}</h2>
+        <p><strong>E-mail:</strong> {{ userProfile.email }}</p>
+        <p><strong>Localização:</strong> {{userProfile.local}}</p>
       </div>
     </div>
   </div>

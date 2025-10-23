@@ -121,6 +121,7 @@ builder.Services.AddScoped<IVerificationCodeService, VerificationCodeService>();
 builder.Services.AddScoped<AzureEmailService.IEmailService, AzureEmailService.EmailService>();
 builder.Services.AddScoped<UserRegistrationFilterAttribute>();
 
+builder.Services.AddHttpClient<GeolocationService>();
 builder.Services.AddHttpClient<CNPJService>();
 
 builder.Services.AddHttpContextAccessor();

@@ -108,6 +108,16 @@
   flex-shrink: 0;
 }
 
+.employee-actions.readonly {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.employee-actions.readonly .status-badge {
+  cursor: default;
+}
+
+
 .status-badge {
   padding: 5px 10px;
   border-radius: 5px;
@@ -360,7 +370,6 @@
 
 .save-button {
   background-color: #007bff;
-  /* Azul primário */
   color: white;
   border: none;
 }
@@ -378,9 +387,7 @@
   margin-top: 15px;
   padding: 10px;
   background-color: #fff3cd;
-  /* Amarelo claro */
   color: #856404;
-  /* Texto escuro para contraste */
   border: 1px solid #ffeeba;
   border-radius: 5px;
   font-size: 0.9rem;

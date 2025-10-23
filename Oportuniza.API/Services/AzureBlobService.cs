@@ -7,31 +7,36 @@ namespace Oportuniza.API.Services
     public class AzureBlobService
     {
         private readonly string _connectionString;
-        private readonly string _containerName;
+        private readonly string _moderatorEndpoint;
+        private readonly string _moderatorApiKey;
 
         public AzureBlobService(IConfiguration configuration)
         {
-            _connectionString = configuration["AZURE_CONNECTION_STRING"];
+            _connectionString = configuration["Azure:ConnectionString"];
+            _moderatorApiKey = configuration["Azure:Moderator:ApiKey"];
+            _moderatorEndpoint = configuration["Azure:Moderator:Endpoint"];
         }
 
+        // 🔹 Upload genérico de imagem (com moderação e segurança)
         public async Task<string> UploadImageAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                throw new ArgumentNullException("Invalid File" + nameof(file));
+                throw new ArgumentNullException(nameof(file), "Arquivo inválido.");
 
             using var memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream);
 
-            memoryStream.Position = 0;
-            bool isSafe = await IsImageSafeAsync(memoryStream, file.ContentType);
+            // Verificação de conteúdo
+            using var analysisStream = new MemoryStream(memoryStream.ToArray());
+            bool isSafe = await IsImageSafeAsync(analysisStream, file.ContentType);
             if (!isSafe)
-                throw new Exception("Imagem imprópria detectada. Upload bloqueado");
+                throw new Exception("Imagem imprópria detectada. Upload bloqueado.");
 
             memoryStream.Position = 0;
 
             var blobServiceClient = new BlobServiceClient(_connectionString);
-            var blobContainerClient = blobServiceClient.GetBlobContainerClient("images"); 
-            await blobContainerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient("images");
+            await blobContainerClient.CreateIfNotExistsAsync(); // sem acesso público
 
             string blobName = $"{Guid.NewGuid()}-{file.FileName}";
             var blobClient = blobContainerClient.GetBlobClient(blobName);
@@ -41,24 +46,25 @@ namespace Oportuniza.API.Services
             return blobClient.Uri.ToString();
         }
 
+        // 🔹 Upload de imagem de perfil
         public async Task<string> UploadProfileImage(IFormFile file, string containerName, Guid userId)
         {
             if (file == null || file.Length == 0)
-                throw new ArgumentNullException("Invalid File" + nameof(file));
+                throw new ArgumentNullException(nameof(file), "Arquivo inválido.");
 
             using var memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream);
 
-            memoryStream.Position = 0;
-            bool isSafe = await IsImageSafeAsync(memoryStream, file.ContentType);
+            using var analysisStream = new MemoryStream(memoryStream.ToArray());
+            bool isSafe = await IsImageSafeAsync(analysisStream, file.ContentType);
             if (!isSafe)
-                throw new Exception("Imagem imprópria detectada. Upload bloqueado");
+                throw new Exception("Imagem imprópria detectada. Upload bloqueado.");
 
             memoryStream.Position = 0;
 
             var blobServiceClient = new BlobServiceClient(_connectionString);
             var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
-            await blobContainerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+            await blobContainerClient.CreateIfNotExistsAsync();
 
             string blobName = $"{userId}";
             var blobClient = blobContainerClient.GetBlobClient(blobName);
@@ -68,99 +74,67 @@ namespace Oportuniza.API.Services
             return blobClient.Uri.ToString();
         }
 
+        // 🔹 Upload de imagem de publicação
         public async Task<string> UploadPostImage(IFormFile file, string containerName, Guid userId)
         {
-            if (file == null || file.Length == 0) throw new ArgumentNullException("Invalid File" + nameof(file));
+            if (file == null || file.Length == 0)
+                throw new ArgumentNullException(nameof(file), "Arquivo inválido.");
 
-            var memoryStream = new MemoryStream();
+            using var memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream);
+
+            using var analysisStream = new MemoryStream(memoryStream.ToArray());
+            bool isSafe = await IsImageSafeAsync(analysisStream, file.ContentType);
+            if (!isSafe)
+                throw new Exception("Imagem imprópria detectada. Upload bloqueado.");
+
             memoryStream.Position = 0;
 
-            try
-            {
-                bool isSafe = await IsImageSafeAsync(memoryStream, file.ContentType);
-                if (!isSafe)
-                {
-                    throw new Exception("Imagem imprópria detectada. Upload bloqueado");
-                }
+            var blobServiceClient = new BlobServiceClient(_connectionString);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            await blobContainerClient.CreateIfNotExistsAsync();
 
-                memoryStream.Position = 0;
+            string blobName = $"publication-{userId}-{Guid.NewGuid()}";
+            var blobClient = blobContainerClient.GetBlobClient(blobName);
 
-                var blobServiceClient = new BlobServiceClient(_connectionString);
-                var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            await blobClient.UploadAsync(memoryStream, new BlobHttpHeaders { ContentType = file.ContentType });
 
-                await blobContainerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
-
-                string blobName = $"publication-{userId}-{Guid.NewGuid()}";
-
-                var blobClient = blobContainerClient.GetBlobClient(blobName);
-
-                var uploadOptions = new BlobUploadOptions
-                {
-                    HttpHeaders = new BlobHttpHeaders
-                    {
-                        ContentType = file.ContentType,
-                    }
-                };
-
-                await blobClient.UploadAsync(memoryStream, uploadOptions);
-
-                return blobClient.Uri.ToString();
-            }
-            finally
-            {
-                memoryStream.Dispose();
-            }
+            return blobClient.Uri.ToString();
         }
 
+        // 🔹 Upload de imagem da empresa
         public async Task<string> UploadCompanyImage(IFormFile file, string containerName, Guid userId)
         {
-            if (file == null || file.Length == 0) throw new ArgumentNullException("Invalid File" + nameof(file));
+            if (file == null || file.Length == 0)
+                throw new ArgumentNullException(nameof(file), "Arquivo inválido.");
 
-            var memoryStream = new MemoryStream();
+            using var memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream);
+
+            using var analysisStream = new MemoryStream(memoryStream.ToArray());
+            bool isSafe = await IsImageSafeAsync(analysisStream, file.ContentType);
+            if (!isSafe)
+                throw new Exception("Imagem imprópria detectada. Upload bloqueado.");
+
             memoryStream.Position = 0;
 
-            try
-            {
-                bool isSafe = await IsImageSafeAsync(memoryStream, file.ContentType);
-                if (!isSafe)
-                {
-                    throw new Exception("Imagem imprópria detectada. Upload bloqueado");
-                }
+            var blobServiceClient = new BlobServiceClient(_connectionString);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            await blobContainerClient.CreateIfNotExistsAsync();
 
-                memoryStream.Position = 0;
+            string blobName = $"company-{userId}-{Guid.NewGuid()}";
+            var blobClient = blobContainerClient.GetBlobClient(blobName);
 
-                var blobServiceClient = new BlobServiceClient(_connectionString);
-                var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            await blobClient.UploadAsync(memoryStream, new BlobHttpHeaders { ContentType = file.ContentType });
 
-                await blobContainerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
-
-                string blobName = $"company-{userId}-{Guid.NewGuid()}";
-
-                var blobClient = blobContainerClient.GetBlobClient(blobName);
-
-                var uploadOptions = new BlobUploadOptions
-                {
-                    HttpHeaders = new BlobHttpHeaders
-                    {
-                        ContentType = file.ContentType,
-                    }
-                };
-
-                await blobClient.UploadAsync(memoryStream, uploadOptions);
-
-                return blobClient.Uri.ToString();
-            }
-            finally
-            {
-                memoryStream.Dispose();
-            }
+            return blobClient.Uri.ToString();
         }
+
+        // 🔹 Upload de currículo (PDF/DOCX)
         public async Task<string> UploadResumeAsync(IFormFile file, string containerName, Guid userId)
         {
             if (file == null || file.Length == 0)
-                throw new ArgumentNullException("Invalid file: " + nameof(file));
+                throw new ArgumentNullException(nameof(file), "Arquivo inválido.");
 
             var allowedExtensions = new[] { ".pdf", ".docx", ".doc" };
             var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
@@ -174,42 +148,30 @@ namespace Oportuniza.API.Services
 
             var blobServiceClient = new BlobServiceClient(_connectionString);
             var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
-            await blobContainerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+            await blobContainerClient.CreateIfNotExistsAsync();
 
             string blobName = $"resume-{userId}-{Guid.NewGuid()}{fileExtension}";
             var blobClient = blobContainerClient.GetBlobClient(blobName);
 
-            var uploadOptions = new BlobUploadOptions
-            {
-                HttpHeaders = new BlobHttpHeaders
-                {
-                    ContentType = file.ContentType
-                }
-            };
-
-            await blobClient.UploadAsync(memoryStream, uploadOptions);
+            await blobClient.UploadAsync(memoryStream, new BlobHttpHeaders { ContentType = file.ContentType });
 
             return blobClient.Uri.ToString();
         }
-        public async Task<bool> IsImageSafeAsync(Stream originalStream, string contentType)
+
+        // 🔹 Verifica se a imagem é segura usando Azure Cognitive Services
+        public async Task<bool> IsImageSafeAsync(Stream imageStream, string contentType)
         {
-            string AZURE_MODERATOR_APIKEY = Environment.GetEnvironmentVariable("AZURE_MODERATOR_APIKEY");
-            string AZURE_MODERATOR_ENDPOINT = Environment.GetEnvironmentVariable("AZURE_MODERATOR_ENDPOINT");
-            
-            string endpoint = AZURE_MODERATOR_ENDPOINT;
-            string apiKey = AZURE_MODERATOR_APIKEY;
+            string endpoint = _moderatorEndpoint;
+            string apiKey = _moderatorApiKey;
 
-            var analyzeUrl = endpoint + "vision/v3.2/analyze?visualFeatures=Adult";
-
-            var tempStream = new MemoryStream();
-            originalStream.Position = 0;
-            await originalStream.CopyToAsync(tempStream);
-            tempStream.Position = 0;
+            var analyzeUrl = $"{endpoint}vision/v3.2/analyze?visualFeatures=Adult";
 
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", apiKey);
 
-            using var content = new StreamContent(tempStream);
+            imageStream.Position = 0;
+
+            using var content = new StreamContent(imageStream);
             content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
 
             var response = await client.PostAsync(analyzeUrl, content);

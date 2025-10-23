@@ -1,57 +1,64 @@
-<div class="container" *ngIf="publication"> <app-searchbar (search)="onSearchTriggered($event)"></app-searchbar>
+<div class="container" *ngIf="publication">
+  <app-searchbar (search)="onSearchTriggered($event)"></app-searchbar>
+
   <div class="center-content">
-    <div class="right-image">
-      <img [src]="publication.imageUrl || '../../../assets/logo.png'" />
+    <div class="navigation-space" *ngIf="!isMobile"></div>
+
+    <div class="right-image" *ngIf="!isMobile">
+      <img [src]="publication.imageUrl || '../../../assets/logo.png'" (error)="handleImgError($event)" />
     </div>
 
     <div class="post-description">
       <div class="post-content">
         <div class="user-datas">
-          <img class="profile-picture" [src]="publication.authorImageUrl || '../../../../assets/etapas/perfil.png'" />
-          {{ publication.authorName }}
+          <img class="profile-picture" [src]="publication.authorImageUrl || '../../../../assets/etapas/perfil.png'"
+            alt="Autor" />
+
+          <div class="user-info">
+            {{ publication.authorName }}
+
+            <img *ngIf="isMobile" class="mini-job-image" [src]="publication.imageUrl || '../../../assets/logo.png'"
+              alt="Imagem da vaga" (click)="openImageModal(publication.imageUrl || '../../../assets/logo.png')" />
+          </div>
         </div>
 
         <div class="description">
-
           <div class="title">{{ publication.title }}</div>
-
           <div class="main-description">
             {{ publication.resumee }}
           </div>
-
         </div>
 
         <div class="specs">
           <div class="spec-description">
-            <img src="../../../../assets/Cash.png" alt="">
-            <p>Faixa Salárial</p>
-            <label>{{publication.salary}}</label>
+            <img src="../../../../assets/Cash.png" />
+            <p>Faixa Salarial</p>
+            <label>{{ publication.salary }}</label>
           </div>
 
           <div class="spec-description">
-            <img src="../../../../assets/Time.png" alt="">
-            <p>Periodo</p>
-            <label>{{publication.shift}}</label>
+            <img src="../../../../assets/Time.png" />
+            <p>Período</p>
+            <label>{{ publication.shift }}</label>
           </div>
 
           <div class="spec-description">
-            <img src="../../../../assets/Briefcase-b.png" alt="">
+            <img src="../../../../assets/Briefcase-b.png" />
             <p>Tipo de Contrato</p>
-            <label>{{publication.contract}}</label>
+            <label>{{ publication.contract }}</label>
           </div>
 
           <div class="spec-description">
-            <img src="../../../../assets/Local.png" alt="">
+            <img src="../../../../assets/Local.png" />
             <p>Exclusivamente para</p>
-            <label>{{publication.local}}</label>
+            <label>{{ publication.local }}</label>
           </div>
-
         </div>
 
         <div class="final">
-          <p>Data de expiração: {{ publication.expirationDate | date:'dd/MM/yyyy' }}</p>
+          <p>Data de expiração: {{ publication.expirationDate | date: 'dd/MM/yyyy' }}</p>
 
-          <div class="bottom" *ngIf="publication.authorId !== userId">
+          <div class="bottom" *ngIf="!isCompany && publication.authorId !== userId">
             <button *ngIf="!appliedStatus[publication.id]" (click)="apply(publication.id)" class="apply-button">
               Candidatar-se
             </button>
@@ -62,8 +69,17 @@
             </button>
           </div>
         </div>
-
       </div>
-
     </div>
+
+    <div class="navigation-space" *ngIf="!isMobile"></div>
   </div>
+
+  <div class="image-modal" *ngIf="isImageModalOpen" (click)="closeImageModal()">
+    <img [src]="modalImageUrl" alt="Imagem ampliada" />
+  </div>
+</div>
+
+<div class="no-publications" *ngIf="!publication">
+  <p>Publicação não encontrada.</p>
+</div>

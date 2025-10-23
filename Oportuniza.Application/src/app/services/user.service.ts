@@ -62,11 +62,24 @@ export class UserService {
     return undefined;
   }
 
+  getUserById(id: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${id}`);
+  }
+
   getUserId(): Observable<string> {
     return this.http.get<{ id: string }>(`${this.apiUrl}/getUserId`).pipe(
       map(response => {
         return response.id;
       })
     );
+  }
+
+  editProfile(name: string, location: string, imageFile?: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('location', location);
+    if (imageFile) formData.append('image', imageFile);
+
+    return this.http.put(`${this.apiUrl}/editar-perfil`, formData);
   }
 }

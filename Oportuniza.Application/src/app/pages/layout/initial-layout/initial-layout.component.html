@@ -1,5 +1,10 @@
 <div class="layout-container">
-  <aside class="sidebar">
+  <div class="menu-trigger-area" (click)="toggleMenu()">
+  </div>
+
+  <div class="overlay" [class.show]="isMenuOpen" (click)="toggleMenu(false)"></div>
+
+  <aside id="sidebar" class="sidebar" [class.open]="isMenuOpen">
     <div class="title">
       <h2>Oportuniza</h2>
     </div>
@@ -10,43 +15,61 @@
           <img class="icons" src="../../../../assets/home-assets/home.png" />
           Início
         </a>
-        <a routerLink="meus-posts">
-          <img class="icons" src="../../../../assets/home-assets/feed.png" />
-          Minhas Vagas
-        </a>
-        <a routerLink="interessados">
-          <img class="icons" src="../../../../assets/home-assets/sino.png" />
-          Interessados
-        </a>
-        <a routerLink="perfil">
-          <img class="icons" src="../../../../assets/home-assets/perfil.png" />
-          Perfil
-        </a>
-        <a routerLink="minhas-empresas">
-          <img class="icons-white" src="../../../../assets/home-assets/company.png" />
-          Empresas
-        </a>
+
+        <ng-container *ngIf="userProfile.isCompany; else normalUserMenu">
+          <a routerLink="meus-posts">
+            <img class="icons" src="../../../../assets/home-assets/feed.png" />
+            Minhas Vagas
+          </a>
+
+          <a routerLink="minhas-empresas">
+            <img class="icons-white" src="../../../../assets/home-assets/company.png" />
+            Empresas
+          </a>
+        </ng-container>
+
+        <ng-template #normalUserMenu>
+          <a routerLink="meus-posts">
+            <img class="icons" src="../../../../assets/home-assets/feed.png" />
+            Minhas Vagas
+          </a>
+
+          <a routerLink="interessados">
+            <img class="icons" src="../../../../assets/home-assets/sino.png" />
+            Interessados
+          </a>
+
+          <a routerLink="perfil">
+            <img class="icons" src="../../../../assets/home-assets/perfil.png" />
+            Perfil
+          </a>
+
+          <a routerLink="minhas-empresas">
+            <img class="icons-white" src="../../../../assets/home-assets/company.png" />
+            Empresas
+          </a>
+        </ng-template>
       </nav>
     </div>
 
     <div class="user-content">
-      <button class="novo-post" routerLink="post">+ Novo Post</button>
+      <button class="novo-post" routerLink="post">
+        + Novo Post
+      </button>
 
-      <!-- Exibe se o usuário está logado -->
       <div class="user" *ngIf="loginDisplay">
-
-        <!-- Se for empresa -->
         <ng-container *ngIf="userProfile.isCompany; else normalUser">
           <img class="user-image" [src]="userProfile.imageUrl || '../../../../assets/home-assets/company.png'"
             alt="Logo da Empresa" />
           {{ userProfile.name }}
         </ng-container>
 
-        <!-- Se for usuário normal -->
         <ng-template #normalUser>
           <img class="user-image" [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'"
             alt="Foto do Usuário" />
-          {{ userProfile.name }}
+          <p class="username">
+            {{ userProfile.name }}
+          </p>
         </ng-template>
 
         <div class="config-area">
@@ -63,7 +86,6 @@
   <hr />
 
   <main class="content">
-    <router-outlet class="layout-content">
-    </router-outlet>
+    <router-outlet class="layout-content"></router-outlet>
   </main>
 </div>

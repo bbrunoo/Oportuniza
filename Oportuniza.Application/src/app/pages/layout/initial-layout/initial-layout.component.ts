@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, HostListener } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UserService } from '../../../services/user.service';
 import { UserProfile } from '../../../models/UserProfile.model';
 import { ConfigsComponent } from '../../../extras/configs/configs.component';
-import { Subject, take, takeUntil } from 'rxjs';
+import { Subject, take } from 'rxjs';
 import { KeycloakOperationService } from '../../../services/keycloak.service';
 import { LoadingComponent } from '../../../extras/loading/loading.component';
 
@@ -29,9 +29,10 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
     isProfileCompleted: false,
     local: '',
     interestArea: [],
-    isCompany: false
+    isCompany: false,
   };
 
+  isMenuOpen = false;
   loginDisplay = false;
   showCompleteProfileicon = true;
   loginMethod: 'keycloak' | null = null;
@@ -43,9 +44,11 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private keycloakService: KeycloakOperationService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
+    window.addEventListener('scroll', this.closeMenuOnScroll.bind(this), true);
+
     this.loadingDialogRef = this.dialog.open(LoadingComponent, {
       height: '300px',
       width: '450px',
@@ -57,14 +60,42 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
     this.handleSession();
   }
 
+  /** Alterna o menu com clique */
+  toggleMenu(forceState?: boolean): void {
+    if (window.innerWidth <= 1124) {
+      this.isMenuOpen = forceState !== undefined ? forceState : !this.isMenuOpen;
+    }
+  }
+
+  /** Fecha menu se rolar a página */
+  closeMenuOnScroll(): void {
+    if (window.innerWidth <= 1024 && this.isMenuOpen) {
+      setTimeout(() => (this.isMenuOpen = false), 50);
+    }
+  }
+
+  /** Fecha o menu ao clicar fora */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    const sidebar = document.getElementById('sidebar');
+    const trigger = document.querySelector('.menu-trigger-area');
+    if (!sidebar || !trigger) return;
+
+    const insideMenu = sidebar.contains(target);
+    const clickedButton = trigger.contains(target);
+
+    if (this.isMenuOpen && !insideMenu && !clickedButton) {
+      this.isMenuOpen = false;
+    }
+  }
+
   private async handleSession(): Promise<void> {
     const loggedIn = await this.keycloakService.isLoggedIn();
     if (loggedIn) {
-      console.log('Sessão Keycloak válida. Carregando perfil do usuário...');
       this.loginMethod = 'keycloak';
       this.afterLoginSetup();
     } else {
-      console.warn('Nenhuma sessão ativa detectada. Redirecionando para login.');
       this.closeLoadingAndRedirect();
     }
   }
@@ -92,7 +123,6 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
           if (!profile.isCompany) {
             this.showCompleteProfileicon = !profile.isProfileCompleted;
           }
-          console.log('Perfil carregado:', this.userProfile);
           this.loadingDialogRef?.close();
           this.isInitializing = false;
         },
@@ -104,30 +134,21 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('scroll', this.closeMenuOnScroll.bind(this), true);
     this._destroying$.next(undefined);
     this._destroying$.complete();
   }
 
   openDialog() {
-    if (this.isInitializing) {
-      console.log('Aguardando a inicialização do perfil do usuário...');
-      return;
-    }
+    if (this.isInitializing) return;
 
-    const dialogRef = this.dialog.open(ConfigsComponent, {
+    this.isMenuOpen = false;
+
+    this.dialog.open(ConfigsComponent, {
       minWidth: '230px',
       minHeight: '130px',
-      position: {
-        bottom: '80px',
-        left: '130px',
-      },
+      position: { bottom: '80px', left: '130px' },
       panelClass: 'custom-dialog',
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        console.log('fechou');
-      }
     });
   }
 }
