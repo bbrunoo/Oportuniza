@@ -29,6 +29,11 @@ body {
   backdrop-filter: blur(2px);
 }
 
+.mat-mdc-dialog-surface.mdc-dialog__surface {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 
 #search-form {
   .mat-form-field-underline {

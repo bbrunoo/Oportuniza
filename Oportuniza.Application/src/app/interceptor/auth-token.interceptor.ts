@@ -27,7 +27,8 @@ export class AuthTokenInterceptor implements HttpInterceptor {
       'Auth/register',
       'Auth/login',
       'Auth/login-keycloak',
-      'Verification/send-verification'
+      'Verification/send',
+      'Verification/validate'
     ];
 
     const isUnprotected = unprotectedEndpoints.some(endpoint =>

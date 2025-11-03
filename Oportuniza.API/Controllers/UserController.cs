@@ -162,11 +162,14 @@ namespace Oportuniza.API.Controllers
                 return NotFound("Usuário não encontrado no banco de dados local.");
 
             if (!string.IsNullOrWhiteSpace(dto.Name))
-                user.FullName = dto.Name;
+            {
+                user.FullName = dto.Name.Trim();
+                user.Name = dto.Name.Trim();
+            }
 
             if (!string.IsNullOrWhiteSpace(dto.Location))
             {
-                user.Local = dto.Location;
+                user.Local = dto.Location.Trim();
 
                 try
                 {
@@ -199,7 +202,8 @@ namespace Oportuniza.API.Controllers
 
             var response = new
             {
-                name = user.FullName,
+                name = user.Name,
+                fullName = user.FullName,
                 email = user.Email,
                 location = user.Local,
                 latitude = user.Latitude,
@@ -209,6 +213,5 @@ namespace Oportuniza.API.Controllers
 
             return Ok(response);
         }
-
     }
 }

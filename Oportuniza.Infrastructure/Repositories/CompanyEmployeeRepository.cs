@@ -47,7 +47,7 @@ namespace Oportuniza.Infrastructure.Repositories
         public async Task<IEnumerable<CompanyEmployee>> GetEmployeesOrderedByRoleAndCreationAsync(Guid companyId)
         {
             return await _context.CompanyEmployee
-                .Where(ce => ce.CompanyId == companyId && ce.IsActive == CompanyEmployeeStatus.Active)
+                .Where(ce => ce.CompanyId == companyId)
                 .Include(ce => ce.User)
                 .Include(ce => ce.CompanyRole)
                 .OrderByDescending(ce => ce.CompanyRole.Name == "Owner")

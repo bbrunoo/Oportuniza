@@ -9,6 +9,7 @@ namespace Oportuniza.API.Services
         string GenerateCode(string email);
         bool ValidateCode(string email, string code);
     }
+
     public class VerificationCodeService : IVerificationCodeService
     {
         private static readonly ConcurrentDictionary<string, (string Code, DateTime Expiry)> _codes
@@ -16,15 +17,13 @@ namespace Oportuniza.API.Services
 
         private const int ExpirationSeconds = 60;
         private const int CodeLength = 8;
-        private static readonly char[] _chars =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".ToCharArray();
+
+        private static readonly char[] _digits = "0123456789".ToCharArray();
 
         public string GenerateCode(string email)
         {
-            var code = GenerateRandomCode(CodeLength);
-
+            var code = GenerateNumericCode(CodeLength);
             _codes[email] = (code, DateTime.UtcNow.AddSeconds(ExpirationSeconds));
-
             return code;
         }
 
@@ -41,18 +40,17 @@ namespace Oportuniza.API.Services
             return false;
         }
 
-        private string GenerateRandomCode(int length)
+        private string GenerateNumericCode(int length)
         {
             var sb = new StringBuilder(length);
             using (var rng = RandomNumberGenerator.Create())
             {
-                byte[] data = new byte[4 * length];
+                byte[] data = new byte[length];
                 rng.GetBytes(data);
 
                 for (int i = 0; i < length; i++)
                 {
-                    var idx = BitConverter.ToUInt32(data, i * 4) % (uint)_chars.Length;
-                    sb.Append(_chars[idx]);
+                    sb.Append(_digits[data[i] % _digits.Length]);
                 }
             }
             return sb.ToString();

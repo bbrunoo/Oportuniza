@@ -9,5 +9,7 @@
         public string UserImage { get; set; }
         public DateTime ApplicationDate { get; set; }
         public string Status { get; set; }
+        public string? Observation { get; set; }
+        public string? ResumeUrl { get; set; }
     }
 }

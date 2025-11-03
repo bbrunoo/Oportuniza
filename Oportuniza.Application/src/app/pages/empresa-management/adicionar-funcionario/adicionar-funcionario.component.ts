@@ -109,8 +109,16 @@ export class AdicionarFuncionarioComponent {
           .then(res => res)
           .catch(err => {
             let errorMessage = 'Falha ao vincular o funcionário.';
-            if (err.status === 400) errorMessage = err.error || 'Este usuário já está vinculado à empresa.';
-            else if (err.status === 403) errorMessage = 'Você não tem permissão.';
+
+            if (err.status === 400 || err.status === 409) {
+              // 💡 Cobre tanto duplicado quanto conflito de vínculo
+              errorMessage = 'Este usuário já faz parte da sua empresa.';
+            } else if (err.status === 403) {
+              errorMessage = 'Você não tem permissão para realizar esta ação.';
+            } else if (err.status === 404) {
+              errorMessage = 'Usuário não encontrado.';
+            }
+
             Swal.showValidationMessage(`Erro: ${errorMessage}`);
             return false;
           });
@@ -126,7 +134,6 @@ export class AdicionarFuncionarioComponent {
     });
   }
 
-
   onSave(): void {
     if (this.addMode !== 'create') return;
     if (this.isSubmitting || !this.empresaId) return;
@@ -141,22 +148,22 @@ export class AdicionarFuncionarioComponent {
     }
 
     this.isSubmitting = true;
-    const payload = {
-      email: this.employeeEmail,
-      companyId: this.empresaId,
-      employeeName: this.employeeName
-    };
 
     this.employeeService.linkEmployee(this.employeeEmail, this.empresaId!).subscribe({
       next: () => {
-        Swal.fire('Sucesso!', 'Funcionário vinculado/registrado com sucesso.', 'success');
+        Swal.fire('Sucesso!', 'Funcionário vinculado com sucesso.', 'success');
         this.isSubmitting = false;
         this.router.navigate(['../funcionarios'], { relativeTo: this.route });
       },
       error: (err) => {
-        let msg = 'Falha ao vincular o funcionário. Tente novamente mais tarde.';
-        if (err.status === 409) msg = 'Este email já está sendo utilizado por outra empresa.';
-        else if (err.status === 403) msg = 'Você não tem permissão.';
+        let msg = 'Falha ao vincular o funcionário.';
+
+        if (err.status === 400 || err.status === 409) {
+          msg = 'Este usuário já está vinculado à sua empresa.';
+        } else if (err.status === 403) {
+          msg = 'Você não tem permissão para realizar esta ação.';
+        }
+
         Swal.fire('Erro', msg, 'error');
         this.isSubmitting = false;
       }

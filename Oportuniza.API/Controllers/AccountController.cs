@@ -29,6 +29,7 @@ namespace Oportuniza.API.Controllers
             _companyRoleRepository = companyRoleRepository;
             _authenticateUser = authenticateUser;
         }
+
         [HttpGet("contexts")]
         public async Task<IActionResult> GetContexts()
         {
@@ -41,22 +42,24 @@ namespace Oportuniza.API.Controllers
                 return NotFound("Usuário não encontrado.");
 
             var contexts = new List<object>
-            {
-                new {
-                    Type = "User",
-                    Id = user.Id,
-                    Name = user.Name,
-                    Email = user.Email,
-                    ImageUrl = user.ImageUrl,
-                }
-            };
+    {
+        new {
+            Type = "User",
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            ImageUrl = user.ImageUrl,
+        }
+    };
 
             var employeeLinks = await _companyEmployeeRepository.GetByUserIdAsync(user.Id);
             foreach (var link in employeeLinks)
             {
                 var company = await _companyRepository.GetByIdAsync(link.CompanyId);
 
-                if (company != null && company.IsActive == CompanyAvailable.Active)
+                if (company != null
+                    && company.IsActive == CompanyAvailable.Active
+                    && link.IsActive == CompanyEmployeeStatus.Active)
                 {
                     var role = await _companyRoleRepository.GetByIdAsync(link.CompanyRoleId);
 
@@ -65,7 +68,7 @@ namespace Oportuniza.API.Controllers
                         Type = "Company",
                         Id = company.Id,
                         Name = company.Name,
-                        Role = role.Name,
+                        Role = role?.Name ?? "Worker",
                         ImageUrl = company.ImageUrl,
                         OwnerId = company.UserId
                     });
@@ -78,7 +81,6 @@ namespace Oportuniza.API.Controllers
         [HttpPost("switch-context/{companyId}")]
         public async Task<IActionResult> SwitchCompany(Guid companyId)
         {
-
             var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(keycloakId))
                 return Unauthorized("Token inválido. O identificador do usuário (sub) está ausente.");

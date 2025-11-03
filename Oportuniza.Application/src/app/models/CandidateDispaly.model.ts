@@ -4,6 +4,7 @@ export interface CandidateDisplay {
   resumee: string;
   authorImage: string;
   authorName: string;
+  imageUrl?: string;
   candidates: {
     applicationId: string;
     userId: string;
@@ -11,5 +12,7 @@ export interface CandidateDisplay {
     userImage: string;
     status: string;
     createdAt: string;
+    resumeUrl?: string;
+    observation?: string;
   }[];
 }

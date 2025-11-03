@@ -145,3 +145,170 @@ h2 {
 .error-container {
   background-color: rgba(255, 0, 0, 0.2);
 }
+
+@media screen and (max-width: 1400px) {
+  .container {
+    width: 70em;
+    height: 45em;
+  }
+
+  .company-display {
+    width: 65em;
+    gap: 2.5em;
+    padding: 2.2em 3em;
+  }
+
+  .company-logo-main {
+    width: 9em;
+    height: 9em;
+  }
+
+  .company-details-main h2 {
+    font-size: 2em;
+  }
+
+  .info-panel {
+    padding: 2.5em 3em;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .container {
+    width: 45em;
+    height: 80vh;
+  }
+
+  .company-display {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 40em;
+    padding: 2em;
+    gap: 1em;
+  }
+
+  .company-details-main {
+    align-items: center;
+  }
+
+  .company-details-main h2 {
+    font-size: 1.8em;
+  }
+
+  .company-description {
+    font-size: 1em;
+    max-width: 40em;
+  }
+
+  .employee-count-row {
+    justify-content: center;
+  }
+
+  .creation-info {
+    width: 60vw;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .container {
+    width: 85vw;
+    height: 84vh;
+  }
+
+  .info-panel {
+    padding: 2em 1em;
+    gap: 1.8em;
+  }
+
+  .company-display {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5em;
+    padding: 1.8em;
+    width: 75vw;
+  }
+
+  .company-logo-main {
+    width: 8em;
+    height: 8em;
+  }
+
+  .company-details-main h2 {
+    font-size: 1.6em;
+  }
+
+  .detail-line {
+    font-size: 0.95em;
+  }
+
+  .company-description {
+    font-size: 0.95em;
+    margin-top: 1em;
+    margin-bottom: 1.5em;
+  }
+
+  .employee-count-badge {
+    font-size: 1em;
+    padding: 0.5em 1em;
+  }
+
+  .creation-info {
+    width: 70vw;
+    font-size: 0.85em;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .container {
+    width: 90vw;
+    height: 80vh;
+  }
+
+  .info-panel {
+    padding: 1.5em 1em;
+    gap: 1.5em;
+  }
+
+  .company-display {
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+    padding: 1.2em;
+    width: 85vw;
+  }
+
+  .company-logo-main {
+    width: 6.5em;
+    height: 6.5em;
+  }
+
+  .company-details-main h2 {
+    font-size: 1.4em;
+  }
+
+  .detail-line,
+  .company-description {
+    font-size: 0.9em;
+  }
+
+  .employee-count-badge {
+    font-size: 0.9em;
+    padding: 0.5em 0.9em;
+  }
+
+  .creation-info {
+    font-size: 0.8em;
+    width: 80vw;
+    text-align: center;
+  }
+
+  .loading-container,
+  .error-container,
+  .missing-id-message {
+    margin-top: 2em;
+    padding: 1em;
+    font-size: 0.9em;
+  }
+}

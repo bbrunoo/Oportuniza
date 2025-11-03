@@ -92,6 +92,7 @@ namespace Oportuniza.Infrastructure.Repositories
                 .Include(ca => ca.Publication)
                     .ThenInclude(p => p.CreatedByUser)
                 .Include(ca => ca.User)
+                .Include(ca => ca.CandidateExtra) // ✅ inclui os dados extras
                 .Where(ca => ca.PublicationAuthorId == publicationAuthorId)
                 .GroupBy(ca => ca.Publication)
                 .Select(group => new PublicationWithCandidatesDto
@@ -117,6 +118,7 @@ namespace Oportuniza.Infrastructure.Repositories
                         : group.Key.AuthorCompany != null
                             ? group.Key.AuthorCompany.ImageUrl
                             : group.Key.CreatedByUser.ImageUrl,
+
                     Candidates = group.Select(ca => new CandidateDto
                     {
                         CandidateId = ca.Id,
@@ -125,11 +127,15 @@ namespace Oportuniza.Infrastructure.Repositories
                         Email = ca.User.Email,
                         UserImage = ca.User.ImageUrl,
                         ApplicationDate = ca.ApplicationDate,
-                        Status = ca.Status.ToString()
+                        Status = ca.Status.ToString(),
+
+                        Observation = ca.CandidateExtra != null ? ca.CandidateExtra.Observation : null,
+                        ResumeUrl = ca.CandidateExtra != null ? ca.CandidateExtra.ResumeUrl : null
                     }).ToList()
                 })
                 .ToListAsync();
         }
+
 
         public async Task<IEnumerable<CandidateApplicationDetailDto>> GetApplicationsByCompanyAsync(Guid companyId)
         {
@@ -154,7 +160,8 @@ namespace Oportuniza.Infrastructure.Repositories
                     Title = ca.Publication.Title,
                     Description = ca.Publication.Description,
                     Resumee = ca.Publication.Resumee,
-                    AuthorImage = ca.User.ImageUrl,
+                    ImageUrl = ca.Publication.ImageUrl,
+                    AuthorImage = ca.Publication.AuthorCompany.ImageUrl,
                     AuthorId = ca.Publication.AuthorCompany.Id,
                     AuthorName = ca.Publication.AuthorCompany.Name,
 
@@ -162,5 +169,6 @@ namespace Oportuniza.Infrastructure.Repositories
                 })
                 .ToListAsync();
         }
+
     }
 }

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Oportuniza.API.Services;
-using Oportuniza.API.Services.Oportuniza.API.Services;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Infrastructure.Data;
 using Oportuniza.Infrastructure.Repositories;
@@ -117,9 +116,10 @@ builder.Services.AddScoped<ICandidateApplicationRepository, CandidateApplication
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICompanyRoleRepository, CompanyRoleRepository>();
 builder.Services.AddScoped<IActiveContextService, ActiveContextService>();
-builder.Services.AddScoped<IVerificationCodeService, VerificationCodeService>();
-builder.Services.AddScoped<AzureEmailService.IEmailService, AzureEmailService.EmailService>();
+builder.Services.AddSingleton<IVerificationCodeService, VerificationCodeService>();
 builder.Services.AddScoped<UserRegistrationFilterAttribute>();
+builder.Services.AddSingleton<IEmailService, MailGunEmailService>();
+builder.Services.AddScoped<ICandidateExtraRepository, CandidateExtraRepository>();
 
 builder.Services.AddHttpClient<GeolocationService>();
 builder.Services.AddHttpClient<CNPJService>();

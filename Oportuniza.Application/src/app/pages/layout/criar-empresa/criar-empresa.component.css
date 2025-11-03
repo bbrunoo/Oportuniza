@@ -162,67 +162,280 @@ textarea::placeholder {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 3000;
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal {
+  background: #ffffff;
   display: flex;
-  align-items: start;
   flex-direction: column;
-  background: #f6f6f6;
-  color: #000000;
-  padding: 20px;
-  border-radius: 10px;
-  width: 400px;
-  max-height: 80vh;
+  align-items: center;
+  justify-content: center;
+  color: #222;
+  border-radius: 20px;
+  width: 420px;
+  max-height: 75vh;
   overflow-y: auto;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  padding: 25px 30px;
+  animation: slideIn 0.25s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal h3 {
+  color: #020413;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 20px;
 }
 
 .custom-input {
-  width: 90%;
-  padding: 10px;
-  border: 1px solid #444;
-  border-radius: 6px;
-  background-color: #ffffff;
-  color: #000000;
-  margin-bottom: 10px;
+  width: 380px;
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  margin-bottom: 15px;
+}
+
+.custom-input:focus {
+  border-color: #3D50CA;
+  box-shadow: 0 0 0 3px rgba(61, 80, 202, 0.2);
+  outline: none;
 }
 
 .custom-options {
   list-style: none;
   padding: 0;
   margin: 0;
-  border: 1px solid #444;
-  border-radius: 6px;
-  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #fff;
+  max-height: 300px;
+  overflow-y: auto;
+  width: 410px;
 }
 
 .custom-option {
-  padding: 10px;
+  padding: 12px 15px;
+  font-size: 15px;
   cursor: pointer;
-  color: #000000;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .custom-option:hover {
-  background-color: #d4d4d4;
+  background-color: #e8ebff;
+  color: #020413;
+  font-weight: 600;
 }
 
 .close-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 0;
   margin-top: 15px;
-  padding: 8px 16px;
+  background: #3D50CA;
+  color: #fff;
+  font-weight: 600;
   border: none;
-  background: #2b53c9;
-  color: #ffffff;
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: 12px;
   cursor: pointer;
+  font-size: 15px;
+  transition: background 0.3s, transform 0.2s;
 }
 
 .close-btn:hover {
-  background: #555;
+  background: #2b399a;
+  transform: translateY(-2px);
+}
+
+.custom-options::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-options::-webkit-scrollbar-thumb {
+  background: #b4b8f0;
+  border-radius: 10px;
+}
+
+.custom-options::-webkit-scrollbar-thumb:hover {
+  background: #3D50CA;
+}
+
+/* Laptops médios */
+@media (max-width: 1400px) {
+  .container {
+    width: 90%;
+    height: auto;
+    padding: 50px;
+  }
+
+  .image-upload-area {
+    width: 280px;
+    height: 280px;
+  }
+
+  form {
+    max-width: 400px;
+  }
+}
+
+/* Tablets */
+@media (max-width: 1000px) {
+  .container {
+    width: 95%;
+    height: 90%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 30px;
+  }
+
+  .conteudo {
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .conteudo-left,
+  .conteudo-right {
+    width: 100%;
+    height: auto;
+  }
+
+  .image-upload-area {
+    width: 250px;
+    height: 250px;
+  }
+
+  form {
+    width: 90%;
+  }
+
+  input,
+  textarea {
+    font-size: 14px;
+  }
+}
+
+/* Smartphones */
+@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 15px;
+  }
+
+  .conteudo {
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .conteudo-right {
+    padding: 20px;
+    gap: 10px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  input,
+  textarea {
+    font-size: 13px;
+  }
+
+  .image-upload-area {
+    width: 200px;
+    height: 200px;
+  }
+
+  .modal {
+    width: 85%;
+    padding: 20px;
+  }
+
+  .modal h3 {
+    font-size: 1.2rem;
+  }
+}
+
+/* Celulares pequenos */
+@media (max-width: 480px) {
+  .container {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .conteudo-left,
+  .conteudo-right {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .image-upload-area {
+    width: 160px;
+    height: 160px;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  form {
+    width: 100%;
+  }
+
+  input,
+  textarea {
+    font-size: 12px;
+  }
+
+  .modal {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .custom-input {
+    font-size: 13px;
+  }
+
+  .custom-option {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .close-btn {
+    font-size: 13px;
+    padding: 8px 0;
+  }
 }

@@ -23,6 +23,7 @@ namespace Oportuniza.Infrastructure.Data
         public DbSet<UserAreaOfInterest> UserAreaOfInterest { get; set; }
         public DbSet<CompanyEmployee> CompanyEmployee { get; set; }
         public DbSet<CompanyRole> CompanyRole { get; set; }
+        public DbSet<CandidateExtra> CandidateExtra { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new LoginAttemptsEntityConfiguration());

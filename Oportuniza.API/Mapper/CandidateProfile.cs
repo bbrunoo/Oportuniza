@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Oportuniza.Domain.DTOs.Candidates;
+using Oportuniza.Domain.DTOs.Candidates.CandidateExtra;
 using Oportuniza.Domain.DTOs.Extra;
 using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Models;
@@ -52,6 +53,11 @@ namespace Oportuniza.API.Mapper
                 .ForMember(dest => dest.UserImage, opt => opt.MapFrom(src => src.User.ImageUrl))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+
+            CreateMap<CandidateExtra, CandidateExtraDTO>();
+            CreateMap<CreateCandidateExtraDTO, CandidateExtra>();
+
+
 
             CreateMap<CandidateApplication, UserApplicationDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

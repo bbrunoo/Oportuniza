@@ -1,20 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { UserService } from '../../../services/user.service';
 import { CropperDialogComponent, CropperDialogData } from '../../../extras/cropper-dialog/cropper-dialog.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { CityService } from '../../../services/city.service';
+import { debounceTime, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-editar-perfil',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, MatDialogModule],
+  imports: [CommonModule, FormsModule, RouterModule, MatDialogModule, ReactiveFormsModule],
   templateUrl: './editar-perfil.component.html',
   styleUrl: './editar-perfil.component.css'
 })
-export class EditarPerfilComponent {
+export class EditarPerfilComponent implements OnInit {
   userId: string | null = null;
   userProfile: any = {
     name: '',
@@ -37,12 +39,18 @@ export class EditarPerfilComponent {
   saveError: string | null = null;
   errorMessage: string | null = null;
 
+  // 🏙️ Controle de cidade
+  cityControl = new FormControl('');
+  filteredCities: any[] = [];
+  cityModalOpen = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private userService: UserService,
+    private cityService: CityService,
     private dialog: MatDialog
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.userId = this.route.snapshot.paramMap.get('id');
@@ -51,6 +59,34 @@ export class EditarPerfilComponent {
       return;
     }
     this.loadProfile(this.userId);
+
+    // 🔍 Lógica de busca de cidades
+    this.cityControl.valueChanges.pipe(
+      debounceTime(300),
+      switchMap(value =>
+        value && value.length > 0
+          ? this.cityService.searchCities(value, 1, 20)
+          : this.cityService.getCities(1, 20)
+      )
+    ).subscribe({
+      next: cities => (this.filteredCities = cities),
+      error: err => console.error('Erro ao carregar cidades:', err)
+    });
+  }
+
+  // 🌆 Modal de cidade
+  openCityModal() {
+    this.cityModalOpen = true;
+  }
+
+  closeCityModal() {
+    this.cityModalOpen = false;
+  }
+
+  selectCity(city: any) {
+    this.editableProfile.location = city.name;
+    this.cityControl.setValue(city.name, { emitEvent: false });
+    this.closeCityModal();
   }
 
   private handleFile(file: File): void {
@@ -85,30 +121,12 @@ export class EditarPerfilComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // garante que o result é um File válido
-        const croppedFile = result instanceof File ? result : new File([result], 'cropped.jpg', { type: 'image/jpeg' });
+        const croppedFile =
+          result instanceof File ? result : new File([result], 'cropped.jpg', { type: 'image/jpeg' });
 
         this.selectedImage = croppedFile;
         this.previewUrl = URL.createObjectURL(croppedFile);
         this.editableProfile.imageUrl = this.previewUrl;
-
-        // upload imediato
-        this.isUploading = true;
-        this.userService.uploadProfilePicture(croppedFile).subscribe({
-          next: res => {
-            localStorage.setItem('profileImageUrl', res.imageUrl);
-            this.editableProfile.imageUrl = res.imageUrl;
-            Swal.fire('Sucesso!', 'Imagem de perfil atualizada.', 'success');
-            this.isUploading = false;
-            this.isImageUploaded = true;
-          },
-          error: err => {
-            console.error('Erro ao enviar imagem de perfil:', err);
-            Swal.fire('Erro', 'Não foi possível atualizar a imagem. Tente novamente.', 'error');
-            this.isUploading = false;
-            this.uploadError = true;
-          }
-        });
       }
     });
   }
@@ -136,9 +154,7 @@ export class EditarPerfilComponent {
 
   onFileSelected(event: any): void {
     const file = event.target.files?.[0];
-    if (file) {
-      this.handleFile(file);
-    }
+    if (file) this.handleFile(file);
     event.target.value = '';
   }
 
@@ -154,28 +170,13 @@ export class EditarPerfilComponent {
     ).subscribe({
       next: () => {
         this.isSaving = false;
-        this.saveSuccess = true;
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Perfil atualizado!',
-          text: 'Suas alterações foram salvas com sucesso.',
-          confirmButtonColor: '#3D50CA'
-        }).then(() => {
-          this.loadProfile(this.userId!);
-          window.location.reload();
-        });
+        Swal.fire('Perfil atualizado!', 'Suas alterações foram salvas.', 'success')
+          .then(() => window.location.reload());
       },
       error: (err) => {
         console.error(err);
         this.isSaving = false;
-        this.saveError = 'Erro ao salvar alterações.';
-        Swal.fire({
-          icon: 'error',
-          title: 'Erro!',
-          text: 'Não foi possível atualizar o perfil.',
-          confirmButtonColor: '#d33'
-        });
+        Swal.fire('Erro!', 'Não foi possível atualizar o perfil.', 'error');
       }
     });
   }

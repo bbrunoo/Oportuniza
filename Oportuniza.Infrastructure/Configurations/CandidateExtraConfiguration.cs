@@ -8,27 +8,18 @@ namespace Oportuniza.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<CandidateExtra> builder)
         {
-            builder.ToTable("CandidateExtra");
+            builder.HasKey(ce => ce.Id);
 
-            builder.HasKey(e => e.Id);
+            builder.Property(ce => ce.Observation)
+                   .HasMaxLength(2000);
 
-            builder.HasOne(e => e.CandidateApplication)
-                   .WithOne(a => a.Extra)
-                   .HasForeignKey<CandidateExtra>(e => e.CandidateApplicationId)
+            builder.Property(ce => ce.ResumeUrl)
+                   .HasMaxLength(500);
+
+            builder.HasOne(ce => ce.CandidateApplication)
+                   .WithOne(ca => ca.CandidateExtra)
+                   .HasForeignKey<CandidateExtra>(ce => ce.CandidateApplicationId)
                    .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Property(e => e.Observation)
-                   .HasMaxLength(200)
-                   .IsUnicode(true)
-                   .IsRequired(false);
-
-            builder.Property(e => e.ResumeUrl)
-                   .HasMaxLength(500)
-                   .IsUnicode(false)
-                   .IsRequired(false);
-
-            builder.HasIndex(e => e.CandidateApplicationId)
-                   .IsUnique();
         }
     }
 }

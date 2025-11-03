@@ -22,15 +22,22 @@ span img {
   left: 10px;
 }
 
+.menu-icon {
+  padding: .5em;
+  display: none;
+}
+
+.menu-icon img {
+  width: 25px;
+}
+
 .layout-container {
   background-image: url(../../../../assets/home-assets/Fundo.png);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
   background-attachment: scroll;
-  /* impede bug em mobile */
   background-color: #000;
-  /* cor de fundo de segurança */
   min-height: 100vh;
   width: 100%;
   display: flex;
@@ -235,6 +242,10 @@ button:hover {
 @media screen and (max-width: 1124px) {
   .layout-container {
     flex-direction: column;
+  }
+
+  .menu-icon {
+    display: flex;
   }
 
   .icons,

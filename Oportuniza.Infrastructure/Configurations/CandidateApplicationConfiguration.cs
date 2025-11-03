@@ -20,8 +20,8 @@ namespace Oportuniza.Infrastructure.Configurations
             builder.Property(ca => ca.UserIdKeycloak)
                    .HasMaxLength(128);
 
-                   builder.Property(ca => ca.PublicationId)
-                   .HasMaxLength(128);
+            builder.Property(ca => ca.PublicationId)
+                   .IsRequired();
 
             builder.HasOne(ca => ca.User)
                    .WithMany()
@@ -31,6 +31,11 @@ namespace Oportuniza.Infrastructure.Configurations
             builder.HasOne(ca => ca.Publication)
                    .WithMany()
                    .HasForeignKey(ca => ca.PublicationId)
+                   .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(ca => ca.CandidateExtra)
+                   .WithOne(ce => ce.CandidateApplication)
+                   .HasForeignKey<CandidateExtra>(ce => ce.CandidateApplicationId)
                    .OnDelete(DeleteBehavior.Cascade);
 
             builder.ToTable("CandidateApplications");

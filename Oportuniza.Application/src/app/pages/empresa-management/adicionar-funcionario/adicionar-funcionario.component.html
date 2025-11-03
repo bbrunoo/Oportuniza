@@ -1,5 +1,4 @@
 <div class="conteudo">
-
   <div class="header-section">
     <h2>Adicionar Novo Funcionário</h2>
     <p class="texto-explicativo">
@@ -13,27 +12,25 @@
       <label for="link-email">Pesquisar Email do Usuário</label>
       <div class="input-with-button">
         <input type="email" id="link-email" placeholder="email@exemplo.com" [(ngModel)]="linkEmail" name="linkEmail"
-        required class="text-input" (keyup.enter)="searchUserByEmail()">
+          required class="text-input" (keyup.enter)="searchUserByEmail()">
         <button type="button" class="search-button" (click)="searchUserByEmail()"
-        [disabled]="!isValidEmail(linkEmail) || isSearching">
-        <mat-icon>{{ isSearching ? 'hourglass_empty' : 'search' }}</mat-icon>
+          [disabled]="!isValidEmail(linkEmail) || isSearching">
+          <mat-icon>{{ isSearching ? 'hourglass_empty' : 'search' }}</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="searchedUser" class="search-result-wrapper">
+      <p>
+        <strong>Email:</strong> {{ searchedUser.email }}<br>
+        <strong>Nome:</strong> {{ searchedUser.name || 'Não informado' }}<br>
+      </p>
+      <button type="button" class="save-button" (click)="confirmLinkUser()">
+        <mat-icon>link</mat-icon> Adicionar à Empresa
       </button>
     </div>
+    <div *ngIf="searchError" class="search-error-wrapper">
+      <p>⚠️ {{ searchError }}</p>
+    </div>
   </div>
-
-  <div *ngIf="searchedUser" class="search-result-wrapper">
-    <p>
-      <strong>Email:</strong> {{ searchedUser.email }}<br>
-      <strong>Nome:</strong> {{ searchedUser.name || 'Não informado' }}<br>
-    </p>
-    <button type="button" class="save-button" (click)="confirmLinkUser()">
-      <mat-icon>link</mat-icon> Adicionar à Empresa
-    </button>
-  </div>
-
-  <div *ngIf="searchError" class="search-error-wrapper">
-    <p>⚠️ {{ searchError }}</p>
-  </div>
-</div>
-
 </div>

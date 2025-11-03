@@ -15,7 +15,6 @@ import { KeycloakOperationService } from '../../services/keycloak.service';
 })
 
 export class ConfigsComponent implements OnInit {
-  showCompleteProfileButton = true;
   containerHeight = '200px';
 
   constructor(
@@ -30,8 +29,6 @@ export class ConfigsComponent implements OnInit {
     this.keycloakService.isLoggedIn().then(isLoggedIn => {
       if (isLoggedIn) {
         this.loadUserProfile();
-      } else {
-        this.showCompleteProfileButton = false;
       }
     });
   }
@@ -39,13 +36,11 @@ export class ConfigsComponent implements OnInit {
   private loadUserProfile(): void {
     this.userService.getOwnProfile().subscribe({
       next: (profile) => {
-        this.showCompleteProfileButton = !profile.isProfileCompleted && !profile.isCompany;
-        this.containerHeight = this.showCompleteProfileButton ? '200px' : '130px';
+        this.containerHeight = '130px';
       },
       error: (err) => {
         console.error("Erro ao buscar perfil", err);
 
-        this.showCompleteProfileButton = true;
         this.containerHeight = '200px';
       }
     });
@@ -55,11 +50,6 @@ export class ConfigsComponent implements OnInit {
     this.dialogRef.close();
     this.router.navigate(['']);
     await this.keycloakService.logout();
-  }
-
-  completePerfil(): void {
-    this.router.navigate(['/primeira-etapa']);
-    this.dialogRef.close();
   }
 
   async changeAccount(): Promise<void> {

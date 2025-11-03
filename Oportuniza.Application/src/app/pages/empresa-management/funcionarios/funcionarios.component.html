@@ -25,20 +25,25 @@
 
         <div class="employee-info-details">
           <span class="employee-email">{{ employee.userEmail }}</span>
-          <span *ngIf="employee.roles === 'Owner'" class="owner-badge">ADMINISTRADOR</span>
-          <span *ngIf="employee.roles === 'Worker'" class="owner-badge">FUNCIONARIO</span>
+          <span *ngIf="employee.roles === 'Owner'" class="owner-badge">DONO</span>
+          <span *ngIf="employee.roles === 'Administrator'" class="owner-badge">ADMINISTRADOR</span>
+          <span *ngIf="employee.roles === 'Worker'" class="owner-badge">FUNCIONÁRIO</span>
+
         </div>
 
-        <div class="employee-actions">
-          <span class="status-badge" [class.active]="employee.isActive === 0"
-            [class.inactive]="employee.isActive === 1">
+        <div *ngIf="isUserAdmin" class="employee-actions">
+          <span class="status-badge" [class.active]="employee.isActive === 0" [class.inactive]="employee.isActive === 1"
+            (click)="openStatusModal(employee)">
             {{ employee.isActive === 0 ? 'Ativo' : 'Inativo' }}
           </span>
 
-          <button class="settings-button" (click)="openSettings(employee.id)">
-            <img src="../../../../assets/home-assets/settings.png" alt="Configurações">
+          <button *ngIf="employee.roles !== 'Owner'" class="settings-button" (click)="openSettings(employee.id)">
+            <img src="../../../../assets/home-assets/settings.png" alt="Configurações" />
           </button>
+
+          <span *ngIf="employee.roles === 'Owner'" class="owner-lock">🔒 Cargo fixo</span>
         </div>
+
 
       </div>
     </div>

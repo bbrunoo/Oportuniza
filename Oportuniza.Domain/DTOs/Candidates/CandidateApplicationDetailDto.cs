@@ -19,5 +19,4 @@
         public string Status { get; set; }
         public int TotalApplicationsForThisJob { get; set; }
     }
-
 }

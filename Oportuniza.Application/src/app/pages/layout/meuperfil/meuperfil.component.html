@@ -15,7 +15,7 @@
       <div class="right">
         <h2 class="username">{{ userProfile.name }}</h2>
         <p><strong>E-mail:</strong> {{ userProfile.email }}</p>
-        <p><strong>Localização:</strong> {{userProfile.local}}</p>
+        <p><strong>Localização:</strong> {{userProfile.local || 'Não informado.'}}</p>
       </div>
     </div>
   </div>

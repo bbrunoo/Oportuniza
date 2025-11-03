@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { CandidateDTO, PublicationWithCandidates, UserApplication } from '../../../models/candidate.model';
 import { CandidateDisplay } from '../../../models/CandidateDispaly.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-interessados',
@@ -23,7 +24,7 @@ export class InteressadosComponent implements OnInit {
   hasData = true;
   isCompany = false;
 
-  constructor(private candidateService: CandidateService) { }
+  constructor(private candidateService: CandidateService, private router: Router) { }
 
   ngOnInit() {
     this.detectActiveContext();
@@ -33,6 +34,14 @@ export class InteressadosComponent implements OnInit {
   private detectActiveContext() {
     const active = localStorage.getItem('active_token');
     this.isCompany = active === 'company';
+  }
+
+  goToPublication(publicationId: string): void {
+    this.router.navigate(['/inicio/post', publicationId]);
+  }
+
+  downloadResume(url: string): void {
+    window.open(url, '_blank');
   }
 
   // loadData(tab: 'candidates' | 'inscription') {
@@ -112,13 +121,16 @@ export class InteressadosComponent implements OnInit {
             resumee: pub.resumee,
             authorImage: pub.authorImageUrl || '',
             authorName: pub.name || '',
+            imageUrl: (pub as any).imageUrl || '',
             candidates: pub.candidates.map(c => ({
               applicationId: c.id,
               userId: c.userId,
               userName: c.userName,
               userImage: c.userImage,
               status: c.status,
-              createdAt: c.applicationDate
+              createdAt: c.applicationDate,
+              resumeUrl: (c as any).resumeUrl || '',
+              observation: (c as any).observation || ''
             }))
           }));
           this.hasData = this.publicationsWithCandidates.length > 0;
@@ -130,7 +142,9 @@ export class InteressadosComponent implements OnInit {
           this.loading = false;
         }
       });
-    } else if (tab === 'inscription') {
+    }
+
+    else if (tab === 'inscription') {
       this.candidateService.getApplicationsByUser().subscribe({
         next: (res: UserApplication[]) => {
           this.inscriptions = res;

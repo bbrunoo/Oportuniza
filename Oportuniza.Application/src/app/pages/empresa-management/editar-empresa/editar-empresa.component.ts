@@ -207,7 +207,8 @@ export class EditarEmpresaComponent {
       minWidth: '1000px',
       minHeight: '600px',
       data: dialogData,
-      disableClose: true
+      disableClose: true,
+      panelClass: 'custom-transparent-dialog'
     });
 
     dialogRef.afterClosed().subscribe(result => {

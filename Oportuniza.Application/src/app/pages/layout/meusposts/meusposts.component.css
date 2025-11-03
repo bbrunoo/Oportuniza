@@ -29,14 +29,21 @@
 
 .post-card {
   position: relative;
-  background-color: rgb(235, 232, 230);
   width: 100%;
+  background-color: white;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
+  transition: 0.05s ease;
   border-radius: 10px;
+  cursor: pointer;
+}
+
+.post-card:hover{
+  transform: scale(1.01);
+  transition: 0.05s ease;
 }
 
 .card-overlay {
@@ -73,6 +80,7 @@
 .post-card-img {
   width: 320px;
   height: 320px;
+  border-radius: 10px;
 }
 
 .description {

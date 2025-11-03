@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oportuniza.API.Services;
-using Oportuniza.API.Services.Oportuniza.API.Services;
 using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;

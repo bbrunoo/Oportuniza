@@ -20,9 +20,7 @@
         public bool Active { get; set; }
         public bool IsProfileCompleted { get; set; }
         public string KeycloakId { get; set; }
-
-        //public bool VerifiedEmail { get; set; }
-
+        public bool VerifiedEmail { get; set; } = false; 
         public string? Local { get; set; }
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }

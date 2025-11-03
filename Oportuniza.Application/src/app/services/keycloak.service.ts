@@ -188,6 +188,100 @@ export class KeycloakOperationService {
     return true;
   }
 
+  public verifyUserRole(companyId?: string): Observable<{
+    hasRole: boolean;
+    role?: string;
+    companyId?: string;
+    message?: string;
+  }> {
+    let url = `${environment.apiUrl}/v1/Company/verify-role`;
+    if (companyId) {
+      url += `/${companyId}`;
+    }
+
+    const token = this.getToken();
+    if (!token) {
+      console.warn('[KeycloakOperationService] Nenhum token ativo encontrado ao tentar verificar papel.');
+      return throwError(() => new Error('Usuário não autenticado.'));
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<{
+      hasRole: boolean;
+      role?: string;
+      companyId?: string;
+      message?: string;
+    }>(url, { headers }).pipe(
+      tap(res => {
+        console.log('[KeycloakOperationService] Verificação de role:', res);
+      }),
+      catchError(err => {
+        console.error('[KeycloakOperationService] Erro ao verificar role:', err);
+        return throwError(() => new Error('Falha ao verificar role do usuário.'));
+      })
+    );
+  }
+
+  public getUserRoleFromBackend(): Observable<{
+    hasRole: boolean;
+    role?: string;
+    companyId?: string;
+    message?: string;
+  }> {
+    const token = this.getToken();
+
+    if (!token) {
+      console.warn('[KeycloakOperationService] Nenhum token encontrado. Usuário não autenticado.');
+      return throwError(() => new Error('Usuário não autenticado.'));
+    }
+
+    const url = `${environment.apiUrl}/v1/company/verify-role`;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<{
+      hasRole: boolean;
+      role?: string;
+      companyId?: string;
+      message?: string;
+    }>(url, { headers }).pipe(
+      tap(res => {
+        console.log('[KeycloakOperationService] Resultado de verify-role:', res);
+      }),
+      catchError(err => {
+        console.error('[KeycloakOperationService] Erro ao chamar verify-role:', err);
+        return throwError(() => new Error('Falha ao verificar o papel do usuário.'));
+      })
+    );
+  }
+
+  public getActiveContextAsync(): Promise<ActiveContext | null> {
+    return new Promise((resolve) => {
+      const context = this.getActiveContext();
+      if (context) {
+        resolve(context);
+        return;
+      }
+
+      const sub = this.getToken$().subscribe(() => {
+        const updated = this.getActiveContext();
+        if (updated) {
+          resolve(updated);
+          sub.unsubscribe();
+        }
+      });
+
+      setTimeout(() => {
+        sub.unsubscribe();
+        resolve(null);
+      }, 2000);
+    });
+  }
+
   public getActiveContext(): ActiveContext | null {
     if (!this.isBrowser) return null;
 

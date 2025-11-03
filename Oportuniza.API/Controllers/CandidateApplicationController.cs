@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Oportuniza.API.Services;
 using Oportuniza.Domain.DTOs.Candidates;
+using Oportuniza.Domain.DTOs.Candidates.CandidateExtra;
 using Oportuniza.Domain.DTOs.Extra;
 using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
+using Oportuniza.Infrastructure.Repositories;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers
@@ -16,13 +19,15 @@ namespace Oportuniza.API.Controllers
     public class CandidateApplicationController : ControllerBase
     {
         private readonly ICandidateApplicationRepository _repository;
+        private readonly ICandidateExtraRepository _candidateExtraRepository;
         private readonly ICompanyRepository _companyRepository;
         private readonly IUserRepository _userRepository;
         private readonly IPublicationRepository _publicationRepository;
         private readonly IMapper _mapper;
-        public CandidateApplicationController(ICandidateApplicationRepository repository, ICompanyRepository companyRepository, IUserRepository userRepository, IPublicationRepository publicationRepository, IMapper mapper)
+        public CandidateApplicationController(ICandidateApplicationRepository repository, ICandidateExtraRepository candidateExtraRepository, ICompanyRepository companyRepository, IUserRepository userRepository, IPublicationRepository publicationRepository, IMapper mapper)
         {
             _repository = repository;
+            _candidateExtraRepository = candidateExtraRepository;
             _companyRepository = companyRepository;
             _userRepository = userRepository;
             _publicationRepository = publicationRepository;
@@ -320,6 +325,37 @@ namespace Oportuniza.API.Controllers
 
             var userResult = _mapper.Map<IEnumerable<UserApplicationDto>>(appsForUser);
             return Ok(userResult);
+        }
+
+        [HttpPost("{applicationId}/extra")]
+        [Authorize]
+        public async Task<IActionResult> AddCandidateExtra(Guid applicationId, [FromForm] CreateCandidateExtraDTO dto, [FromServices] AzureBlobService blobService)
+        {
+            var application = await _repository.GetByIdAsync(applicationId);
+            if (application == null)
+                return NotFound("Candidatura não encontrada.");
+
+            if (application.CandidateExtra != null)
+                return BadRequest("Já existe um extra associado a esta candidatura.");
+
+            string? resumeUrl = null;
+
+            if (dto.Resume != null)
+            {
+                resumeUrl = await blobService.UploadResumeAsync(dto.Resume, "resumes", application.UserId);
+            }
+
+            var extra = new CandidateExtra
+            {
+                CandidateApplicationId = applicationId,
+                Observation = dto.Observation,
+                ResumeUrl = resumeUrl
+            };
+
+            var createdExtra = await _candidateExtraRepository.AddAsync(extra);
+            var result = _mapper.Map<CandidateExtraDTO>(createdExtra);
+
+            return Ok(result);
         }
     }
 }

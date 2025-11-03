@@ -10,6 +10,8 @@ export interface CandidateDTO {
   applicationDate: string;
   userImage: string;
   status: string;
+  resumeUrl?: string;
+  observation?: string;
 }
 
 export interface PublicationWithCandidates {

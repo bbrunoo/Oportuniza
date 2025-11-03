@@ -60,7 +60,7 @@
 
           <div class="bottom" *ngIf="!isCompany && publication.authorId !== userId">
             <button *ngIf="!appliedStatus[publication.id]" (click)="apply(publication.id)" class="apply-button">
-              Candidatar-se
+              Candidatar
             </button>
 
             <button *ngIf="appliedStatus[publication.id]" (click)="cancelApplication(publication.id)"

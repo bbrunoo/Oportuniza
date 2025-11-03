@@ -1,11 +1,4 @@
 <div class="container" [ngStyle]="{'height': containerHeight}">
-  <span *ngIf="showCompleteProfileButton"><img src="../../../../assets/exclamation.png" alt="" /></span>
-
-  <div class="botao" *ngIf="showCompleteProfileButton">
-    <img src="../../../../assets/check.png" alt="" />
-    <button (click)="completePerfil()">Completar Perfil</button>
-  </div>
-
   <div class="botao">
     <img src="../../../assets/refresh.png" alt="" />
     <button routerLink="/troca">Trocar de Conta</button>

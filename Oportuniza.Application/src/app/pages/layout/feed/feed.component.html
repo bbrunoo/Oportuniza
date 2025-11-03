@@ -15,21 +15,15 @@
     <div class="post-description">
       <div class="post-content">
         <div class="user-datas">
-          <img
-            class="profile-picture"
-            [src]="publications[currentIndex].authorImageUrl || '../../../../assets/etapas/perfil.png'"
-          />
+          <img class="profile-picture"
+            [src]="publications[currentIndex].authorImageUrl || '../../../../assets/etapas/perfil.png'" />
 
           <div class="user-info">
             {{ publications[currentIndex].authorName }}
 
-            <img
-              *ngIf="isMobile"
-              class="mini-job-image"
-              [src]="publications[currentIndex].imageUrl || '../../../assets/logo.png'"
-              alt="Imagem da vaga"
-              (click)="openImageModal(publications[currentIndex].imageUrl || '../../../assets/logo.png')"
-            />
+            <img *ngIf="isMobile" class="mini-job-image"
+              [src]="publications[currentIndex].imageUrl || '../../../assets/logo.png'" alt="Imagem da vaga"
+              (click)="openImageModal(publications[currentIndex].imageUrl || '../../../assets/logo.png')" />
           </div>
         </div>
 
@@ -69,27 +63,19 @@
         <div class="final">
           <p>Data de expiração: {{ publications[currentIndex].expirationDate | date: 'dd/MM/yyyy' }}</p>
 
-          <div
-            class="bottom"
-            *ngIf="
+          <div class="bottom" *ngIf="
               !isCompany &&
               publications[currentIndex].authorId !== userId &&
               publications[currentIndex].companyOwnerId !== userId
-            "
-          >
-            <button
-              *ngIf="!appliedStatus[publications[currentIndex].id]"
-              (click)="apply(publications[currentIndex].id)"
-              class="apply-button"
-            >
-              Candidatar-se
+            ">
+
+            <button *ngIf="!appliedStatus[publications[currentIndex].id]"
+              (click)="openApplyModal(publications[currentIndex].id)" class="apply-button">
+              Candidatar
             </button>
 
-            <button
-              *ngIf="appliedStatus[publications[currentIndex].id]"
-              (click)="cancelApplication(publications[currentIndex].id)"
-              class="applied-button"
-            >
+            <button *ngIf="appliedStatus[publications[currentIndex].id]"
+              (click)="cancelApplication(publications[currentIndex].id)" class="applied-button">
               Candidatado
             </button>
           </div>
@@ -117,4 +103,27 @@
 
 <div class="no-publications" *ngIf="publications.length === 0">
   <p>Nenhuma publicação ainda.</p>
+</div>
+
+<div class="apply-modal-backdrop" *ngIf="isApplyModalOpen" (click)="closeApplyModal()"></div>
+
+<div class="apply-modal" *ngIf="isApplyModalOpen">
+  <div class="apply-modal-content">
+    <h2>Confirmar candidatura</h2>
+    <p>Você pode adicionar uma observação ou enviar um currículo (opcional):</p>
+
+    <textarea placeholder="Observação (opcional)" [(ngModel)]="observationText" rows="3"
+      class="apply-textarea"></textarea>
+
+    <label class="file-upload-label">
+      <input type="file" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" />
+      Escolher currículo (PDF/DOC)
+    </label>
+    <p *ngIf="selectedResumeFile">Arquivo selecionado: {{ selectedResumeFile.name }}</p>
+
+    <div class="apply-modal-buttons">
+      <button (click)="confirmApplication()" class="confirm-btn">Confirmar candidatura</button>
+      <button (click)="closeApplyModal()" class="cancel-btn">Cancelar</button>
+    </div>
+  </div>
 </div>

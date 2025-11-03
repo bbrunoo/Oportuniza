@@ -1,13 +1,19 @@
 <div class="layout-container">
-  <aside class="sidebar">
+  <div class="menu-trigger-area" (click)="toggleMenu()">
+    <div class="menu-icon">
+      <img src="../../../../assets/burger-bar.png" alt="">
+    </div>
+  </div>
+
+  <div class="overlay" [class.show]="isMenuOpen" (click)="toggleMenu(false)"></div>
+
+  <aside class="sidebar" [class.open]="isMenuOpen">
     <div class="title">
       <h2>Oportuniza</h2>
       <div class="company-datas">
         <div class="company-info" *ngIf="company as companyData">
           <img class="company-logo" [src]="companyData.imageUrl" alt="Logo da Empresa" />
-          <span>
-            {{ companyData.name }}
-          </span>
+          <span>{{ companyData.name }}</span>
         </div>
       </div>
     </div>
@@ -18,29 +24,42 @@
           Informações
         </a>
 
-        <a *ngIf="userRoleInCompany === 'Owner'" routerLink="adicionar-funcionario" routerLinkActive="active-link"
-          [routerLinkActiveOptions]="{ exact: true }">
-          Adicionar Funcionários
-        </a>
-
         <a routerLink="funcionarios" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">
           Funcionários
         </a>
 
-        <a *ngIf="userRoleInCompany === 'Owner'" routerLink="editar-empresa" routerLinkActive="active-link"
-          [routerLinkActiveOptions]="{ exact: true }">
-          Editar Empresa
-        </a>
+        <ng-container *ngIf="userRoleInCompany === 'Owner'">
+          <a routerLink="adicionar-funcionario" routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }">
+            Adicionar Funcionários
+          </a>
 
-        <button *ngIf="userRoleInCompany === 'Owner'" (click)="desativarEmpresa()">
-          Desativar Empresa
-        </button>
+          <a routerLink="editar-empresa" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">
+            Editar Empresa
+          </a>
+
+          <button (click)="desativarEmpresa()">Desativar Empresa</button>
+        </ng-container>
+
+        <ng-container *ngIf="userRoleInCompany === 'Administrator'">
+          <a routerLink="adicionar-funcionario" routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }">
+            Adicionar Funcionários
+          </a>
+
+          <a routerLink="editar-empresa" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">
+            Editar Empresa
+          </a>
+
+          <button (click)="desativarEmpresa()">Desativar Empresa</button>
+        </ng-container>
+
       </nav>
     </div>
 
     <div class="user-content">
       <button class="return-button" routerLink="/inicio/minhas-empresas">
-        <img src="../../../../assets/undo.png" alt="">
+        <img src="../../../../assets/undo.png" alt="Voltar" />
         Voltar ao início
       </button>
     </div>

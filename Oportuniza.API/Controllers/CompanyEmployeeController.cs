@@ -58,9 +58,22 @@ namespace Oportuniza.API.Controllers
         public async Task<IActionResult> UpdateEmployeeStatus(Guid id, [FromBody] EmployeeStatusUpdateDto dto)
         {
             var employee = await _companyEmployeeRepository.GetByIdAsync(id);
+
             if (employee == null)
             {
                 return NotFound("Funcionário não encontrado.");
+            }
+
+            var company = await _companyRepository.GetByIdAsync(employee.CompanyId);
+
+            if (company == null)
+            {
+                return NotFound("Empresa vinculada não encontrada.");
+            }
+
+            if (employee.UserId == company.UserId)
+            {
+                return BadRequest("Não é permitido alterar o status do dono da empresa.");
             }
 
             if (!Enum.IsDefined(typeof(CompanyEmployeeStatus), dto.NewStatus))
@@ -144,16 +157,28 @@ namespace Oportuniza.API.Controllers
             if (employee == null)
                 return NotFound("Funcionário não encontrado.");
 
-            var role = await _companyRoleRepository.GetRoleByNameAsync(dto.IsAdmin ? "Owner" : "Worker");
+            var company = await _companyRepository.GetByIdAsync(employee.CompanyId);
+            if (company == null)
+                return NotFound("Empresa vinculada não encontrada.");
+
+            if (employee.UserId == company.UserId)
+            {
+                return BadRequest("Não é permitido alterar o cargo do dono da empresa.");
+            }
+
+            var newRoleName = dto.IsAdmin ? "Administrator" : "Worker";
+            var role = await _companyRoleRepository.GetRoleByNameAsync(newRoleName);
             if (role == null)
-                return BadRequest("Cargo inválido.");
+                return BadRequest($"Cargo inválido: {newRoleName}");
 
             employee.CompanyRoleId = role.Id;
             employee.CanPostJobs = dto.CanPost;
 
             await _companyEmployeeRepository.UpdateAsync(employee);
+
             return NoContent();
         }
+
 
         [Authorize]
         [HttpDelete("unlink/{companyId}")]

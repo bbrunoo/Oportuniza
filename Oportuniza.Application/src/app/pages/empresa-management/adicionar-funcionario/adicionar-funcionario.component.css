@@ -1,49 +1,35 @@
-/* Estilos Gerais para a Seção do Formulário */
 .form-section {
   max-width: 500px;
-  /* Limita a largura para melhor leitura em telas grandes */
   margin: 2rem auto;
-  /* Centraliza a seção na página */
   padding: 1.5rem;
   border: 1px solid #ddd;
   border-radius: 8px;
-  /* Cantos arredondados */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  /* Sombra suave */
   background-color: #f9f9f9;
 }
 
-/* Estilo para cada Campo do Formulário */
 .form-field {
   margin-bottom: 1.5rem;
 }
 
 .form-field label {
   display: block;
-  /* Garante que o label ocupe toda a largura */
   margin-bottom: 0.5rem;
   font-weight: 600;
-  /* Deixa o label em negrito */
   color: #333;
 }
 
-/* Container do Input e Botão */
 .input-with-button {
   display: flex;
-  /* Permite alinhar o input e o botão lado a lado */
   gap: 0;
-  /* Remove o espaço entre eles */
 }
 
 .text-input {
   flex-grow: 1;
-  /* Faz o input ocupar o máximo de espaço possível */
   padding: 0.75rem 1rem;
   border: 1px solid #ccc;
   border-right: none;
-  /* Remove a borda direita para se juntar ao botão */
   border-radius: 4px 0 0 4px;
-  /* Apenas cantos esquerdos arredondados */
   font-size: 1rem;
   transition: border-color 0.3s;
 }
@@ -157,3 +143,11 @@ mat-icon {
   height: 1.25rem;
   line-height: 1.25rem;
 }
+
+@media screen and (max-width: 1000px) {
+  .conteudo{
+    height: 90vh;
+    text-align: center;
+  }
+}
+

@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { TermosModalComponent } from '../../../extras/termos-modal/termos-modal.component';
 import { firstValueFrom } from 'rxjs';
 import { KeycloakOperationService } from '../../../services/keycloak.service';
+import { VerificationService } from '../../../services/verification.service';
 
 @Component({
   selector: 'app-cadastro',
@@ -61,6 +62,7 @@ export class CadastroComponent {
     private router: Router,
     private dialog: MatDialog,
     private keyAuth: KeycloakOperationService,
+    private verificationService: VerificationService
   ) {
     this.criteriaList = [
       { key: 'hasLowercase', message: 'A senha deve conter letras minúsculas' },
@@ -107,19 +109,17 @@ export class CadastroComponent {
           password: this.password,
         })
       );
-      console.log('Resposta do registro:', response);
 
-      console.log('Usuário registrado com sucesso no Keycloak!', response);
+      console.log('Usuário registrado com sucesso:', response);
 
       await Swal.fire({
-        icon: 'success',
-        title: 'Cadastro realizado!',
-        text: 'Seu cadastro foi efetuado com sucesso. Você será redirecionado.',
-        timer: 2000,
-        showConfirmButton: false,
+        icon: 'info',
+        title: 'Verifique seu e-mail 📩',
+        text: 'Enviamos um código de verificação para o seu e-mail. Insira o código para ativar sua conta.',
+        confirmButtonText: 'OK',
       });
 
-      this.router.navigate(['/inicio']);
+      this.router.navigate(['/verify', this.email]);
     } catch (error) {
       console.error('Erro no processo de registro:', error);
       this.errorMessage =
@@ -134,6 +134,7 @@ export class CadastroComponent {
       this.isLoading = false;
     }
   }
+
 
   async register() {
     this.errorMessage = '';

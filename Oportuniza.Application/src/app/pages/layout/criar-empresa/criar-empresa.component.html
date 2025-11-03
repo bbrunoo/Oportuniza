@@ -1,39 +1,38 @@
 <div class="container">
   <div class="conteudo">
     <div class="conteudo-left">
-      <p>LOGO</p>
       <div class="image-upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)"
         (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.dragging]="isDragging">
         <img *ngIf="previewUrl" [src]="previewUrl" alt="Preview da Imagem da Vaga" class="preview-image" />
 
         <div class="upload-placeholder" *ngIf="!previewUrl">
           <mat-icon>cloud_upload</mat-icon>
-          <p><small>Arraste e solte a imagem aqui</small></p>
+          <p>Arraste e solte a imagem aqui</p>
           <p class="upload-subtext">ou clique para selecionar</p>
         </div>
       </div>
       <input hidden type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" />
-      <button type="button" class="btn btn-secondary mt-1" (click)="fileInput.click()">
+      <button type="button" class="btn btn-outline-primary mt-3" (click)="fileInput.click()">
         Escolher Imagem 🖼️
       </button>
     </div>
 
     <div class="conteudo-right">
-      <div class="title">Informações</div>
+      <h2 class="title">Informações da Empresa</h2>
       <form (ngSubmit)="onSubmit()">
-        <input type="text" placeholder="Nome da empresa" class="form-input" [(ngModel)]="name" name="name" />
-        <input type="text" [value]="selectedCity?.name" placeholder="Selecione a cidade" readonly class="form-input"
+        <input type="text" placeholder="Nome da empresa" class="form-control" [(ngModel)]="name" name="name" />
+        <input type="text" [value]="selectedCity?.name" placeholder="Selecione a cidade" readonly class="form-control"
           (click)="openCityModal()" />
-        <input type="tel" placeholder="Telefone" class="form-input" [(ngModel)]="phone" name="phone"
+        <input type="tel" placeholder="Telefone" class="form-control" [(ngModel)]="phone" name="phone"
           mask="00 0000-0000" />
-        <input type="email" placeholder="E-mail" class="form-input" [(ngModel)]="email" name="email" />
-        <input type="text" placeholder="CNPJ" class="form-input" [(ngModel)]="cnpj" name="cnpj"
+        <input type="email" placeholder="E-mail" class="form-control" [(ngModel)]="email" name="email" />
+        <input type="text" placeholder="CNPJ" class="form-control" [(ngModel)]="cnpj" name="cnpj"
           mask="00.000.000/0000-00" />
-        <textarea placeholder="Escreva sobre a empresa..." class="form-textarea" maxlength="300"
-          [(ngModel)]="description" name="description"></textarea>
+        <textarea placeholder="Escreva sobre a empresa (máx. 300 caracteres)..." class="form-control form-textarea"
+          maxlength="300" [(ngModel)]="description" name="description"></textarea>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" [disabled]="isLoading">
-            <span *ngIf="!isLoading">Criar</span>
+            <span *ngIf="!isLoading">Criar Empresa</span>
             <span *ngIf="isLoading">Criando...</span>
           </button>
         </div>
@@ -53,7 +52,6 @@
         {{ city.name }}
       </li>
     </ul>
-
     <button class="close-btn" (click)="closeCityModal()">Fechar</button>
   </div>
 </div>

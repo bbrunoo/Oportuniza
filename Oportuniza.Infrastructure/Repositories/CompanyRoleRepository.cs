@@ -17,5 +17,13 @@ namespace Oportuniza.Infrastructure.Repositories
             return await _context.CompanyRole
                                  .FirstOrDefaultAsync(r => r.Name == name);
         }
+
+        public async Task<string?> GetRoleNameByIdAsync(Guid id)
+        {
+            return await _context.CompanyRole
+                .Where(r => r.Id == id)
+                .Select(r => r.Name)
+                .FirstOrDefaultAsync();
+        }
     }
 }

@@ -15,6 +15,7 @@ namespace Oportuniza.Infrastructure.Configurations
                 .HasMaxLength(100);
 
             builder.HasData(
+                new CompanyRole { Id = Guid.NewGuid(), Name = "Owner" },
                 new CompanyRole { Id = Guid.NewGuid(), Name = "Administrator" },
                 new CompanyRole { Id = Guid.NewGuid(), Name = "Worker" });
         }

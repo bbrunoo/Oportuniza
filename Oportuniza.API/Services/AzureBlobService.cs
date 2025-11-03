@@ -17,7 +17,6 @@ namespace Oportuniza.API.Services
             _moderatorEndpoint = configuration["Azure:Moderator:Endpoint"];
         }
 
-        // 🔹 Upload genérico de imagem (com moderação e segurança)
         public async Task<string> UploadImageAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -26,7 +25,6 @@ namespace Oportuniza.API.Services
             using var memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream);
 
-            // Verificação de conteúdo
             using var analysisStream = new MemoryStream(memoryStream.ToArray());
             bool isSafe = await IsImageSafeAsync(analysisStream, file.ContentType);
             if (!isSafe)
@@ -36,7 +34,7 @@ namespace Oportuniza.API.Services
 
             var blobServiceClient = new BlobServiceClient(_connectionString);
             var blobContainerClient = blobServiceClient.GetBlobContainerClient("images");
-            await blobContainerClient.CreateIfNotExistsAsync(); // sem acesso público
+            await blobContainerClient.CreateIfNotExistsAsync();
 
             string blobName = $"{Guid.NewGuid()}-{file.FileName}";
             var blobClient = blobContainerClient.GetBlobClient(blobName);
@@ -46,7 +44,6 @@ namespace Oportuniza.API.Services
             return blobClient.Uri.ToString();
         }
 
-        // 🔹 Upload de imagem de perfil
         public async Task<string> UploadProfileImage(IFormFile file, string containerName, Guid userId)
         {
             if (file == null || file.Length == 0)
@@ -74,7 +71,6 @@ namespace Oportuniza.API.Services
             return blobClient.Uri.ToString();
         }
 
-        // 🔹 Upload de imagem de publicação
         public async Task<string> UploadPostImage(IFormFile file, string containerName, Guid userId)
         {
             if (file == null || file.Length == 0)
@@ -102,7 +98,6 @@ namespace Oportuniza.API.Services
             return blobClient.Uri.ToString();
         }
 
-        // 🔹 Upload de imagem da empresa
         public async Task<string> UploadCompanyImage(IFormFile file, string containerName, Guid userId)
         {
             if (file == null || file.Length == 0)
@@ -130,7 +125,6 @@ namespace Oportuniza.API.Services
             return blobClient.Uri.ToString();
         }
 
-        // 🔹 Upload de currículo (PDF/DOCX)
         public async Task<string> UploadResumeAsync(IFormFile file, string containerName, Guid userId)
         {
             if (file == null || file.Length == 0)
@@ -158,7 +152,6 @@ namespace Oportuniza.API.Services
             return blobClient.Uri.ToString();
         }
 
-        // 🔹 Verifica se a imagem é segura usando Azure Cognitive Services
         public async Task<bool> IsImageSafeAsync(Stream imageStream, string contentType)
         {
             string endpoint = _moderatorEndpoint;

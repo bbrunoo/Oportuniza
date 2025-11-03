@@ -344,3 +344,196 @@ form {
 .close-btn:hover {
   background: #555;
 }
+
+@media (max-width: 1400px) {
+  .container {
+    width: 100%;
+    height: auto;
+  }
+
+  .conteudo {
+    flex-direction: row;
+    width: 62em;
+    height: auto;
+  }
+
+  .image-upload-area {
+    width: 300px;
+    height: 300px;
+  }
+
+  .form-textarea {
+    width: 30em;
+  }
+}
+
+@media (max-width: 1000px) {
+  .container {
+    width: 95%;
+    height: auto;
+  }
+
+  .conteudo {
+    flex-direction: column;
+    align-items: center;
+    height: auto;
+    padding: 20px;
+  }
+
+  .conteudo-left,
+  .conteudo-right {
+    width: 100%;
+    flex: none;
+  }
+
+  .conteudo-left {
+    margin-bottom: 20px;
+  }
+
+  .image-upload-area {
+    width: 80%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .form-input,
+  .form-textarea {
+    width: 100%;
+  }
+
+  .author-options {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+  }
+
+  .conteudo {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .conteudo-left {
+    order: 1;
+  }
+
+  .conteudo-right {
+    order: 2;
+  }
+
+  .image-upload-area {
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .author-option {
+    font-size: 11px;
+    height: auto;
+    padding: 6px;
+  }
+
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    font-size: 12px;
+  }
+
+  .option-button {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .form-inline-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .submit-section {
+    justify-content: center;
+  }
+
+  .submit-button {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* --- Smartphones até 480px --- */
+@media (max-width: 480px) {
+  .container {
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .conteudo {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .image-upload-area {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .author-options {
+    gap: 5px;
+    padding: 5px;
+  }
+
+  .author-option {
+    font-size: 10px;
+    padding: 4px;
+    height: auto;
+  }
+
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    font-size: 12px;
+  }
+
+  .form-textarea {
+    min-height: 100px;
+  }
+
+  .option-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .option-button {
+    width: 100%;
+    font-size: 12px;
+  }
+
+  .submit-section {
+    justify-content: center;
+  }
+
+  .submit-button {
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .modal {
+    width: 90%;
+    max-width: 350px;
+  }
+}

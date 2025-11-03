@@ -8,6 +8,7 @@ using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using Oportuniza.Infrastructure.Data;
+using System.ComponentModel.Design;
 using System.Security.Claims;
 
 namespace Oportuniza.API.Controllers
@@ -251,19 +252,43 @@ namespace Oportuniza.API.Controllers
                 return NotFound("Empresa não encontrada.");
 
             var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+            if (string.IsNullOrEmpty(keycloakId))
+                return StatusCode(StatusCodes.Status401Unauthorized, "Usuário não autenticado.");
 
-            if (user == null || existingCompany.UserId != user.Id)
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+            if (user == null)
+                return StatusCode(StatusCodes.Status401Unauthorized, "Usuário não encontrado.");
+
+            bool isAuthorized = false;
+
+            if (existingCompany.UserId == user.Id)
             {
-                return Forbid("Você não tem permissão para editar esta empresa.");
+                isAuthorized = true;
+            }
+            else
+            {
+                var employee = await _context.CompanyEmployee
+                    .Include(e => e.CompanyRole)
+                    .FirstOrDefaultAsync(e => e.CompanyId == existingCompany.Id && e.UserId == user.Id);
+
+                if (employee != null)
+                {
+                    var roleName = employee.CompanyRole?.Name?.Trim().ToLower();
+
+                    if (roleName == "owner" || roleName == "administrator")
+                        isAuthorized = true;
+                }
             }
 
-            _mapper.Map(dto, existingCompany);
+            if (!isAuthorized)
+                return StatusCode(StatusCodes.Status403Forbidden, "Você não tem permissão para editar esta empresa.");
 
+            _mapper.Map(dto, existingCompany);
             await _companyRepository.UpdateAsync(existingCompany);
 
-            return NoContent(); 
+            return NoContent();
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
@@ -275,5 +300,100 @@ namespace Oportuniza.API.Controllers
             await _companyRepository.DeleteAsync(id);
             return NoContent();
         }
+
+        //[Authorize]
+        //[HttpGet("verify-role/{companyId?}")]
+        //public async Task<IActionResult> VerifyUserRole(Guid? companyId = null)
+        //{
+        //    var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    if (string.IsNullOrEmpty(keycloakId))
+        //        return Unauthorized("Token inválido: identificador (sub) ausente.");
+
+        //    var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+        //    if (user == null)
+        //        return NotFound("Usuário não encontrado no banco de dados local.");
+
+        //    var tokenRole = User.FindFirst("company_role")?.Value
+        //                    ?? User.FindFirst("role")?.Value
+        //                    ?? User.FindFirst("realm_access")?.Value;
+
+        //    if (!string.IsNullOrEmpty(tokenRole))
+        //    {
+        //        return Ok(new
+        //        {
+        //            hasRole = true,
+        //            role = tokenRole,
+        //            message = $"Role obtida do token: {tokenRole}"
+        //        });
+        //    }
+
+        //    var query = _context.CompanyEmployee
+        //        .Include(e => e.CompanyRole)
+        //        .Where(e => e.UserId == user.Id && e.IsActive == CompanyEmployeeStatus.Active);
+
+        //    if (companyId.HasValue && companyId != Guid.Empty)
+        //        query = query.Where(e => e.CompanyId == companyId.Value);
+
+        //    var employee = await query.FirstOrDefaultAsync();
+
+        //    if (employee == null)
+        //        return Ok(new { hasRole = false, message = "Usuário não está vinculado a nenhuma empresa ativa." });
+
+        //    return Ok(new
+        //    {
+        //        hasRole = true,
+        //        role = employee.CompanyRole?.Name ?? "Unknown",
+        //        companyId = employee.CompanyId,
+        //        message = "Role obtida do banco."
+        //    });
+        //}
+
+        [Authorize]
+        [HttpGet("verify-role/{companyId?}")]
+        public async Task<IActionResult> VerifyUserRole(Guid? companyId = null)
+        {
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(keycloakId))
+                return Unauthorized("Token inválido: identificador (sub) ausente.");
+
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+            if (user == null)
+                return NotFound("Usuário não encontrado no banco de dados local.");
+
+            var query = _context.CompanyEmployee
+                .Include(e => e.CompanyRole)
+                .Where(e => e.UserId == user.Id && e.IsActive == CompanyEmployeeStatus.Active);
+
+            if (companyId.HasValue && companyId != Guid.Empty)
+                query = query.Where(e => e.CompanyId == companyId.Value);
+
+            var employee = await query.FirstOrDefaultAsync();
+
+            if (employee == null)
+                return Ok(new { hasRole = false, message = "Usuário não está vinculado a nenhuma empresa ativa." });
+
+            bool isOwner = string.Equals(employee.CompanyRole.Name, "Owner", StringComparison.OrdinalIgnoreCase);
+            bool isWorker = string.Equals(employee.CompanyRole.Name, "Worker", StringComparison.OrdinalIgnoreCase);
+            bool isAdmin = string.Equals(employee.CompanyRole.Name, "Administrator", StringComparison.OrdinalIgnoreCase);
+
+            if (isAdmin || isWorker || isOwner)
+            {
+                return Ok(new
+                {
+                    hasRole = true,
+                    role = employee.CompanyRole.Name,
+                    companyId = employee.CompanyId,
+                    message = $"Usuário possui papel '{employee.CompanyRole.Name}' na empresa vinculada."
+                });
+            }
+
+            return Ok(new
+            {
+                hasRole = false,
+                role = employee.CompanyRole?.Name,
+                message = "Usuário não possui papel reconhecido (Owner, Worker ou Administrator)."
+            });
+        }
+
     }
 }

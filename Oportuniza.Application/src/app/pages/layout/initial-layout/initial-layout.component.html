@@ -1,5 +1,8 @@
 <div class="layout-container">
   <div class="menu-trigger-area" (click)="toggleMenu()">
+    <div class="menu-icon">
+      <img src="../../../../assets/burger-bar.png" alt="Menu" />
+    </div>
   </div>
 
   <div class="overlay" [class.show]="isMenuOpen" (click)="toggleMenu(false)"></div>
@@ -16,19 +19,56 @@
           Início
         </a>
 
-        <ng-container *ngIf="userProfile.isCompany; else normalUserMenu">
-          <a routerLink="meus-posts">
-            <img class="icons" src="../../../../assets/home-assets/feed.png" />
-            Minhas Vagas
-          </a>
+        <ng-container *ngIf="isCompany && userRole">
 
-          <a routerLink="minhas-empresas">
-            <img class="icons-white" src="../../../../assets/home-assets/company.png" />
-            Empresas
-          </a>
+          <ng-container *ngIf="userRole === 'Owner'">
+            <a routerLink="meus-posts">
+              <img class="icons" src="../../../../assets/home-assets/feed.png" />
+              Minhas Vagas
+            </a>
+
+            <a routerLink="minhas-empresas">
+              <img class="icons-white" src="../../../../assets/home-assets/company.png" />
+              Empresas
+            </a>
+
+            <a routerLink="interessados">
+              <img class="icons" src="../../../../assets/home-assets/sino.png" />
+              Interessados
+            </a>
+          </ng-container>
+
+          <ng-container *ngIf="userRole === 'Worker'">
+            <a routerLink="meus-posts">
+              <img class="icons" src="../../../../assets/home-assets/feed.png" />
+              Minhas Vagas
+            </a>
+
+            <a routerLink="minhas-empresas">
+              <img class="icons-white" src="../../../../assets/home-assets/company.png" />
+              Empresas
+            </a>
+          </ng-container>
+
+          <ng-container *ngIf="userRole === 'Administrator'">
+            <a routerLink="meus-posts">
+              <img class="icons" src="../../../../assets/home-assets/feed.png" />
+              Minhas Vagas
+            </a>
+
+            <a routerLink="minhas-empresas">
+              <img class="icons-white" src="../../../../assets/home-assets/company.png" />
+              Empresas
+            </a>
+
+            <a routerLink="interessados">
+              <img class="icons" src="../../../../assets/home-assets/sino.png" />
+              Interessados
+            </a>
+          </ng-container>
         </ng-container>
 
-        <ng-template #normalUserMenu>
+        <ng-container *ngIf="!isCompany">
           <a routerLink="meus-posts">
             <img class="icons" src="../../../../assets/home-assets/feed.png" />
             Minhas Vagas
@@ -48,7 +88,7 @@
             <img class="icons-white" src="../../../../assets/home-assets/company.png" />
             Empresas
           </a>
-        </ng-template>
+        </ng-container>
       </nav>
     </div>
 
@@ -67,15 +107,10 @@
         <ng-template #normalUser>
           <img class="user-image" [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'"
             alt="Foto do Usuário" />
-          <p class="username">
-            {{ userProfile.name }}
-          </p>
+          <p class="username">{{ userProfile.name }}</p>
         </ng-template>
 
         <div class="config-area">
-          <span *ngIf="showCompleteProfileicon && !userProfile.isCompany">
-            <img src="../../../../assets/exclamation.png" alt="Completar perfil" />
-          </span>
           <img class="config-image" (click)="openDialog()" src="../../../../assets/home-assets/settings.png"
             alt="Configurações" />
         </div>

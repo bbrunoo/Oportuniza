@@ -6,6 +6,8 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { UserService } from '../../../services/user.service';
+import { KeycloakOperationService } from '../../../services/keycloak.service';
+import { takeUntil, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-funcionarios',
@@ -28,14 +30,20 @@ export class FuncionariosComponent {
     canPost: false
   };
 
-  selectedEmployee: CompanyEmployeeDto | undefined;
+  showStatusModal = false;
+  selectedEmployee: CompanyEmployeeDto | null = null;
   currentUserId: string | undefined = undefined;
   isCurrentUser: boolean = false;
+
+  userRoleInCompany: string | null = null;
+  isUserAdmin: boolean = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private employeeService: CompanyEmployeeService,
-    private userService: UserService
+    private userService: UserService,
+    private keycloakService: KeycloakOperationService
   ) { }
 
   ngOnInit(): void {
@@ -43,7 +51,7 @@ export class FuncionariosComponent {
       this.companyId = this.route.parent?.snapshot.paramMap.get('id') ?? null;
 
       if (this.companyId) {
-        this.loadEmployees(this.companyId);
+        this.loadUserRoleAndEmployees(this.companyId);
       } else {
         this.isLoading = false;
         this.errorMessage = 'ID da empresa não encontrado na URL.';
@@ -51,33 +59,61 @@ export class FuncionariosComponent {
     });
   }
 
+  private loadUserRoleAndEmployees(companyId: string): void {
+    this.isLoading = true;
+    this.keycloakService.verifyUserRole(companyId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.hasRole && res.role) {
+            this.userRoleInCompany = res.role;
+            this.isUserAdmin = res.role === 'Owner' || res.role === 'Administrator';
+          } else {
+            this.userRoleInCompany = null;
+            this.isUserAdmin = false;
+          }
+
+          this.loadEmployees(companyId);
+        },
+        error: (err) => {
+          console.error('[FuncionariosComponent] Erro ao verificar role:', err);
+          this.errorMessage = 'Erro ao verificar o papel do usuário.';
+          this.isLoading = false;
+        }
+      });
+  }
+
   async fetchCurrentUserId(): Promise<void> {
     this.currentUserId = await this.userService.getLoggedInUserId();
-    if (!this.currentUserId) {
-      console.warn('ID do usuário logado não foi encontrado. A funcionalidade de bloqueio de edição própria pode falhar.');
-    }
   }
 
   openSettings(employeeId: string): void {
+    if (!this.isUserAdmin) {
+      Swal.fire('Acesso negado', 'Apenas administradores podem alterar permissões.', 'warning');
+      return;
+    }
+
     const emp = this.employees.find(e => e.id === employeeId);
     if (!emp) return;
+
+    if (emp.roles === 'Owner') {
+      Swal.fire('Ação não permitida', 'O dono da empresa não pode ter seu cargo alterado.', 'info');
+      return;
+    }
 
     this.selectedEmployeeId = employeeId;
     this.selectedEmployee = emp;
 
-    this.selectedEmployeeRoles.isAdmin = emp.roles === 'Owner';
+    this.selectedEmployeeRoles.isAdmin = emp.roles === 'Administrator';
     this.selectedEmployeeRoles.canPost = emp.roles === 'Worker';
 
     if (!this.selectedEmployeeRoles.isAdmin && !this.selectedEmployeeRoles.canPost) {
       this.selectedEmployeeRoles.canPost = true;
     }
 
-
     this.isCurrentUser = this.selectedEmployeeId === this.currentUserId;
-
     this.showPermissionModal = true;
   }
-
 
   onAdminChange(): void {
     if (this.selectedEmployeeRoles.isAdmin) {
@@ -99,29 +135,63 @@ export class FuncionariosComponent {
     this.showPermissionModal = false;
   }
 
+  openStatusModal(employee: CompanyEmployeeDto): void {
+    if (employee.roles === 'Owner') {
+      Swal.fire('Ação não permitida', 'O dono da empresa não pode ser desativado.', 'info');
+      return;
+    }
+
+    const newStatus = employee.isActive === 0 ? 1 : 0;
+    const actionText = newStatus === 1 ? 'desativar' : 'reativar';
+
+    Swal.fire({
+      title: `Confirmar ${actionText}?`,
+      html: `Tem certeza que deseja ${actionText} o funcionário <b>${employee.userName || employee.userEmail}</b>?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: newStatus === 1 ? '#dc3545' : '#007bff',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sim, confirmar!',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.employeeService.toggleEmployeeStatus(employee.id, newStatus).subscribe({
+          next: () => {
+            employee.isActive = newStatus;
+
+            Swal.fire(
+              'Sucesso!',
+              `Funcionário ${actionText === 'desativar' ? 'desativado' : 'reativado'} com sucesso!`,
+              'success'
+            );
+          },
+          error: () => {
+            Swal.fire('Erro!', 'Falha ao atualizar o status do funcionário.', 'error');
+          }
+        });
+      }
+    });
+  }
+
   savePermissions(): void {
     if (!this.selectedEmployeeId || this.isCurrentUser) return;
+
     if (!this.selectedEmployeeRoles.isAdmin && !this.selectedEmployeeRoles.canPost) {
       Swal.fire({
         title: 'Erro de Permissão!',
-        html: 'O funcionário deve ser definido como <b>Administrador</b> OU <b>Funcionário Padrão</b>. Alterne um dos botões.',
+        html: 'O funcionário deve ser definido como <b>Administrador</b> OU <b>Funcionário Padrão</b>.',
         icon: 'error',
-        confirmButtonColor: '#007bff',
-        confirmButtonText: 'Entendi'
+        confirmButtonColor: '#007bff'
       });
       return;
     }
 
-
     const employeeName = this.selectedEmployee?.userName || this.selectedEmployee?.userEmail || 'este funcionário';
-
-    let newRoleDescription = this.selectedEmployeeRoles.isAdmin
-      ? 'Administrador'
-      : 'Funcionário Padrão';
+    const newRoleDescription = this.selectedEmployeeRoles.isAdmin ? 'Administrador' : 'Funcionário Padrão';
 
     Swal.fire({
       title: 'Confirmar Alteração de Permissão?',
-      html: `Você está prestes a alterar o cargo de <b>${employeeName}</b> para <b>${newRoleDescription}</b>.<br><br>Tem certeza que deseja prosseguir com esta mudança?`,
+      html: `Você está prestes a alterar o cargo de <b>${employeeName}</b> para <b>${newRoleDescription}</b>.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#007bff',
@@ -136,42 +206,49 @@ export class FuncionariosComponent {
   }
 
   private executeSavePermissions(): void {
+    if (!this.selectedEmployeeId) return;
+
     const updateData = {
       isAdmin: this.selectedEmployeeRoles.isAdmin,
       canPost: this.selectedEmployeeRoles.canPost
     };
 
-    this.employeeService.updateEmployeeRoles(this.selectedEmployeeId!, updateData).subscribe({
-      next: () => {
-        Swal.fire(
-          'Sucesso!',
-          'As permissões do funcionário foram atualizadas.',
-          'success'
-        );
-        this.closeModal();
-        this.loadEmployees(this.companyId!);
-      },
-      error: (err) => {
-        console.error('Erro ao atualizar permissões:', err);
-        Swal.fire(
-          'Erro!',
-          'Houve uma falha ao tentar atualizar as permissões.',
-          'error'
-        );
-      }
-    });
+    this.employeeService.updateEmployeeRoles(this.selectedEmployeeId, updateData)
+      .subscribe({
+        next: () => {
+          Swal.fire('Sucesso!', 'As permissões do funcionário foram atualizadas.', 'success');
+          this.closeModal();
+
+          const employeeIndex = this.employees.findIndex(e => e.id === this.selectedEmployeeId);
+          if (employeeIndex !== -1 && this.selectedEmployee) {
+            // 🟩 Atualiza corretamente os cargos
+            this.employees[employeeIndex].roles = this.selectedEmployeeRoles.isAdmin
+              ? 'Administrator'
+              : 'Worker';
+
+            (this.employees[employeeIndex] as any).canPostJobs = this.selectedEmployeeRoles.canPost;
+          }
+
+          if (this.selectedEmployeeId === this.currentUserId) {
+            this.userRoleInCompany = this.selectedEmployeeRoles.isAdmin ? 'Administrator' : 'Worker';
+            this.isUserAdmin = this.selectedEmployeeRoles.isAdmin;
+          }
+        },
+        error: (err) => {
+          console.error('Erro ao atualizar permissões:', err);
+          Swal.fire('Erro!', 'Houve uma falha ao tentar atualizar as permissões.', 'error');
+        }
+      });
   }
 
   loadEmployees(id: string): void {
     this.isLoading = true;
     this.errorMessage = null;
 
-    
     this.employeeService.getOrderedEmployees(id).subscribe({
       next: (data) => {
         this.employees = data;
         this.isLoading = false;
-        console.log('Lista de funcionários ordenada:', this.employees);
       },
       error: (err) => {
         this.isLoading = false;

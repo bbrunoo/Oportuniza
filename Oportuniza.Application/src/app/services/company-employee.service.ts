@@ -28,6 +28,10 @@ export class CompanyEmployeeService {
       );
   }
 
+  toggleEmployeeStatus(id: string, newStatus: number) {
+    return this.http.patch(`${this.apiUrl}/status/${id}`, { newStatus });
+  }
+
   searchUserByEmail(email: string): Observable<UserSearchResult> {
     return this.http.get<UserSearchResult>(`${this.apiUrl}/search-user`, { params: { email } });
   }
