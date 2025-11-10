@@ -254,6 +254,122 @@
   display: none;
 }
 
+.apply-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+}
+
+.apply-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  max-width: 450px;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.apply-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 5px;
+}
+
+.apply-modal-content h2 {
+  margin-top: 0;
+  font-size: 1.4rem;
+  color: #333;
+}
+
+.apply-textarea {
+  width: 100%;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  resize: none;
+  font-size: 0.9rem;
+}
+
+.file-upload-label {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px;
+  background: #efeeec;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-align: center;
+  box-shadow: #a8a8a8 1px 2px 5px;
+}
+
+.file-upload-label:hover {
+  transform: translateY(1.5px);
+  background: #e6e3df;
+}
+
+.file-upload-label input[type='file'] {
+  display: none;
+}
+
+.apply-modal-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.confirm-btn {
+  flex: 1;
+  background-color: #3085d6;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.cancel-btn {
+  flex: 1;
+  background-color: #d33;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.confirm-btn:hover {
+  background-color: #1d6fc2;
+}
+
+.cancel-btn:hover {
+  background-color: #b12a2a;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
 @media screen and (max-width: 1024px) {
   .container {
     width: 25em;
@@ -265,7 +381,6 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    margin-top: 18px;
   }
 
   .center-content {
@@ -352,107 +467,6 @@
 
   .bottom button {
     font-size: 13px;
-  }
-}
-
-.apply-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 1000;
-}
-
-.apply-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 90%;
-  max-width: 450px;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  z-index: 1001;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.apply-modal-content h2 {
-  margin-top: 0;
-  font-size: 1.4rem;
-  color: #333;
-}
-
-.apply-textarea {
-  width: 100%;
-  margin-top: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 8px;
-  resize: none;
-  font-size: 0.9rem;
-}
-
-.file-upload-label {
-  display: inline-block;
-  margin-top: 12px;
-  padding: 10px;
-  background: #f2f2f2;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.file-upload-label input[type='file'] {
-  display: none;
-}
-
-.apply-modal-buttons {
-  margin-top: 20px;
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.confirm-btn {
-  flex: 1;
-  background-color: #3085d6;
-  color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.cancel-btn {
-  flex: 1;
-  background-color: #d33;
-  color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.confirm-btn:hover {
-  background-color: #1d6fc2;
-}
-
-.cancel-btn:hover {
-  background-color: #b12a2a;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -48%);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
   }
 }
 

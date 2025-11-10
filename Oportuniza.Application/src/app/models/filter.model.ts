@@ -4,4 +4,7 @@ export interface PublicationFilterDto {
   contracts?: string[];
   shifts?: string[];
   salaryRange?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  radiusKm?: number | null;
 }

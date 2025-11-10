@@ -423,7 +423,6 @@ a {
 }
 
 @media screen and (max-width: 1400px) {
-
   .container,
   .container-empresas {
     width: 65em;
@@ -510,6 +509,16 @@ a {
   .description {
     font-size: 12px;
   }
+
+  .quadrado{
+    width: 80%;
+  }
+
+  .textos{
+    width: 100%;
+    padding: 25px;
+    font-size: 18px;
+  }
 }
 
 @media screen and (max-width: 480px) {
@@ -547,4 +556,5 @@ a {
   .description {
     font-size: 11px;
   }
+
 }

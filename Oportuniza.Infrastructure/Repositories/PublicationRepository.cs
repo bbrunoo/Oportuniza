@@ -15,11 +15,11 @@ namespace Oportuniza.Infrastructure.Repositories
         {
             _context = context;
         }
-
         public async Task<IEnumerable<Publication>> FilterPublicationsAsync(PublicationFilterDto filters)
         {
             var query = _context.Publication
-                .Where(p => p.IsActive == PublicationAvailable.Enabled);
+                .Where(p => p.IsActive == PublicationAvailable.Enabled)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(filters.SearchTerm))
             {
@@ -53,24 +53,55 @@ namespace Oportuniza.Infrastructure.Repositories
                 switch (filters.SalaryRange.ToLower())
                 {
                     case "range1":
-                        query = query.Where(p => p.Salary != null && p.Salary.Contains("Até a R$1000,00"));
+                        query = query.Where(p => p.Salary != null && p.Salary.Contains("Até a R$1.000,00"));
                         break;
                     case "range2":
-                        query = query.Where(p => p.Salary != null && p.Salary.Contains("R$1000,00 a R$2000,00"));
+                        query = query.Where(p => p.Salary != null && p.Salary.Contains("R$1.000,00 a R$2.000,00"));
                         break;
                     case "range3":
-                        query = query.Where(p => p.Salary != null && p.Salary.Contains("Mais de R$2000,00"));
+                        query = query.Where(p => p.Salary != null && p.Salary.Contains("Acima de R$2.000,00"));
                         break;
                 }
             }
 
-            query = query
+            var list = await query
                 .Include(p => p.AuthorUser)
                 .Include(p => p.AuthorCompany)
-                .OrderByDescending(p => p.CreationDate);
-             
-            return await query.ToListAsync();
+                .OrderByDescending(p => p.CreationDate)
+                .ToListAsync();
+
+            if (filters.Latitude.HasValue && filters.Longitude.HasValue && filters.RadiusKm.HasValue && filters.RadiusKm > 0)
+            {
+                double lat = filters.Latitude.Value;
+                double lng = filters.Longitude.Value;
+                double radius = filters.RadiusKm.Value;
+
+                list = list
+                    .Where(p => p.Latitude.HasValue && p.Longitude.HasValue)
+                    .Where(p =>
+                    {
+                        var d = DistanceInKm(lat, lng, p.Latitude.Value, p.Longitude.Value);
+                        return d <= radius;
+                    })
+                    .ToList();
+            }
+
+            return list;
         }
+        private static double DistanceInKm(double lat1, double lon1, double lat2, double lon2)
+        {
+            const double R = 6371;
+            double dLat = (lat2 - lat1) * Math.PI / 180.0;
+            double dLon = (lon2 - lon1) * Math.PI / 180.0;
+            double a =
+                Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(lat1 * Math.PI / 180.0) *
+                Math.Cos(lat2 * Math.PI / 180.0) *
+                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            return R * c;
+        }
+
 
         public async Task<(IEnumerable<Publication> publications, int totalCount)> GetCompanyPublicationsPaged(
                     Guid companyId, int pageNumber, int pageSize)
@@ -150,6 +181,12 @@ namespace Oportuniza.Infrastructure.Repositories
                 .ToListAsync();
 
             return (publications, totalCount);
+        }
+
+        public async Task UpdateRangeAsync(IEnumerable<Publication> publications)
+        {
+            _context.Publication.UpdateRange(publications);
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -11,25 +11,23 @@
       <h2>Entrar</h2>
 
       <div class="input-container">
-        <input type="email" placeholder="E-mail" name="email" [(ngModel)]="email" required email maxlength="100"
-          pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" (input)="sanitizeEmail()" />
+        <input type="email" name="email" placeholder="E-mail" (input)="onEmailInput($event)" [(ngModel)]="email" required maxlength="100"
+          autocomplete="email" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" (input)="sanitizeEmail()" />
       </div>
 
       <div class="input-container password-container">
-        <input maxlength="20" [type]="passwordVisible ? 'text' : 'password'" id="password" placeholder="Senha"
-          name="password" [(ngModel)]="password" required
-          pattern="^[a-zA-Z0-9!@#$%^&*()_+=\-{}\[\]:;**'**<>,.?/|\\~`]+$" (input)="sanitizePassword()" />
-
+        <input [type]="passwordVisible ? 'text' : 'password'" name="password" placeholder="Senha" [(ngModel)]="password"
+          required maxlength="64" autocomplete="current-password"
+          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'\ ,.<>?/\\|`~])(?!.*\s).{8,64}$"
+        (input)="sanitizePassword()"
+        />
         <button type="button" class="show-password" (click)="togglePassword()">
-          <img [src]="passwordVisible ? ' assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'"
-            alt=" Ícone de mostrar senha" />
+          <img [src]="passwordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'"
+            alt="Mostrar senha" />
         </button>
       </div>
 
-      <!-- <a [routerLink]="['/redefinir-senha']" class="forgot-password">Esqueceu a senha?</a> -->
-
       <button type="submit" class="btn-primary">Continuar</button>
-
     </form>
 
     <p class="register-text">

@@ -37,6 +37,9 @@ export class SearchResultComponent implements OnInit {
           : [],
         shifts: params['shifts'] ? (params['shifts'] as string).split(',') : [],
         salaryRange: params['salaryRange'] || '',
+        latitude: params['latitude'] ? parseFloat(params['latitude']) : null,
+        longitude: params['longitude'] ? parseFloat(params['longitude']) : null,
+        radiusKm: params['radiusKm'] ? parseFloat(params['radiusKm']) : null,
       };
 
       this.filterPublications();
@@ -51,11 +54,11 @@ export class SearchResultComponent implements OnInit {
     this.publicationService.filterPublications(this.currentFilters).subscribe({
       next: (res: Publication[]) => {
         this.publications = res;
-        console.log('search', this.publications);
+        console.log('✅ Resultados da busca:', res);
         this.hasResults = this.publications.length > 0;
       },
       error: (err) => {
-        console.error('Erro ao buscar resultados:', err);
+        console.error('❌ Erro ao buscar resultados:', err);
         this.publications = [];
         this.hasResults = false;
       },
@@ -69,48 +72,26 @@ export class SearchResultComponent implements OnInit {
       contracts: (filters.contracts ?? []).map((c) => c.toLowerCase()),
       shifts: (filters.shifts ?? []).map((s) => s.toLowerCase()),
       salaryRange: filters.salaryRange?.toLowerCase() || null,
+      latitude: filters.latitude ?? null,
+      longitude: filters.longitude ?? null,
+      radiusKm: filters.radiusKm ?? null,
     };
 
     const queryParams: any = {};
-    if (normalizedFilters.searchTerm) {
-      queryParams.searchTerm = normalizedFilters.searchTerm;
-    }
-    if (normalizedFilters.local) {
-      queryParams.local = normalizedFilters.local;
-    }
-
-    if (normalizedFilters.contracts.length > 0) {
-      queryParams.contracts = normalizedFilters.contracts.join(',');
-    }
-    if (normalizedFilters.shifts.length > 0) {
-      queryParams.shifts = normalizedFilters.shifts.join(',');
-    }
-    if (normalizedFilters.salaryRange) {
-      queryParams.salaryRange = normalizedFilters.salaryRange;
+    if (normalizedFilters.searchTerm) queryParams.searchTerm = normalizedFilters.searchTerm;
+    if (normalizedFilters.local) queryParams.local = normalizedFilters.local;
+    if (normalizedFilters.contracts.length > 0) queryParams.contracts = normalizedFilters.contracts.join(',');
+    if (normalizedFilters.shifts.length > 0) queryParams.shifts = normalizedFilters.shifts.join(',');
+    if (normalizedFilters.salaryRange) queryParams.salaryRange = normalizedFilters.salaryRange;
+    if (normalizedFilters.latitude && normalizedFilters.longitude && normalizedFilters.radiusKm) {
+      queryParams.latitude = normalizedFilters.latitude;
+      queryParams.longitude = normalizedFilters.longitude;
+      queryParams.radiusKm = normalizedFilters.radiusKm;
     }
 
-    this.router.navigate(['/inicio/search-result'], { queryParams });
-  }
-
-  private areFiltersEqual(
-    filters1: PublicationFilterDto,
-    filters2: PublicationFilterDto
-  ): boolean {
-    const normalizedFilters1 = {
-      ...filters1,
-      contracts: filters1.contracts ? [...filters1.contracts].sort() : [],
-      shifts: filters1.shifts ? [...filters1.shifts].sort() : [],
-    };
-
-    const normalizedFilters2 = {
-      ...filters2,
-      contracts: filters2.contracts ? [...filters2.contracts].sort() : [],
-      shifts: filters2.shifts ? [...filters2.shifts].sort() : [],
-    };
-
-    return (
-      JSON.stringify(normalizedFilters1) === JSON.stringify(normalizedFilters2)
-    );
+    this.router.navigate(['/inicio/search-result'], { queryParams }).then(() => {
+      this.currentFilters = {};
+    });
   }
 
   onPostClick(publication: Publication): void {

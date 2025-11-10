@@ -71,127 +71,26 @@ namespace Oportuniza.API.Controllers
             return Ok(new { token });
         }
 
-        //[HttpPost("login")]
-        //public async Task<ActionResult<UserToken>> Login([FromBody] LoginRequestDto loginRequestDTO)
-        //{
-        //    if (loginRequestDTO == null || IsInvalidInput(loginRequestDTO.Email) || IsInvalidInput(loginRequestDTO.Password))
-        //        return BadRequest("Todos os campos são obrigatórios.");
-
-        //    if (loginRequestDTO.Password.Contains(" "))
-        //        return BadRequest("A senha não pode conter espaços.");
-
-        //    if (!IsValidEmail(loginRequestDTO.Email))
-        //        return BadRequest("Formato de e-mail inválido.");
-
-        //    var ip = GetClientIp();
-        //    var (isAuthenticated, errorMessage, statusCode) = await _authenticateUser.AuthenticateAsync(
-        //        loginRequestDTO.Email, loginRequestDTO.Password, ip
-        //    );
-
-        //    if (!isAuthenticated)
-        //    {
-        //        if (statusCode.HasValue)
-        //            return StatusCode(statusCode.Value, errorMessage ?? "Erro de autenticação.");
-
-        //        return Unauthorized(errorMessage);
-        //    }
-
-        //    var user = await _authenticateUser.GetUserByEmail(loginRequestDTO.Email);
-        //    var token = _authenticateUser.GenerateToken(user.Id, user.Email, user.Name);
-
-        //    return Ok(new UserToken { Token = token });
-        //}
-
-        //[HttpPost("register")]
-        //public async Task<IActionResult> Register([FromBody] RegisterRequest request)
-        //{
-        //    if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-        //        return BadRequest("Email e senha são obrigatórios.");
-
-        //    var token = await GetAdminToken();
-
-        //    var userPayload = new
-        //    {
-        //        username = request.Email,
-        //        email = request.Email,
-        //        enabled = true,
-        //        emailVerified = false,
-        //        credentials = new[]
-        //        {
-        //    new
-        //    {
-        //        type = "password",
-        //        value = request.Password,
-        //        temporary = false
-        //    }
-        //}
-        //    };
-
-        //    var client = _httpClientFactory.CreateClient();
-        //    var req = new HttpRequestMessage(HttpMethod.Post, "https://auth.oportuniza.site/admin/realms/oportuniza/users");
-        //    req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        //    req.Content = new StringContent(JsonConvert.SerializeObject(userPayload), Encoding.UTF8, "application/json");
-
-        //    var response = await client.SendAsync(req);
-        //    if (!response.IsSuccessStatusCode)
-        //    {
-        //        var error = await response.Content.ReadAsStringAsync();
-        //        return StatusCode((int)response.StatusCode, error);
-        //    }
-
-        //    var location = response.Headers.Location;
-        //    if (location == null)
-        //        return StatusCode(500, "Erro ao obter ID do usuário do Keycloak.");
-
-        //    var keycloakId = location.Segments.Last();
-
-        //    var newUser = new User
-        //    {
-        //        Id = Guid.NewGuid(),
-        //        KeycloakId = keycloakId,
-        //        Email = request.Email,
-        //        Name = GenerateNameFromEmail(request.Email),
-        //        FullName = request.Email,
-        //        VerifiedEmail = false,
-        //        IsProfileCompleted = false,
-        //        Active = true
-        //    };
-
-        //    await _userRepository.AddAsync(newUser);
-
-        //    var code = _verificationCodeService.GenerateCode(request.Email);
-        //    await _emailService.SendVerificationEmailAsync(
-        //        request.Email,
-        //        "Verificação de Conta - Oportuniza",
-        //        "Use o código abaixo para verificar sua conta.",
-        //        code
-        //    );
-
-        //    return Ok(new
-        //    {
-        //        message = "Usuário registrado. Verifique seu e-mail.",
-        //        requiresVerification = true
-        //    });
-        //}
-
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] UserRegisterRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-                return BadRequest("Email e senha são obrigatórios.");
+            if (string.IsNullOrWhiteSpace(request.Email) ||
+        string.IsNullOrWhiteSpace(request.Password) ||
+        string.IsNullOrWhiteSpace(request.Name))
+                return BadRequest("Nome, email e senha são obrigatórios.");
 
             string email = request.Email.Trim().ToLower();
             string password = request.Password.Trim();
+            string name = request.Name.Trim();
 
-            // ✅ Token do próprio realm 'oportuniza'
             var token = await GetAdminToken();
             var client = _httpClientFactory.CreateClient();
 
-            // 🔹 Corpo da requisição para criar o usuário no Keycloak
             var userPayload = new
             {
                 username = email,
                 email = email,
+                firstName = name,
                 enabled = true,
                 emailVerified = false,
                 credentials = new[]
@@ -214,17 +113,10 @@ namespace Oportuniza.API.Controllers
                 return StatusCode((int)createRes.StatusCode, $"Falha ao criar usuário no Keycloak: {error}");
             }
 
-            // ✅ Buscar o ID real do usuário recém-criado
             string keycloakId = null;
-
-            // 1️⃣ Extrai do header Location
             if (createRes.Headers.Location != null)
-            {
                 keycloakId = createRes.Headers.Location.Segments.Last();
-                Console.WriteLine($"[Keycloak] ID obtido via Location: {keycloakId}");
-            }
 
-            // 2️⃣ Fallback — busca o usuário pelo e-mail
             if (string.IsNullOrEmpty(keycloakId))
             {
                 var searchReq = new HttpRequestMessage(
@@ -239,24 +131,20 @@ namespace Oportuniza.API.Controllers
                     var usersJson = await searchRes.Content.ReadAsStringAsync();
                     dynamic users = JsonConvert.DeserializeObject(usersJson);
                     if (users != null && users.Count > 0)
-                    {
                         keycloakId = users[0].id;
-                        Console.WriteLine($"[Keycloak] ID obtido via busca por e-mail: {keycloakId}");
-                    }
                 }
             }
 
             if (string.IsNullOrEmpty(keycloakId))
                 return StatusCode(500, "Não foi possível obter o ID real do usuário no Keycloak.");
 
-            // ✅ Cria o usuário local com o ID correto
             var newUser = new User
             {
                 Id = Guid.NewGuid(),
                 KeycloakId = keycloakId,
                 Email = email,
-                Name = GenerateNameFromEmail(email),
-                FullName = email,
+                Name = name,
+                FullName = name,
                 VerifiedEmail = false,
                 IsProfileCompleted = false,
                 Active = true
@@ -264,8 +152,7 @@ namespace Oportuniza.API.Controllers
 
             await _userRepository.AddAsync(newUser);
 
-            // ✅ Envia o e-mail de verificação
-            var code = _verificationCodeService.GenerateCode(email);
+            var code = _verificationCodeService.GenerateCode(email, "email");
             var emailSent = await _emailService.SendVerificationEmailAsync(
                 email,
                 "Verificação de Conta - Oportuniza",
@@ -283,8 +170,6 @@ namespace Oportuniza.API.Controllers
                 keycloakId
             });
         }
-
-
 
         [HttpPost("login-keycloak")]
         public async Task<IActionResult> LoginKeycloak([FromBody] LoginRequestDto login)
@@ -366,7 +251,5 @@ namespace Oportuniza.API.Controllers
             return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         }
         
-
-    
     }
 }

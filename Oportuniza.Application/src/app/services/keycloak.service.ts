@@ -141,7 +141,7 @@ export class KeycloakOperationService {
     return undefined;
   }
 
-  registerUser(user: { email: string; password: string }): Observable<any> {
+  registerUser(user: { name:string, email: string; password: string }): Observable<any> {
     return this.http.post('http://localhost:5000/api/v1/Auth/register', user);
   }
 

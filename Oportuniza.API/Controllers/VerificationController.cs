@@ -4,6 +4,7 @@ using Oportuniza.API.Services;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 
 namespace Oportuniza.API.Controllers
@@ -16,7 +17,12 @@ namespace Oportuniza.API.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IEmailService _emailService;
-        public VerificationController(IVerificationCodeService codeService, IUserRepository userRepository, IHttpClientFactory httpClientFactory, IEmailService emailService)
+
+        public VerificationController(
+            IVerificationCodeService codeService,
+            IUserRepository userRepository,
+            IHttpClientFactory httpClientFactory,
+            IEmailService emailService)
         {
             _codeService = codeService;
             _userRepository = userRepository;
@@ -27,19 +33,18 @@ namespace Oportuniza.API.Controllers
         [HttpPost("send")]
         public async Task<IActionResult> SendCode([FromBody] EmailRequest request)
         {
-            var email = request.Email;
-            if (string.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(request.Email))
                 return BadRequest("E-mail é obrigatório.");
 
-            var user = await _userRepository.GetUserByEmailAsync(email);
+            var user = await _userRepository.GetUserByEmailAsync(request.Email);
             if (user == null)
                 return NotFound("Usuário não encontrado.");
 
-            var code = _codeService.GenerateCode(email);
+            var code = _codeService.GenerateCode(request.Email, "email");
             var message = "Use o código abaixo para verificar sua conta no Oportuniza:";
 
             var success = await _emailService.SendVerificationEmailAsync(
-                email,
+                request.Email,
                 "Verificação de Conta - Oportuniza",
                 message,
                 code
@@ -54,7 +59,7 @@ namespace Oportuniza.API.Controllers
         [HttpPost("validate")]
         public async Task<IActionResult> Validate([FromBody] VerificationRequest request)
         {
-            if (!_codeService.ValidateCode(request.Email, request.Code))
+            if (!_codeService.ValidateCode(request.Email, request.Code, "email"))
                 return BadRequest("Código inválido ou expirado.");
 
             var user = await _userRepository.GetUserByEmailAsync(request.Email);
@@ -105,7 +110,40 @@ namespace Oportuniza.API.Controllers
             return Ok(new { message = "E-mail verificado com sucesso!" });
         }
 
+        [HttpPost("send-post-code")]
+        public async Task<IActionResult> SendPostCode([FromBody] EmailRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Email))
+                return BadRequest("E-mail é obrigatório.");
 
+            var user = await _userRepository.GetUserByEmailAsync(request.Email);
+            if (user == null)
+                return NotFound("Usuário não encontrado.");
+
+            var code = _codeService.GenerateCode(request.Email, "post");
+            var message = "Use o código abaixo para confirmar sua publicação no Oportuniza:";
+
+            var success = await _emailService.SendVerificationEmailAsync(
+                request.Email,
+                "Verificação de Publicação - Oportuniza",
+                message,
+                code
+            );
+
+            if (!success)
+                return StatusCode(500, "Falha ao enviar e-mail de verificação de postagem.");
+
+            return Ok(new { message = "Código de verificação enviado via e-mail.", expiresInSeconds = 60 });
+        }
+
+        [HttpPost("validate-post-code")]
+        public IActionResult ValidatePostCode([FromBody] VerificationRequest request)
+        {
+            if (!_codeService.ValidateCode(request.Email, request.Code, "post"))
+                return BadRequest("Código de postagem inválido ou expirado.");
+
+            return Ok(new { message = "Postagem verificada com sucesso, pode prosseguir!" });
+        }
         private async Task<string> GetAdminToken()
         {
             using var client = new HttpClient();
@@ -120,18 +158,19 @@ namespace Oportuniza.API.Controllers
 
             var content = new FormUrlEncodedContent(parameters);
             var response = await client.PostAsync("https://auth.oportuniza.site/realms/master/protocol/openid-connect/token", content);
-
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
-            dynamic obj = Newtonsoft.Json.JsonConvert.DeserializeObject(json)!;
+            dynamic obj = JsonConvert.DeserializeObject(json)!;
             return obj.access_token;
         }
+
         public class VerificationRequest
         {
             public string Email { get; set; }
             public string Code { get; set; }
         }
+
         public class EmailRequest
         {
             public string Email { get; set; }

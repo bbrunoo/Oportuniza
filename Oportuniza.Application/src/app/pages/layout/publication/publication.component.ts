@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { PublicationService } from '../../../services/publication.service';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
@@ -34,6 +34,12 @@ import { GetProfiles } from '../../../models/new-models/Profiles.model';
 export class PublicationComponent implements OnInit {
   @ViewChild('publicationForm') publicationForm!: NgForm;
 
+  verificationModalOpen = false;
+  verificationCode = '';
+  codeSent = false;
+  isVerifying = false;
+  userPhone: string = '';
+
   publication: Publication = {
     hasApplied: false,
     id: '',
@@ -55,6 +61,13 @@ export class PublicationComponent implements OnInit {
     cityId: '',
     isActive: 0,
   };
+
+  @ViewChildren('d1, d2, d3, d4, d5, d6') codeFields!: QueryList<ElementRef>;
+
+  codeInputs: string[] = ['', '', '', '', '', ''];
+  codeLength = 6;
+  cooldown = 0;
+  timer: any;
 
   selectedImage?: File;
   previewUrl: any;
@@ -78,21 +91,6 @@ export class PublicationComponent implements OnInit {
   filteredCities: any[] = [];
 
   cityModalOpen = false;
-
-  openCityModal() {
-    this.cityModalOpen = true;
-  }
-
-  closeCityModal() {
-    this.cityModalOpen = false;
-  }
-
-  selectCityFromModal(city: any) {
-    this.publication.cityId = city.id;
-    this.publication.local = city.name;
-    this.cityControl.setValue(city.name, { emitEvent: false });
-    this.closeCityModal();
-  }
 
   constructor(
     private publicationService: PublicationService,
@@ -124,10 +122,103 @@ export class PublicationComponent implements OnInit {
     });
   }
 
+  openCityModal() {
+    this.cityModalOpen = true;
+  }
+
+  closeCityModal() {
+    this.cityModalOpen = false;
+  }
+
+  selectCityFromModal(city: any) {
+    this.publication.cityId = city.id;
+    this.publication.local = city.name;
+    this.cityControl.setValue(city.name, { emitEvent: false });
+    this.closeCityModal();
+  }
+
   onSelectCity(city: any) {
     this.cityControl.setValue(city.name, { emitEvent: false });
     this.publication.cityId = city.id;
     this.publication.local = city.name;
+  }
+
+  openVerificationModal() {
+    this.verificationModalOpen = true;
+    this.codeSent = false;
+    this.verificationCode = '';
+  }
+
+  closeVerificationModal() {
+    this.verificationModalOpen = false;
+    this.verificationCode = '';
+    this.isVerifying = false;
+  }
+
+  sendEmailCode() {
+    const email = this.userProfile?.email;
+    if (!email) {
+      Swal.fire({
+        icon: 'error',
+        title: 'E-mail não encontrado',
+        text: 'Não foi possível identificar o e-mail do usuário logado. Faça login novamente.',
+      });
+      return;
+    }
+
+    this.publicationService.sendPostVerificationCode(email).subscribe({
+      next: () => {
+        this.codeSent = true;
+        this.startCooldown(60);
+        Swal.fire({
+          icon: 'info',
+          title: 'Código enviado!',
+          text: `Enviamos um código de verificação para ${email}. Verifique sua caixa de entrada e também o spam.`,
+        });
+      },
+      error: (err) => {
+        console.error('[Email Verification] Erro:', err);
+        let msg = 'Não foi possível enviar o código. Verifique sua conexão e tente novamente.';
+
+        if (err.status === 429)
+          msg = 'Você solicitou códigos muitas vezes. Aguarde alguns minutos antes de tentar novamente.';
+
+        if (err.status === 404)
+          msg = 'O e-mail informado não foi encontrado. Faça login novamente e tente enviar o código.';
+
+        Swal.fire('Erro no envio do código', msg, 'error');
+      }
+    });
+  }
+
+  resendCode() {
+    if (this.cooldown > 0) return;
+    this.sendEmailCode();
+  }
+
+  startCooldown(seconds: number) {
+    this.cooldown = seconds;
+    clearInterval(this.timer);
+    this.timer = setInterval(() => {
+      this.cooldown--;
+      if (this.cooldown <= 0) clearInterval(this.timer);
+    }, 1000);
+  }
+
+  onInput(event: any, index: number) {
+    const value = event.target.value;
+    if (value.length > 1) event.target.value = value.slice(0, 1);
+    if (value && index < this.codeInputs.length - 1) this.focusNext(index + 1);
+  }
+
+  onKeydown(event: KeyboardEvent, index: number) {
+    if (event.key === 'Backspace' && !this.codeInputs[index] && index > 0)
+      this.focusNext(index - 1);
+  }
+
+  focusNext(index: number) {
+    const fields = this.codeFields.toArray();
+    if (fields[index]) fields[index].nativeElement.focus();
   }
 
   loadInitialData(): void {
@@ -159,7 +250,6 @@ export class PublicationComponent implements OnInit {
       }
     });
   }
-
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -193,7 +283,7 @@ export class PublicationComponent implements OnInit {
 
   private handleFile(file: File): void {
     const validTypes = ['image/png', 'image/jpg', 'image/jpeg'];
-    const MIN_SIZE_PX = 400; // Define o tamanho mínimo obrigatório em pixels
+    const MIN_SIZE_PX = 400;
 
     if (!validTypes.includes(file.type)) {
       Swal.fire('Tipo inválido', 'Apenas imagens PNG, JPG ou JPEG são permitidas.', 'warning');
@@ -271,27 +361,21 @@ export class PublicationComponent implements OnInit {
     this.publication.contract = contract;
   }
 
-  post(): void {
-    if (
-      this.publicationForm.invalid ||
-      !this.selectedImage ||
-      !this.publication.title ||
-      !this.publication.salary ||
-      !this.publication.shift ||
-      !this.publication.contract ||
-      !this.publication.local ||
-      !this.publication.cityId ||
-      !this.publication.expirationDate ||
-      !this.selectedAuthorId
-    ) {
-      Swal.fire('Atenção', 'Por favor, selecione uma cidade válida.', 'warning');
+  confirmPublication(): void {
+    this.verificationCode = this.codeInputs.join('');
+
+    if (!this.verificationCode || this.verificationCode.length < 6) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Código incompleto',
+        text: 'Digite os 6 dígitos enviados ao seu e-mail para continuar.',
+      });
       return;
     }
 
-    this.isSubmitting = true;
+    this.isVerifying = true;
 
     const selectedCompany = this.userCompanies.find(c => c.id === this.selectedAuthorId);
-
     const dto: PublicationCreate = {
       title: this.publication.title,
       description: this.publication.description,
@@ -304,41 +388,78 @@ export class PublicationComponent implements OnInit {
       postAsCompanyId: selectedCompany ? selectedCompany.id : null
     };
 
-    this.publicationService.createPublication(dto, this.selectedImage).subscribe({
+    this.publicationService.createPublicationWithCode(dto, this.selectedImage!, this.verificationCode).subscribe({
       next: () => {
-        this.isSubmitting = false;
-        Swal.fire('Sucesso!', 'Publicação criada com sucesso!', 'success');
-
+        this.isVerifying = false;
+        this.closeVerificationModal();
+        Swal.fire({
+          icon: 'success',
+          title: 'Publicação criada!',
+          text: 'Sua vaga foi publicada com sucesso e já está visível para outros usuários.',
+        });
         this.publicationForm.resetForm();
         this.previewUrl = null;
         this.selectedImage = undefined;
-        this.publication.title = '';
-        this.publication.salary = '';
-        this.publication.shift = '';
-        this.publication.contract = '';
-        this.publication.local = '';
-        this.publication.expirationDate = '';
-        this.selectedAuthorId = this.userProfile?.id ?? null;
+        this.codeInputs = ['', '', '', '', '', ''];
       },
       error: (err) => {
-        this.isSubmitting = false;
-        console.error('Erro no envio:', err);
-
-        const backendMessage =
-          err.error?.error ||
-          err.error?.message ||
-          err.error ||
-          'Erro desconhecido.';
-
-        Swal.fire({
-          icon: 'error',
-          title: 'Falha ao criar publicação',
-          text: backendMessage.includes('imprópria')
-            ? 'A imagem foi detectada como imprópria e não pode ser publicada. Escolha outra imagem.'
-            : backendMessage,
-          confirmButtonText: 'Entendi'
-        });
+        this.isVerifying = false;
+        const status = err.status;
+        const msg = this.resolveServerError(err, status);
+        Swal.fire('Erro ao publicar', msg, 'error');
       }
     });
+  }
+
+  private resolveServerError(err: any, status: number): string {
+    const serverMsg = err?.error?.error || err?.error?.message || '';
+
+    if (status === 400 && serverMsg.includes('código de verificação inválido'))
+      return 'O código informado está incorreto ou expirou. Solicite um novo código e tente novamente.';
+
+    if (status === 400 && serverMsg.includes('Imagem imprópria'))
+      return 'A imagem enviada foi detectada como inadequada. Escolha outra imagem.';
+
+    if (status === 403)
+      return 'Você não tem permissão para publicar em nome da empresa selecionada.';
+
+    if (status === 404 && serverMsg.includes('Usuário'))
+      return 'Não foi possível validar seu usuário. Faça login novamente.';
+
+    if (status === 503 || serverMsg.includes('serviço indisponível'))
+      return 'Serviço temporariamente indisponível. Tente novamente em alguns minutos.';
+
+    return 'Ocorreu um erro inesperado ao criar sua publicação. Verifique os dados e tente novamente.';
+  }
+
+  post(): void {
+    if (this.isSubmitting) return;
+
+    const missingFields = [];
+    if (!this.selectedImage) missingFields.push('Imagem');
+    if (!this.publication.title) missingFields.push('Título');
+    if (!this.publication.description) missingFields.push('Descrição');
+    if (!this.publication.salary) missingFields.push('Faixa salarial');
+    if (!this.publication.shift) missingFields.push('Turno');
+    if (!this.publication.contract) missingFields.push('Tipo de contrato');
+    if (!this.publication.local || !this.publication.cityId) missingFields.push('Localização');
+    if (!this.publication.expirationDate) missingFields.push('Data de expiração');
+    if (!this.selectedAuthorId) missingFields.push('Autor');
+
+    if (missingFields.length > 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos obrigatórios ausentes',
+        html: `
+        <p>Preencha os seguintes campos antes de continuar:</p>
+        <ul style="text-align:left; margin-left:1rem;">
+          ${missingFields.map(f => `<li>${f}</li>`).join('')}
+        </ul>
+      `
+      });
+      return;
+    }
+
+    this.openVerificationModal();
   }
 }

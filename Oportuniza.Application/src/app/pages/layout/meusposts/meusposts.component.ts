@@ -14,7 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 export class MeuspostsComponent implements OnInit {
   publications: Publication[] = [];
   pageNumber = 1;
-  pageSize = 8;
+  pageSize = 6;
   totalPages = 0;
   isLoading = false;
 

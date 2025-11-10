@@ -50,17 +50,17 @@
           <div class="option-buttons">
             <button type="button" class="option-button" [ngClass]="{ active: publication.salary === 'Até R$1000,00' }"
               (click)="selectSalary('Até R$1000,00')">
-              R$100 a R$1000
+              R$100 a R$1.000,00
             </button>
             <button type="button" class="option-button"
               [ngClass]="{ active: publication.salary === 'R$1000,00 a R$2000,00' }"
               (click)="selectSalary('R$1000,00 a R$2000,00')">
-              R$1000 a R$2000
+              R$1.000,00 a R$2.000,00
             </button>
             <button type="button" class="option-button"
-              [ngClass]="{ active: publication.salary === 'Mais de R$2000,00' }"
-              (click)="selectSalary('Mais de R$2000,00')">
-              Mais de R$2000
+              [ngClass]="{ active: publication.salary === 'Acima de R$2000,00' }"
+              (click)="selectSalary('Acima de R$2000,00')">
+              Acima de R$2.000,00
             </button>
           </div>
         </div>
@@ -80,9 +80,9 @@
               (click)="selectShift('Noturno')">
               Noturno
             </button>
-            <button type="button" class="option-button" [ngClass]="{ active: publication.shift === 'Escala' }"
-              (click)="selectShift('Escala')">
-              Escala
+            <button type="button" class="option-button" [ngClass]="{ active: publication.shift === 'Turno' }"
+              (click)="selectShift('Turno')">
+              Turno Variável
             </button>
           </div>
         </div>
@@ -94,9 +94,9 @@
               (click)="selectContract('CLT')">
               CLT
             </button>
-            <button type="button" class="option-button" [ngClass]="{ active: publication.contract === 'Freelancer' }"
-              (click)="selectContract('Freelancer')">
-              Freelancer
+            <button type="button" class="option-button" [ngClass]="{ active: publication.contract === 'Autonomo' }"
+              (click)="selectContract('Autonomo')">
+              Autônomo
             </button>
             <button type="button" class="option-button" [ngClass]="{ active: publication.contract === 'Estágio' }"
               (click)="selectContract('Estágio')">

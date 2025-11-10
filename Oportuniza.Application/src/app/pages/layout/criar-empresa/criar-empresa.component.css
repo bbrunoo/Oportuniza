@@ -1,5 +1,5 @@
 .container {
-  background-color: #DEDEDE;
+  background-color: #eeeeee;
   width: 65em;
   height: 38em;
   display: flex;
@@ -37,7 +37,7 @@
 }
 
 .conteudo-right {
-  background-color: #C9C9C9;
+  background-color: #e7e7e7;
   color: black;
   width: 600px;
   height: 500px;
@@ -71,6 +71,7 @@ textarea {
   background-color: transparent;
   border-radius: 8px;
   padding: 10px 5px;
+  font-weight: 500;
 }
 
 textarea {
@@ -81,6 +82,7 @@ textarea {
 input::placeholder,
 textarea::placeholder {
   color: black;
+  font-weight: 400;
 }
 
 .form-actions {
@@ -310,7 +312,6 @@ textarea::placeholder {
   }
 }
 
-/* Tablets */
 @media (max-width: 1000px) {
   .container {
     width: 95%;

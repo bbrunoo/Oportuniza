@@ -33,6 +33,12 @@ namespace Oportuniza.Infrastructure.Configurations
             builder.Property(p => p.Local)
                 .HasMaxLength(200);
 
+            builder.Property(p => p.Latitude)
+                .HasPrecision(9, 6);
+
+            builder.Property(p => p.Longitude)
+                .HasPrecision(9, 6);
+
             builder.Property(p => p.CreationDate)
                 .IsRequired();
 

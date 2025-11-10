@@ -14,6 +14,8 @@ namespace Oportuniza.Domain.Models
         public string Shift { get; set; }
         public string Contract { get; set; }
         public string Local { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public DateTime ExpirationDate { get; set; }
         public bool Expired { get; set; }
         public Guid CreatedByUserId { get; set; } 

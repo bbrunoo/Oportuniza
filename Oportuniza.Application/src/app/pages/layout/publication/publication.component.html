@@ -65,19 +65,19 @@
         <div class="form-section">
           <label class="input-label">Salário</label>
           <div class="option-buttons">
-            <button type="button" class="option-button" [ngClass]="{ active: publication.salary === 'Até R$1000,00' }"
-              (click)="selectSalary('Até R$1000,00')">
-              R$100 a R$1000
+            <button type="button" class="option-button" [ngClass]="{ active: publication.salary === 'Até R$1.000,00' }"
+              (click)="selectSalary('Até R$1.000,00')">
+              Até R$1.000,00
             </button>
             <button type="button" class="option-button"
-              [ngClass]="{ active: publication.salary === 'R$1000,00 a R$2000,00' }"
-              (click)="selectSalary('R$1000,00 a R$2000,00')">
-              R$1000 a R$2000
+              [ngClass]="{ active: publication.salary === 'R$1.000,00 a R$2.000,00' }"
+              (click)="selectSalary('R$1.000,00 a R$2.000,00')">
+              R$1.000,00 a R$2.000,00
             </button>
             <button type="button" class="option-button"
-              [ngClass]="{ active: publication.salary === 'Mais de R$2000,00' }"
-              (click)="selectSalary('Mais de R$2000,00')">
-              Mais de R$2000
+              [ngClass]="{ active: publication.salary === 'Acima de R$2.000,00' }"
+              (click)="selectSalary('Acima de R$2.000,00')">
+              Acima de R$2.000,00
             </button>
           </div>
         </div>
@@ -97,9 +97,9 @@
               (click)="selectShift('Noturno')">
               Noturno
             </button>
-            <button type="button" class="option-button" [ngClass]="{ active: publication.shift === 'Escala' }"
-              (click)="selectShift('Escala')">
-              Escala
+            <button type="button" class="option-button" [ngClass]="{ active: publication.shift === 'Turno' }"
+              (click)="selectShift('Turno')">
+              Turno Varíavel
             </button>
           </div>
         </div>
@@ -111,9 +111,9 @@
               (click)="selectContract('CLT')">
               CLT
             </button>
-            <button type="button" class="option-button" [ngClass]="{ active: publication.contract === 'Freelancer' }"
-              (click)="selectContract('Freelancer')">
-              Freelancer
+            <button type="button" class="option-button" [ngClass]="{ active: publication.contract === 'Autonomo' }"
+              (click)="selectContract('Autonomo')">
+              Autônomo
             </button>
             <button type="button" class="option-button" [ngClass]="{ active: publication.contract === 'Estágio' }"
               (click)="selectContract('Estágio')">
@@ -164,6 +164,60 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<div class="email-verification-overlay" *ngIf="verificationModalOpen">
+  <div class="email-verification-modal">
+    <h3>Verificação de Publicação</h3>
+
+    <div *ngIf="!codeSent" class="email-step">
+      <p>Será enviado um código de verificação para o e-mail usado no seu cadastro.</p>
+      <p><strong>{{ userProfile?.email }}</strong></p>
+      <div class="email-actions">
+        <button class="email-btn email-btn-cancel" (click)="closeVerificationModal()">Cancelar</button>
+        <button class="email-btn email-btn-send" (click)="sendEmailCode()">Enviar Código</button>
+      </div>
+    </div>
+
+    <div *ngIf="codeSent" class="verify-card">
+      <header class="verify-header">
+        <p class="verify-subtitle">
+          Enviamos um código de {{ codeLength }} dígitos para
+          <strong>{{ userProfile?.email }}</strong>.
+        </p>
+        <p class="verify-subtitle">Digite o código abaixo para continuar.</p>
+      </header>
+
+      <div class="otp-group">
+        <input #d1 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[0]"
+          (input)="onInput($event, 0)" (keydown)="onKeydown($event, 0)" />
+        <input #d2 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[1]"
+          (input)="onInput($event, 1)" (keydown)="onKeydown($event, 1)" />
+        <input #d3 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[2]"
+          (input)="onInput($event, 2)" (keydown)="onKeydown($event, 2)" />
+        <input #d4 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[3]"
+          (input)="onInput($event, 3)" (keydown)="onKeydown($event, 3)" />
+        <input #d5 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[4]"
+          (input)="onInput($event, 4)" (keydown)="onKeydown($event, 4)" />
+        <input #d6 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[5]"
+          (input)="onInput($event, 5)" (keydown)="onKeydown($event, 5)" />
+      </div>
+
+      <div class="resend-row">
+        <span class="muted">Não recebeu?</span>
+        <button class="btn btn-link" [disabled]="cooldown > 0" (click)="resendCode()">
+          {{ cooldown > 0 ? 'Reenviar em ' + cooldown + 's' : 'Reenviar código' }}
+        </button>
+      </div>
+
+      <div class="email-actions">
+        <button class="email-btn email-btn-cancel" (click)="closeVerificationModal()">Cancelar</button>
+        <button class="email-btn email-btn-confirm" [disabled]="isVerifying" (click)="confirmPublication()">
+          {{ isVerifying ? 'Verificando...' : 'Confirmar e Publicar' }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

@@ -39,7 +39,11 @@ export class PublicationService {
     return this.http.patch(`${this.apiUrl}/disable/${id}`, {});
   }
 
-  createPublication(dto: PublicationCreate, image: File) {
+  sendPostVerificationCode(email: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/Verification/send-post-code`, { email });
+  }
+
+  createPublicationWithCode(dto: PublicationCreate, image: File, verificationCode: string) {
     const formData = new FormData();
     formData.append('Title', dto.title);
     formData.append('Description', dto.description);
@@ -49,16 +53,12 @@ export class PublicationService {
     formData.append('Local', dto.local);
     formData.append('ExpirationDate', dto.expirationDate);
     formData.append('CityId', dto.cityId);
+    formData.append('verificationCode', verificationCode);
 
-    if (dto.postAsCompanyId) {
-      formData.append('PostAsCompanyId', dto.postAsCompanyId);
-    }
+    if (dto.postAsCompanyId) formData.append('PostAsCompanyId', dto.postAsCompanyId);
+    if (image) formData.append('Image', image);
 
-    if (image) {
-      formData.append('Image', image);
-    }
-
-    return this.http.post(this.apiUrl, formData);
+    return this.http.post(`${this.apiUrl}/create`, formData);
   }
 
   getPublicationById(id: string): Observable<Publication> {
@@ -105,6 +105,30 @@ export class PublicationService {
     if (filters.salaryRange) {
       params = params.append('salaryRange', filters.salaryRange);
     }
+
+    if (filters.latitude != null) {
+      params = params.append('latitude', filters.latitude.toString());
+    }
+    if (filters.longitude != null) {
+      params = params.append('longitude', filters.longitude.toString());
+    }
+    if (filters.radiusKm != null && filters.radiusKm > 0) {
+      params = params.append('radiusKm', filters.radiusKm.toString());
+    }
+
+    console.log('➡️ Parâmetros enviados à API:', {
+      searchTerm: filters.searchTerm,
+      local: filters.local,
+      contracts: filters.contracts,
+      shifts: filters.shifts,
+      salaryRange: filters.salaryRange,
+      latitude: filters.latitude,
+      longitude: filters.longitude,
+      radiusKm: filters.radiusKm,
+      finalUrl: `${this.apiUrl}/search?${params.toString()}`
+    });
+
     return this.http.get<Publication[]>(`${this.apiUrl}/search`, { params });
   }
+
 }

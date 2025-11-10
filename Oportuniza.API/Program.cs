@@ -124,6 +124,8 @@ builder.Services.AddScoped<ICandidateExtraRepository, CandidateExtraRepository>(
 builder.Services.AddHttpClient<GeolocationService>();
 builder.Services.AddHttpClient<CNPJService>();
 
+builder.Services.AddHostedService<PublicationExpirationService>();
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Oportuniza.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class principal : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -125,6 +125,10 @@ namespace Oportuniza.Infrastructure.Migrations
                     Active = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     IsProfileCompleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     KeycloakId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    VerifiedEmail = table.Column<bool>(type: "bit", nullable: false),
+                    Local = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Latitude = table.Column<double>(type: "float", nullable: true),
+                    Longitude = table.Column<double>(type: "float", nullable: true),
                     UserType = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -234,6 +238,8 @@ namespace Oportuniza.Infrastructure.Migrations
                     Shift = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Contract = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Local = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Latitude = table.Column<double>(type: "float(9)", precision: 9, scale: 6, nullable: true),
+                    Longitude = table.Column<double>(type: "float(9)", precision: 9, scale: 6, nullable: true),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Expired = table.Column<bool>(type: "bit", nullable: false),
                     CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -270,7 +276,7 @@ namespace Oportuniza.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PublicationId = table.Column<Guid>(type: "uniqueidentifier", maxLength: 128, nullable: false),
+                    PublicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PublicationAuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserIdKeycloak = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
@@ -312,8 +318,8 @@ namespace Oportuniza.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CandidateApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Observation = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    ResumeUrl = table.Column<string>(type: "varchar(500)", unicode: false, maxLength: 500, nullable: true)
+                    Observation = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    ResumeUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -331,8 +337,9 @@ namespace Oportuniza.Infrastructure.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("0b126768-c816-4c17-b58f-6ae1636777a5"), "Worker" },
-                    { new Guid("60081819-eb25-4649-9db8-516f7a86f0a7"), "Administrator" }
+                    { new Guid("74a29f44-f930-4001-b037-46ea774ec2d9"), "Administrator" },
+                    { new Guid("c251b72e-f584-44e3-97ba-c027ffdf2e03"), "Worker" },
+                    { new Guid("fcd83901-472b-4fad-894e-301bbbc57098"), "Owner" }
                 });
 
             migrationBuilder.CreateIndex(

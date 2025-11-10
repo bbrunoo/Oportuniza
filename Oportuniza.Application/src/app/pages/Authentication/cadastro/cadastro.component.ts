@@ -26,6 +26,7 @@ export class CadastroComponent {
   loginDisplay = false;
 
   email: string = '';
+  name: string = '';
   password: string = '';
   confirmPassword: string = '';
 
@@ -80,8 +81,67 @@ export class CadastroComponent {
     ];
   }
 
+  sanitizeInput(value: string): string {
+    return value.replace(/[<>{}()'"`;$]/g, '').trim();
+  }
+
+  onNameInput(event: any) {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^A-Za-zÀ-ÿ\s]/g, '');
+    this.name = input.value;
+  }
+
+  onEmailInput(event: any) {
+    const input = event.target as HTMLInputElement;
+
+    input.value = input.value
+      .replace(/\s/g, '')
+      .replace(/[^a-zA-Z0-9@._-]/g, '');
+
+    this.email = input.value;
+  }
+
+  validatePassword(password: string): boolean {
+    const passwordPattern =
+      /^(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~]).{8,64}$/;
+    return passwordPattern.test(password);
+  }
+
   togglePassword() {
     this.passwordVisible = !this.passwordVisible;
+  }
+
+  isPasswordForbidden(password: string): boolean {
+    const lower = password.toLowerCase();
+
+    const forbidden = [
+      '123456', 'password', 'senha', 'admin', 'qwerty',
+      'abc123', 'letmein', 'welcome', '111111', '000000',
+    ];
+    if (forbidden.some(p => lower.includes(p))) return true;
+
+    if (/(.)\1{3,}/.test(password)) return true;
+
+    if (this.name && lower.includes(this.name.toLowerCase())) return true;
+    if (this.email && lower.includes(this.email.split('@')[0].toLowerCase())) return true;
+
+    return false;
+  }
+
+  checkPasswordSecurity(password: string): { valid: boolean; reason?: string } {
+    if (!this.validatePassword(password))
+      return { valid: false, reason: 'A senha deve ter letras maiúsculas, minúsculas, números e símbolos, sem espaços, e ao menos 8 caracteres.' };
+
+    if (this.isPasswordForbidden(password))
+      return { valid: false, reason: 'A senha contém padrões inseguros ou previsíveis.' };
+
+    if (/[^\x00-\x7F]/.test(password))
+      return { valid: false, reason: 'A senha não deve conter caracteres especiais fora do padrão ASCII.' };
+
+    if (/(\d{4,}|[a-z]{4,}|[A-Z]{4,})/.test(password))
+      return { valid: false, reason: 'Evite sequências longas de caracteres repetidos ou previsíveis.' };
+
+    return { valid: true };
   }
 
   toggleConfirmPassword() {
@@ -89,33 +149,30 @@ export class CadastroComponent {
   }
 
   validateEmail(email: string): boolean {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailPattern =
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailPattern.test(email);
-  }
-
-  validatePassword(password: string): boolean {
-    const passwordPattern =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
-    return passwordPattern.test(password);
   }
 
   async proceedRegistration() {
     this.isLoading = true;
 
     try {
+      this.name = this.sanitizeInput(this.name);
+      this.email = this.sanitizeInput(this.email);
+
       const response = await firstValueFrom(
         this.keyAuth.registerUser({
+          name: this.name,
           email: this.email,
           password: this.password,
         })
       );
 
-      console.log('Usuário registrado com sucesso:', response);
-
       await Swal.fire({
         icon: 'info',
-        title: 'Verifique seu e-mail 📩',
-        text: 'Enviamos um código de verificação para o seu e-mail. Insira o código para ativar sua conta.',
+        title: 'Verifique seu e-mail',
+        text: 'Enviamos um código de verificação para o seu e-mail.',
         confirmButtonText: 'OK',
       });
 
@@ -135,15 +192,35 @@ export class CadastroComponent {
     }
   }
 
-
   async register() {
     this.errorMessage = '';
+
+    this.name = this.sanitizeInput(this.name);
+    this.email = this.sanitizeInput(this.email);
+
+    if (!this.name || this.name.length < 2) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Nome inválido',
+        text: 'Por favor, insira um nome válido.',
+      });
+      return;
+    }
 
     if (!this.email || !this.validateEmail(this.email)) {
       Swal.fire({
         icon: 'warning',
         title: 'Email inválido',
         text: 'Por favor, insira um e-mail válido.',
+      });
+      return;
+    }
+
+    if (!this.validatePassword(this.password)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Senha insegura',
+        text: 'A senha não atende aos critérios de segurança.',
       });
       return;
     }
@@ -158,34 +235,53 @@ export class CadastroComponent {
     }
 
     if (!this.acceptTerms) {
-      this.openModal()
-    } else {
-      this.proceedRegistration();
+      this.openModal();
+      return;
     }
+
+    const check = this.checkPasswordSecurity(this.password);
+    if (!check.valid) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Senha insegura',
+        text: check.reason,
+      });
+      return;
+    }
+
+    this.proceedRegistration();
   }
 
-  onPasswordInput() {
+  onPasswordInput(event?: any) {
+    if (event) {
+      const input = event.target as HTMLInputElement;
+      input.value = input.value
+        .replace(/\s/g, '')
+        .replace(/[^\x00-\x7F]/g, '')
+        .replace(/[^A-Za-z0-9!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~]/g, '');
+
+      this.password = input.value;
+    }
+
     const pwd = this.password;
 
     const checks = {
       hasLowercase: /[a-z]/.test(pwd),
       hasUppercase: /[A-Z]/.test(pwd),
       hasNumber: /\d/.test(pwd),
-      hasSymbol: /[^\w\s]/.test(pwd),
+      hasSymbol: /[!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~]/.test(pwd),
       hasMinLength: pwd.length >= 8,
     };
 
     Object.entries(checks).forEach(([key, value]) => {
       const typedKey = key as keyof typeof this.passwordCriteria;
-
       if (value && !this.passwordCriteria[typedKey]) {
         this.passwordStatus[typedKey] = true;
         if (this.timeoutMap[typedKey]) clearTimeout(this.timeoutMap[typedKey]);
         this.timeoutMap[typedKey] = setTimeout(() => {
           this.passwordStatus[typedKey] = false;
-        }, 500);
+        }, 400);
       }
-
       this.passwordCriteria[typedKey] = value;
     });
 
@@ -198,17 +294,15 @@ export class CadastroComponent {
 
   checkPasswordsMatch() {
     const match = this.password === this.confirmPassword;
-
     this.passwordCriteria.equalsPassword = match;
 
-    if (match && !this.passwordsMatch) {
-      this.passwordsMatchStatus = true;
-      if (this.passwordMatchTimeout) clearTimeout(this.passwordMatchTimeout);
+    if (match) {
+      this.passwordStatus.equalsPassword = true;
+      clearTimeout(this.passwordMatchTimeout);
       this.passwordMatchTimeout = setTimeout(() => {
-        this.passwordsMatchStatus = false;
-      }, 500);
+        this.passwordStatus.equalsPassword = false;
+      }, 400);
     }
-    this.passwordsMatch = match;
   }
 
   isPasswordValid(): boolean {

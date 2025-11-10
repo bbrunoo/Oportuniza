@@ -265,12 +265,17 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e91625a8-c6ed-434e-bd1f-3d6c251a3b74"),
+                            Id = new Guid("fcd83901-472b-4fad-894e-301bbbc57098"),
+                            Name = "Owner"
+                        },
+                        new
+                        {
+                            Id = new Guid("74a29f44-f930-4001-b037-46ea774ec2d9"),
                             Name = "Administrator"
                         },
                         new
                         {
-                            Id = new Guid("c39fffd0-c14c-40fa-8c28-a106f10932d5"),
+                            Id = new Guid("c251b72e-f584-44e3-97ba-c027ffdf2e03"),
                             Name = "Worker"
                         });
                 });
@@ -400,10 +405,18 @@ namespace Oportuniza.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<double?>("Latitude")
+                        .HasPrecision(9, 6)
+                        .HasColumnType("float(9)");
+
                     b.Property<string>("Local")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<double?>("Longitude")
+                        .HasPrecision(9, 6)
+                        .HasColumnType("float(9)");
 
                     b.Property<string>("Resumee")
                         .IsRequired()

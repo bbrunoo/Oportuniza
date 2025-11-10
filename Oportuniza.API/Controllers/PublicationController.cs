@@ -24,8 +24,21 @@ namespace Oportuniza.API.Controllers
         private readonly IActiveContextService _activeContextService;
         private readonly IMapper _mapper;
         private readonly GeminiClientService _geminiService;
+        private readonly IVerificationCodeService _verificationCodeService;
+        private readonly IEmailService _emailService;
+        private readonly GeolocationService _geolocationService;
 
-        public PublicationController(IPublicationRepository publicationRepository, AzureBlobService azureBlobService, IConfiguration configuration, ICompanyRepository companyRepository, IUserRepository userRepository, IMapper mapper, GeminiClientService geminiService)
+        public PublicationController(
+            IPublicationRepository publicationRepository,
+            AzureBlobService azureBlobService,
+            IConfiguration configuration,
+            ICompanyRepository companyRepository,
+            IUserRepository userRepository,
+            IMapper mapper,
+            GeminiClientService geminiService,
+            IVerificationCodeService verificationCodeService,
+            IEmailService emailService,
+            GeolocationService geolocationService)
         {
             _publicationRepository = publicationRepository;
             _azureBlobService = azureBlobService;
@@ -34,6 +47,37 @@ namespace Oportuniza.API.Controllers
             _userRepository = userRepository;
             _mapper = mapper;
             _geminiService = geminiService;
+            _verificationCodeService = verificationCodeService;
+            _emailService = emailService;
+            _geolocationService = geolocationService;
+        }
+
+        [HttpPost("send-verification")]
+        [Authorize]
+        public async Task<IActionResult> SendPublicationVerificationCode()
+        {
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(keycloakId))
+                return Unauthorized("Token inválido.");
+
+            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+            if (user == null)
+                return NotFound("Usuário não encontrado no banco de dados.");
+
+            var code = _verificationCodeService.GenerateCode(user.Email, "post");
+            var message = "Use o código abaixo para confirmar sua postagem no Oportuniza:";
+
+            var success = await _emailService.SendVerificationEmailAsync(
+                user.Email,
+                "Verificação de Postagem - Oportuniza",
+                message,
+                code
+            );
+
+            if (!success)
+                return StatusCode(500, "Falha ao enviar e-mail de verificação de postagem.");
+
+            return Ok(new { message = "Código de verificação de postagem enviado com sucesso.", expiresInSeconds = 60 });
         }
 
         [HttpGet]
@@ -139,9 +183,12 @@ namespace Oportuniza.API.Controllers
             return Ok(finalResult);
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         [Authorize]
-        public async Task<IActionResult> Post([FromForm] PublicationCreateDto dto, IFormFile image)
+        public async Task<IActionResult> Create(
+            [FromForm] PublicationCreateDto dto,
+            IFormFile image,
+            [FromForm] string verificationCode)
         {
             if (dto == null)
                 return BadRequest("Dados inválidos.");
@@ -151,11 +198,14 @@ namespace Oportuniza.API.Controllers
 
             var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(keycloakId))
-                return Unauthorized("Token 'sub' claim is missing.");
+                return Unauthorized("Token inválido.");
 
             var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
             if (user == null)
                 return NotFound("Usuário não encontrado no banco local.");
+
+            if (!_verificationCodeService.ValidateCode(user.Email, verificationCode, "post"))
+                return BadRequest("Código de verificação inválido ou expirado.");
 
             var publication = new Publication
             {
@@ -171,12 +221,9 @@ namespace Oportuniza.API.Controllers
             };
 
             Guid? companyId = null;
-
             var companyClaim = User.FindFirst("company_id")?.Value;
             if (!string.IsNullOrEmpty(companyClaim) && Guid.TryParse(companyClaim, out var claimCompanyId))
-            {
                 companyId = claimCompanyId;
-            }
 
             if (dto.PostAsCompanyId.HasValue)
             {
@@ -194,16 +241,35 @@ namespace Oportuniza.API.Controllers
 
             try
             {
+                var (lat, lng) = await _geolocationService.GetCoordinatesAsync(dto.Local);
+                publication.Latitude = lat;
+                publication.Longitude = lng;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GeolocationService] Falha ao obter coordenadas: {ex.Message}");
+                publication.Latitude = null;
+                publication.Longitude = null;
+            }
+
+            try
+            {
                 string imageUrl = await _azureBlobService.UploadPostImage(image, "publications", Guid.NewGuid());
                 publication.ImageUrl = imageUrl;
             }
-            catch (Exception ex) when (ex.Message.Contains("Imagem imprópria"))
+            catch (Exception ex)
             {
-                return BadRequest(new
+                if (ex.Message.Contains("Imagem imprópria"))
                 {
-                    error = "A imagem enviada foi detectada como imprópria e não pôde ser publicada.",
-                    details = ex.Message
-                });
+                    return BadRequest(new
+                    {
+                        error = "A imagem enviada foi detectada como imprópria e não pôde ser publicada.",
+                        details = ex.Message
+                    });
+                }
+
+                Console.WriteLine($"[AzureBlobService] Falha ao processar imagem: {ex.Message}");
+                publication.ImageUrl = null;
             }
 
             try
@@ -211,17 +277,101 @@ namespace Oportuniza.API.Controllers
                 publication.Resumee = await _geminiService.CreateSummaryAsync(
                     dto.Description, dto.Shift, dto.Local, dto.Contract, 80, dto.Salary);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"[GeminiService] Falha ao gerar resumo com IA: {ex.Message}");
                 publication.Resumee = string.Join(" ",
                     dto.Description.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(30));
             }
 
             await _publicationRepository.AddAsync(publication);
-
             var publicationDto = _mapper.Map<PublicationDto>(publication);
             return CreatedAtAction(nameof(GetById), new { id = publication.Id }, publicationDto);
         }
+
+        //[HttpPost]
+        //[Authorize]
+        //public async Task<IActionResult> Post([FromForm] PublicationCreateDto dto, IFormFile image)
+        //{
+        //    if (dto == null)
+        //        return BadRequest("Dados inválidos.");
+
+        //    if (image == null || image.Length == 0)
+        //        return BadRequest("A imagem é obrigatória.");
+
+        //    var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+        //    if (string.IsNullOrEmpty(keycloakId))
+        //        return Unauthorized("Token 'sub' claim is missing.");
+
+        //    var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+        //    if (user == null)
+        //        return NotFound("Usuário não encontrado no banco local.");
+
+        //    var publication = new Publication
+        //    {
+        //        Title = dto.Title,
+        //        Description = dto.Description,
+        //        Salary = dto.Salary,
+        //        Local = dto.Local,
+        //        Shift = dto.Shift,
+        //        ExpirationDate = dto.ExpirationDate,
+        //        Contract = dto.Contract,
+        //        CreatedByUserId = user.Id,
+        //        CreationDate = DateTime.UtcNow
+        //    };
+
+        //    Guid? companyId = null;
+
+        //    var companyClaim = User.FindFirst("company_id")?.Value;
+        //    if (!string.IsNullOrEmpty(companyClaim) && Guid.TryParse(companyClaim, out var claimCompanyId))
+        //    {
+        //        companyId = claimCompanyId;
+        //    }
+
+        //    if (dto.PostAsCompanyId.HasValue)
+        //    {
+        //        bool hasAccess = await _companyRepository.UserHasAccessToCompanyAsync(user.Id, dto.PostAsCompanyId.Value);
+        //        if (!hasAccess)
+        //            return Forbid("Você não tem permissão para postar por esta empresa.");
+
+        //        companyId = dto.PostAsCompanyId;
+        //    }
+
+        //    if (companyId.HasValue)
+        //        publication.AuthorCompanyId = companyId.Value;
+        //    else
+        //        publication.AuthorUserId = user.Id;
+
+        //    try
+        //    {
+        //        string imageUrl = await _azureBlobService.UploadPostImage(image, "publications", Guid.NewGuid());
+        //        publication.ImageUrl = imageUrl;
+        //    }
+        //    catch (Exception ex) when (ex.Message.Contains("Imagem imprópria"))
+        //    {
+        //        return BadRequest(new
+        //        {
+        //            error = "A imagem enviada foi detectada como imprópria e não pôde ser publicada.",
+        //            details = ex.Message
+        //        });
+        //    }
+
+        //    try
+        //    {
+        //        publication.Resumee = await _geminiService.CreateSummaryAsync(
+        //            dto.Description, dto.Shift, dto.Local, dto.Contract, 80, dto.Salary);
+        //    }
+        //    catch
+        //    {
+        //        publication.Resumee = string.Join(" ",
+        //            dto.Description.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(30));
+        //    }
+
+        //    await _publicationRepository.AddAsync(publication);
+
+        //    var publicationDto = _mapper.Map<PublicationDto>(publication);
+        //    return CreatedAtAction(nameof(GetById), new { id = publication.Id }, publicationDto);
+        //}
 
         [HttpPatch("disable/{id}")]
         public async Task<IActionResult> DesactivePost(Guid id)

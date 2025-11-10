@@ -1,154 +1,180 @@
 .filter-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 15px;
-    background-color: #212121;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  background-color: #212121;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.location-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: white;
+}
+
+.location-controls button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.location-controls button:hover {
+  background-color: #0056b3;
+}
+
+.location-controls input[type="range"] {
+  width: 100%;
+  cursor: pointer;
 }
 
 .title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #ffffff;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 8px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ffffff;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
 }
 
 .filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .label {
-    font-weight: bold;
-    color: #ffffff;
-    font-size: 0.9rem;
+  font-weight: bold;
+  color: #ffffff;
+  font-size: 0.9rem;
 }
 
 .filter-group input[type="text"] {
-    padding: 8px;
-    border: 1px solid #2a2a2a;
-    color: #ffffff;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.3s ease;
-    background-color: #3d3d3d;
+  padding: 8px;
+  border: 1px solid #2a2a2a;
+  color: #ffffff;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+  background-color: #3d3d3d;
 }
 
 .filter-group input[type="text"]:focus {
-    border-color: #080a0e;
+  border-color: #080a0e;
 }
 
 .options-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 }
 
 .options-grid label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px;
-    background-color: #272727;
-    color: #ffffff;
-    border: 1px solid #2a2a2a;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s, border-color 0.3s;
-    font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background-color: #272727;
+  color: #ffffff;
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+  font-size: 0.9rem;
 }
 
 .options-grid label:hover {
-    background-color: rgb(29, 29, 30);
-    border-color: #11151a;
+  background-color: rgb(29, 29, 30);
+  border-color: #11151a;
 }
 
 .options-grid input[type="checkbox"],
 .options-grid input[type="radio"] {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    position: relative;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
 .options-grid input[type="checkbox"]:checked {
-    background-color: #007bff;
-    border-color: #007bff;
+  background-color: #007bff;
+  border-color: #007bff;
 }
 
 .options-grid input[type="checkbox"]:checked::after {
-    content: '✓';
-    color: #fff;
-    font-size: 12px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  content: '✓';
+  color: #fff;
+  font-size: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .options-grid input[type="radio"] {
-    border-radius: 50%;
+  border-radius: 50%;
 }
 
 .options-grid input[type="radio"]:checked {
-    background-color: #007bff;
-    border-color: #007bff;
+  background-color: #007bff;
+  border-color: #007bff;
 }
 
 .options-grid input[type="radio"]:checked::after {
-    content: '';
-    width: 8px;
-    height: 8px;
-    background-color: #fff;
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  content: '';
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .button-group {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .button-group button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .clear-button {
-    background-color: #e0e0e0;
-    color: #555;
+  background-color: #e0e0e0;
+  color: #555;
 }
 
 .clear-button:hover {
-    background-color: #ccc;
+  background-color: #ccc;
 }
 
 .apply-button {
-    background-color: #007bff;
-    color: #fff;
+  background-color: #007bff;
+  color: #fff;
 }
 
 .apply-button:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
 }

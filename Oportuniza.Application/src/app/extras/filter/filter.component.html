@@ -4,6 +4,13 @@
   <div class="filter-group">
     <div class="label">Localização:</div>
     <input type="text" [(ngModel)]="filters.local" placeholder="Olimpia, SP" />
+
+    <div class="location-controls">
+      <div *ngIf="filters.radiusKm !== null">
+        <label>Raio: {{ filters.radiusKm }} km</label>
+        <input type="range" min="0" max="1000" step="100" [(ngModel)]="filters.radiusKm" (change)="onRadiusChange()">
+      </div>
+    </div>
   </div>
 
   <div class="filter-group">
@@ -14,8 +21,8 @@
           (change)="toggleContract('Estágio')">Estágio
       </label>
       <label>
-        <input type="checkbox" name="contracts" value="Freelancer" [checked]="filters.contracts?.includes('Freelancer')"
-          (change)="toggleContract('Freelancer')">Freelancer
+        <input type="checkbox" name="contracts" value="Freelancer" [checked]="filters.contracts?.includes('Autonomo')"
+          (change)="toggleContract('Autonomo')">Autônomo
       </label>
       <label>
         <input type="checkbox" name="contracts" value="CLT" [checked]="filters.contracts?.includes('CLT')"
@@ -44,8 +51,8 @@
           (change)="toggleShift('Noturno')">Noturno
       </label>
       <label>
-        <input type="checkbox" name="shifts" value="Escala" [checked]="filters.shifts?.includes('Escala')"
-          (change)="toggleShift('Escala')">Escala
+        <input type="checkbox" name="shifts" value="Escala" [checked]="filters.shifts?.includes('Turno')"
+          (change)="toggleShift('Turno')">Turno Varíavel
       </label>
     </div>
   </div>
@@ -56,15 +63,15 @@
     <div class="options-grid">
       <label>
         <input type="radio" name="salaryRange" value="range1" [(ngModel)]="filters.salaryRange">
-        Até R$1000,00
+        Até R$1.000,00
       </label>
       <label>
         <input type="radio" name="salaryRange" value="range2" [(ngModel)]="filters.salaryRange">
-        R$1000,00 a R$2000,00
+        R$1.000,00 a R$2.000,00
       </label>
       <label>
         <input type="radio" name="salaryRange" value="range3" [(ngModel)]="filters.salaryRange">
-        Mais de R$2000,00
+        Acima de R$2.000,00
       </label>
     </div>
   </div>

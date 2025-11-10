@@ -6,8 +6,8 @@ namespace Oportuniza.API.Services
 {
     public interface IVerificationCodeService
     {
-        string GenerateCode(string email);
-        bool ValidateCode(string email, string code);
+        string GenerateCode(string email, string context);
+        bool ValidateCode(string email, string code, string context);
     }
 
     public class VerificationCodeService : IVerificationCodeService
@@ -16,24 +16,25 @@ namespace Oportuniza.API.Services
             = new ConcurrentDictionary<string, (string, DateTime)>();
 
         private const int ExpirationSeconds = 60;
-        private const int CodeLength = 8;
-
         private static readonly char[] _digits = "0123456789".ToCharArray();
 
-        public string GenerateCode(string email)
+        public string GenerateCode(string email, string context)
         {
-            var code = GenerateNumericCode(CodeLength);
-            _codes[email] = (code, DateTime.UtcNow.AddSeconds(ExpirationSeconds));
+            int length = context == "email" ? 8 : 6;
+            var key = $"{context}:{email}";
+            var code = GenerateNumericCode(length);
+            _codes[key] = (code, DateTime.UtcNow.AddSeconds(ExpirationSeconds));
             return code;
         }
 
-        public bool ValidateCode(string email, string code)
+        public bool ValidateCode(string email, string code, string context)
         {
-            if (_codes.TryGetValue(email, out var entry))
+            var key = $"{context}:{email}";
+            if (_codes.TryGetValue(key, out var entry))
             {
                 if (entry.Code == code && entry.Expiry > DateTime.UtcNow)
                 {
-                    _codes.TryRemove(email, out _);
+                    _codes.TryRemove(key, out _);
                     return true;
                 }
             }

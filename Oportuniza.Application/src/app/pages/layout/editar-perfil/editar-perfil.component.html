@@ -11,7 +11,8 @@
         <label for="file-upload" class="change-photo-btn">
           Mudar Foto
         </label>
-        <input id="file-upload" type="file" (change)="onFileSelected($event)" style="display: none;">
+        <input id="file-upload" type="file" accept=".png,.jpg,.jpeg" (change)="onFileSelected($event)"
+          style="display: none" />
       </div>
 
       <div class="right">

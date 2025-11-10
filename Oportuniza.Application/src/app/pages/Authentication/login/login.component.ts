@@ -29,33 +29,102 @@ export class LoginComponent {
   }
 
   sanitizeEmail() {
-    this.email = this.email.replace(/[^a-zA-Z0-9@._%+-]/g, '');
+    this.email = this.email
+      .replace(/\s/g, '')
+      .replace(/[^a-zA-Z0-9@._%+-]/g, '')
+      .trim();
   }
 
   sanitizePassword() {
-    this.password = this.password.replace(/[^a-zA-Z0-9!@#$%^&*()_+=\-{}\[\]:;"'<>,.?/|\\~`]/g, '');
+    this.password = this.password
+      .replace(/\s/g, '')
+      .replace(/[^\x00-\x7F]/g, '')
+      .replace(/[^A-Za-z0-9!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~]/g, '');
   }
 
-  login(): void {
-    console.log("chamado");
+  validateEmail(email: string): boolean {
+    const emailPattern =
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailPattern.test(email);
+  }
+
+  onEmailInput(event: any) {
+    const input = event.target as HTMLInputElement;
+
+    input.value = input.value
+      .replace(/\s/g, '')
+      .replace(/[^a-zA-Z0-9@._-]/g, '');
+
+    this.email = input.value;
+  }
+
+  validatePassword(password: string): boolean {
+    const passwordPattern =
+      /^(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~]).{8,64}$/;
+    return passwordPattern.test(password);
+  }
+
+  isPasswordForbidden(password: string): boolean {
+    const lower = password.toLowerCase();
+    const forbidden = [
+      '123456', 'password', 'senha', 'admin', 'qwerty',
+      'abc123', 'letmein', 'welcome', '111111', '000000'
+    ];
+
+    if (forbidden.some(p => lower.includes(p))) return true;
+    if (/(.)\1{3,}/.test(password)) return true;
+    return false;
+  }
+
+  checkPasswordSecurity(password: string): { valid: boolean; reason?: string } {
+    if (!this.validatePassword(password))
+      return { valid: false, reason: 'A senha deve ter letras maiúsculas, minúsculas, números e símbolos, sem espaços, e pelo menos 8 caracteres.' };
+
+    if (this.isPasswordForbidden(password))
+      return { valid: false, reason: 'A senha contém padrões inseguros ou previsíveis.' };
+
+    if (/[^\x00-\x7F]/.test(password))
+      return { valid: false, reason: 'A senha não deve conter emojis ou caracteres especiais fora do padrão ASCII.' };
+
+    return { valid: true };
+  }
+
+  async login(): Promise<void> {
     this.isLoading = true;
-    sessionStorage.setItem('loginWithKeycloak', 'true');
+    this.sanitizeEmail();
+    this.sanitizePassword();
 
-    this.keycloakService.loginWithCredentials(this.email, this.password).subscribe(
-      async (res: any) => {
-        console.log('Login realizado com sucesso:', res);
-        this.isLoading = false;
+    if (!this.email || !this.validateEmail(this.email)) {
+      Swal.fire('E-mail inválido', 'Insira um e-mail válido, sem espaços ou caracteres especiais.', 'warning');
+      this.isLoading = false;
+      return;
+    }
 
-        this.keycloakService.setNewAccessToken(res.access_token || res.token);
+    if (!this.password) {
+      Swal.fire('Senha obrigatória', 'Por favor, insira sua senha.', 'warning');
+      this.isLoading = false;
+      return;
+    }
 
-        this.router.navigate(["/troca"]);
-      },
-      (err) => {
-        console.error('Erro no login:', err);
-        Swal.fire('Erro!', 'Falha no login. Verifique suas credenciais.', 'error');
-        sessionStorage.removeItem('loginWithKeycloak');
-        this.isLoading = false;
-      }
-    );
+    const passwordCheck = this.checkPasswordSecurity(this.password);
+    if (!passwordCheck.valid) {
+      Swal.fire('Senha insegura', passwordCheck.reason, 'warning');
+      this.isLoading = false;
+      return;
+    }
+
+    try {
+      sessionStorage.setItem('loginWithKeycloak', 'true');
+      const res = await this.keycloakService.loginWithCredentials(this.email, this.password).toPromise();
+
+      this.keycloakService.setNewAccessToken(res.access_token || res.token);
+      this.router.navigate(['/troca']);
+    } catch (err) {
+      console.error('Erro no login:', err);
+      Swal.fire('Erro!', 'Falha no login. Verifique suas credenciais.', 'error');
+      sessionStorage.removeItem('loginWithKeycloak');
+    } finally {
+      this.isLoading = false;
+    }
   }
 }
