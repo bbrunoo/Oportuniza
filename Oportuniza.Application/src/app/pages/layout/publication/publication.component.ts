@@ -432,7 +432,7 @@ export class PublicationComponent implements OnInit {
     return 'Ocorreu um erro inesperado ao criar sua publicação. Verifique os dados e tente novamente.';
   }
 
-  post(): void {
+  async post(): Promise<void> {
     if (this.isSubmitting) return;
 
     const missingFields = [];
@@ -458,6 +458,31 @@ export class PublicationComponent implements OnInit {
       `
       });
       return;
+    }
+
+    if (this.selectedImage) {
+      const formData = new FormData();
+      formData.append('file', this.selectedImage);
+
+      try {
+        const result = await this.publicationService.validateImageSafety(formData).toPromise();
+        if (!result?.isSafe) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Imagem imprópria',
+            text: 'A imagem enviada foi detectada como inadequada. Escolha outra imagem.',
+          });
+          return;
+        }
+      } catch (error) {
+        console.error('[Image Validation] Erro:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Falha ao validar imagem',
+          text: 'Não foi possível verificar se a imagem é segura. Tente novamente.',
+        });
+        return;
+      }
     }
 
     this.openVerificationModal();

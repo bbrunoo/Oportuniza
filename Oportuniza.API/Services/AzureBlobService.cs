@@ -26,9 +26,10 @@ namespace Oportuniza.API.Services
             await file.CopyToAsync(memoryStream);
 
             using var analysisStream = new MemoryStream(memoryStream.ToArray());
-            bool isSafe = await IsImageSafeAsync(analysisStream, file.ContentType);
-            if (!isSafe)
-                throw new Exception("Imagem imprópria detectada. Upload bloqueado.");
+
+            //bool isSafe = await IsImageSafeAsync(analysisStream, file.ContentType);
+            //if (!isSafe)
+            //    throw new Exception("Imagem imprópria detectada. Upload bloqueado.");
 
             memoryStream.Position = 0;
 
@@ -53,9 +54,10 @@ namespace Oportuniza.API.Services
             await file.CopyToAsync(memoryStream);
 
             using var analysisStream = new MemoryStream(memoryStream.ToArray());
-            bool isSafe = await IsImageSafeAsync(analysisStream, file.ContentType);
-            if (!isSafe)
-                throw new Exception("Imagem imprópria detectada. Upload bloqueado.");
+
+            //bool isSafe = await IsImageSafeAsync(analysisStream, file.ContentType);
+            //if (!isSafe)
+            //    throw new Exception("Imagem imprópria detectada. Upload bloqueado.");
 
             memoryStream.Position = 0;
 
@@ -80,9 +82,10 @@ namespace Oportuniza.API.Services
             await file.CopyToAsync(memoryStream);
 
             using var analysisStream = new MemoryStream(memoryStream.ToArray());
-            bool isSafe = await IsImageSafeAsync(analysisStream, file.ContentType);
-            if (!isSafe)
-                throw new Exception("Imagem imprópria detectada. Upload bloqueado.");
+
+            //bool isSafe = await IsImageSafeAsync(analysisStream, file.ContentType);
+            //if (!isSafe)
+            //    throw new Exception("Imagem imprópria detectada. Upload bloqueado.");
 
             memoryStream.Position = 0;
 

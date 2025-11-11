@@ -53,7 +53,7 @@ namespace Oportuniza.Infrastructure.Repositories
                 switch (filters.SalaryRange.ToLower())
                 {
                     case "range1":
-                        query = query.Where(p => p.Salary != null && p.Salary.Contains("Até a R$1.000,00"));
+                        query = query.Where(p => p.Salary != null && p.Salary.Contains("Até R$1.000,00"));
                         break;
                     case "range2":
                         query = query.Where(p => p.Salary != null && p.Salary.Contains("R$1.000,00 a R$2.000,00"));

@@ -129,8 +129,8 @@ export class EditarPostComponent {
 
         this.userService.getOwnProfile().subscribe(profile => (this.userProfile = profile));
         this.companyService
-        .getUserCompanies()
-        .subscribe(companies => (this.userCompanies = companies));
+          .getUserCompanies()
+          .subscribe(companies => (this.userCompanies = companies));
 
         console.log('Dados da postagem carregados:', this.publication);
         console.log('ID do autor atribuído:', this.selectedAuthorId);
@@ -230,7 +230,7 @@ export class EditarPostComponent {
     this.closeCityModal();
   }
 
-  editPost(): void {
+  async editPost(): Promise<void> {
     if (this.publicationForm.invalid) {
       Swal.fire('Atenção', 'Por favor, preencha todos os campos obrigatórios.', 'warning');
       return;
@@ -247,9 +247,24 @@ export class EditarPostComponent {
       return;
     }
 
-    this.isSubmitting = true;
-    const isCompanyPost = this.userCompanies.some((company) => company.id === this.selectedAuthorId);
+    if (this.selectedImage) {
+      const formData = new FormData();
+      formData.append('file', this.selectedImage);
 
+      try {
+        const result = await this.publicationService.validateImageSafety(formData).toPromise();
+        if (!result?.isSafe) {
+          Swal.fire('Imagem imprópria', 'A imagem enviada foi detectada como inadequada. Escolha outra imagem.', 'warning');
+          return;
+        }
+      } catch (error) {
+        console.error('[Image Validation] Erro:', error);
+        Swal.fire('Erro', 'Falha ao validar a imagem. Tente novamente.', 'error');
+        return;
+      }
+    }
+
+    this.isSubmitting = true;
     const dto: PublicationUpdateDto = {
       title: this.publication.title,
       resumee: this.publication.resumee,

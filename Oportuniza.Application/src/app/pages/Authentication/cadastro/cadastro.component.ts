@@ -111,39 +111,6 @@ export class CadastroComponent {
     this.passwordVisible = !this.passwordVisible;
   }
 
-  isPasswordForbidden(password: string): boolean {
-    const lower = password.toLowerCase();
-
-    const forbidden = [
-      '123456', 'password', 'senha', 'admin', 'qwerty',
-      'abc123', 'letmein', 'welcome', '111111', '000000',
-    ];
-    if (forbidden.some(p => lower.includes(p))) return true;
-
-    if (/(.)\1{3,}/.test(password)) return true;
-
-    if (this.name && lower.includes(this.name.toLowerCase())) return true;
-    if (this.email && lower.includes(this.email.split('@')[0].toLowerCase())) return true;
-
-    return false;
-  }
-
-  checkPasswordSecurity(password: string): { valid: boolean; reason?: string } {
-    if (!this.validatePassword(password))
-      return { valid: false, reason: 'A senha deve ter letras maiúsculas, minúsculas, números e símbolos, sem espaços, e ao menos 8 caracteres.' };
-
-    if (this.isPasswordForbidden(password))
-      return { valid: false, reason: 'A senha contém padrões inseguros ou previsíveis.' };
-
-    if (/[^\x00-\x7F]/.test(password))
-      return { valid: false, reason: 'A senha não deve conter caracteres especiais fora do padrão ASCII.' };
-
-    if (/(\d{4,}|[a-z]{4,}|[A-Z]{4,})/.test(password))
-      return { valid: false, reason: 'Evite sequências longas de caracteres repetidos ou previsíveis.' };
-
-    return { valid: true };
-  }
-
   toggleConfirmPassword() {
     this.confirmPasswordVisible = !this.confirmPasswordVisible;
   }
@@ -236,16 +203,6 @@ export class CadastroComponent {
 
     if (!this.acceptTerms) {
       this.openModal();
-      return;
-    }
-
-    const check = this.checkPasswordSecurity(this.password);
-    if (!check.valid) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Senha insegura',
-        text: check.reason,
-      });
       return;
     }
 

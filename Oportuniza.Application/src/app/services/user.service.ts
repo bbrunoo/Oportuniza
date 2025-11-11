@@ -6,6 +6,7 @@ import { map, Observable } from 'rxjs';
 import { KeycloakOperationService } from './keycloak.service';
 import { GetProfiles } from '../models/new-models/Profiles.model';
 import { ProfileResponse } from '../models/profile-response.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,7 @@ export class UserService {
 
   apiUrl = 'http://localhost:5000/api/v1/User';
   uploadApi = 'http://localhost:5000/api/Upload/upload-profile-picture';
+  private verifyApi = `${environment.apiUrl}/Publication`;
 
   getOwnProfile(): Observable<ProfileResponse> {
     return this.http.get<ProfileResponse>(`${this.apiUrl}/profile`);
@@ -43,6 +45,10 @@ export class UserService {
     formData.append('file', file);
 
     return this.http.post<{ imageUrl: string }>(`${this.uploadApi}`, formData);
+  }
+
+  validateImageSafety(formData: FormData) {
+    return this.http.post<{ isSafe: boolean }>(`${this.verifyApi}/validate-image`, formData);
   }
 
   async getLoggedInUserId(): Promise<string | undefined> {

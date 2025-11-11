@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oportuniza.API.Services;
+using Oportuniza.Domain.DTOs;
 using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
@@ -185,10 +186,7 @@ namespace Oportuniza.API.Controllers
 
         [HttpPost("create")]
         [Authorize]
-        public async Task<IActionResult> Create(
-            [FromForm] PublicationCreateDto dto,
-            IFormFile image,
-            [FromForm] string verificationCode)
+        public async Task<IActionResult> Create([FromForm] PublicationCreateDto dto, IFormFile image, [FromForm] string verificationCode)
         {
             if (dto == null)
                 return BadRequest("Dados inválidos.");
@@ -259,15 +257,6 @@ namespace Oportuniza.API.Controllers
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("Imagem imprópria"))
-                {
-                    return BadRequest(new
-                    {
-                        error = "A imagem enviada foi detectada como imprópria e não pôde ser publicada.",
-                        details = ex.Message
-                    });
-                }
-
                 Console.WriteLine($"[AzureBlobService] Falha ao processar imagem: {ex.Message}");
                 publication.ImageUrl = null;
             }
@@ -288,90 +277,6 @@ namespace Oportuniza.API.Controllers
             var publicationDto = _mapper.Map<PublicationDto>(publication);
             return CreatedAtAction(nameof(GetById), new { id = publication.Id }, publicationDto);
         }
-
-        //[HttpPost]
-        //[Authorize]
-        //public async Task<IActionResult> Post([FromForm] PublicationCreateDto dto, IFormFile image)
-        //{
-        //    if (dto == null)
-        //        return BadRequest("Dados inválidos.");
-
-        //    if (image == null || image.Length == 0)
-        //        return BadRequest("A imagem é obrigatória.");
-
-        //    var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
-        //    if (string.IsNullOrEmpty(keycloakId))
-        //        return Unauthorized("Token 'sub' claim is missing.");
-
-        //    var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
-        //    if (user == null)
-        //        return NotFound("Usuário não encontrado no banco local.");
-
-        //    var publication = new Publication
-        //    {
-        //        Title = dto.Title,
-        //        Description = dto.Description,
-        //        Salary = dto.Salary,
-        //        Local = dto.Local,
-        //        Shift = dto.Shift,
-        //        ExpirationDate = dto.ExpirationDate,
-        //        Contract = dto.Contract,
-        //        CreatedByUserId = user.Id,
-        //        CreationDate = DateTime.UtcNow
-        //    };
-
-        //    Guid? companyId = null;
-
-        //    var companyClaim = User.FindFirst("company_id")?.Value;
-        //    if (!string.IsNullOrEmpty(companyClaim) && Guid.TryParse(companyClaim, out var claimCompanyId))
-        //    {
-        //        companyId = claimCompanyId;
-        //    }
-
-        //    if (dto.PostAsCompanyId.HasValue)
-        //    {
-        //        bool hasAccess = await _companyRepository.UserHasAccessToCompanyAsync(user.Id, dto.PostAsCompanyId.Value);
-        //        if (!hasAccess)
-        //            return Forbid("Você não tem permissão para postar por esta empresa.");
-
-        //        companyId = dto.PostAsCompanyId;
-        //    }
-
-        //    if (companyId.HasValue)
-        //        publication.AuthorCompanyId = companyId.Value;
-        //    else
-        //        publication.AuthorUserId = user.Id;
-
-        //    try
-        //    {
-        //        string imageUrl = await _azureBlobService.UploadPostImage(image, "publications", Guid.NewGuid());
-        //        publication.ImageUrl = imageUrl;
-        //    }
-        //    catch (Exception ex) when (ex.Message.Contains("Imagem imprópria"))
-        //    {
-        //        return BadRequest(new
-        //        {
-        //            error = "A imagem enviada foi detectada como imprópria e não pôde ser publicada.",
-        //            details = ex.Message
-        //        });
-        //    }
-
-        //    try
-        //    {
-        //        publication.Resumee = await _geminiService.CreateSummaryAsync(
-        //            dto.Description, dto.Shift, dto.Local, dto.Contract, 80, dto.Salary);
-        //    }
-        //    catch
-        //    {
-        //        publication.Resumee = string.Join(" ",
-        //            dto.Description.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(30));
-        //    }
-
-        //    await _publicationRepository.AddAsync(publication);
-
-        //    var publicationDto = _mapper.Map<PublicationDto>(publication);
-        //    return CreatedAtAction(nameof(GetById), new { id = publication.Id }, publicationDto);
-        //}
 
         [HttpPatch("disable/{id}")]
         public async Task<IActionResult> DesactivePost(Guid id)
@@ -481,6 +386,37 @@ namespace Oportuniza.API.Controllers
 
             return Ok(response);
         }
+
+        [HttpPost("validate-image")]
+        [Authorize]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> ValidateImage([FromForm] ImageValidationDto dto)
+        {
+            var file = dto.File;
+
+            if (file == null || file.Length == 0)
+                return BadRequest("Arquivo inválido.");
+
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+
+                bool isSafe = await _azureBlobService.IsImageSafeAsync(memoryStream, file.ContentType);
+                return Ok(new { isSafe });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ValidateImage] Falha: {ex.Message}");
+                return StatusCode(500, new
+                {
+                    error = "Falha ao analisar imagem.",
+                    details = ex.Message
+                });
+            }
+        }
+
 
         [HttpGet("random-samples")]
         [AllowAnonymous]

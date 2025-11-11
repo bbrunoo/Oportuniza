@@ -131,4 +131,7 @@ export class PublicationService {
     return this.http.get<Publication[]>(`${this.apiUrl}/search`, { params });
   }
 
+  validateImageSafety(formData: FormData) {
+    return this.http.post<{ isSafe: boolean }>(`${this.apiUrl}/validate-image`, formData);
+  }
 }

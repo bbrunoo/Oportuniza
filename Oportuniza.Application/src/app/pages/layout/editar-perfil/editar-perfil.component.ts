@@ -158,10 +158,34 @@ export class EditarPerfilComponent implements OnInit {
     event.target.value = '';
   }
 
-  saveProfile(): void {
+  async saveProfile(): Promise<void> {
     if (!this.userId) return;
+
     this.isSaving = true;
     this.saveError = null;
+
+    if (this.selectedImage) {
+      const formData = new FormData();
+      formData.append('file', this.selectedImage);
+
+      try {
+        const result = await this.userService.validateImageSafety(formData).toPromise();
+        if (!result?.isSafe) {
+          Swal.fire(
+            'Imagem imprópria',
+            'A imagem enviada foi detectada como inadequada. Escolha outra imagem.',
+            'warning'
+          );
+          this.isSaving = false;
+          return;
+        }
+      } catch (error) {
+        console.error('[Image Validation] Erro:', error);
+        Swal.fire('Erro', 'Falha ao validar a imagem. Tente novamente.', 'error');
+        this.isSaving = false;
+        return;
+      }
+    }
 
     this.userService.editProfile(
       this.editableProfile.name,

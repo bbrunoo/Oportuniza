@@ -22,7 +22,7 @@ namespace Oportuniza.API.Controllers
             if (file == null) return BadRequest("File not found");
 
             var url = await _azureBlobService.UploadImageAsync(file);
-            return Ok(new {imageUrl = url });
+            return Ok(new { imageUrl = url });
         }
 
         [HttpPost("upload-profile-picture")]
