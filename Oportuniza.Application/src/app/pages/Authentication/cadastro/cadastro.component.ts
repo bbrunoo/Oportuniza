@@ -103,7 +103,7 @@ export class CadastroComponent {
 
   validatePassword(password: string): boolean {
     const passwordPattern =
-      /^(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~]).{8,64}$/;
+      /^(?=.*[A-Z])(?=.*[!#@$%&.])(?=.*[0-9])(?=.*[a-z])[A-Za-z0-9!#@$%&]{8,15}$/;
     return passwordPattern.test(password);
   }
 
@@ -212,11 +212,8 @@ export class CadastroComponent {
   onPasswordInput(event?: any) {
     if (event) {
       const input = event.target as HTMLInputElement;
-      input.value = input.value
-        .replace(/\s/g, '')
-        .replace(/[^\x00-\x7F]/g, '')
-        .replace(/[^A-Za-z0-9!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~]/g, '');
 
+      input.value = input.value.replace(/[^A-Za-z0-9!#@$%&.]/g, '');
       this.password = input.value;
     }
 
@@ -226,7 +223,7 @@ export class CadastroComponent {
       hasLowercase: /[a-z]/.test(pwd),
       hasUppercase: /[A-Z]/.test(pwd),
       hasNumber: /\d/.test(pwd),
-      hasSymbol: /[!@#$%^&*()_\-+=\[\]{};:'",.<>?/\\|`~]/.test(pwd),
+      hasSymbol: /[!#@$%&]/.test(pwd),
       hasMinLength: pwd.length >= 8,
     };
 
@@ -245,7 +242,12 @@ export class CadastroComponent {
     this.checkPasswordsMatch();
   }
 
-  onConfirmPasswordInput() {
+  onConfirmPasswordInput(event?: any) {
+    if (event) {
+      const input = event.target as HTMLInputElement;
+      input.value = input.value.replace(/[^A-Za-z0-9!#@$%&.]/g, '');
+      this.confirmPassword = input.value;
+    }
     this.checkPasswordsMatch();
   }
 

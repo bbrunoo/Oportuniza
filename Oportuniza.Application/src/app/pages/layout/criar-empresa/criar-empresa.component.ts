@@ -1,5 +1,5 @@
 import { CompanyCreatePayload, CompanyService } from './../../../services/company.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -39,17 +39,28 @@ import { CityService } from '../../../services/city.service';
 })
 
 export class CriarEmpresaComponent implements OnInit {
-  name: string = '';
-  cityState: string = '';
-  phone: string = '';
-  email: string = '';
-  cnpj: string = '';
-  description: string = '';
+  name = '';
+  cityState = '';
+  phone = '';
+  email = '';
+  cnpj = '';
+  description = '';
+
+  verificationModalOpen = false;
+  verificationCode = '';
+  codeSent = false;
+  isVerifying = false;
+  codeLength = 6;
+
+  @ViewChildren('d1, d2, d3, d4, d5, d6') codeFields!: QueryList<ElementRef>;
+
+  codeInputs: string[] = ['', '', '', '', '', ''];
+  cooldown = 0;
+  timer: any;
 
   isLoading = false;
-  selectedFile: File | null = null;
-  previewUrl: string | ArrayBuffer | null = null;
   selectedImage?: File;
+  previewUrl: string | ArrayBuffer | null = null;
 
   isSubmitting = false;
   isDragging = false;
@@ -57,7 +68,7 @@ export class CriarEmpresaComponent implements OnInit {
   cityControl = new FormControl('');
   filteredCities: any[] = [];
   cityModalOpen = false;
-  selectedCity: { id: string, name: string } | null = null;
+  selectedCity: { id: string; name: string } | null = null;
 
   constructor(
     private companyService: CompanyService,
@@ -159,6 +170,67 @@ export class CriarEmpresaComponent implements OnInit {
     });
   }
 
+  openVerificationModal() {
+    this.verificationModalOpen = true;
+    this.codeSent = false;
+    this.verificationCode = '';
+  }
+
+  closeVerificationModal() {
+    this.verificationModalOpen = false;
+    this.verificationCode = '';
+    this.isVerifying = false;
+  }
+
+  sendEmailCode() {
+    if (!this.email) {
+      Swal.fire('Erro', 'Informe um e-mail válido.', 'error');
+      return;
+    }
+
+    this.companyService.sendCompanyVerificationCode(this.email).subscribe({
+      next: () => {
+        this.codeSent = true;
+        this.startCooldown(60);
+        Swal.fire('Código enviado!', `Enviamos um código para ${this.email}.`, 'info');
+      },
+      error: (err) => {
+        console.error('Erro ao enviar código:', err);
+        Swal.fire('Erro', 'Falha ao enviar o código.', 'error');
+      }
+    });
+  }
+
+  resendCode() {
+    if (this.cooldown > 0) return;
+    this.sendEmailCode();
+  }
+
+  startCooldown(seconds: number) {
+    this.cooldown = seconds;
+    clearInterval(this.timer);
+    this.timer = setInterval(() => {
+      this.cooldown--;
+      if (this.cooldown <= 0) clearInterval(this.timer);
+    }, 1000);
+  }
+
+  onInput(event: any, index: number) {
+    const value = event.target.value;
+    if (value.length > 1) event.target.value = value.slice(0, 1);
+    if (value && index < this.codeInputs.length - 1) this.focusNext(index + 1);
+  }
+
+  onKeydown(event: KeyboardEvent, index: number) {
+    if (event.key === 'Backspace' && !this.codeInputs[index] && index > 0)
+      this.focusNext(index - 1);
+  }
+
+  focusNext(index: number) {
+    const fields = this.codeFields.toArray();
+    if (fields[index]) fields[index].nativeElement.focus();
+  }
+
   isValidCnpj(cnpj: string): boolean {
     if (!cnpj) return false;
 
@@ -185,96 +257,190 @@ export class CriarEmpresaComponent implements OnInit {
     return calc(12) === d1 && calc(13) === d2;
   }
 
-  onSubmit(): void {
-    if (!this.name || !this.selectedCity || !this.phone || !this.email || !this.cnpj || !this.selectedImage) {
+  private resetForm(): void {
+    this.name = '';
+    this.selectedCity = null;
+    this.phone = '';
+    this.email = '';
+    this.cnpj = '';
+    this.description = '';
+    this.previewUrl = null;
+    this.selectedImage = undefined;
+    this.verificationCode = '';
+  }
+
+  private async processImageValidation(): Promise<void> {
+    if (!this.selectedImage) {
       Swal.fire({
         icon: 'warning',
         title: 'Atenção',
-        text: 'Por favor, preencha todos os campos obrigatórios e selecione uma imagem.'
+        text: 'Selecione uma imagem antes de enviar.'
       });
       return;
     }
 
-    if (!this.isValidCnpj(this.cnpj)) {
-      Swal.fire({
-        icon: 'error',
-        title: 'CNPJ inválido',
-        text: 'Por favor, insira um CNPJ válido.'
-      });
-      return;
-    }
-
+    this.isSubmitting = true;
     this.isLoading = true;
 
-    this.companyService.consultarCnpj(this.cnpj).pipe(
-      switchMap((dados) => {
-        if (!dados.ativo) {
+    if (this.selectedImage) {
+      const formData = new FormData();
+      formData.append('File', this.selectedImage);
+
+      try {
+        const result: any = await this.companyService.validateImageSafety(formData).toPromise();
+
+        if (!result?.isSafe) {
           Swal.fire({
-            icon: 'error',
-            title: 'CNPJ inativo ou não encontrado',
-            text: 'O CNPJ informado não está ativo na Receita Federal.'
+            icon: 'warning',
+            title: 'Imagem imprópria',
+            text: 'A imagem enviada foi detectada como inadequada. Escolha outra imagem.'
           });
+          this.isSubmitting = false;
           this.isLoading = false;
-          throw new Error('CNPJ inativo');
+          return;
         }
-
-        // Se ativo → faz upload da imagem
-        return this.companyService.uploadCompanyImage(this.selectedImage!);
-      }),
-      switchMap(uploadResponse => {
-        // Monta o payload e envia para o backend
-        const companyData: CompanyCreatePayload = {
-          name: this.name,
-          cityState: this.cityState,
-          phone: this.phone,
-          email: this.email,
-          cnpj: this.cnpj,
-          description: this.description,
-          imageUrl: uploadResponse.imageUrl
-        };
-
-        return this.companyService.createCompany(companyData);
-      })
-    ).subscribe({
-      next: () => {
-        this.isLoading = false;
+      } catch (error) {
+        console.error('[Image Validation] Erro:', error);
         Swal.fire({
-          icon: 'success',
-          title: 'Sucesso!',
-          text: 'Empresa criada com sucesso!'
-        }).then(() => {
-          this.name = '';
-          this.cityState = '';
-          this.phone = '';
-          this.email = '';
-          this.cnpj = '';
-          this.description = '';
-          this.previewUrl = null;
-          this.selectedImage = undefined;
+          icon: 'error',
+          title: 'Falha ao validar imagem',
+          text: 'Não foi possível verificar se a imagem é segura. Tente novamente.'
+        });
+        this.isSubmitting = false;
+        this.isLoading = false;
+        return;
+      }
+    }
+
+    const dto: CompanyCreatePayload = {
+      name: this.name,
+      cityState: this.selectedCity!.name,
+      phone: this.phone,
+      email: this.email,
+      cnpj: this.cnpj,
+      description: this.description || ''
+    };
+
+    this.companyService.createCompany(dto, this.selectedImage!, this.verificationCode).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.isLoading = false;
+        Swal.fire('Sucesso!', 'Empresa criada com sucesso!', 'success').then(() => {
+          this.resetForm();
           this.router.navigate(['/inicio/minhas-empresas']);
         });
       },
       error: (err) => {
         this.isSubmitting = false;
-        console.error('Erro no envio:', err);
-
+        this.isLoading = false;
         const backendMessage =
           err.error?.error ||
           err.error?.message ||
           err.error ||
           'Erro desconhecido.';
-
-        Swal.fire({
-          icon: 'error',
-          title: 'Falha ao criar publicação',
-          text: backendMessage.includes('imprópria')
-            ? 'A imagem foi detectada como imprópria e não pode ser publicada. Escolha outra imagem.'
-            : backendMessage,
-          confirmButtonText: 'Entendi'
-        });
+        Swal.fire('Falha ao criar empresa', backendMessage, 'error');
       }
     });
   }
 
+  async onSubmit(): Promise<void> {
+    if (this.isSubmitting) return;
+
+    if (!this.name || !this.selectedCity || !this.phone || !this.email || !this.cnpj || !this.selectedImage) {
+      Swal.fire('Atenção', 'Preencha todos os campos obrigatórios.', 'warning');
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.isLoading = true;
+
+    const formData = new FormData();
+    formData.append('File', this.selectedImage!);
+
+    try {
+      const result: any = await this.companyService.validateImageSafety(formData).toPromise();
+
+      if (!result?.isSafe) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Imagem imprópria',
+          text: 'A imagem enviada foi detectada como inadequada. Escolha outra imagem.'
+        });
+        this.isSubmitting = false;
+        this.isLoading = false;
+        return;
+      }
+
+      this.verificationModalOpen = true;
+      this.isSubmitting = false;
+      this.isLoading = false;
+
+    } catch (error) {
+      console.error('[Image Validation] Erro:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Falha ao validar imagem',
+        text: 'Não foi possível verificar se a imagem é segura. Tente novamente.'
+      });
+      this.isSubmitting = false;
+      this.isLoading = false;
+    }
+  }
+
+  confirmCompany() {
+    this.verificationCode = this.codeInputs.join('');
+
+    if (!this.verificationCode || this.verificationCode.length < 6) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Código inválido',
+        text: 'Digite o código completo enviado ao seu e-mail para continuar.'
+      });
+      return;
+    }
+
+    this.verificationModalOpen = false;
+    this.isVerifying = true;
+
+    const dto: CompanyCreatePayload = {
+      name: this.name,
+      cityState: this.selectedCity!.name,
+      phone: this.phone,
+      email: this.email,
+      cnpj: this.cnpj,
+      description: this.description || ''
+    };
+
+    this.companyService.createCompany(dto, this.selectedImage!, this.verificationCode).subscribe({
+      next: () => {
+        this.isVerifying = false;
+        Swal.fire('Sucesso!', 'Empresa criada com sucesso!', 'success').then(() => {
+          this.resetForm();
+          this.router.navigate(['/inicio/minhas-empresas']);
+        });
+      },
+      error: (err) => {
+        this.isVerifying = false;
+
+        let backendMessage = 'Erro desconhecido.';
+        if (typeof err.error === 'string') {
+          backendMessage = err.error;
+        } else if (err.error?.message) {
+          backendMessage = err.error.message;
+        } else if (err.message) {
+          backendMessage = err.message;
+        }
+
+        console.log("error:", backendMessage);
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'Falha ao criar empresa',
+          text: backendMessage,
+          confirmButtonColor: '#d33'
+        });
+      }
+    });
+  }
 }
 

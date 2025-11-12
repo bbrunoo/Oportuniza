@@ -15,6 +15,9 @@
   width: 60em;
   align-items: center;
   justify-content: center;
+  transition: opacity 1s ease-in-out;
+  pointer-events: none;
+  cursor: alias;
 }
 
 [hidden] {
@@ -42,7 +45,7 @@
 
 .content {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .item {

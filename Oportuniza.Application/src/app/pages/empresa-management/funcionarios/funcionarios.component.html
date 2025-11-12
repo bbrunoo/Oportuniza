@@ -25,7 +25,7 @@
 
         <div class="employee-info-details">
           <span class="employee-email">{{ employee.userEmail }}</span>
-          <span *ngIf="employee.roles === 'Owner'" class="owner-badge">DONO</span>
+          <span *ngIf="employee.roles === 'Owner'" class="owner-badge">ADMINISTRADOR CHEFE</span>
           <span *ngIf="employee.roles === 'Administrator'" class="owner-badge">ADMINISTRADOR</span>
           <span *ngIf="employee.roles === 'Worker'" class="owner-badge">FUNCIONÁRIO</span>
 
@@ -43,8 +43,6 @@
 
           <span *ngIf="employee.roles === 'Owner'" class="owner-lock">🔒 Cargo fixo</span>
         </div>
-
-
       </div>
     </div>
   </div>

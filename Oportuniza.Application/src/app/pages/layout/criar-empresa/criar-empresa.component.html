@@ -54,3 +54,57 @@
     <button class="close-btn" (click)="closeCityModal()">Fechar</button>
   </div>
 </div>
+
+<div class="email-verification-overlay" *ngIf="verificationModalOpen">
+  <div class="email-verification-modal">
+    <h3>Verificação de Empresa</h3>
+
+    <div *ngIf="!codeSent" class="email-step">
+      <p>Será enviado um código de verificação para o e-mail informado.</p>
+      <p><strong>{{ email }}</strong></p>
+      <div class="email-actions">
+        <button class="email-btn email-btn-cancel" (click)="closeVerificationModal()">Cancelar</button>
+        <button class="email-btn email-btn-send" (click)="sendEmailCode()">Enviar Código</button>
+      </div>
+    </div>
+
+    <div *ngIf="codeSent" class="verify-card">
+      <header class="verify-header">
+        <p class="verify-subtitle">
+          Enviamos um código de {{ codeLength }} dígitos para
+          <strong>{{ email }}</strong>.
+        </p>
+        <p class="verify-subtitle">Digite o código abaixo para continuar.</p>
+      </header>
+
+      <div class="otp-group">
+        <input #d1 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[0]"
+          (input)="onInput($event, 0)" (keydown)="onKeydown($event, 0)" />
+        <input #d2 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[1]"
+          (input)="onInput($event, 1)" (keydown)="onKeydown($event, 1)" />
+        <input #d3 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[2]"
+          (input)="onInput($event, 2)" (keydown)="onKeydown($event, 2)" />
+        <input #d4 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[3]"
+          (input)="onInput($event, 3)" (keydown)="onKeydown($event, 3)" />
+        <input #d5 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[4]"
+          (input)="onInput($event, 4)" (keydown)="onKeydown($event, 4)" />
+        <input #d6 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[5]"
+          (input)="onInput($event, 5)" (keydown)="onKeydown($event, 5)" />
+      </div>
+
+      <div class="resend-row">
+        <span class="muted">Não recebeu?</span>
+        <button class="btn btn-link" [disabled]="cooldown > 0" (click)="resendCode()">
+          {{ cooldown > 0 ? 'Reenviar em ' + cooldown + 's' : 'Reenviar código' }}
+        </button>
+      </div>
+
+      <div class="email-actions">
+        <button class="email-btn email-btn-cancel" (click)="closeVerificationModal()">Cancelar</button>
+        <button class="email-btn email-btn-confirm" [disabled]="isVerifying" (click)="confirmCompany()">
+          {{ isVerifying ? 'Verificando...' : 'Confirmar e Criar Empresa' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

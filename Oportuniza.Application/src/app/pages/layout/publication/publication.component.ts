@@ -38,6 +38,7 @@ export class PublicationComponent implements OnInit {
   verificationCode = '';
   codeSent = false;
   isVerifying = false;
+
   userPhone: string = '';
 
   publication: Publication = {

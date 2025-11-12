@@ -144,6 +144,41 @@ namespace Oportuniza.API.Controllers
 
             return Ok(new { message = "Postagem verificada com sucesso, pode prosseguir!" });
         }
+
+        [HttpPost("send-company-code")]
+        public async Task<IActionResult> SendCompanyCode([FromBody] EmailRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Email))
+                return BadRequest("E-mail é obrigatório.");
+
+            var user = await _userRepository.GetUserByEmailAsync(request.Email);
+            if (user == null)
+                return NotFound("Usuário não encontrado.");
+
+            var code = _codeService.GenerateCode(request.Email, "company");
+            var message = "Use o código abaixo para confirmar a criação da sua empresa no Oportuniza:";
+
+            var success = await _emailService.SendVerificationEmailAsync(
+                request.Email,
+                "Verificação de Empresa - Oportuniza",
+                message,
+                code
+            );
+
+            if (!success)
+                return StatusCode(500, "Falha ao enviar e-mail de verificação de postagem.");
+
+            return Ok(new { message = "Código de verificação enviado via e-mail.", expiresInSeconds = 60 });
+        }
+
+        [HttpPost("validate-company-code")]
+        public IActionResult ValidateCompanyCode([FromBody] VerificationRequest request)
+        {
+            if (!_codeService.ValidateCode(request.Email, request.Code, "company"))
+                return BadRequest("Código de empresa inválido ou expirado.");
+
+            return Ok(new { message = "Empresa verificada com sucesso, pode prosseguir!" });
+        }
         private async Task<string> GetAdminToken()
         {
             using var client = new HttpClient();

@@ -20,8 +20,9 @@
 
       <div class="input-container password-container">
         <input [type]="passwordVisible ? 'text' : 'password'" id="password" name="password" placeholder="Senha"
-          [(ngModel)]="password" (input)="onPasswordInput($event)" maxlength="64" required autocomplete="new-password"
-          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'\ ,.<>?/\\|`~])(?!.*\s).{10,64}$" />
+          [(ngModel)]="password" (input)="onPasswordInput($event)" maxlength="15" required
+          autocomplete="new-password" />
+
         <button class="show-password" type="button" (click)="togglePassword()">
           <img [src]="passwordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'" alt="toggle" />
         </button>
@@ -29,8 +30,9 @@
 
       <div class="input-container password-container">
         <input [type]="confirmPasswordVisible ? 'text' : 'password'" id="confirmPassword" name="confirmPassword"
-          placeholder="Confirmar Senha" [(ngModel)]="confirmPassword" (input)="onConfirmPasswordInput()" maxlength="64"
-          required autocomplete="new-password" />
+          placeholder="Confirmar Senha" [(ngModel)]="confirmPassword" (input)="onConfirmPasswordInput($event)"
+          maxlength="15" required autocomplete="new-password" />
+          
         <button class="show-password" type="button" (click)="toggleConfirmPassword()">
           <img [src]="confirmPasswordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'"
             alt="toggle" />

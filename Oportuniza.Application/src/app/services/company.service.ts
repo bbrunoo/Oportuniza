@@ -5,15 +5,16 @@ import { CompanyListDto } from '../models/company-list-dto-model';
 import { CompanyPaginatedResponse } from '../models/company-paginated-response.model';
 import { CompanyDto } from '../models/company-get.model';
 import { CompanyUpdatePayload } from '../models/company-update.model';
+import { environment } from '../../environments/environment';
 
 export interface CompanyCreatePayload {
   name: string;
-  description: string;
-  imageUrl: string
   cityState: string;
   phone: string;
   email: string;
   cnpj: string;
+  description?: string;
+  imageUrl?: string;
 }
 
 @Injectable({
@@ -23,6 +24,7 @@ export class CompanyService {
   private companyApiUrl = 'http://localhost:5000/api/v1/Company';
   private uploadApiUrl = 'http://localhost:5000/api/Upload/upload-company-picture';
   private readonly brasilApiUrl = 'https://brasilapi.com.br/api/cnpj/v1';
+  private apiUrl = `${environment.apiUrl}/Publication`;
 
   constructor(
     private http: HttpClient,
@@ -35,8 +37,17 @@ export class CompanyService {
     return this.http.post<{ imageUrl: string }>(this.uploadApiUrl, formData);
   }
 
-  createCompany(companyData: CompanyCreatePayload): Observable<any> {
-    return this.http.post<any>(this.companyApiUrl, companyData);
+  createCompany(dto: CompanyCreatePayload, image: File, verificationCode: string) {
+    const formData = new FormData();
+    formData.append('name', dto.name);
+    formData.append('cityState', dto.cityState);
+    formData.append('phone', dto.phone);
+    formData.append('email', dto.email);
+    formData.append('cnpj', dto.cnpj);
+    formData.append('description', dto.description || '');
+    formData.append('image', image);
+    formData.append('verificationCode', verificationCode);
+    return this.http.post(`${this.companyApiUrl}/create`, formData);
   }
 
   getUserCompanies(): Observable<CompanyListDto[]> {
@@ -66,6 +77,14 @@ export class CompanyService {
 
   disableCompany(id: string): Observable<any> {
     return this.http.patch(`${this.companyApiUrl}/disable/${id}`, {});
+  }
+
+  validateImageSafety(formData: FormData) {
+    return this.http.post<{ isSafe: boolean }>(`${this.apiUrl}/validate-image`, formData);
+  }
+
+  sendCompanyVerificationCode(email: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/Verification/send-company-code`, { email });
   }
 
   consultarCnpj(cnpj: string): Observable<{ ativo: boolean }> {

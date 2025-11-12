@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Mailjet.Client.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,13 +24,18 @@ namespace Oportuniza.API.Controllers
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _context;
         private readonly CNPJService _cnpjService;
+        private readonly AzureBlobService _azureBlobService;
+        private readonly IVerificationCodeService _verificationCodeService;
         public CompanyController(
             ICompanyRepository companyRepository,
             ICompanyEmployeeRepository companyEmployeeRepository,
             IUserRepository userRepository,
             IMapper mapper,
             ApplicationDbContext context,
-            CNPJService cnpjService)
+            CNPJService cnpjService,
+            AzureBlobService azureBlobService,
+            IVerificationCodeService verificationCodeService
+            )
         {
             _companyRepository = companyRepository;
             _companyEmployeeRepository = companyEmployeeRepository;
@@ -37,6 +43,8 @@ namespace Oportuniza.API.Controllers
             _mapper = mapper;
             _context = context;
             _cnpjService = cnpjService;
+            _azureBlobService = azureBlobService;
+            _verificationCodeService = verificationCodeService;
         }
 
         [HttpGet]
@@ -147,42 +155,57 @@ namespace Oportuniza.API.Controllers
             return NoContent();
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         [Authorize]
-        public async Task<IActionResult> Post([FromBody] CompanyCreateDto dto)
+        public async Task<IActionResult> Create([FromForm] CompanyCreateDto dto, IFormFile image, [FromForm] string verificationCode)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (dto == null)
+                return BadRequest(new { message = "Dados inválidos." });
 
-            if (!_cnpjService.IsValid(dto.Cnpj))
-                return BadRequest("CNPJ inválido.");
+            if (image == null || image.Length == 0)
+                return BadRequest(new { message = "A imagem é obrigatória." });
+
+            if (!_verificationCodeService.ValidateCode(dto.Email, verificationCode, "company"))
+                return BadRequest(new { message = "Código de verificação inválido ou expirado." });
 
             try
             {
                 var statusAtivo = await _cnpjService.VerificarAtividadeCnpjAsync(dto.Cnpj);
-
                 if (!statusAtivo)
-                    return BadRequest("O CNPJ informado não está ativo na Receita Federal.");
+                    return BadRequest(new { message = "O CNPJ informado não está ativo na Receita Federal." });
             }
             catch (HttpRequestException)
             {
-                return StatusCode(503, "Serviço de verificação de CNPJ indisponível no momento.");
+                return StatusCode(503, new { message = "Serviço de verificação de CNPJ indisponível no momento." });
             }
             catch (Exception ex)
             {
-                return BadRequest($"Erro ao consultar CNPJ: {ex.Message}");
+                return BadRequest(new { message = $"Erro ao consultar CNPJ: {ex.Message}" });
             }
 
-            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(keycloakId))
-                return Unauthorized("Token 'sub' claim is missing.");
+                return Unauthorized(new { message = "Token inválido." });
 
             var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
             if (user == null)
-                return NotFound("Usuário não encontrado no banco de dados local.");
+                return NotFound(new { message = "Usuário não encontrado no banco local." });
+
+            string imageUrl;
+            try
+            {
+                imageUrl = await _azureBlobService.UploadCompanyImage(image, "company", Guid.NewGuid());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AzureBlobService] Falha ao enviar imagem: {ex.Message}");
+                return StatusCode(500, new { message = "Falha ao processar imagem da empresa." });
+            }
 
             var company = _mapper.Map<Company>(dto);
             company.UserId = user.Id;
+            company.ImageUrl = imageUrl;
+            company.IsActive = CompanyAvailable.Active;
 
             var ownerRole = await _context.CompanyRole.FirstOrDefaultAsync(r => r.Name == "Owner");
             if (ownerRole == null)
@@ -216,12 +239,89 @@ namespace Oportuniza.API.Controllers
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return StatusCode(500, $"Erro ao criar empresa: {ex.Message}");
+                Console.WriteLine($"[CompanyController] Erro ao criar empresa: {ex.Message}");
+                return StatusCode(500, new { message = "Erro ao criar empresa." });
             }
 
             var companyDtoToReturn = _mapper.Map<CompanyDTO>(company);
             return CreatedAtAction(nameof(GetById), new { id = company.Id }, companyDtoToReturn);
         }
+
+        //[HttpPost]
+        //[Authorize]
+        //public async Task<IActionResult> Post([FromBody] CompanyCreateDto dto)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
+
+        //    if (!_cnpjService.IsValid(dto.Cnpj))
+        //        return BadRequest("CNPJ inválido.");
+
+        //    try
+        //    {
+        //        var statusAtivo = await _cnpjService.VerificarAtividadeCnpjAsync(dto.Cnpj);
+
+        //        if (!statusAtivo)
+        //            return BadRequest("O CNPJ informado não está ativo na Receita Federal.");
+        //    }
+        //    catch (HttpRequestException)
+        //    {
+        //        return StatusCode(503, "Serviço de verificação de CNPJ indisponível no momento.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest($"Erro ao consultar CNPJ: {ex.Message}");
+        //    }
+
+        //    var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    if (string.IsNullOrEmpty(keycloakId))
+        //        return Unauthorized("Token 'sub' claim is missing.");
+
+        //    var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
+        //    if (user == null)
+        //        return NotFound("Usuário não encontrado no banco de dados local.");
+
+        //    var company = _mapper.Map<Company>(dto);
+        //    company.UserId = user.Id;
+
+        //    var ownerRole = await _context.CompanyRole.FirstOrDefaultAsync(r => r.Name == "Owner");
+        //    if (ownerRole == null)
+        //    {
+        //        ownerRole = new CompanyRole { Id = Guid.NewGuid(), Name = "Owner" };
+        //        _context.CompanyRole.Add(ownerRole);
+        //        await _context.SaveChangesAsync();
+        //    }
+
+        //    var companyEmployeeLink = new CompanyEmployee
+        //    {
+        //        UserId = user.Id,
+        //        Company = company,
+        //        CompanyRoleId = ownerRole.Id,
+        //        IsActive = CompanyEmployeeStatus.Active,
+        //        CanPostJobs = true
+        //    };
+
+        //    using var transaction = await _context.Database.BeginTransactionAsync();
+        //    try
+        //    {
+        //        _context.Company.Add(company);
+        //        await _context.SaveChangesAsync();
+
+        //        companyEmployeeLink.CompanyId = company.Id;
+        //        _context.CompanyEmployee.Add(companyEmployeeLink);
+        //        await _context.SaveChangesAsync();
+
+        //        await transaction.CommitAsync();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await transaction.RollbackAsync();
+        //        return StatusCode(500, $"Erro ao criar empresa: {ex.Message}");
+        //    }
+
+        //    var companyDtoToReturn = _mapper.Map<CompanyDTO>(company);
+        //    return CreatedAtAction(nameof(GetById), new { id = company.Id }, companyDtoToReturn);
+        //}
 
 
         [HttpPatch("disable/{id}")]
