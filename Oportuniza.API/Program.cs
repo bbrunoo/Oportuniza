@@ -75,7 +75,7 @@ builder.Services.AddAuthentication()
     .AddPolicyScheme("DualJwt", "JWT Dual Scheme", options =>
     {
         options.ForwardDefaultSelector = context =>
-        {
+       {
             var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
             if (authHeader?.StartsWith("Bearer ") == true)
             {
@@ -120,6 +120,7 @@ builder.Services.AddSingleton<IVerificationCodeService, VerificationCodeService>
 builder.Services.AddScoped<UserRegistrationFilterAttribute>();
 builder.Services.AddSingleton<IEmailService, MailGunEmailService>();
 builder.Services.AddScoped<ICandidateExtraRepository, CandidateExtraRepository>();
+builder.Services.AddScoped<ICnpjCacheRepository, CnpjCacheRepository>();
 
 builder.Services.AddHttpClient<GeolocationService>();
 builder.Services.AddHttpClient<CNPJService>();
@@ -150,6 +151,11 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddHttpClient();
+
+builder.Services.AddHttpClient<CNPJService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
 
 var app = builder.Build();
 

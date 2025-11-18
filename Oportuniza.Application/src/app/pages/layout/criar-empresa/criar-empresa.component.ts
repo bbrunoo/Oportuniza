@@ -180,6 +180,7 @@ export class CriarEmpresaComponent implements OnInit {
     this.verificationModalOpen = false;
     this.verificationCode = '';
     this.isVerifying = false;
+    this.codeInputs = ['', '', '', '', '', ''];
   }
 
   sendEmailCode() {
@@ -231,31 +232,31 @@ export class CriarEmpresaComponent implements OnInit {
     if (fields[index]) fields[index].nativeElement.focus();
   }
 
-  isValidCnpj(cnpj: string): boolean {
-    if (!cnpj) return false;
+  // isValidCnpj(cnpj: string): boolean {
+  //   if (!cnpj) return false;
 
-    cnpj = cnpj.replace(/[^\d]+/g, '');
+  //   const digits = cnpj.replace(/\D/g, '');
+  //   if (digits.length !== 14) return false;
+  //   if (/^(\d)\1+$/.test(digits)) return false;
+  //   const calcCheckDigit = (length: number): number => {
+  //     let sum = 0;
+  //     let weight = length - 7;
 
-    if (cnpj.length !== 14) return false;
-    if (/^(\d)\1+$/.test(cnpj)) return false;
+  //     for (let i = 0; i < length; i++) {
+  //       sum += parseInt(digits.charAt(i), 10) * weight++;
+  //       if (weight > 9) weight = 2;
+  //     }
 
-    const t = cnpj.length - 2;
-    const d = cnpj.substring(t);
-    const d1 = parseInt(d.charAt(0), 10);
-    const d2 = parseInt(d.charAt(1), 10);
-    const calc = (x: number) => {
-      let n = 0;
-      let y = x - 7;
-      for (let i = x; i >= 1; i--) {
-        n += parseInt(cnpj.charAt(x - i), 10) * y++;
-        if (y > 9) y = 2;
-      }
-      const r = 11 - (n % 11);
-      return r > 9 ? 0 : r;
-    };
+  //     const rest = 11 - (sum % 11);
+  //     return rest > 9 ? 0 : rest;
+  //   };
 
-    return calc(12) === d1 && calc(13) === d2;
-  }
+  //   const d1 = calcCheckDigit(12);
+  //   const d2 = calcCheckDigit(13);
+
+  //   return d1 === parseInt(digits.charAt(12), 10) &&
+  //     d2 === parseInt(digits.charAt(13), 10);
+  // }
 
   private resetForm(): void {
     this.name = '';
@@ -346,6 +347,11 @@ export class CriarEmpresaComponent implements OnInit {
   async onSubmit(): Promise<void> {
     if (this.isSubmitting) return;
 
+    // if (!this.isValidCnpj(this.cnpj)) {
+    //   Swal.fire('CNPJ inválido', 'Digite um CNPJ válido antes de prosseguir.', 'warning');
+    //   return;
+    // }
+
     if (!this.name || !this.selectedCity || !this.phone || !this.email || !this.cnpj || !this.selectedImage) {
       Swal.fire('Atenção', 'Preencha todos os campos obrigatórios.', 'warning');
       return;
@@ -431,8 +437,6 @@ export class CriarEmpresaComponent implements OnInit {
           backendMessage = err.message;
         }
 
-        console.log("error:", backendMessage);
-        
         Swal.fire({
           icon: 'error',
           title: 'Falha ao criar empresa',

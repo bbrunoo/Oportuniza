@@ -11,19 +11,17 @@
       <h2>Entrar</h2>
 
       <div class="input-container">
-        <input type="email" name="email" placeholder="E-mail" (input)="onEmailInput($event)" [(ngModel)]="email" required maxlength="100"
-          autocomplete="email" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" (input)="sanitizeEmail()" />
+        <input type="email" name="email" placeholder="E-mail" [(ngModel)]="email" (input)="onEmailInput($event)"
+          maxlength="100" required autocomplete="email" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" />
       </div>
 
       <div class="input-container password-container">
-        <input [type]="passwordVisible ? 'text' : 'password'" name="password" placeholder="Senha" [(ngModel)]="password"
-          required maxlength="64" autocomplete="current-password"
-          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'\ ,.<>?/\\|`~])(?!.*\s).{8,64}$"
-        (input)="sanitizePassword()"
-        />
-        <button type="button" class="show-password" (click)="togglePassword()">
-          <img [src]="passwordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'"
-            alt="Mostrar senha" />
+        <input [type]="passwordVisible ? 'text' : 'password'" id="password" name="password" placeholder="Senha"
+          [(ngModel)]="password" (input)="onPasswordInput($event)" maxlength="15" required
+          autocomplete="new-password" />
+
+        <button class="show-password" type="button" (click)="togglePassword()">
+          <img [src]="passwordVisible ? 'assets/cadastro/openeye.png' : 'assets/cadastro/closeeye.png'" alt="toggle" />
         </button>
       </div>
 

@@ -42,29 +42,35 @@ namespace Oportuniza.API.Controllers
             var companyIdClaim = User.FindFirst("company_id")?.Value;
 
             if (string.IsNullOrEmpty(keycloakId))
-                return Unauthorized("Identificador do usuário não encontrado no token.");
+                return Error("Identificador do usuário não encontrado no token.", 401);
 
             if (!string.IsNullOrEmpty(companyIdClaim))
-                return BadRequest("Empresas não podem se candidatar a vagas.");
-
-            if (!string.IsNullOrEmpty(companyIdClaim))
-                return BadRequest("Empresas não podem se candidatar a vagas.");
+                return Error("Empresas não podem se candidatar a vagas.", 400);
 
             var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
             if (user == null)
-                return Unauthorized("Usuário não registrado no sistema.");
-                Console.WriteLine("id do user", user.Id);
-                Console.WriteLine("id do keycloak", keycloakId);
+                return Error("Usuário não registrado no sistema.", 401);
 
             var publication = await _publicationRepository.GetByIdAsync(dto.PublicationId);
             if (publication == null)
-                return NotFound("Publicação não encontrada.");
+                return Error("Publicação não encontrada.", 404);
 
-            if (publication.AuthorUserId == Guid.Parse(keycloakId))
-                return BadRequest("Você não pode se candidatar na sua própria postagem.");
+            var empresasDoUsuario = await _companyRepository.GetCompaniesByUserIdAsync(user.Id);
+            
+            if (publication.AuthorCompanyId.HasValue &&
+                empresasDoUsuario.Any(c => c.Id == publication.AuthorCompanyId.Value))
+            {
+                return Error("Você não pode se candidatar a uma vaga da empresa à qual você pertence.", 400);
+            }
+
+            if (publication.AuthorUserId.HasValue && publication.AuthorUserId.Value == user.Id)
+                return Error("Você não pode se candidatar à sua própria vaga.", 400);
+
+            if (publication.CreatedByUserId == user.Id)
+                return Error("Você não pode se candidatar à vaga que você mesmo postou.", 400);
 
             if (await _repository.HasAppliedAsync(dto.PublicationId, user.Id))
-                return BadRequest("Você já se candidatou para esta vaga.");
+                return Error("Você já se candidatou para esta vaga.", 400);
 
             var entity = new CandidateApplication
             {
@@ -72,14 +78,12 @@ namespace Oportuniza.API.Controllers
                 UserId = user.Id,
                 UserIdKeycloak = keycloakId,
                 ApplicationDate = DateTime.UtcNow,
-                PublicationAuthorId = publication.AuthorUserId ?? Guid.Empty,
+                PublicationAuthorId = publication.AuthorUserId ?? publication.CreatedByUserId,
                 Status = CandidateApplicationStatus.Pending
             };
 
             var created = await _repository.AddAsync(entity);
-            var result = _mapper.Map<CandidatesDTO>(created);
-
-            return Ok(result);
+            return Ok(_mapper.Map<CandidatesDTO>(created));
         }
 
         [HttpPut("{id}")]
@@ -171,52 +175,6 @@ namespace Oportuniza.API.Controllers
             return Ok(result);
         }
 
-        // ---------- USAR DEPOIS ----------
-
-        //[HttpGet("MyApplications")]
-        //[Authorize]
-        //public async Task<IActionResult> GetMyApplications()
-        //{
-        //    var companyIdClaim = User.FindFirst("company_id")?.Value;
-        //    var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        //    if (string.IsNullOrEmpty(keycloakId))
-        //        return Unauthorized("Usuário não encontrado no token.");
-
-        //    // 1. CONTEXTO DE EMPRESA (COMPANY_ID PRESENTE)
-        //    if (!string.IsNullOrEmpty(companyIdClaim))
-        //    {
-        //        if (!Guid.TryParse(companyIdClaim, out var companyId))
-        //            return BadRequest("CompanyId inválido.");
-
-        //        // Retorna as candidaturas para as vagas desta empresa
-        //        var appsForCompany = await _repository.GetApplicationsByCompanyAsync(companyId);
-
-        //        // Se a empresa não tiver candidaturas (ou publicações), retorna NoContent
-        //        if (appsForCompany == null || !appsForCompany.Any())
-        //            return NoContent(); // <--- Retornar 204 NoContent para indicar "sem dados"
-
-        //        var result = _mapper.Map<IEnumerable<CandidatesDTO>>(appsForCompany);
-        //        return Ok(result);
-        //    }
-        //    // 2. CONTEXTO DE USUÁRIO (CANDIDATO)
-        //    else
-        //    {
-        //        var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
-        //        if (user == null)
-        //            return NotFound("Usuário não encontrado.");
-
-        //        // Retorna as candidaturas que o usuário fez
-        //        var appsForUser = await _repository.GetApplicationsLoggedUser(user.Id);
-
-        //        // Se o usuário não tiver candidaturas, retorna NoContent
-        //        if (appsForUser == null || !appsForUser.Any())
-        //            return NoContent(); // <--- Retornar 204 NoContent para indicar "sem dados"
-
-        //        var result = _mapper.Map<IEnumerable<UserApplicationDto>>(appsForUser);
-        //        return Ok(result);
-        //    }
-        //}
 
         [HttpGet("HasApplied")]
         public async Task<IActionResult> HasApplied(Guid publicationId, Guid userId)
@@ -338,12 +296,10 @@ namespace Oportuniza.API.Controllers
             if (application.CandidateExtra != null)
                 return BadRequest("Já existe um extra associado a esta candidatura.");
 
-            string? resumeUrl = null;
+            if (dto.Resume == null)
+                return BadRequest("O currículo é obrigatório.");
 
-            if (dto.Resume != null)
-            {
-                resumeUrl = await blobService.UploadResumeAsync(dto.Resume, "resumes", application.UserId);
-            }
+            var resumeUrl = await blobService.UploadResumeAsync(dto.Resume, "resumes", application.UserId);
 
             var extra = new CandidateExtra
             {
@@ -356,6 +312,11 @@ namespace Oportuniza.API.Controllers
             var result = _mapper.Map<CandidateExtraDTO>(createdExtra);
 
             return Ok(result);
+        }
+
+        private IActionResult Error(string message, int status)
+        {
+            return StatusCode(status, new { error = message });
         }
     }
 }

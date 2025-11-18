@@ -101,8 +101,6 @@ namespace Oportuniza.Infrastructure.Repositories
             double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
             return R * c;
         }
-
-
         public async Task<(IEnumerable<Publication> publications, int totalCount)> GetCompanyPublicationsPaged(
                     Guid companyId, int pageNumber, int pageSize)
         {
@@ -112,10 +110,14 @@ namespace Oportuniza.Infrastructure.Repositories
             var totalCount = await query.CountAsync();
 
             var publications = await query
+                .Include(p => p.CreatedByUser)
+                .Include(p => p.AuthorUser)
+                .Include(p => p.AuthorCompany)
                 .OrderByDescending(p => p.CreationDate)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+
 
             return (publications, totalCount);
         }
@@ -128,8 +130,12 @@ namespace Oportuniza.Infrastructure.Repositories
                 .ToListAsync();
 
             var myPublications = await _context.Publication
-                .Where(p => p.AuthorUserId == userId || (p.AuthorCompanyId.HasValue && userCompanyIds.Contains(p.AuthorCompanyId.Value)))
+                .Where(p => p.AuthorUserId == userId ||
+                           (p.AuthorCompanyId.HasValue && userCompanyIds.Contains(p.AuthorCompanyId.Value)))
                 .Where(p => p.IsActive == PublicationAvailable.Enabled)
+                .Include(p => p.CreatedByUser)
+                .Include(p => p.AuthorUser)
+                .Include(p => p.AuthorCompany)
                 .ToListAsync();
 
             return myPublications;
@@ -150,12 +156,12 @@ namespace Oportuniza.Infrastructure.Repositories
 
             var publications = await query
                 .OrderByDescending(p => p.CreationDate)
+                .Include(p => p.CreatedByUser)
                 .Include(p => p.AuthorUser)
                 .Include(p => p.AuthorCompany)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-
 
             return (publications, totalCount);
         }
@@ -174,6 +180,7 @@ namespace Oportuniza.Infrastructure.Repositories
 
             var publications = await query
                 .OrderByDescending(p => p.CreationDate)
+                .Include(p => p.CreatedByUser)
                 .Include(p => p.AuthorUser)
                 .Include(p => p.AuthorCompany)
                 .Skip((pageNumber - 1) * pageSize)

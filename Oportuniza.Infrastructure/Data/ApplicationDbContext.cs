@@ -24,6 +24,7 @@ namespace Oportuniza.Infrastructure.Data
         public DbSet<CompanyEmployee> CompanyEmployee { get; set; }
         public DbSet<CompanyRole> CompanyRole { get; set; }
         public DbSet<CandidateExtra> CandidateExtra { get; set; }
+        public DbSet<CNPJCache> CnpjCache { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new LoginAttemptsEntityConfiguration());
@@ -41,6 +42,7 @@ namespace Oportuniza.Infrastructure.Data
             modelBuilder.ApplyConfiguration(new CandidateApplicationConfiguration());
             modelBuilder.ApplyConfiguration(new CompanyRoleConfiguration());
             modelBuilder.ApplyConfiguration(new CandidateExtraConfiguration());
+            modelBuilder.ApplyConfiguration(new CnpjCacheConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oportuniza.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Oportuniza.Infrastructure.Data;
 namespace Oportuniza.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251113160703_cnpj")]
+    partial class cnpj
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -283,17 +286,17 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3af04d20-f161-4ff2-8949-203c73d036b7"),
+                            Id = new Guid("01bd9cf9-c209-4b00-a875-474cdbc940df"),
                             Name = "Owner"
                         },
                         new
                         {
-                            Id = new Guid("2e535245-ad07-4782-9a49-03cb993db14e"),
+                            Id = new Guid("0be93db8-fe73-470b-9f2e-c5f5d8d7258b"),
                             Name = "Administrator"
                         },
                         new
                         {
-                            Id = new Guid("9fcd17bd-3829-4031-a0f4-e9124cda973e"),
+                            Id = new Guid("772a8f7b-ade5-4412-a4c6-7590027c524d"),
                             Name = "Worker"
                         });
                 });
@@ -435,11 +438,6 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.Property<double?>("Longitude")
                         .HasPrecision(9, 6)
                         .HasColumnType("float(9)");
-
-                    b.Property<string>("PostAuthorName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Resumee")
                         .IsRequired()

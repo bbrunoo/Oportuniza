@@ -23,7 +23,6 @@ export interface CompanyCreatePayload {
 export class CompanyService {
   private companyApiUrl = 'http://localhost:5000/api/v1/Company';
   private uploadApiUrl = 'http://localhost:5000/api/Upload/upload-company-picture';
-  private readonly brasilApiUrl = 'https://brasilapi.com.br/api/cnpj/v1';
   private apiUrl = `${environment.apiUrl}/Publication`;
 
   constructor(
@@ -85,20 +84,5 @@ export class CompanyService {
 
   sendCompanyVerificationCode(email: string): Observable<any> {
     return this.http.post(`${environment.apiUrl}/Verification/send-company-code`, { email });
-  }
-
-  consultarCnpj(cnpj: string): Observable<{ ativo: boolean }> {
-    const cnpjLimpo = cnpj.replace(/\D/g, '');
-
-    return this.http.get<any>(`${this.brasilApiUrl}/${cnpjLimpo}`).pipe(
-      map((dados) => {
-        const ativo = dados?.descricao_situacao_cadastral?.toUpperCase() === 'ATIVA';
-        return { ativo };
-      }),
-      catchError((err) => {
-        console.error('Erro ao consultar CNPJ:', err);
-        return of({ ativo: false });
-      })
-    );
   }
 }

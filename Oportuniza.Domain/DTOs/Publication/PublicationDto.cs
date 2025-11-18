@@ -18,6 +18,7 @@ namespace Oportuniza.Domain.DTOs.Publication
         public DateTime ExpirationDate { get; set; }
         public Guid AuthorId { get; set; }
         public string AuthorName { get; set; }
+        public string PostAuthorName { get; set; }
         public string AuthorType { get; set; }
         public string AuthorImageUrl { get; set; }
         public PublicationStatus Status { get; set; }

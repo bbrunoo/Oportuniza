@@ -26,12 +26,11 @@ export class PostActionsComponent implements OnDestroy {
   ) {
     this.post = data.post;
   }
+
   ngOnInit(): void {
-    console.log('Postagem recebida:', this.post);
   }
 
   editarPostagem() {
-    console.log('Editando postagem:', this.post.id);
     this.dialogRef.close();
     this.router.navigate(['/inicio/editar-post', this.post.id]);
   }

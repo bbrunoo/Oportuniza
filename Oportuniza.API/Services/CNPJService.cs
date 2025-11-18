@@ -1,15 +1,18 @@
-﻿using System.Text.Json;
+﻿using Oportuniza.Domain.Interfaces;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Oportuniza.API.Services
 {
     public class CNPJService
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _http;
+        private readonly ICnpjCacheRepository _repo;
 
-        public CNPJService(HttpClient httpClient)
+        public CNPJService(HttpClient http, ICnpjCacheRepository repo)
         {
-            _httpClient = httpClient;
+            _http = http;
+            _repo = repo;
         }
 
         public bool IsValid(string cnpj)
@@ -52,30 +55,45 @@ namespace Oportuniza.API.Services
             public bool Ativo => SituacaoCadastral?.Trim().ToUpper() == "ATIVA";
         }
 
-        public async Task<bool> VerificarAtividadeCnpjAsync(string cnpj)
+        public async Task<bool?> VerificarAtividadeCnpjAsync(string cnpj)
         {
             cnpj = new string(cnpj.Where(char.IsDigit).ToArray());
+            if (cnpj.Length != 14) return null;
 
-            if (!IsValid(cnpj))
-                throw new ArgumentException("CNPJ inválido.");
+            var cache = await _repo.GetAsync(cnpj);
+            if (cache != null && cache.AtualizadoEm > DateTime.UtcNow.AddDays(-30))
+                return cache.Situacao.ToUpper() == "ATIVA";
 
-            var url = $"https://brasilapi.com.br/api/cnpj/v1/{cnpj}";
-            var response = await _httpClient.GetAsync(url);
-
-            if (!response.IsSuccessStatusCode)
-                throw new Exception($"Erro ao consultar CNPJ: {response.StatusCode}");
-
-            var json = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
-
-            if (root.TryGetProperty("descricao_situacao_cadastral", out var situacao))
+            try
             {
-                var status = situacao.GetString()?.ToLowerInvariant();
-                return status == "ativa";
-            }
+                var url = $"https://publica.cnpj.ws/cnpj/{cnpj}";
 
-            return false;
+                var response = await _http.GetAsync(url);
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Erro API pública CNPJ.ws: {response.StatusCode}");
+
+                var json = await response.Content.ReadAsStringAsync();
+                using var doc = JsonDocument.Parse(json);
+
+                var status = doc.RootElement
+                    .GetProperty("estabelecimento")
+                    .GetProperty("situacao_cadastral")
+                    .GetString()?
+                    .Trim()
+                    .ToUpper() ?? "";
+
+                await _repo.UpsertAsync(cnpj, status);
+
+                return status == "ATIVA";
+            }
+            catch
+            {
+                if (cache != null)
+                    return cache.Situacao.ToUpper() == "ATIVA";
+
+                return null;
+            }
         }
     }
 }

@@ -62,14 +62,12 @@ export class KeycloakOperationService {
 
   async init(): Promise<void> {
     if (this.isBrowser) {
-      console.log("keycloak initialized.");
     }
     return Promise.resolve();
   }
 
   loginWithCredentials(username: string, password: string): Observable<any> {
     const url = `${environment.apiUrl}/v1/Auth/login-keycloak`;
-    console.log('➡️ Enviando login para:', url);
     return this.http.post(url, { email: username, password }).pipe(
       tap((res: any) => {
         this.saveTokens(res);
@@ -153,7 +151,6 @@ export class KeycloakOperationService {
     if (!token) {
       token = this.getToken();
       if (token) {
-        console.log('[KeycloakOperationService] Token recuperado do localStorage.');
         this.currentTokenSubject.next(token);
       }
     }
@@ -171,7 +168,6 @@ export class KeycloakOperationService {
         await this.refreshToken().toPromise();
         const refreshed = this.getToken();
         if (refreshed && !this.isTokenExpired(refreshed)) {
-          console.log('[KeycloakOperationService] Token renovado com sucesso.');
           return true;
         } else {
           console.error('[KeycloakOperationService] Falha ao renovar token.');
@@ -216,7 +212,6 @@ export class KeycloakOperationService {
       message?: string;
     }>(url, { headers }).pipe(
       tap(res => {
-        console.log('[KeycloakOperationService] Verificação de role:', res);
       }),
       catchError(err => {
         console.error('[KeycloakOperationService] Erro ao verificar role:', err);
@@ -250,7 +245,6 @@ export class KeycloakOperationService {
       message?: string;
     }>(url, { headers }).pipe(
       tap(res => {
-        console.log('[KeycloakOperationService] Resultado de verify-role:', res);
       }),
       catchError(err => {
         console.error('[KeycloakOperationService] Erro ao chamar verify-role:', err);
@@ -358,8 +352,6 @@ export class KeycloakOperationService {
   async logout(): Promise<void> {
     if (this.isBrowser && !this.isLoggingOut) {
       this.isLoggingOut = true;
-      console.log('KeycloakOperationService: Realizando logout (limpando localStorage).');
-
       localStorage.removeItem('user_token');
       localStorage.removeItem('company_token');
       localStorage.removeItem('active_token');
@@ -385,12 +377,10 @@ export class KeycloakOperationService {
           localStorage.setItem('company_token', newToken);
           localStorage.setItem('active_token', 'company');
           localStorage.setItem('context_access_token', newToken);
-          console.log('[KeycloakOperationService] Token de empresa armazenado.');
         } else {
           localStorage.setItem('user_token', newToken);
           localStorage.setItem('active_token', 'user');
           localStorage.setItem('context_access_token', newToken);
-          console.log('[KeycloakOperationService] Token de usuário armazenado.');
         }
 
         this.currentTokenSubject.next(newToken);
@@ -411,12 +401,10 @@ export class KeycloakOperationService {
       localStorage.setItem('active_token', 'user');
       localStorage.setItem('context_access_token', userToken);
       this.currentTokenSubject.next(userToken);
-      console.log('[KeycloakOperationService] Alternado para token de usuário.');
     } else if (context === 'company' && companyToken) {
       localStorage.setItem('active_token', 'company');
       localStorage.setItem('context_access_token', companyToken);
       this.currentTokenSubject.next(companyToken);
-      console.log('[KeycloakOperationService] Alternado para token de empresa.');
     } else {
       console.warn(`[KeycloakOperationService] Token de contexto "${context}" não encontrado.`);
     }

@@ -143,8 +143,6 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
           this.userRole = null;
           this.isCompany = false;
         }
-
-        console.log('🧭 Papel do usuário na empresa:', this.userRole);
         this.finishLoading();
       },
       error: (err) => {
@@ -178,8 +176,6 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
           this.userRole = null;
           this.isCompany = false;
         }
-
-        console.log('🧭 Papel do usuário na empresa (verificação manual):', this.userRole);
       },
       error: (err) => {
         console.error('Erro ao verificar papel do usuário:', err);

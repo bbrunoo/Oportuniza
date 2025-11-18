@@ -115,19 +115,6 @@ export class PublicationService {
     if (filters.radiusKm != null && filters.radiusKm > 0) {
       params = params.append('radiusKm', filters.radiusKm.toString());
     }
-
-    console.log('➡️ Parâmetros enviados à API:', {
-      searchTerm: filters.searchTerm,
-      local: filters.local,
-      contracts: filters.contracts,
-      shifts: filters.shifts,
-      salaryRange: filters.salaryRange,
-      latitude: filters.latitude,
-      longitude: filters.longitude,
-      radiusKm: filters.radiusKm,
-      finalUrl: `${this.apiUrl}/search?${params.toString()}`
-    });
-
     return this.http.get<Publication[]>(`${this.apiUrl}/search`, { params });
   }
 

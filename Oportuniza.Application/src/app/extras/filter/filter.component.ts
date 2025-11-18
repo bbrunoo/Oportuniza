@@ -86,7 +86,6 @@ export class FilterComponent {
       (pos) => {
         this.filters.latitude = pos.coords.latitude;
         this.filters.longitude = pos.coords.longitude;
-        console.log('Localização obtida automaticamente:', this.filters);
         Swal.fire('Sucesso', 'Localização obtida com sucesso.', 'success');
       },
       (err) => {
@@ -122,8 +121,6 @@ export class FilterComponent {
     filtersToSend.local = filtersToSend.local?.toLowerCase() || '';
     filtersToSend.searchTerm = filtersToSend.searchTerm?.toLowerCase() || '';
     filtersToSend.salaryRange = filtersToSend.salaryRange?.toLowerCase() || null;
-
-    console.log('Filtros enviados à API:', filtersToSend);
     this.dialogRef.close(filtersToSend);
     this.clearFilters();
   }

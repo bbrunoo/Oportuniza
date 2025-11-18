@@ -26,7 +26,6 @@ export class MeuperfilComponent {
     this.profileService.getMyProfile().subscribe({
       next: (profile: UserProfile) => {
         this.userProfile = profile;
-        console.log(this.userProfile)
         this.isLoading = false;
       },
       error: (error) => {

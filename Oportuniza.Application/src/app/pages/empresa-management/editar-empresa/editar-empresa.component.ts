@@ -57,7 +57,6 @@ export class EditarEmpresaComponent {
 
     if (parentId) {
       this.empresaId = parentId;
-      console.log('ID da Empresa para edit company:', this.empresaId);
       this.loadCompanyData(this.empresaId);
     } else {
       console.error('ID da Empresa não encontrado na URL.');

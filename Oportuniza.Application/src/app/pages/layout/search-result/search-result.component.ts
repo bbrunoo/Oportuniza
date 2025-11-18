@@ -54,7 +54,6 @@ export class SearchResultComponent implements OnInit {
     this.publicationService.filterPublications(this.currentFilters).subscribe({
       next: (res: Publication[]) => {
         this.publications = res;
-        console.log('✅ Resultados da busca:', res);
         this.hasResults = this.publications.length > 0;
       },
       error: (err) => {
@@ -95,6 +94,5 @@ export class SearchResultComponent implements OnInit {
   }
 
   onPostClick(publication: Publication): void {
-    console.log('ID da publicação clicada:', publication.id);
   }
 }

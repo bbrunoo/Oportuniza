@@ -59,6 +59,7 @@ export class PublicationComponent implements OnInit {
     contract: '',
     salary: '',
     authorImageUrl: '',
+    postAuthorName: '',
     cityId: '',
     isActive: 0,
   };

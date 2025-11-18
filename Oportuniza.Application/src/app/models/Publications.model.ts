@@ -9,6 +9,7 @@ export interface Publication {
   authorId: string;
   authorType: number;
   authorName: string;
+  postAuthorName:string;
   shift: string;
   local: string;
   resumee: string;

@@ -59,6 +59,7 @@ export class EditarPostComponent {
     contract: '',
     salary: '',
     authorImageUrl: '',
+    postAuthorName: '',
     cityId: '',
     isActive: 0,
   };
@@ -131,9 +132,6 @@ export class EditarPostComponent {
         this.companyService
           .getUserCompanies()
           .subscribe(companies => (this.userCompanies = companies));
-
-        console.log('Dados da postagem carregados:', this.publication);
-        console.log('ID do autor atribuído:', this.selectedAuthorId);
       },
       error: (err) => {
         Swal.fire('Erro', 'Não foi possível carregar os dados da publicação.', 'error');

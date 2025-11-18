@@ -81,56 +81,73 @@ export class FeedComponent implements OnInit {
   confirmApplication() {
     if (!this.selectedPublicationId) return;
 
+    if (!this.selectedResumeFile) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Currículo obrigatório',
+        text: 'Você deve enviar um currículo para concluir a candidatura.',
+        confirmButtonText: 'Ok'
+      });
+      return;
+    }
+
     this.candidateService.applyToJob(this.selectedPublicationId).subscribe({
       next: (response: any) => {
         const appId = response.id;
         this.appliedStatus[this.selectedPublicationId!] = true;
         this.applicationIds[this.selectedPublicationId!] = appId;
 
-        if (this.observationText || this.selectedResumeFile) {
-          this.candidateService
-            .addCandidateExtra(appId, this.observationText, this.selectedResumeFile)
-            .subscribe({
-              next: () => {
-                this.closeApplyModal();
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Candidatura enviada!',
-                  text: 'Sua candidatura foi enviada com sucesso!',
-                  confirmButtonText: 'Ok',
-                });
-              },
-              error: (err) => {
-                console.error(err);
-                Swal.fire({
-                  icon: 'warning',
-                  title: 'Candidatura enviada com ressalvas',
-                  text: 'Candidatura feita, mas houve erro ao anexar currículo/observação.',
-                  confirmButtonText: 'Ok',
-                });
-                this.closeApplyModal();
-              },
-            });
-        } else {
-          this.closeApplyModal();
-          Swal.fire({
-            icon: 'success',
-            title: 'Candidatura enviada!',
-            text: 'Sua candidatura foi enviada com sucesso!',
-            confirmButtonText: 'Ok',
+        this.candidateService.addCandidateExtra(appId, this.observationText, this.selectedResumeFile)
+          .subscribe({
+            next: () => {
+              this.closeApplyModal();
+              Swal.fire({
+                icon: 'success',
+                title: 'Candidatura enviada!',
+                text: 'Sua candidatura foi enviada com sucesso.',
+                confirmButtonText: 'Ok'
+              });
+            },
+            error: (err) => {
+              const msg = err?.error?.error || 'Erro ao enviar candidatura.';
+
+              Swal.fire({
+                icon: 'error',
+                title: 'Atenção',
+                text: msg,
+                confirmButtonText: 'Ok',
+              });
+
+              this.closeApplyModal();
+            }
           });
-        }
       },
+
       error: (err) => {
-        console.error(err);
+        let msg = 'Erro ao enviar candidatura.';
+
+        if (typeof err?.error === 'string') {
+          try {
+            const parsed = JSON.parse(err.error);
+            msg = parsed.error || parsed.message || msg;
+          } catch {
+            msg = err.error;
+          }
+        }
+        else if (err?.error?.error) {
+          msg = err.error.error;
+        }
+        else if (err?.error?.message) {
+          msg = err.error.message;
+        }
+
         Swal.fire({
           icon: 'error',
-          title: 'Erro!',
-          text: 'Erro ao enviar candidatura. Tente novamente.',
-          confirmButtonText: 'Fechar',
+          title: 'Atenção',
+          text: msg,
+          confirmButtonText: 'Ok',
         });
-        this.closeApplyModal();
-      },
+      }
     });
   }
 

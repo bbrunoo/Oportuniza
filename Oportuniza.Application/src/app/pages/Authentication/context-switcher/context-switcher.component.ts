@@ -64,7 +64,6 @@ export class ContextSwitcherComponent {
     this.accessService.getContexts().subscribe({
       next: (data) => {
         this.contexts = data;
-        console.log(data);
         this.loading = false;
       },
       error: (err) => {
@@ -90,12 +89,9 @@ export class ContextSwitcherComponent {
     }
 
     this.loading = true;
-    console.log(`Trocando para empresa ID: ${context.id}`);
 
     this.accessService.switchContext(context.id).subscribe({
       next: (res) => {
-        console.log('Contexto trocado com sucesso:', res);
-
         localStorage.setItem('company_token', res.token);
         localStorage.setItem('active_token', 'company');
         this.keycloakService.setNewAccessToken(res.token);

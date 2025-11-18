@@ -63,11 +63,7 @@
         <div class="final">
           <p>Data de expiração: {{ publications[currentIndex].expirationDate | date: 'dd/MM/yyyy' }}</p>
 
-          <div class="bottom" *ngIf="
-              !isCompany &&
-              publications[currentIndex].authorId !== userId &&
-              publications[currentIndex].companyOwnerId !== userId
-            ">
+          <div class="bottom" *ngIf=" !isCompany && publications[currentIndex].authorId !== userId">
 
             <button *ngIf="!appliedStatus[publications[currentIndex].id]"
               (click)="openApplyModal(publications[currentIndex].id)" class="apply-button">

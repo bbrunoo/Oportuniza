@@ -29,12 +29,17 @@ namespace Oportuniza.API.Mapper
                     src.AuthorUser != null ? "User" : "Unknown"))
 
                 .ForMember(dest => dest.CompanyOwnerId, opt => opt.MapFrom(src => src.AuthorCompanyId))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+
+                .ForMember(dest => dest.PostAuthorName,
+                    opt => opt.MapFrom(src => src.CreatedByUser != null ? src.CreatedByUser.Name : null));
 
             CreateMap<PublicationCreateDto, Publication>();
 
             CreateMap<PublicationUpdateDto, Publication>()
                 .ForMember(dest => dest.Resumee, opt => opt.MapFrom(src => src.Resumee));
+
+
         }
     }
 }

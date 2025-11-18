@@ -26,10 +26,6 @@ export class CompanyActionsComponent implements OnDestroy {
     this.company = data.company;
   }
 
-  ngOnInit(): void {
-    console.log('Empresa recebida:', this.company);
-  }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

@@ -19,6 +19,35 @@ export class LoginComponent {
   password: string = '';
   isLoading = false;
 
+  passwordsMatch: boolean = false;
+  passwordsMatchStatus: boolean = false;
+  passwordMatchTimeout: any = null;
+
+  passwordCriteria = {
+    hasLowercase: false,
+    hasUppercase: false,
+    hasNumber: false,
+    hasSymbol: false,
+    hasMinLength: false,
+    equalsPassword: false,
+  };
+
+  passwordStatus = {
+    hasLowercase: false,
+    hasUppercase: false,
+    hasNumber: false,
+    hasSymbol: false,
+    hasMinLength: false,
+    equalsPassword: false,
+  };
+
+  timeoutMap: any = {};
+
+  criteriaList: {
+    key: keyof (typeof LoginComponent.prototype)['passwordCriteria'];
+    message: string;
+  }[] = [];
+
   constructor(
     private keycloakService: KeycloakOperationService,
     private router: Router
@@ -56,6 +85,37 @@ export class LoginComponent {
       .replace(/[^a-zA-Z0-9@._-]/g, '');
 
     this.email = input.value;
+  }
+
+  onPasswordInput(event?: any) {
+    if (event) {
+      const input = event.target as HTMLInputElement;
+
+      input.value = input.value.replace(/[^A-Za-z0-9!#@$%&.]/g, '');
+      this.password = input.value;
+    }
+
+    const pwd = this.password;
+
+    const checks = {
+      hasLowercase: /[a-z]/.test(pwd),
+      hasUppercase: /[A-Z]/.test(pwd),
+      hasNumber: /\d/.test(pwd),
+      hasSymbol: /[!#@$%&]/.test(pwd),
+      hasMinLength: pwd.length >= 8,
+    };
+
+    Object.entries(checks).forEach(([key, value]) => {
+      const typedKey = key as keyof typeof this.passwordCriteria;
+      if (value && !this.passwordCriteria[typedKey]) {
+        this.passwordStatus[typedKey] = true;
+        if (this.timeoutMap[typedKey]) clearTimeout(this.timeoutMap[typedKey]);
+        this.timeoutMap[typedKey] = setTimeout(() => {
+          this.passwordStatus[typedKey] = false;
+        }, 400);
+      }
+      this.passwordCriteria[typedKey] = value;
+    });
   }
 
   validatePassword(password: string): boolean {

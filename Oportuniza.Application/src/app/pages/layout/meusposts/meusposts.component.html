@@ -9,6 +9,7 @@
     <div class="post-card" *ngFor="let post of publications" (click)="openDialog($event, post)">
       <img class="post-card-img" [src]="post.imageUrl" alt="Imagem da postagem" />
       <div class="description">
+        <span class="post-author">{{ post.postAuthorName }}</span>
         <p>Expira em {{ post.expirationDate | date: 'dd/MM/yyyy' }}</p>
       </div>
     </div>

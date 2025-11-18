@@ -26,9 +26,7 @@ export function kcFactory(kcService: KeycloakOperationService) {
 
     if (token) {
       kcService['currentTokenSubject'].next(token);
-      console.log('[APP_INITIALIZER] Token restaurado antes das rotas.');
     } else {
-      console.warn('[APP_INITIALIZER] Nenhum token encontrado.');
     }
 
     return Promise.resolve();

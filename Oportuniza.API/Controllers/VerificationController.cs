@@ -151,10 +151,6 @@ namespace Oportuniza.API.Controllers
             if (string.IsNullOrWhiteSpace(request.Email))
                 return BadRequest("E-mail é obrigatório.");
 
-            var user = await _userRepository.GetUserByEmailAsync(request.Email);
-            if (user == null)
-                return NotFound("Usuário não encontrado.");
-
             var code = _codeService.GenerateCode(request.Email, "company");
             var message = "Use o código abaixo para confirmar a criação da sua empresa no Oportuniza:";
 

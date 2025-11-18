@@ -29,6 +29,7 @@ export class MeuspostsComponent implements OnInit {
 
   getPublications() {
     this.isLoading = true;
+
     this.publicationService
       .getMyPublications(this.pageNumber, this.pageSize)
       .subscribe({
@@ -38,7 +39,6 @@ export class MeuspostsComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error: any) => {
-          console.log('Erro ao carregar publicações:', error);
           this.publications = [];
           this.totalPages = 0;
           this.isLoading = false;

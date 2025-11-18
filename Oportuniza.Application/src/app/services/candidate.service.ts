@@ -17,8 +17,12 @@ export class CandidateService {
     return this.http.delete<void>(`${this.apiUrl}/${applicationId}`);
   }
 
-  applyToJob(publicationId: string): Observable<Candidatura> {
-    return this.http.post<Candidatura>(`${this.apiUrl}`, { publicationId });
+  applyToJob(publicationId: string): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}`,
+      { publicationId },
+      { responseType: 'text' as 'json' }
+    );
   }
 
   addCandidateExtra(applicationId: string, observation?: string, resumeFile?: File) {

@@ -89,15 +89,31 @@ namespace Oportuniza.Infrastructure.Repositories
 
         public async Task<bool> UserHasAccessToCompanyAsync(Guid userId, Guid companyId)
         {
-            return await _context.Company
-                .AnyAsync(c => c.Id == companyId && c.IsActive == CompanyAvailable.Active &&
-                              (c.UserId == userId || c.Employees.Any(e => e.UserId == userId)));
+            return await _context.Company.AnyAsync(c =>
+                c.Id == companyId &&
+                c.IsActive == CompanyAvailable.Active &&
+                (
+                    c.UserId == userId ||
+                    c.Employees.Any(e =>
+                        e.UserId == userId &&
+                        e.IsActive == CompanyEmployeeStatus.Active
+                    )
+                ));
         }
 
         public async Task<bool> UserOwnsCompanyAsync(Guid userId, Guid companyId)
         {
             return await _context.Company
                 .AnyAsync(c => c.Id == companyId && c.UserId == userId);
+        }
+
+        public async Task<List<Company>> GetCompaniesByUserIdAsync(Guid userId)
+        {
+            return await _context.CompanyEmployee
+                .Where(e => e.UserId == userId && e.IsActive == CompanyEmployeeStatus.Active)
+                .Include(e => e.Company)
+                .Select(e => e.Company)
+                .ToListAsync();
         }
     }
 }

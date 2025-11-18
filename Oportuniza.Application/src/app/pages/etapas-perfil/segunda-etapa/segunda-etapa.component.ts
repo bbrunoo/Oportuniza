@@ -119,8 +119,6 @@ export class SegundaEtapaComponent implements OnInit {
       isProfileCompleted: true
     };
 
-    console.log("dados antes de enviar:", dados);
-
     this.userService.updateProfile(dados, userId).subscribe({
       next: () => {
         localStorage.removeItem('profileName');

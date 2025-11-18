@@ -168,22 +168,26 @@ namespace Oportuniza.API.Controllers
             if (!_verificationCodeService.ValidateCode(dto.Email, verificationCode, "company"))
                 return BadRequest(new { message = "Código de verificação inválido ou expirado." });
 
+
+            bool? statusAtivo;
             try
             {
-                var statusAtivo = await _cnpjService.VerificarAtividadeCnpjAsync(dto.Cnpj);
-                if (!statusAtivo)
-                    return BadRequest(new { message = "O CNPJ informado não está ativo na Receita Federal." });
+                statusAtivo = await _cnpjService.VerificarAtividadeCnpjAsync(dto.Cnpj);
             }
-            catch (HttpRequestException)
+            catch (Exception)
             {
-                return StatusCode(503, new { message = "Serviço de verificação de CNPJ indisponível no momento." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = $"Erro ao consultar CNPJ: {ex.Message}" });
+                statusAtivo = null;
             }
 
-            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            if (statusAtivo == false)
+                return BadRequest(new { message = "O CNPJ informado não está ativo na Receita Federal." });
+
+            if (statusAtivo == null)
+                return StatusCode(503, new { message = "Não foi possível verificar o CNPJ no momento. Tente novamente." });
+
+            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                          ?? User.FindFirst("sub")?.Value;
+
             if (string.IsNullOrEmpty(keycloakId))
                 return Unauthorized(new { message = "Token inválido." });
 
@@ -196,9 +200,8 @@ namespace Oportuniza.API.Controllers
             {
                 imageUrl = await _azureBlobService.UploadCompanyImage(image, "company", Guid.NewGuid());
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"[AzureBlobService] Falha ao enviar imagem: {ex.Message}");
                 return StatusCode(500, new { message = "Falha ao processar imagem da empresa." });
             }
 
@@ -236,10 +239,9 @@ namespace Oportuniza.API.Controllers
 
                 await transaction.CommitAsync();
             }
-            catch (Exception ex)
+            catch
             {
                 await transaction.RollbackAsync();
-                Console.WriteLine($"[CompanyController] Erro ao criar empresa: {ex.Message}");
                 return StatusCode(500, new { message = "Erro ao criar empresa." });
             }
 

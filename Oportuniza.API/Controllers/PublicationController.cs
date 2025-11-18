@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Oportuniza.API.Services;
 using Oportuniza.Domain.DTOs;
 using Oportuniza.Domain.DTOs.Publication;
 using Oportuniza.Domain.Enums;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
+using Sprache;
 using System.Linq.Expressions;
 using System.Security.Claims;
 
@@ -86,13 +88,14 @@ namespace Oportuniza.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var publications = await _publicationRepository.GetAllAsync(
-                 orderBy: q => q.OrderByDescending(c => c.CreationDate),
-                 includes: new Expression<Func<Publication, object>>[]
-                 {
-                    p => p.AuthorUser,
-                    p => p.AuthorCompany
-                 },
-                 filter: p => p.IsActive == PublicationAvailable.Enabled
+                orderBy: q => q.OrderByDescending(c => c.CreationDate),
+                includes: new Expression<Func<Publication, object>>[]
+                {
+                p => p.CreatedByUser,
+                p => p.AuthorUser,
+                p => p.AuthorCompany
+                },
+                filter: p => p.IsActive == PublicationAvailable.Enabled
             );
 
             if (publications == null || !publications.Any())
@@ -209,13 +212,15 @@ namespace Oportuniza.API.Controllers
             {
                 Title = dto.Title,
                 Description = dto.Description,
+                Resumee = dto.Description, //caso tenha internet, remover para usar a IA para gerar o texto corretamente.
                 Salary = dto.Salary,
                 Local = dto.Local,
                 Shift = dto.Shift,
                 ExpirationDate = dto.ExpirationDate,
                 Contract = dto.Contract,
                 CreatedByUserId = user.Id,
-                CreationDate = DateTime.UtcNow
+                CreationDate = DateTime.UtcNow,
+                PostAuthorName = user.Name
             };
 
             Guid? companyId = null;
@@ -261,17 +266,25 @@ namespace Oportuniza.API.Controllers
                 publication.ImageUrl = null;
             }
 
-            try
-            {
-                publication.Resumee = await _geminiService.CreateSummaryAsync(
-                    dto.Description, dto.Shift, dto.Local, dto.Contract, 80, dto.Salary);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[GeminiService] Falha ao gerar resumo com IA: {ex.Message}");
-                publication.Resumee = string.Join(" ",
-                    dto.Description.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(30));
-            }
+            //try
+            //{
+            //    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+            //    publication.Resumee = await _geminiService.CreateSummaryAsync(
+            //        dto.Description, dto.Shift, dto.Local, dto.Contract, 80, dto.Salary);
+            //}
+            //catch (OperationCanceledException)
+            //{
+            //    Console.WriteLine("[GeminiService] Timeout ao gerar resumo com IA.");
+            //    publication.Resumee = string.Join(" ",
+            //        dto.Description.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(30));
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"[GeminiService] Falha ao gerar resumo com IA: {ex.Message}");
+            //    publication.Resumee = string.Join(" ",
+            //        dto.Description.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(30));
+            //}
 
             await _publicationRepository.AddAsync(publication);
             var publicationDto = _mapper.Map<PublicationDto>(publication);
@@ -425,8 +438,9 @@ namespace Oportuniza.API.Controllers
             var publications = await _publicationRepository.GetAllAsync(
                 includes: new Expression<Func<Publication, object>>[]
                 {
-            p => p.AuthorUser,
-            p => p.AuthorCompany
+                    p => p.CreatedByUser,
+                    p => p.AuthorUser,
+                    p => p.AuthorCompany
                 },
                 filter: p => p.IsActive == PublicationAvailable.Enabled
             );

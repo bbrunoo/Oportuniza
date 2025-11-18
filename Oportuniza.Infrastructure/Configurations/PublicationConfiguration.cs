@@ -15,6 +15,10 @@ namespace Oportuniza.Infrastructure.Configurations
                 .IsRequired()
                 .HasMaxLength(200);
 
+            builder.Property(p => p.PostAuthorName)
+                .IsRequired()
+                .HasMaxLength(100);
+
             builder.Property(p => p.Description)
                 .IsRequired();
 

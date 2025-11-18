@@ -26,7 +26,6 @@ export class InformacoesComponent {
     }
 
     if (this.empresaId) {
-      console.log('ID da Empresa para Informações:', this.empresaId);
       this.loadCompanyInformation(this.empresaId);
 
     } else {
@@ -44,7 +43,6 @@ export class InformacoesComponent {
       next: (data) => {
         this.company = data;
         this.isLoading = false;
-        console.log('Dados da empresa carregados:', this.company);
       },
       error: (err) => {
         this.isLoading = false;

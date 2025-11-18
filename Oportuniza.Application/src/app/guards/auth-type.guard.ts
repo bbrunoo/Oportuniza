@@ -18,10 +18,8 @@ export class AuthTypeGuard implements CanActivate {
     const isAuthenticated = await this.keycloakService.isLoggedIn();
 
     if (isAuthenticated) {
-      console.log('AuthGuard: Usuário autenticado. Permitindo acesso.');
       return true;
     } else {
-      console.warn('AuthGuard: Nenhuma sessão ativa detectada. Redirecionando para /login.');
       return this.router.createUrlTree(['/login']);
     }
   }
