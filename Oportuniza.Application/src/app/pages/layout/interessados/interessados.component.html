@@ -31,7 +31,7 @@
 
         <div class="person-content" *ngFor="let candidate of pub.candidates">
           <div class="vaga-preview">
-            <img class="vaga-imagem" [src]="pub.imageUrl || '../../../../assets/etapas/vaga.png'" alt="Imagem da Vaga"
+            <img class="vaga-imagem" [src]="pub.imageUrl" alt="Imagem da Vaga"
               (click)="goToPublication(pub.publicationId)" />
             <div class="vaga-info">
               <p class="vaga-title" (click)="goToPublication(pub.publicationId)">{{ pub.title }}</p>
@@ -53,10 +53,6 @@
                 📄 Baixar Currículo
               </button>
             </div>
-          </div>
-
-          <div class="right">
-            <button *ngIf="isCompany" class="ver-perfil">Ver Perfil</button>
           </div>
         </div>
       </div>

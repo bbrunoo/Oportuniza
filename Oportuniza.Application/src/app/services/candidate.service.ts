@@ -18,11 +18,7 @@ export class CandidateService {
   }
 
   applyToJob(publicationId: string): Observable<any> {
-    return this.http.post(
-      `${this.apiUrl}`,
-      { publicationId },
-      { responseType: 'text' as 'json' }
-    );
+    return this.http.post(`${this.apiUrl}`, { publicationId });
   }
 
   addCandidateExtra(applicationId: string, observation?: string, resumeFile?: File) {

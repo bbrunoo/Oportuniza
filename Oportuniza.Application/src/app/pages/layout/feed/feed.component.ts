@@ -80,7 +80,6 @@ export class FeedComponent implements OnInit {
 
   confirmApplication() {
     if (!this.selectedPublicationId) return;
-
     if (!this.selectedResumeFile) {
       Swal.fire({
         icon: 'warning',
@@ -91,11 +90,16 @@ export class FeedComponent implements OnInit {
       return;
     }
 
-    this.candidateService.applyToJob(this.selectedPublicationId).subscribe({
+    const pubId = this.selectedPublicationId as string;
+
+    this.candidateService.applyToJob(pubId).subscribe({
       next: (response: any) => {
+        console.log('applyToJob response:', response);
+
         const appId = response.id;
-        this.appliedStatus[this.selectedPublicationId!] = true;
-        this.applicationIds[this.selectedPublicationId!] = appId;
+
+        this.appliedStatus[pubId] = true;
+        this.applicationIds[pubId] = appId;
 
         this.candidateService.addCandidateExtra(appId, this.observationText, this.selectedResumeFile)
           .subscribe({
@@ -110,14 +114,12 @@ export class FeedComponent implements OnInit {
             },
             error: (err) => {
               const msg = err?.error?.error || 'Erro ao enviar candidatura.';
-
               Swal.fire({
                 icon: 'error',
                 title: 'Atenção',
                 text: msg,
-                confirmButtonText: 'Ok',
+                confirmButtonText: 'Ok'
               });
-
               this.closeApplyModal();
             }
           });
@@ -133,11 +135,9 @@ export class FeedComponent implements OnInit {
           } catch {
             msg = err.error;
           }
-        }
-        else if (err?.error?.error) {
+        } else if (err?.error?.error) {
           msg = err.error.error;
-        }
-        else if (err?.error?.message) {
+        } else if (err?.error?.message) {
           msg = err.error.message;
         }
 
@@ -145,7 +145,7 @@ export class FeedComponent implements OnInit {
           icon: 'error',
           title: 'Atenção',
           text: msg,
-          confirmButtonText: 'Ok',
+          confirmButtonText: 'Ok'
         });
       }
     });
