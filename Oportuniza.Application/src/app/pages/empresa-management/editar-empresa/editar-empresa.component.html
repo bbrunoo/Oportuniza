@@ -20,6 +20,9 @@
             </div>
           </div>
           <input hidden type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" />
+          <button type="button" class="btn btn-secondary mt-1" (click)="fileInput.click()">
+            Escolher Imagem 🖼️
+          </button>
         </div>
 
         <div class="form-section">

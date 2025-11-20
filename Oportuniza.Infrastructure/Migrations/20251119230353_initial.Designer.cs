@@ -12,8 +12,8 @@ using Oportuniza.Infrastructure.Data;
 namespace Oportuniza.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251115142707_post")]
-    partial class post
+    [Migration("20251119230353_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,22 +24,6 @@ namespace Oportuniza.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Oportuniza.Domain.Models.AreaOfInterest", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("InterestArea")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AreasOfInterest");
-                });
 
             modelBuilder.Entity("Oportuniza.Domain.Models.CNPJCache", b =>
                 {
@@ -127,29 +111,6 @@ namespace Oportuniza.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("CandidateExtra");
-                });
-
-            modelBuilder.Entity("Oportuniza.Domain.Models.Certification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CurriculumId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FileUrl")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Certification");
                 });
 
             modelBuilder.Entity("Oportuniza.Domain.Models.City", b =>
@@ -286,77 +247,19 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3af04d20-f161-4ff2-8949-203c73d036b7"),
+                            Id = new Guid("14282161-01c3-4ae9-aa11-1447b90d8663"),
                             Name = "Owner"
                         },
                         new
                         {
-                            Id = new Guid("2e535245-ad07-4782-9a49-03cb993db14e"),
+                            Id = new Guid("513c143b-d165-4acb-b440-7bea03bdabb3"),
                             Name = "Administrator"
                         },
                         new
                         {
-                            Id = new Guid("9fcd17bd-3829-4031-a0f4-e9124cda973e"),
+                            Id = new Guid("c63e1e73-900f-4022-92d9-9c83ceef0584"),
                             Name = "Worker"
                         });
-                });
-
-            modelBuilder.Entity("Oportuniza.Domain.Models.Education", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Course")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("InProgress")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Institution")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Education");
-                });
-
-            modelBuilder.Entity("Oportuniza.Domain.Models.Experience", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Company")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsPrincipal")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Position")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Experience");
                 });
 
             modelBuilder.Entity("Oportuniza.Domain.Models.LoginAttempt", b =>
@@ -548,30 +451,6 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("Oportuniza.Domain.Models.UserAreaOfInterest", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AreaOfInterestId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Principal")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AreaOfInterestId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserAreaOfInterest");
-                });
-
             modelBuilder.Entity("Oportuniza.Domain.Models.CandidateApplication", b =>
                 {
                     b.HasOne("Oportuniza.Domain.Models.Publication", "Publication")
@@ -673,25 +552,6 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.Navigation("CreatedByUser");
                 });
 
-            modelBuilder.Entity("Oportuniza.Domain.Models.UserAreaOfInterest", b =>
-                {
-                    b.HasOne("Oportuniza.Domain.Models.AreaOfInterest", "AreaOfInterest")
-                        .WithMany()
-                        .HasForeignKey("AreaOfInterestId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Oportuniza.Domain.Models.User", "User")
-                        .WithMany("UserAreasOfInterest")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AreaOfInterest");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Oportuniza.Domain.Models.CandidateApplication", b =>
                 {
                     b.Navigation("CandidateExtra");
@@ -725,8 +585,6 @@ namespace Oportuniza.Infrastructure.Migrations
                     b.Navigation("CompanyLinks");
 
                     b.Navigation("CreatedPublications");
-
-                    b.Navigation("UserAreasOfInterest");
                 });
 #pragma warning restore 612, 618
         }

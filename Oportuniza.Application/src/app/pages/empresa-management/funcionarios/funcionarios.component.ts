@@ -165,8 +165,27 @@ export class FuncionariosComponent {
               'success'
             );
           },
-          error: () => {
-            Swal.fire('Erro!', 'Falha ao atualizar o status do funcionário.', 'error');
+          error: (err) => {
+            let msg = 'Erro inesperado.';
+
+            if (err?.error?.error) {
+              msg = err.error.error;
+            }
+            else if (typeof err?.error === 'string') {
+              try {
+                const parsed = JSON.parse(err.error);
+                msg = parsed.error || msg;
+              } catch {
+                msg = err.error;
+              }
+            }
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Atenção',
+              text: msg,
+              confirmButtonText: 'Ok'
+            });
           }
         });
       }
@@ -221,7 +240,6 @@ export class FuncionariosComponent {
 
           const employeeIndex = this.employees.findIndex(e => e.id === this.selectedEmployeeId);
           if (employeeIndex !== -1 && this.selectedEmployee) {
-            // 🟩 Atualiza corretamente os cargos
             this.employees[employeeIndex].roles = this.selectedEmployeeRoles.isAdmin
               ? 'Administrator'
               : 'Worker';
@@ -235,8 +253,28 @@ export class FuncionariosComponent {
           }
         },
         error: (err) => {
-          console.error('Erro ao atualizar permissões:', err);
-          Swal.fire('Erro!', 'Houve uma falha ao tentar atualizar as permissões.', 'error');
+          let msg = 'Erro inesperado.';
+
+          if (err?.error?.error) {
+            msg = err.error.error;
+          }
+          else if (typeof err?.error === 'string') {
+            try {
+              const parsed = JSON.parse(err.error);
+              msg = parsed.error || msg;
+            } catch {
+              msg = err.error;
+            }
+          }
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Atenção',
+            text: msg,
+            confirmButtonText: 'Ok'
+          });
+
+          this.closeModal();
         }
       });
   }

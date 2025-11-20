@@ -12,7 +12,6 @@ namespace Oportuniza.API.Mapper
             CreateMap<UserByIdDTO, User>();
             CreateMap<UserInfoDTO, User>();
             CreateMap<AllUsersInfoDTO, User>();
-            CreateMap<CompleteProfileDTO, User>();
 
             CreateMap<User, UserDTO>()
                 .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.Phone))

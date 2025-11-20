@@ -50,18 +50,18 @@
           <div class="form-section">
             <label class="input-label">Salário</label>
             <div class="option-buttons">
-              <button type="button" class="option-button" [ngClass]="{ active: publication.salary === 'Até R$1000,00' }"
-                (click)="selectSalary('Até R$1000,00')">
-                R$100 a R$1.000,00
+              <button type="button" class="option-button" [ngClass]="{ active: publication.salary === 'Acima de R$1.000,00' }"
+                (click)="selectSalary('Acima de R$1.000,00')">
+                Acima de R$1.000,00
               </button>
               <button type="button" class="option-button"
-                [ngClass]="{ active: publication.salary === 'R$1000,00 a R$2000,00' }"
-                (click)="selectSalary('R$1000,00 a R$2000,00')">
+                [ngClass]="{ active: publication.salary === 'R$1.000,00 a R$2.000,00' }"
+                (click)="selectSalary('R$1.000,00 a R$2.000,00')">
                 R$1.000,00 a R$2.000,00
               </button>
               <button type="button" class="option-button"
-                [ngClass]="{ active: publication.salary === 'Acima de R$2000,00' }"
-                (click)="selectSalary('Acima de R$2000,00')">
+                [ngClass]="{ active: publication.salary === 'Acima de R$2.000,00' }"
+                (click)="selectSalary('Acima de R$2.000,00')">
                 Acima de R$2.000,00
               </button>
             </div>

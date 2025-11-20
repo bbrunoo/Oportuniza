@@ -8,37 +8,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Oportuniza.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class principal : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "AreasOfInterest",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    InterestArea = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AreasOfInterest", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Certification",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    FileUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    CurriculumId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Certification", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "City",
                 columns: table => new
@@ -53,6 +27,19 @@ namespace Oportuniza.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CnpjCache",
+                columns: table => new
+                {
+                    Cnpj = table.Column<string>(type: "char(14)", nullable: false),
+                    Situacao = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    AtualizadoEm = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CnpjCache", x => x.Cnpj);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CompanyRole",
                 columns: table => new
                 {
@@ -62,38 +49,6 @@ namespace Oportuniza.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CompanyRole", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Education",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Institution = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Course = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    InProgress = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Education", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Experience",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Position = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Company = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsPrincipal = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Experience", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -165,32 +120,6 @@ namespace Oportuniza.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserAreaOfInterest",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AreaOfInterestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Principal = table.Column<bool>(type: "bit", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserAreaOfInterest", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserAreaOfInterest_AreasOfInterest_AreaOfInterestId",
-                        column: x => x.AreaOfInterestId,
-                        principalTable: "AreasOfInterest",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_UserAreaOfInterest_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "CompanyEmployee",
                 columns: table => new
                 {
@@ -245,6 +174,7 @@ namespace Oportuniza.Infrastructure.Migrations
                     CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AuthorUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AuthorCompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    PostAuthorName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     IsActive = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
                 },
@@ -337,9 +267,9 @@ namespace Oportuniza.Infrastructure.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("74a29f44-f930-4001-b037-46ea774ec2d9"), "Administrator" },
-                    { new Guid("c251b72e-f584-44e3-97ba-c027ffdf2e03"), "Worker" },
-                    { new Guid("fcd83901-472b-4fad-894e-301bbbc57098"), "Owner" }
+                    { new Guid("14282161-01c3-4ae9-aa11-1447b90d8663"), "Owner" },
+                    { new Guid("513c143b-d165-4acb-b440-7bea03bdabb3"), "Administrator" },
+                    { new Guid("c63e1e73-900f-4022-92d9-9c83ceef0584"), "Worker" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -402,16 +332,6 @@ namespace Oportuniza.Infrastructure.Migrations
                 name: "IX_Publication_CreatedByUserId",
                 table: "Publication",
                 column: "CreatedByUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserAreaOfInterest_AreaOfInterestId",
-                table: "UserAreaOfInterest",
-                column: "AreaOfInterestId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserAreaOfInterest_UserId",
-                table: "UserAreaOfInterest",
-                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -421,34 +341,22 @@ namespace Oportuniza.Infrastructure.Migrations
                 name: "CandidateExtra");
 
             migrationBuilder.DropTable(
-                name: "Certification");
+                name: "City");
 
             migrationBuilder.DropTable(
-                name: "City");
+                name: "CnpjCache");
 
             migrationBuilder.DropTable(
                 name: "CompanyEmployee");
 
             migrationBuilder.DropTable(
-                name: "Education");
-
-            migrationBuilder.DropTable(
-                name: "Experience");
-
-            migrationBuilder.DropTable(
                 name: "LoginAttempt");
-
-            migrationBuilder.DropTable(
-                name: "UserAreaOfInterest");
 
             migrationBuilder.DropTable(
                 name: "CandidateApplications");
 
             migrationBuilder.DropTable(
                 name: "CompanyRole");
-
-            migrationBuilder.DropTable(
-                name: "AreasOfInterest");
 
             migrationBuilder.DropTable(
                 name: "Publication");

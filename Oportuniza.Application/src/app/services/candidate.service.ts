@@ -44,8 +44,4 @@ export class CandidateService {
   getApplicationsByUser(): Observable<UserApplication[]> {
     return this.http.get<UserApplication[]>(`${this.apiUrl}/MyApplications`);
   }
-
-  getApplicationsByContext(): Observable<CandidateDTO[] | UserApplication[]> {
-    return this.http.get<CandidateDTO[] | UserApplication[]>(`${this.apiUrl}/MyApplicationsContext`);
-  }
 }

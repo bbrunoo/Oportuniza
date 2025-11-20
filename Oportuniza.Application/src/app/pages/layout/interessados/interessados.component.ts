@@ -129,7 +129,7 @@ export class InteressadosComponent implements OnInit {
           resumee: app.resumee || app.description || '',
           authorImage: app.authorImage || '',
           authorName: app.authorName || '',
-          imageUrl: app.imageUrl || '',              // INCLUÍDO
+          imageUrl: app.imageUrl || '',
           candidates: []
         });
       }
@@ -149,7 +149,7 @@ export class InteressadosComponent implements OnInit {
 
     return Array.from(map.values());
   }
-  
+
   cancelApplication(applicationId: string) {
     Swal.fire({
       title: 'Tem certeza?',

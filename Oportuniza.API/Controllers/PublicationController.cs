@@ -430,7 +430,6 @@ namespace Oportuniza.API.Controllers
             }
         }
 
-
         [HttpGet("random-samples")]
         [AllowAnonymous]
         public async Task<IActionResult> GetRandomPublications()

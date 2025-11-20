@@ -5,7 +5,6 @@ using Oportuniza.API.Services;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Infrastructure.Data;
 using Oportuniza.Infrastructure.Repositories;
-using Oportuniza.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -109,15 +108,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthenticateUser, AuthenticateUser>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<ICompanyEmployeeRepository, CompanyEmployeeRepository>();
-builder.Services.AddScoped<IAreaOfInterest, AreaOfInterestRepository>();
 builder.Services.AddScoped<IPublicationRepository, PublicationRepository>();
-builder.Services.AddScoped<IUserAreaOfInterestRepository, UserAreaOfInterestRepository>();
 builder.Services.AddScoped<ICandidateApplicationRepository, CandidateApplicationRepository>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICompanyRoleRepository, CompanyRoleRepository>();
 builder.Services.AddScoped<IActiveContextService, ActiveContextService>();
 builder.Services.AddSingleton<IVerificationCodeService, VerificationCodeService>();
-builder.Services.AddScoped<UserRegistrationFilterAttribute>();
 builder.Services.AddSingleton<IEmailService, MailGunEmailService>();
 builder.Services.AddScoped<ICandidateExtraRepository, CandidateExtraRepository>();
 builder.Services.AddScoped<ICnpjCacheRepository, CnpjCacheRepository>();

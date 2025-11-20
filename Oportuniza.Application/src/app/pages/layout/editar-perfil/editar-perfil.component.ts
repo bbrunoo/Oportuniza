@@ -39,7 +39,6 @@ export class EditarPerfilComponent implements OnInit {
   saveError: string | null = null;
   errorMessage: string | null = null;
 
-  // 🏙️ Controle de cidade
   cityControl = new FormControl('');
   filteredCities: any[] = [];
   cityModalOpen = false;
@@ -60,7 +59,6 @@ export class EditarPerfilComponent implements OnInit {
     }
     this.loadProfile(this.userId);
 
-    // 🔍 Lógica de busca de cidades
     this.cityControl.valueChanges.pipe(
       debounceTime(300),
       switchMap(value =>
@@ -74,7 +72,6 @@ export class EditarPerfilComponent implements OnInit {
     });
   }
 
-  // 🌆 Modal de cidade
   openCityModal() {
     this.cityModalOpen = true;
   }

@@ -1,4 +1,4 @@
-﻿namespace Oportuniza.Domain.Models
+﻿namespace Oportuniza.Domain.Interfaces
 {
     public interface IMustHaveCompany
     {

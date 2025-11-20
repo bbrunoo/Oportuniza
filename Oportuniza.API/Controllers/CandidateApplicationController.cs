@@ -119,14 +119,6 @@ namespace Oportuniza.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("ByPublication/{publicationId}")]
-        public async Task<IActionResult> GetCandidatesByPublication(Guid publicationId)
-        {
-            var apps = await _repository.GetCandidatesByPublicationAsync(publicationId);
-            var result = _mapper.Map<IEnumerable<CandidatesDTO>>(apps);
-            return Ok(result);
-        }
-
         [HttpGet("MyPublications/Candidates")]
         [Authorize]
         public async Task<ActionResult<List<PublicationWithCandidatesDto>>> GetMyPublicationsWithCandidates()
@@ -175,34 +167,6 @@ namespace Oportuniza.API.Controllers
             return Ok(result);
         }
 
-
-        [HttpGet("HasApplied")]
-        public async Task<IActionResult> HasApplied(Guid publicationId, Guid userId)
-        {
-            var exists = await _repository.HasAppliedAsync(publicationId, userId);
-            return Ok(new { hasApplied = exists });
-        }
-
-        [HttpGet("Statistics/{publicationId}")]
-        public async Task<IActionResult> GetPublicationStatistics(Guid publicationId)
-        {
-            var stats = await _repository.GetPublicationStatisticsAsync(publicationId);
-            return Ok(stats);
-        }
-
-        [HttpGet("Status")]
-        public async Task<IActionResult> GetApplicationStatus(Guid publicationId, Guid userId)
-        {
-            var application = await _repository.GetApplicationByPublicationAndUserAsync(publicationId, userId);
-
-            if (application == null)
-            {
-                return Ok(new { status = (int?)null });
-            }
-
-            return Ok(new { status = (int)application.Status });
-        }
-
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> Cancel(Guid id)
@@ -229,60 +193,6 @@ namespace Oportuniza.API.Controllers
             var apps = await _repository.GetApplicationsByCompanyAsync(companyId);
             var result = _mapper.Map<IEnumerable<CandidateApplicationDetailDto>>(apps);
             return Ok(result);
-        }
-
-        [HttpGet("MyUserApplications")]
-        [Authorize]
-        public async Task<IActionResult> GetApplicationsByUserContext()
-        {
-            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(keycloakId))
-                return Unauthorized("Usuário não encontrado no token.");
-
-            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
-            if (user == null)
-                return NotFound("Usuário não encontrado.");
-
-            var apps = await _repository.GetApplicationsLoggedUser(user.Id);
-            var result = _mapper.Map<IEnumerable<CandidatesDTO>>(apps);
-            return Ok(result);
-        }
-
-        [HttpGet("MyApplicationsContext")]
-        [Authorize]
-        public async Task<IActionResult> GetApplicationsByContext()
-        {
-            var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var companyIdClaim = User.FindFirst("company_id")?.Value;
-
-            if (string.IsNullOrEmpty(keycloakId))
-                return Unauthorized("Identificador do usuário não encontrado no token.");
-
-            if (!string.IsNullOrEmpty(companyIdClaim))
-            {
-                if (!Guid.TryParse(companyIdClaim, out var companyId))
-                    return BadRequest("CompanyId inválido.");
-
-                var appsForCompany = await _repository.GetApplicationsByCompanyAsync(companyId);
-
-                if (appsForCompany == null || !appsForCompany.Any())
-                    return NoContent();
-
-                var result = _mapper.Map<IEnumerable<CandidatesDTO>>(appsForCompany);
-                return Ok(result);
-            }
-
-            var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
-            if (user == null)
-                return NotFound("Usuário não encontrado.");
-
-            var appsForUser = await _repository.GetApplicationsLoggedUser(user.Id);
-
-            if (appsForUser == null || !appsForUser.Any())
-                return NoContent();
-
-            var userResult = _mapper.Map<IEnumerable<UserApplicationDto>>(appsForUser);
-            return Ok(userResult);
         }
 
         [HttpPost("{applicationId}/extra")]
@@ -313,7 +223,6 @@ namespace Oportuniza.API.Controllers
 
             return Ok(result);
         }
-
         private IActionResult Error(string message, int status)
         {
             return StatusCode(status, new { error = message });

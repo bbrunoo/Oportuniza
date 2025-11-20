@@ -69,7 +69,6 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
     this._destroying$.complete();
   }
 
-  // 🔹 Sessão e login
   private async handleSession(): Promise<void> {
     const loggedIn = await this.keycloakService.isLoggedIn();
     if (loggedIn) {
@@ -93,7 +92,6 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  // 🔹 Perfil e papel do usuário
   private getLoggedUserProfile(): void {
     this.userService
       .getOwnProfile()
@@ -154,7 +152,6 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
     });
   }
 
-  // 🔹 Verificação manual opcional
   verifyCompanyRole(): void {
     this.keycloakService.verifyUserRole().pipe(take(1)).subscribe({
       next: (res) => {
@@ -184,7 +181,6 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
     });
   }
 
-  // 🔹 Funções de UI
   private finishLoading(): void {
     this.loadingDialogRef?.close();
     this.isInitializing = false;

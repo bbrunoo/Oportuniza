@@ -232,32 +232,6 @@ export class CriarEmpresaComponent implements OnInit {
     if (fields[index]) fields[index].nativeElement.focus();
   }
 
-  // isValidCnpj(cnpj: string): boolean {
-  //   if (!cnpj) return false;
-
-  //   const digits = cnpj.replace(/\D/g, '');
-  //   if (digits.length !== 14) return false;
-  //   if (/^(\d)\1+$/.test(digits)) return false;
-  //   const calcCheckDigit = (length: number): number => {
-  //     let sum = 0;
-  //     let weight = length - 7;
-
-  //     for (let i = 0; i < length; i++) {
-  //       sum += parseInt(digits.charAt(i), 10) * weight++;
-  //       if (weight > 9) weight = 2;
-  //     }
-
-  //     const rest = 11 - (sum % 11);
-  //     return rest > 9 ? 0 : rest;
-  //   };
-
-  //   const d1 = calcCheckDigit(12);
-  //   const d2 = calcCheckDigit(13);
-
-  //   return d1 === parseInt(digits.charAt(12), 10) &&
-  //     d2 === parseInt(digits.charAt(13), 10);
-  // }
-
   private resetForm(): void {
     this.name = '';
     this.selectedCity = null;
@@ -346,11 +320,6 @@ export class CriarEmpresaComponent implements OnInit {
 
   async onSubmit(): Promise<void> {
     if (this.isSubmitting) return;
-
-    // if (!this.isValidCnpj(this.cnpj)) {
-    //   Swal.fire('CNPJ inválido', 'Digite um CNPJ válido antes de prosseguir.', 'warning');
-    //   return;
-    // }
 
     if (!this.name || !this.selectedCity || !this.phone || !this.email || !this.cnpj || !this.selectedImage) {
       Swal.fire('Atenção', 'Preencha todos os campos obrigatórios.', 'warning');

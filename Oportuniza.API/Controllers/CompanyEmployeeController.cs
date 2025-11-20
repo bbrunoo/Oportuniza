@@ -57,32 +57,34 @@ namespace Oportuniza.API.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateEmployeeStatus(Guid id, [FromBody] EmployeeStatusUpdateDto dto)
         {
-            var employee = await _companyEmployeeRepository.GetByIdAsync(id);
+            var keycloakIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                                  ?? User.FindFirst("sub")?.Value;
 
+            if (string.IsNullOrEmpty(keycloakIdClaim))
+                return Error("Token inválido.", 401);
+
+            var loggedUser = await _userRepository.GetUserByKeycloakIdAsync(keycloakIdClaim);
+            if (loggedUser == null)
+                return Error("Usuário logado não encontrado.", 404);
+
+            var employee = await _companyEmployeeRepository.GetByIdAsync(id);
             if (employee == null)
-            {
-                return NotFound("Funcionário não encontrado.");
-            }
+                return Error("Funcionário não encontrado.", 404);
+
+            if (employee.UserId == loggedUser.Id)
+                return Error("Você não pode alterar o seu próprio status.", 400);
 
             var company = await _companyRepository.GetByIdAsync(employee.CompanyId);
-
             if (company == null)
-            {
-                return NotFound("Empresa vinculada não encontrada.");
-            }
+                return Error("Empresa vinculada não encontrada.", 404);
 
             if (employee.UserId == company.UserId)
-            {
-                return BadRequest("Não é permitido alterar o status do dono da empresa.");
-            }
+                return Error("Não é permitido alterar o status do dono da empresa.", 400);
 
             if (!Enum.IsDefined(typeof(CompanyEmployeeStatus), dto.NewStatus))
-            {
-                return BadRequest("Status inválido fornecido.");
-            }
+                return Error("Status inválido fornecido.", 400);
 
             employee.IsActive = dto.NewStatus;
-
             await _companyEmployeeRepository.UpdateAsync(employee);
 
             return NoContent();
@@ -153,23 +155,34 @@ namespace Oportuniza.API.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateEmployeeRoles(Guid id, [FromBody] EmployeeRoleUpdateDto dto)
         {
+            var keycloakIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                                  ?? User.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(keycloakIdClaim))
+                return Error("Token inválido.", 401);
+
+            var loggedUser = await _userRepository.GetUserByKeycloakIdAsync(keycloakIdClaim);
+            if (loggedUser == null)
+                return Error("Usuário logado não encontrado.", 404);
+
             var employee = await _companyEmployeeRepository.GetByIdAsync(id);
             if (employee == null)
-                return NotFound("Funcionário não encontrado.");
+                return Error("Funcionário não encontrado.", 404);
+
+            if (employee.UserId == loggedUser.Id)
+                return Error("Você não pode alterar o próprio cargo.", 400);
 
             var company = await _companyRepository.GetByIdAsync(employee.CompanyId);
             if (company == null)
-                return NotFound("Empresa vinculada não encontrada.");
+                return Error("Empresa vinculada não encontrada.", 404);
 
             if (employee.UserId == company.UserId)
-            {
-                return BadRequest("Não é permitido alterar o cargo do dono da empresa.");
-            }
+                return Error("Não é permitido alterar o cargo do dono da empresa.", 400);
 
             var newRoleName = dto.IsAdmin ? "Administrator" : "Worker";
             var role = await _companyRoleRepository.GetRoleByNameAsync(newRoleName);
             if (role == null)
-                return BadRequest($"Cargo inválido: {newRoleName}");
+                return Error($"Cargo inválido: {newRoleName}", 400);
 
             employee.CompanyRoleId = role.Id;
             employee.CanPostJobs = dto.CanPost;
@@ -178,7 +191,6 @@ namespace Oportuniza.API.Controllers
 
             return NoContent();
         }
-
 
         [Authorize]
         [HttpDelete("unlink/{companyId}")]
@@ -209,6 +221,11 @@ namespace Oportuniza.API.Controllers
             {
                 message = "Usuário desvinculado da empresa com sucesso."
             });
+        }
+
+        private IActionResult Error(string message, int status)
+        {
+            return StatusCode(status, new { error = message });
         }
     }
 }

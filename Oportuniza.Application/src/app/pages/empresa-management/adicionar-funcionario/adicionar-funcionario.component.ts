@@ -111,7 +111,6 @@ export class AdicionarFuncionarioComponent {
             let errorMessage = 'Falha ao vincular o funcionário.';
 
             if (err.status === 400 || err.status === 409) {
-              // 💡 Cobre tanto duplicado quanto conflito de vínculo
               errorMessage = 'Este usuário já faz parte da sua empresa.';
             } else if (err.status === 403) {
               errorMessage = 'Você não tem permissão para realizar esta ação.';

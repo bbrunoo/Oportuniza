@@ -54,13 +54,6 @@ namespace Oportuniza.Infrastructure.Repositories
             return await _context.User.FindAsync(id);
         }
 
-        public async Task<User?> GetByIdWithInterests(Guid id)
-        {
-            return await _context.User
-                    .Include(u => u.UserAreasOfInterest)
-                    .FirstOrDefaultAsync(u => u.Id == id);
-        }
-
         public async Task<UserInfoDTO> GetUserInfoAsync(Guid id)
         {
             var userInfo = await _context.User
