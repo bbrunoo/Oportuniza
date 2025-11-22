@@ -8,7 +8,7 @@
     <div class="location-controls">
       <div *ngIf="filters.radiusKm !== null">
         <label>Raio: {{ filters.radiusKm }} km</label>
-        <input type="range" min="0" max="1000" step="100" [(ngModel)]="filters.radiusKm" (change)="onRadiusChange()">
+        <input type="range" min="0" max="5000" step="50" [(ngModel)]="filters.radiusKm" (change)="onRadiusChange()">
       </div>
     </div>
   </div>

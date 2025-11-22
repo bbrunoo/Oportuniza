@@ -92,8 +92,8 @@ namespace Oportuniza.Infrastructure.Repositories
                 .Include(ca => ca.Publication)
                     .ThenInclude(p => p.CreatedByUser)
                 .Include(ca => ca.User)
-                .Include(ca => ca.CandidateExtra) // ✅ inclui os dados extras
-                .Where(ca => ca.PublicationAuthorId == publicationAuthorId)
+                .Include(ca => ca.CandidateExtra)
+                .Where(ca => ca.Publication.AuthorUser != null && ca.Publication.AuthorUserId == publicationAuthorId)
                 .GroupBy(ca => ca.Publication)
                 .Select(group => new PublicationWithCandidatesDto
                 {

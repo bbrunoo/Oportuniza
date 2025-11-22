@@ -249,83 +249,6 @@ namespace Oportuniza.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = company.Id }, companyDtoToReturn);
         }
 
-        //[HttpPost]
-        //[Authorize]
-        //public async Task<IActionResult> Post([FromBody] CompanyCreateDto dto)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ModelState);
-
-        //    if (!_cnpjService.IsValid(dto.Cnpj))
-        //        return BadRequest("CNPJ inválido.");
-
-        //    try
-        //    {
-        //        var statusAtivo = await _cnpjService.VerificarAtividadeCnpjAsync(dto.Cnpj);
-
-        //        if (!statusAtivo)
-        //            return BadRequest("O CNPJ informado não está ativo na Receita Federal.");
-        //    }
-        //    catch (HttpRequestException)
-        //    {
-        //        return StatusCode(503, "Serviço de verificação de CNPJ indisponível no momento.");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest($"Erro ao consultar CNPJ: {ex.Message}");
-        //    }
-
-        //    var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        //    if (string.IsNullOrEmpty(keycloakId))
-        //        return Unauthorized("Token 'sub' claim is missing.");
-
-        //    var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
-        //    if (user == null)
-        //        return NotFound("Usuário não encontrado no banco de dados local.");
-
-        //    var company = _mapper.Map<Company>(dto);
-        //    company.UserId = user.Id;
-
-        //    var ownerRole = await _context.CompanyRole.FirstOrDefaultAsync(r => r.Name == "Owner");
-        //    if (ownerRole == null)
-        //    {
-        //        ownerRole = new CompanyRole { Id = Guid.NewGuid(), Name = "Owner" };
-        //        _context.CompanyRole.Add(ownerRole);
-        //        await _context.SaveChangesAsync();
-        //    }
-
-        //    var companyEmployeeLink = new CompanyEmployee
-        //    {
-        //        UserId = user.Id,
-        //        Company = company,
-        //        CompanyRoleId = ownerRole.Id,
-        //        IsActive = CompanyEmployeeStatus.Active,
-        //        CanPostJobs = true
-        //    };
-
-        //    using var transaction = await _context.Database.BeginTransactionAsync();
-        //    try
-        //    {
-        //        _context.Company.Add(company);
-        //        await _context.SaveChangesAsync();
-
-        //        companyEmployeeLink.CompanyId = company.Id;
-        //        _context.CompanyEmployee.Add(companyEmployeeLink);
-        //        await _context.SaveChangesAsync();
-
-        //        await transaction.CommitAsync();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await transaction.RollbackAsync();
-        //        return StatusCode(500, $"Erro ao criar empresa: {ex.Message}");
-        //    }
-
-        //    var companyDtoToReturn = _mapper.Map<CompanyDTO>(company);
-        //    return CreatedAtAction(nameof(GetById), new { id = company.Id }, companyDtoToReturn);
-        //}
-
-
         [HttpPatch("disable/{id}")]
         public async Task<IActionResult> DesactiveCompany(Guid id)
         {
@@ -402,53 +325,6 @@ namespace Oportuniza.API.Controllers
             await _companyRepository.DeleteAsync(id);
             return NoContent();
         }
-
-        //[Authorize]
-        //[HttpGet("verify-role/{companyId?}")]
-        //public async Task<IActionResult> VerifyUserRole(Guid? companyId = null)
-        //{
-        //    var keycloakId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        //    if (string.IsNullOrEmpty(keycloakId))
-        //        return Unauthorized("Token inválido: identificador (sub) ausente.");
-
-        //    var user = await _userRepository.GetUserByKeycloakIdAsync(keycloakId);
-        //    if (user == null)
-        //        return NotFound("Usuário não encontrado no banco de dados local.");
-
-        //    var tokenRole = User.FindFirst("company_role")?.Value
-        //                    ?? User.FindFirst("role")?.Value
-        //                    ?? User.FindFirst("realm_access")?.Value;
-
-        //    if (!string.IsNullOrEmpty(tokenRole))
-        //    {
-        //        return Ok(new
-        //        {
-        //            hasRole = true,
-        //            role = tokenRole,
-        //            message = $"Role obtida do token: {tokenRole}"
-        //        });
-        //    }
-
-        //    var query = _context.CompanyEmployee
-        //        .Include(e => e.CompanyRole)
-        //        .Where(e => e.UserId == user.Id && e.IsActive == CompanyEmployeeStatus.Active);
-
-        //    if (companyId.HasValue && companyId != Guid.Empty)
-        //        query = query.Where(e => e.CompanyId == companyId.Value);
-
-        //    var employee = await query.FirstOrDefaultAsync();
-
-        //    if (employee == null)
-        //        return Ok(new { hasRole = false, message = "Usuário não está vinculado a nenhuma empresa ativa." });
-
-        //    return Ok(new
-        //    {
-        //        hasRole = true,
-        //        role = employee.CompanyRole?.Name ?? "Unknown",
-        //        companyId = employee.CompanyId,
-        //        message = "Role obtida do banco."
-        //    });
-        //}
 
         [Authorize]
         [HttpGet("verify-role/{companyId?}")]

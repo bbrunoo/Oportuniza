@@ -35,7 +35,7 @@
               (click)="goToPublication(pub.publicationId)" />
             <div class="vaga-info">
               <p class="vaga-title" (click)="goToPublication(pub.publicationId)">{{ pub.title }}</p>
-              <p class="vaga-resumee" >{{ pub.resumee }}</p>
+              <p class="vaga-resumee">{{ pub.resumee }}</p>
             </div>
           </div>
 
@@ -58,23 +58,28 @@
       </div>
     </div>
 
-    <!-- ==================== MINHAS CANDIDATURAS ==================== -->
     <div class="inscription" *ngIf="activeTab === 'inscription' && !isCompany">
-      <div class="candidates-content">
-        <div class="person-content" *ngFor="let item of inscriptions">
-          <div class="left">
-            <img class="profile" [src]="item.publication.authorImageUrl || '../../../../assets/etapas/perfil.png'"
-              alt="Foto de Perfil do Autor" />
-            <span class="author-label">
-              &#64;{{ item.publication.authorName || 'Autor Desconhecido' }}
-            </span>
-          </div>
-          <div class="center">
-            <p class="name">{{ item.publication.title }}</p>
-            <p class="description">{{ item.publication.resumee }}</p>
-          </div>
-          <div class="right">
-            <button (click)="cancelApplication(item.id)" class="applied-button">
+      <div class="candidates-content" *ngFor="let pub of inscriptionsDisplay">
+
+        <div class="person-content">
+
+          <div class="vaga-preview">
+
+            <div class="vaga-info">
+              <img class="vaga-imagem" [src]="pub.imageUrl" alt="Imagem da Vaga"
+                (click)="goToPublication(pub.publicationId)" />
+
+              <div class="vaga-info-conteudo">
+
+                <p class="vaga-title" (click)="goToPublication(pub.publicationId)">
+                  {{ pub.title }}
+                </p>
+                <p class="vaga-resumee">{{ pub.resumee }}</p>
+              </div>
+
+            </div>
+
+            <button (click)="cancelApplication(getApplicationId(pub.publicationId))" class="applied-button">
               Candidatado
             </button>
           </div>

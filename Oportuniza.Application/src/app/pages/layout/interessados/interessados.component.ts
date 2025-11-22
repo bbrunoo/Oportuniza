@@ -23,6 +23,7 @@ export class InteressadosComponent implements OnInit {
   loading = false;
   hasData = true;
   isCompany = false;
+  inscriptionsDisplay: CandidateDisplay[] = [];
 
   constructor(private candidateService: CandidateService, private router: Router) { }
 
@@ -106,7 +107,18 @@ export class InteressadosComponent implements OnInit {
       this.candidateService.getApplicationsByUser().subscribe({
         next: (res: UserApplication[]) => {
           this.inscriptions = res;
-          this.hasData = this.inscriptions.length > 0;
+
+          this.inscriptionsDisplay = res.map(item => ({
+            publicationId: item.publication.id,
+            title: item.publication.title,
+            resumee: item.publication.resumee,
+            imageUrl: item.publication.imageUrl,
+            authorImage: item.publication.authorImageUrl,
+            authorName: item.publication.authorName,
+            candidates: []
+          }));
+
+          this.hasData = this.inscriptionsDisplay.length > 0;
           this.loading = false;
         },
         error: () => {
@@ -116,6 +128,11 @@ export class InteressadosComponent implements OnInit {
         }
       });
     }
+  }
+
+  getApplicationId(publicationId: string): string {
+    const item = this.inscriptions.find(x => x.publication.id === publicationId);
+    return item?.id || '';
   }
 
   private mapCompanyDataToCandidateDisplay(res: any[]): CandidateDisplay[] {
@@ -172,6 +189,17 @@ export class InteressadosComponent implements OnInit {
     this.candidateService.cancelApplication(applicationId).subscribe({
       next: () => {
         this.inscriptions = this.inscriptions.filter(app => app.id !== applicationId);
+
+        this.inscriptionsDisplay = this.inscriptions.map(item => ({
+          publicationId: item.publication.id,
+          title: item.publication.title,
+          resumee: item.publication.resumee,
+          imageUrl: item.publication.imageUrl,
+          authorImage: item.publication.authorImageUrl,
+          authorName: item.publication.authorName,
+          candidates: []
+        }));
+
         Swal.fire('Sucesso!', 'Sua candidatura foi cancelada.', 'success');
       },
       error: () => {

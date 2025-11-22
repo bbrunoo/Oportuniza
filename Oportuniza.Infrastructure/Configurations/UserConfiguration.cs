@@ -17,9 +17,6 @@ namespace Oportuniza.Infrastructure.Configurations
             builder.Property(x => x.FullName)
                    .HasMaxLength(150);
 
-            //builder.Property(x => x.VerifiedEmail)
-            //     .IsRequired();
-
             builder.Property(x => x.Email)
                    .HasMaxLength(150);
 

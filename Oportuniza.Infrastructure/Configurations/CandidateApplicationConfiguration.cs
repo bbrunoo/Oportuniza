@@ -24,12 +24,12 @@ namespace Oportuniza.Infrastructure.Configurations
                    .IsRequired();
 
             builder.HasOne(ca => ca.User)
-                   .WithMany()
+                   .WithMany(u => u.CandidateApplication)
                    .HasForeignKey(ca => ca.UserId)
                    .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(ca => ca.Publication)
-                   .WithMany()
+                   .WithMany(p => p.CandidateApplication)
                    .HasForeignKey(ca => ca.PublicationId)
                    .OnDelete(DeleteBehavior.Cascade);
 

@@ -27,8 +27,18 @@ namespace Oportuniza.API.Controllers
         private readonly KeycloakAuthService _authService;
         private readonly IVerificationCodeService _verificationCodeService;
         private readonly IEmailService _emailService;
+        private readonly ILoginAttemptRepository _loginAttemptRepository;
 
-        public AuthController(IUserRepository userRepository, IAuthenticateUser authenticateUser, IHttpClientFactory httpClientFactory, ICompanyEmployeeRepository companyEmployeeRepository, ICompanyRepository companyRepository, KeycloakAuthService authService, IVerificationCodeService verificationCodeService, IEmailService emailService)
+        public AuthController(
+            IUserRepository userRepository,
+            IAuthenticateUser authenticateUser,
+            IHttpClientFactory httpClientFactory,
+            ICompanyEmployeeRepository companyEmployeeRepository,
+            ICompanyRepository companyRepository,
+            KeycloakAuthService authService,
+            IVerificationCodeService verificationCodeService,
+            IEmailService emailService,
+            ILoginAttemptRepository loginAttemptRepository)
         {
             _userRepository = userRepository;
             _authenticateUser = authenticateUser;
@@ -38,6 +48,7 @@ namespace Oportuniza.API.Controllers
             _authService = authService;
             _verificationCodeService = verificationCodeService;
             _emailService = emailService;
+            _loginAttemptRepository = loginAttemptRepository;
         }
 
         [Authorize]
@@ -82,6 +93,18 @@ namespace Oportuniza.API.Controllers
             string email = request.Email.Trim().ToLower();
             string password = request.Password.Trim();
             string name = request.Name.Trim();
+
+            var nameRegex = new Regex(@"^[A-Za-zÀ-ÿ\s]+$");
+            if (!nameRegex.IsMatch(name))
+                return BadRequest("Nome contém caracteres inválidos.");
+
+            var emailRegex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+            if (!emailRegex.IsMatch(email))
+                return BadRequest("E-mail inválido.");
+
+            var passwordRegex = new Regex(@"^(?=.*[A-Z])(?=.*[!#@$%&.])(?=.*[0-9])(?=.*[a-z])[A-Za-z0-9!#@$%&.]{8,15}$");
+            if (!passwordRegex.IsMatch(password))
+                return BadRequest("A senha não atende aos critérios de segurança.");
 
             var token = await GetAdminToken();
             var client = _httpClientFactory.CreateClient();
@@ -174,16 +197,57 @@ namespace Oportuniza.API.Controllers
         [HttpPost("login-keycloak")]
         public async Task<IActionResult> LoginKeycloak([FromBody] LoginRequestDto login)
         {
+            var ip = GetClientIp();
+
+            var attempt = await _loginAttemptRepository.GetByIpAsync(ip);
+
+            if (attempt != null && attempt.LockoutEnd.HasValue && attempt.LockoutEnd > DateTime.UtcNow)
+            {
+                var minutes = (attempt.LockoutEnd.Value - DateTime.UtcNow).TotalMinutes;
+                return Error($"Muitas tentativas. IP bloqueado por {minutes:F0} minutos.", 429);
+            }
+
             var result = await _authService.LoginWithCredentialsAsync(login.Email, login.Password);
 
-            if (result == "NOT_VERIFIED")
-                return Unauthorized(new { error = "E-mail não verificado. Verifique sua caixa de entrada antes de fazer login." });
+            if (string.IsNullOrEmpty(result) || result == "NOT_VERIFIED")
+            {
+                if (attempt == null)
+                {
+                    attempt = new LoginAttempt
+                    {
+                        IPAddress = ip,
+                        FailedAttempts = 1,
+                        LockoutEnd = null
+                    };
 
-            if (string.IsNullOrEmpty(result))
-                return Unauthorized(new { error = "Usuário ou senha inválidos" });
+                    await _loginAttemptRepository.AddAsync(attempt);
+                }
+                else
+                {
+                    attempt.FailedAttempts++;
+
+                    if (attempt.FailedAttempts >= 5)
+                        attempt.LockoutEnd = DateTime.UtcNow.AddHours(1);
+
+                    await _loginAttemptRepository.UpdateAsync(attempt);
+                }
+
+                if (result == "NOT_VERIFIED")
+                    return Error("E-mail não verificado.", 401);
+
+                return Error("Usuário ou senha inválidos.", 401);
+            }
+
+            if (attempt != null)
+            {
+                attempt.FailedAttempts = 0;
+                attempt.LockoutEnd = null;
+                await _loginAttemptRepository.UpdateAsync(attempt);
+            }
 
             return Ok(result);
         }
+
         private async Task<string> GetAdminToken()
         {
             var handler = new HttpClientHandler
@@ -210,46 +274,13 @@ namespace Oportuniza.API.Controllers
             return obj.access_token;
         }
 
-        private static bool IsValidPassword(string password)
-        {
-            var regex = new Regex(@"^[a-zA-Z0-9!@#$%^&*_\-+.]+$");
-            return regex.IsMatch(password);
-        }
-        private bool IsValidEmail(string email)
-        {
-            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-            return emailRegex.IsMatch(email);
-        }
-
-        private bool IsInvalidInput(string value)
-        {
-            return string.IsNullOrWhiteSpace(value);
-        }
-        private string GenerateNameFromEmail(string email)
-        {
-            if (string.IsNullOrEmpty(email) || !email.Contains('@'))
-            {
-                return "Usuário";
-            }
-
-            string name = email.Split('@')[0];
-            if (name.Length > 0)
-            {
-                name = char.ToUpper(name[0]) + name.Substring(1);
-            }
-            return name;
-        }
-
-        private void CreatePasswordHash(string password, out byte[] hash, out byte[] salt)
-        {
-            using var hmac = new HMACSHA512();
-            salt = hmac.Key;
-            hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-        }
         private string GetClientIp()
         {
             return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         }
-        
+        private IActionResult Error(string message, int status)
+        {
+            return StatusCode(status, new { error = message });
+        }
     }
 }

@@ -166,6 +166,7 @@ export class EmpresaComponent implements OnInit, OnDestroy {
                 'Sua empresa foi desativada com sucesso.',
                 'success'
               );
+              this.router.navigate(["/inicio/minhas-empresas"]);
             },
             error: (err) => {
               Swal.fire(

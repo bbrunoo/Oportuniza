@@ -113,8 +113,26 @@ export class VerificationComponent implements OnInit {
         showConfirmButton: false,
       }).then(() => this.router.navigate(['/login']));
     } catch (err: any) {
-      this.errorMessage = err?.error?.message || 'Código inválido ou expirado.';
-      Swal.fire({ icon: 'error', title: 'Erro', text: this.errorMessage });
+      let msg = 'Erro inesperado.';
+
+      if (err?.error?.error) {
+        msg = err.error.error;
+      }
+      else if (typeof err?.error === 'string') {
+        try {
+          const parsed = JSON.parse(err.error);
+          msg = parsed.error || msg;
+        } catch {
+          msg = err.error;
+        }
+      }
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Atenção',
+        text: msg,
+        confirmButtonText: 'Ok'
+      });
     } finally {
       this.isLoading = false;
     }

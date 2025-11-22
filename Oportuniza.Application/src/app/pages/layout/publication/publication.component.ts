@@ -124,6 +124,40 @@ export class PublicationComponent implements OnInit {
     });
   }
 
+  blockSpecialChars(event: KeyboardEvent): void {
+    const allowed = /^[a-zA-Z0-9À-ÿ\s.,;:!?()\-]$/;
+
+    const char = event.key;
+
+    if (char.length === 1 && !allowed.test(char)) {
+      event.preventDefault();
+    }
+  }
+
+  sanitizePastedText(event: ClipboardEvent): void {
+    event.preventDefault();
+
+    const pasted = event.clipboardData?.getData('text') || '';
+
+    const allowedRegex = /[a-zA-Z0-9À-ÿ\s.,;:!?()\-]/g;
+
+    const sanitized = pasted.match(allowedRegex)?.join('') || '';
+
+    const target = event.target as HTMLTextAreaElement;
+    const start = target.selectionStart;
+    const end = target.selectionEnd;
+
+    const before = target.value.substring(0, start);
+    const after = target.value.substring(end);
+
+    target.value = before + sanitized + after;
+
+    this.publication.description = target.value;
+
+    const newPos = start + sanitized.length;
+    setTimeout(() => target.setSelectionRange(newPos, newPos));
+  }
+
   openCityModal() {
     this.cityModalOpen = true;
   }

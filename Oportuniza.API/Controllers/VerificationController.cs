@@ -34,11 +34,11 @@ namespace Oportuniza.API.Controllers
         public async Task<IActionResult> SendCode([FromBody] EmailRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Email))
-                return BadRequest("E-mail é obrigatório.");
+                return Error("E-mail é obrigatório.", 400);
 
             var user = await _userRepository.GetUserByEmailAsync(request.Email);
             if (user == null)
-                return NotFound("Usuário não encontrado.");
+                return Error("Usuário não encontrado.", 404);
 
             var code = _codeService.GenerateCode(request.Email, "email");
             var message = "Use o código abaixo para verificar sua conta no Oportuniza:";
@@ -51,7 +51,7 @@ namespace Oportuniza.API.Controllers
             );
 
             if (!success)
-                return StatusCode(500, "Falha ao enviar e-mail de verificação.");
+                return Error("Falha ao enviar e-mail de verificação.", 500);
 
             return Ok(new { message = "Código de verificação enviado com sucesso.", expiresInSeconds = 60 });
         }
@@ -60,11 +60,11 @@ namespace Oportuniza.API.Controllers
         public async Task<IActionResult> Validate([FromBody] VerificationRequest request)
         {
             if (!_codeService.ValidateCode(request.Email, request.Code, "email"))
-                return BadRequest("Código inválido ou expirado.");
+                return Error("Código inválido ou expirado.", 400);
 
             var user = await _userRepository.GetUserByEmailAsync(request.Email);
             if (user == null)
-                return NotFound("Usuário não encontrado.");
+                return Error("Usuário não encontrado.", 404);
 
             user.VerifiedEmail = true;
             await _userRepository.UpdateAsync(user);
@@ -82,14 +82,14 @@ namespace Oportuniza.API.Controllers
             if (!searchRes.IsSuccessStatusCode)
             {
                 var err = await searchRes.Content.ReadAsStringAsync();
-                return StatusCode((int)searchRes.StatusCode, $"Erro ao buscar usuário no Keycloak: {err}");
+                return Error($"Erro ao buscar usuário no Keycloak: {err}", (int)searchRes.StatusCode);
             }
 
             var json = await searchRes.Content.ReadAsStringAsync();
             dynamic users = JsonConvert.DeserializeObject(json);
 
             if (users == null || users.Count == 0)
-                return NotFound("Usuário não encontrado no Keycloak pelo e-mail.");
+                return Error("Usuário não encontrado no Keycloak pelo e-mail.", 404);
 
             string keycloakId = users[0].id;
 
@@ -104,21 +104,21 @@ namespace Oportuniza.API.Controllers
             if (!updateRes.IsSuccessStatusCode)
             {
                 var err = await updateRes.Content.ReadAsStringAsync();
-                return StatusCode((int)updateRes.StatusCode, $"Falha ao atualizar o e-mail no Keycloak: {err}");
+                return Error($"Falha ao atualizar o e-mail no Keycloak: {err}", (int)updateRes.StatusCode);
             }
 
-            return Ok(new { message = "E-mail verificado com sucesso!" });
+            return Ok(new { message = "E-mail verificado com sucesso." });
         }
 
         [HttpPost("send-post-code")]
         public async Task<IActionResult> SendPostCode([FromBody] EmailRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Email))
-                return BadRequest("E-mail é obrigatório.");
+                return Error("E-mail é obrigatório.", 400);
 
             var user = await _userRepository.GetUserByEmailAsync(request.Email);
             if (user == null)
-                return NotFound("Usuário não encontrado.");
+                return Error("Usuário não encontrado.", 404);
 
             var code = _codeService.GenerateCode(request.Email, "post");
             var message = "Use o código abaixo para confirmar sua publicação no Oportuniza:";
@@ -131,7 +131,7 @@ namespace Oportuniza.API.Controllers
             );
 
             if (!success)
-                return StatusCode(500, "Falha ao enviar e-mail de verificação de postagem.");
+                return Error("Falha ao enviar e-mail de verificação de postagem.", 500);
 
             return Ok(new { message = "Código de verificação enviado via e-mail.", expiresInSeconds = 60 });
         }
@@ -140,16 +140,16 @@ namespace Oportuniza.API.Controllers
         public IActionResult ValidatePostCode([FromBody] VerificationRequest request)
         {
             if (!_codeService.ValidateCode(request.Email, request.Code, "post"))
-                return BadRequest("Código de postagem inválido ou expirado.");
+                return Error("Código de postagem inválido ou expirado.", 400);
 
-            return Ok(new { message = "Postagem verificada com sucesso, pode prosseguir!" });
+            return Ok(new { message = "Postagem verificada com sucesso, pode prosseguir." });
         }
 
         [HttpPost("send-company-code")]
         public async Task<IActionResult> SendCompanyCode([FromBody] EmailRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Email))
-                return BadRequest("E-mail é obrigatório.");
+                return Error("E-mail é obrigatório.", 400);
 
             var code = _codeService.GenerateCode(request.Email, "company");
             var message = "Use o código abaixo para confirmar a criação da sua empresa no Oportuniza:";
@@ -162,7 +162,7 @@ namespace Oportuniza.API.Controllers
             );
 
             if (!success)
-                return StatusCode(500, "Falha ao enviar e-mail de verificação de postagem.");
+                return Error("Falha ao enviar e-mail de verificação de postagem.", 500);
 
             return Ok(new { message = "Código de verificação enviado via e-mail.", expiresInSeconds = 60 });
         }
@@ -171,9 +171,9 @@ namespace Oportuniza.API.Controllers
         public IActionResult ValidateCompanyCode([FromBody] VerificationRequest request)
         {
             if (!_codeService.ValidateCode(request.Email, request.Code, "company"))
-                return BadRequest("Código de empresa inválido ou expirado.");
+                return Error("Código de empresa inválido ou expirado.", 400);
 
-            return Ok(new { message = "Empresa verificada com sucesso, pode prosseguir!" });
+            return Ok(new { message = "Empresa verificada com sucesso, pode prosseguir." });
         }
         private async Task<string> GetAdminToken()
         {
@@ -194,6 +194,11 @@ namespace Oportuniza.API.Controllers
             var json = await response.Content.ReadAsStringAsync();
             dynamic obj = JsonConvert.DeserializeObject(json)!;
             return obj.access_token;
+        }
+
+        private IActionResult Error(string message, int status)
+        {
+            return StatusCode(status, new { error = message });
         }
 
         public class VerificationRequest

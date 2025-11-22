@@ -27,10 +27,6 @@ namespace Oportuniza.API.Services
 
             using var analysisStream = new MemoryStream(memoryStream.ToArray());
 
-            //bool isSafe = await IsImageSafeAsync(analysisStream, file.ContentType);
-            //if (!isSafe)
-            //    throw new Exception("Imagem imprópria detectada. Upload bloqueado.");
-
             memoryStream.Position = 0;
 
             var blobServiceClient = new BlobServiceClient(_connectionString);

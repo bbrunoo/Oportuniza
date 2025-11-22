@@ -82,11 +82,10 @@ a {
   display: flex;
   align-items: stretch;
   padding: 10px;
-  border: 1px solid #eaeaea;
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: 10px;
-  background-color: #e3e3e3;
+  background-color: #d3d3d3;
   flex-wrap: wrap;
 }
 
@@ -288,7 +287,6 @@ a {
     border: 1px solid #eaeaea;
     border-radius: 10px;
     padding: 10px 12px;
-    background-color: #e3e3e3;
     flex-wrap: wrap;
     width: 70vw;
   }
@@ -391,6 +389,28 @@ a {
   }
 }
 
+.inscription .vaga-preview{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inscription .vaga-info{
+  display: flex;
+  flex-direction: row;
+  gap: 25px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vaga-info-conteudo{
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  flex-direction: column ;
+}
+
+
 .vaga-preview {
   width: 100%;
   display: flex;
@@ -398,7 +418,7 @@ a {
   gap: 15px;
   margin: 10px 0 20px 0;
   cursor: pointer;
-  border-bottom: 2px solid #ddd;
+  border-bottom: 2px solid #bdbdbd;
   padding-bottom: 10px;
 }
 

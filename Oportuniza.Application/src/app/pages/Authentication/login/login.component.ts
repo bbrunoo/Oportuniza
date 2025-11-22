@@ -136,19 +136,6 @@ export class LoginComponent {
     return false;
   }
 
-  checkPasswordSecurity(password: string): { valid: boolean; reason?: string } {
-    if (!this.validatePassword(password))
-      return { valid: false, reason: 'A senha deve ter letras maiúsculas, minúsculas, números e símbolos, sem espaços, e pelo menos 8 caracteres.' };
-
-    if (this.isPasswordForbidden(password))
-      return { valid: false, reason: 'A senha contém padrões inseguros ou previsíveis.' };
-
-    if (/[^\x00-\x7F]/.test(password))
-      return { valid: false, reason: 'A senha não deve conter emojis ou caracteres especiais fora do padrão ASCII.' };
-
-    return { valid: true };
-  }
-
   async login(): Promise<void> {
     this.isLoading = true;
     this.sanitizeEmail();
@@ -166,25 +153,58 @@ export class LoginComponent {
       return;
     }
 
-    const passwordCheck = this.checkPasswordSecurity(this.password);
-    if (!passwordCheck.valid) {
-      Swal.fire('Senha insegura', passwordCheck.reason, 'warning');
-      this.isLoading = false;
-      return;
-    }
-
     try {
       sessionStorage.setItem('loginWithKeycloak', 'true');
-      const res = await this.keycloakService.loginWithCredentials(this.email, this.password).toPromise();
+
+      const res = await this.keycloakService
+        .loginWithCredentials(this.email, this.password)
+        .toPromise();
 
       this.keycloakService.setNewAccessToken(res.access_token || res.token);
       this.router.navigate(['/troca']);
-    } catch (err) {
-      console.error('Erro no login:', err);
-      Swal.fire('Erro!', 'Falha no login. Verifique suas credenciais.', 'error');
+    } catch (err: any) {
+
+      const msg = this.extractErrorMessage(err);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Atenção',
+        text: msg,
+        confirmButtonText: 'Ok'
+      });
+
       sessionStorage.removeItem('loginWithKeycloak');
     } finally {
       this.isLoading = false;
     }
+  }
+
+  private extractErrorMessage(err: any): string {
+
+    if (err?.status === 429) {
+      if (err?.error?.error) {
+        return err.error.error;
+      }
+      return 'Muitas tentativas. Aguarde antes de tentar novamente.';
+    }
+
+    if (err?.error?.error) {
+      return err.error.error;
+    }
+
+    if (typeof err?.error === 'string') {
+      try {
+        const parsed = JSON.parse(err.error);
+        return parsed.error || 'Erro inesperado.';
+      } catch {
+        return err.error;
+      }
+    }
+
+    if (err?.message) {
+      return err.message;
+    }
+
+    return 'Erro inesperado.';
   }
 }

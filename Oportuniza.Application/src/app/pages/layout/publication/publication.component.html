@@ -57,8 +57,9 @@
 
         <div class="form-section">
           <label class="input-label">Descrição</label>
-          <textarea name="description" [(ngModel)]="publication.description"
-            placeholder="Descreva a vaga, requisitos, etc." required rows="8" class="form-textarea"></textarea>
+            <textarea name="description" [(ngModel)]="publication.description" placeholder="Descreva a vaga" required
+              rows="8" class="form-textarea" (keydown)="blockSpecialChars($event)" (paste)="sanitizePastedText($event)">
+            </textarea>
         </div>
 
         <div class="form-section">

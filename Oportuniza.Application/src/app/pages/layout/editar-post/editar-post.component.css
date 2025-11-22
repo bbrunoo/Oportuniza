@@ -604,7 +604,6 @@ form {
     width: 100%;
   }
 
-  /* 🌟 AQUI está o grid responsivo das opções */
   .option-buttons {
     display: grid;
     gap: 10px;

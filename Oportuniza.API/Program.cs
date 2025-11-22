@@ -117,6 +117,7 @@ builder.Services.AddSingleton<IVerificationCodeService, VerificationCodeService>
 builder.Services.AddSingleton<IEmailService, MailGunEmailService>();
 builder.Services.AddScoped<ICandidateExtraRepository, CandidateExtraRepository>();
 builder.Services.AddScoped<ICnpjCacheRepository, CnpjCacheRepository>();
+builder.Services.AddScoped<ILoginAttemptRepository, LoginAttemptRepository>();
 
 builder.Services.AddHttpClient<GeolocationService>();
 builder.Services.AddHttpClient<CNPJService>();
