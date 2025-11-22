@@ -16,7 +16,6 @@
 }
 
 .employee-list-panel {
-  background-color: rgba(74, 74, 74, 0.4);
   padding: 30px;
   border-radius: 10px;
   display: flex;
@@ -398,8 +397,8 @@
 
 @media screen and (max-width: 1400px) {
   .container {
-    width: 70em;
-    height: 45em;
+    width: 65em;
+    height: 40em;
   }
 
   .employee-list-panel {

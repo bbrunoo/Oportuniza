@@ -148,8 +148,8 @@ h2 {
 
 @media screen and (max-width: 1400px) {
   .container {
-    width: 70em;
-    height: 45em;
+    width: 66em;
+    height: 40em;
   }
 
   .company-display {
@@ -168,7 +168,7 @@ h2 {
   }
 
   .info-panel {
-    padding: 2.5em 3em;
+    padding: 2.5em 0em;
   }
 }
 

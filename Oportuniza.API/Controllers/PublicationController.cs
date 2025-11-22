@@ -437,26 +437,29 @@ namespace Oportuniza.API.Controllers
             var publications = await _publicationRepository.GetAllAsync(
                 includes: new Expression<Func<Publication, object>>[]
                 {
-                    p => p.CreatedByUser,
-                    p => p.AuthorUser,
-                    p => p.AuthorCompany
+            p => p.CreatedByUser,
+            p => p.AuthorUser,
+            p => p.AuthorCompany
                 },
                 filter: p => p.IsActive == PublicationAvailable.Enabled
             );
 
             if (publications == null || !publications.Any())
-            {
                 return NotFound("Nenhuma publicação disponível para amostra.");
-            }
 
-            var random = new Random();
-            var randomPublications = publications
-                .OrderBy(_ => random.Next())
-                .Take(2)
-                .ToList();
+            var rnd = new Random();
+            var shuffled = publications.OrderBy(_ => rnd.Next()).ToList();
 
-            var response = _mapper.Map<List<PublicationDto>>(randomPublications);
+            List<Publication> result;
 
+            if (shuffled.Count >= 2)
+                result = shuffled.Take(2).ToList();
+            else if (shuffled.Count == 1)
+                result = shuffled.Take(1).ToList();
+            else
+                return NotFound("Nenhuma publicação disponível para amostra.");
+
+            var response = _mapper.Map<List<PublicationDto>>(result);
             return Ok(response);
         }
     }
