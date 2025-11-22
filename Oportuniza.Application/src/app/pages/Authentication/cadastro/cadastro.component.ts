@@ -2,13 +2,12 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import Swal from "sweetalert2";
+import Swal from 'sweetalert2';
 import { MatDialog } from '@angular/material/dialog';
 import { TermosModalComponent } from '../../../extras/termos-modal/termos-modal.component';
 import { firstValueFrom } from 'rxjs';
-import { MSAL_GUARD_CONFIG, MsalGuardConfiguration, MsalService } from '@azure/msal-angular';
-import { RedirectRequest } from '@azure/msal-browser';
 import { KeycloakOperationService } from '../../../services/keycloak.service';
+import { VerificationService } from '../../../services/verification.service';
 
 @Component({
   selector: 'app-cadastro',
@@ -27,6 +26,7 @@ export class CadastroComponent {
   loginDisplay = false;
 
   email: string = '';
+  name: string = '';
   password: string = '';
   confirmPassword: string = '';
 
@@ -39,7 +39,8 @@ export class CadastroComponent {
     hasUppercase: false,
     hasNumber: false,
     hasSymbol: false,
-    hasMinLength: false
+    hasMinLength: false,
+    equalsPassword: false,
   };
 
   passwordStatus = {
@@ -47,37 +48,64 @@ export class CadastroComponent {
     hasUppercase: false,
     hasNumber: false,
     hasSymbol: false,
-    hasMinLength: false
+    hasMinLength: false,
+    equalsPassword: false,
   };
 
   timeoutMap: any = {};
 
-  criteriaList: { key: keyof typeof CadastroComponent.prototype['passwordCriteria']; message: string }[] = [];
+  criteriaList: {
+    key: keyof (typeof CadastroComponent.prototype)['passwordCriteria'];
+    message: string;
+  }[] = [];
 
-  constructor(private router: Router, private dialog: MatDialog, private keyAuth: KeycloakOperationService, private msalService: MsalService, @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration) {
+  constructor(
+    private router: Router,
+    private dialog: MatDialog,
+    private keyAuth: KeycloakOperationService,
+    private verificationService: VerificationService
+  ) {
     this.criteriaList = [
       { key: 'hasLowercase', message: 'A senha deve conter letras minúsculas' },
       { key: 'hasUppercase', message: 'A senha deve conter letras maiúsculas' },
       { key: 'hasNumber', message: 'A senha deve conter números' },
-      { key: 'hasSymbol', message: 'A senha deve conter símbolos (ex: @, #, $)' },
-      { key: 'hasMinLength', message: 'A senha deve ter no mínimo 8 caracteres' }
+      {
+        key: 'hasSymbol',
+        message: 'A senha deve conter símbolos (ex: @, #, $)',
+      },
+      {
+        key: 'hasMinLength',
+        message: 'A senha deve ter no mínimo 8 caracteres',
+      },
+      { key: 'equalsPassword', message: 'As senhas devem ser iguais' },
     ];
   }
 
-  microsoftLogin() {
-    if (this.msalGuardConfig.authRequest) {
-      this.msalService.loginRedirect({
-        ...this.msalGuardConfig.authRequest,
-      } as RedirectRequest);
-    } else {
-      this.msalService.loginRedirect();
-    }
+  sanitizeInput(value: string): string {
+    return value.replace(/[<>{}()'"`;$]/g, '').trim();
   }
 
-  setLoginDisplay() {
-    this.loginDisplay = this.msalService.instance.getAllAccounts().length > 0;
+  onNameInput(event: any) {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^A-Za-zÀ-ÿ\s]/g, '');
+    this.name = input.value;
   }
 
+  onEmailInput(event: any) {
+    const input = event.target as HTMLInputElement;
+
+    input.value = input.value
+      .replace(/\s/g, '')
+      .replace(/[^a-zA-Z0-9@._-]/g, '');
+
+    this.email = input.value;
+  }
+
+  validatePassword(password: string): boolean {
+    const passwordPattern =
+      /^(?=.*[A-Z])(?=.*[!#@$%&.])(?=.*[0-9])(?=.*[a-z])[A-Za-z0-9!#@$%&]{8,15}$/;
+    return passwordPattern.test(password);
+  }
 
   togglePassword() {
     this.passwordVisible = !this.passwordVisible;
@@ -88,112 +116,152 @@ export class CadastroComponent {
   }
 
   validateEmail(email: string): boolean {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailPattern =
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailPattern.test(email);
   }
 
-  validatePassword(password: string): boolean {
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
-    return passwordPattern.test(password);
-  }
-
-  async register() {
-    this.errorMessage = '';
-
-    if (!this.email || !this.validateEmail(this.email)) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Email inválido',
-        text: 'Por favor, insira um e-mail válido.'
-      });
-      return;
-    }
-
-    if (this.password !== this.confirmPassword) {
-      Swal.fire({ icon: 'warning', title: 'Senhas diferentes', text: 'As senhas não coincidem.' });
-      return;
-    }
-    if (!this.acceptTerms) {
-      Swal.fire({ icon: 'info', title: 'Termos não aceitos', text: 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.' });
-      return;
-    }
-
+  async proceedRegistration() {
     this.isLoading = true;
 
     try {
-      const response = await firstValueFrom(this.keyAuth.registerUser({ email: this.email, password: this.password }));
-      console.log('Usuário registrado com sucesso no Keycloak!', response);
+      this.name = this.sanitizeInput(this.name);
+      this.email = this.sanitizeInput(this.email);
 
-      const tokens = await firstValueFrom(this.keyAuth.loginWithCredentials(this.email, this.password));
-      console.log('Login bem-sucedido, tokens recebidos:', tokens);
+      const response = await firstValueFrom(
+        this.keyAuth.registerUser({
+          name: this.name,
+          email: this.email,
+          password: this.password,
+        })
+      );
 
       await Swal.fire({
-        icon: 'success',
-        title: 'Cadastro realizado!',
-        text: 'Seu cadastro foi efetuado com sucesso. Você será redirecionado.',
-        timer: 2000,
-        showConfirmButton: false
+        icon: 'info',
+        title: 'Verifique seu e-mail',
+        text: 'Enviamos um código de verificação para o seu e-mail.',
+        confirmButtonText: 'OK',
       });
 
-      this.router.navigate(['/inicio']);
-
+      this.router.navigate(['/verify', this.email]);
     } catch (error) {
       console.error('Erro no processo de registro:', error);
-      this.errorMessage = 'Ocorreu um erro ao tentar realizar o cadastro. Verifique os dados ou tente novamente mais tarde.';
+      this.errorMessage =
+        'Ocorreu um erro ao tentar realizar o cadastro. Verifique os dados ou tente novamente mais tarde.';
 
       Swal.fire({
         icon: 'error',
         title: 'Erro no Cadastro',
-        text: this.errorMessage
+        text: this.errorMessage,
       });
-
     } finally {
       this.isLoading = false;
     }
   }
 
-  onPasswordInput() {
+  async register() {
+    this.errorMessage = '';
+
+    this.name = this.sanitizeInput(this.name);
+    this.email = this.sanitizeInput(this.email);
+
+    if (!this.name || this.name.length < 2) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Nome inválido',
+        text: 'Por favor, insira um nome válido.',
+      });
+      return;
+    }
+
+    if (!this.email || !this.validateEmail(this.email)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Email inválido',
+        text: 'Por favor, insira um e-mail válido.',
+      });
+      return;
+    }
+
+    if (!this.validatePassword(this.password)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Senha insegura',
+        text: 'A senha não atende aos critérios de segurança.',
+      });
+      return;
+    }
+
+    if (this.password !== this.confirmPassword) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Senhas diferentes',
+        text: 'As senhas não coincidem.',
+      });
+      return;
+    }
+
+    if (!this.acceptTerms) {
+      this.openModal();
+      return;
+    }
+
+    this.proceedRegistration();
+  }
+
+  onPasswordInput(event?: any) {
+    if (event) {
+      const input = event.target as HTMLInputElement;
+
+      input.value = input.value.replace(/[^A-Za-z0-9!#@$%&.]/g, '');
+      this.password = input.value;
+    }
+
     const pwd = this.password;
 
     const checks = {
       hasLowercase: /[a-z]/.test(pwd),
       hasUppercase: /[A-Z]/.test(pwd),
       hasNumber: /\d/.test(pwd),
-      hasSymbol: /[^\w\s]/.test(pwd),
-      hasMinLength: pwd.length >= 8
+      hasSymbol: /[!#@$%&]/.test(pwd),
+      hasMinLength: pwd.length >= 8,
     };
 
     Object.entries(checks).forEach(([key, value]) => {
       const typedKey = key as keyof typeof this.passwordCriteria;
-
       if (value && !this.passwordCriteria[typedKey]) {
         this.passwordStatus[typedKey] = true;
         if (this.timeoutMap[typedKey]) clearTimeout(this.timeoutMap[typedKey]);
         this.timeoutMap[typedKey] = setTimeout(() => {
           this.passwordStatus[typedKey] = false;
-        }, 500);
+        }, 400);
       }
-
       this.passwordCriteria[typedKey] = value;
     });
 
     this.checkPasswordsMatch();
   }
 
-  onConfirmPasswordInput() {
+  onConfirmPasswordInput(event?: any) {
+    if (event) {
+      const input = event.target as HTMLInputElement;
+      input.value = input.value.replace(/[^A-Za-z0-9!#@$%&.]/g, '');
+      this.confirmPassword = input.value;
+    }
     this.checkPasswordsMatch();
   }
 
   checkPasswordsMatch() {
     const match = this.password === this.confirmPassword;
-    if (match && !this.passwordsMatch) {
-      this.passwordsMatchStatus = true;
-      if (this.passwordMatchTimeout) clearTimeout(this.passwordMatchTimeout);
+    this.passwordCriteria.equalsPassword = match;
+
+    if (match) {
+      this.passwordStatus.equalsPassword = true;
+      clearTimeout(this.passwordMatchTimeout);
       this.passwordMatchTimeout = setTimeout(() => {
-        this.passwordsMatchStatus = false;
-      }, 500);
+        this.passwordStatus.equalsPassword = false;
+      }, 400);
     }
-    this.passwordsMatch = match;
   }
 
   isPasswordValid(): boolean {
@@ -224,10 +292,11 @@ export class CadastroComponent {
       maxWidth: 'none',
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result === 'aceito') {
         this.acceptTerms = true;
         this.termsAcceptedInternally = true;
+        this.proceedRegistration();
       }
     });
   }

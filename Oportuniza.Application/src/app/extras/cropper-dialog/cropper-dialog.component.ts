@@ -35,7 +35,6 @@ export class CropperDialogComponent {
   private scale = 1;
   private flipH = false;
 
-
   constructor(
     public dialogRef: MatDialogRef<CropperDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: CropperDialogData

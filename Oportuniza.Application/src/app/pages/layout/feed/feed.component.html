@@ -1,42 +1,125 @@
 <div class="container" *ngIf="publications.length > 0">
-  <div class="navigation-space">
-    <div class="navigation" *ngIf="currentIndex > 0" (click)="goBack()">
-      <img src="../../../../assets/home-assets/left-arrow.png" />
-    </div>
-  </div>
+  <app-searchbar (search)="onSearchTriggered($event)"></app-searchbar>
 
   <div class="center-content">
-    <div class="right-image">
+    <div class="navigation-space" *ngIf="!isMobile">
+      <div class="navigation" *ngIf="currentIndex > 0" (click)="goBack()">
+        <img src="../../../../assets/home-assets/left-arrow.png" />
+      </div>
+    </div>
+
+    <div class="right-image" *ngIf="!isMobile">
       <img [src]="publications[currentIndex].imageUrl || '../../../assets/logo.png'" />
     </div>
-    <div class="post-description">
-      <div class="user-datas">
-        <img class="profile-picture" [src]="publications[currentIndex].authorImageUrl || '../../../../assets/etapas/perfil.png'"/> {{ publications[currentIndex].authorName }}
-       </div>
-      <div class="description">
-        <div class="title">{{ publications[currentIndex].title }}</div>
-        <div class="main-description"> {{ publications[currentIndex].description }} </div>
 
-        <div class="title"> Salario:
-          <br>{{ publications[currentIndex].salary }} </div>
-        <div class="bottom">
-          <button>Candidatar-se</button>
+    <div class="post-description">
+      <div class="post-content">
+        <div class="user-datas">
+          <img class="profile-picture"
+            [src]="publications[currentIndex].authorImageUrl || '../../../../assets/etapas/perfil.png'" />
+
+          <div class="user-info">
+            {{ publications[currentIndex].authorName }}
+
+            <img *ngIf="isMobile" class="mini-job-image"
+              [src]="publications[currentIndex].imageUrl || '../../../assets/logo.png'" alt="Imagem da vaga"
+              (click)="openImageModal(publications[currentIndex].imageUrl || '../../../assets/logo.png')" />
+          </div>
         </div>
+
+        <div class="description">
+          <div class="title">{{ publications[currentIndex].title }}</div>
+          <div class="main-description">
+            {{ publications[currentIndex].resumee }}
+          </div>
+        </div>
+
+        <div class="specs">
+          <div class="spec-description">
+            <img src="../../../../assets/Cash.png" alt="" />
+            <p>Faixa Salárial</p>
+            <label>{{ publications[currentIndex].salary }}</label>
+          </div>
+
+          <div class="spec-description">
+            <img src="../../../../assets/Time.png" alt="" />
+            <p>Periodo</p>
+            <label>{{ publications[currentIndex].shift }}</label>
+          </div>
+
+          <div class="spec-description">
+            <img src="../../../../assets/Briefcase-b.png" alt="" />
+            <p>Tipo de Contrato</p>
+            <label>{{ publications[currentIndex].contract }}</label>
+          </div>
+
+          <div class="spec-description">
+            <img src="../../../../assets/Local.png" alt="" />
+            <p>Exclusivamente para</p>
+            <label>{{ publications[currentIndex].local }}</label>
+          </div>
+        </div>
+
+        <div class="final">
+          <p>Data de expiração: {{ publications[currentIndex].expirationDate | date: 'dd/MM/yyyy' }}</p>
+
+          <div class="bottom" *ngIf=" !isCompany && publications[currentIndex].authorId !== userId">
+
+            <button *ngIf="!appliedStatus[publications[currentIndex].id]"
+              (click)="openApplyModal(publications[currentIndex].id)" class="apply-button">
+              Candidatar
+            </button>
+
+            <button *ngIf="appliedStatus[publications[currentIndex].id]"
+              (click)="cancelApplication(publications[currentIndex].id)" class="applied-button">
+              Candidatado
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="navigation-space" *ngIf="!isMobile">
+      <div class="navigation" *ngIf="currentIndex < publications.length - 1" (click)="goForward()">
+        <img src="../../../../assets/home-assets/right-arrow.png" />
       </div>
     </div>
   </div>
 
-  <div class="navigation-space">
-    <div
-      class="navigation"
-      *ngIf="currentIndex < publications.length - 1"
-      (click)="goForward()"
-    >
-      <img src="../../../../assets/home-assets/right-arrow.png" />
-    </div>
+  <div class="pagination" *ngIf="isMobile">
+    <button (click)="goBack()" [disabled]="currentIndex === 0">← Voltar</button>
+    <span>{{ currentIndex + 1 }} / {{ publications.length }}</span>
+    <button (click)="goForward()" [disabled]="currentIndex === publications.length - 1">Próximo →</button>
+  </div>
+
+  <div class="image-modal" *ngIf="isImageModalOpen" (click)="closeImageModal()">
+    <img [src]="modalImageUrl" alt="Imagem ampliada da vaga" />
   </div>
 </div>
 
 <div class="no-publications" *ngIf="publications.length === 0">
-  <p>Não há publicações disponíveis no momento.</p>
+  <p>Nenhuma publicação ainda.</p>
+</div>
+
+<div class="apply-modal-backdrop" *ngIf="isApplyModalOpen" (click)="closeApplyModal()"></div>
+
+<div class="apply-modal" *ngIf="isApplyModalOpen">
+  <div class="apply-modal-content">
+    <h2>Confirmar candidatura</h2>
+    <p>Você pode adicionar uma observação ou enviar um currículo (opcional):</p>
+
+    <textarea placeholder="Observação (opcional)" [(ngModel)]="observationText" rows="3"
+      class="apply-textarea"></textarea>
+
+    <label class="file-upload-label">
+      <input type="file" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx" />
+      Escolher currículo (PDF/DOC)
+    </label>
+    <p *ngIf="selectedResumeFile">Arquivo selecionado: {{ selectedResumeFile.name }}</p>
+
+    <div class="apply-modal-buttons">
+      <button (click)="closeApplyModal()" class="cancel-btn">Cancelar</button>
+      <button (click)="confirmApplication()" class="confirm-btn">Confirmar</button>
+    </div>
+  </div>
 </div>

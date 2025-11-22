@@ -1,26 +1,28 @@
-// import { authConfig, useAuth } from './../../../authConfig';
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, HostListener } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UserService } from '../../../services/user.service';
 import { UserProfile } from '../../../models/UserProfile.model';
 import { ConfigsComponent } from '../../../extras/configs/configs.component';
-import { AuthenticationResult, EventMessage, EventType, InteractionStatus } from '@azure/msal-browser';
-import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
-import { filter, Subject, take, takeUntil } from 'rxjs';
+import { Subject, take } from 'rxjs';
 import { KeycloakOperationService } from '../../../services/keycloak.service';
 import { LoadingComponent } from '../../../extras/loading/loading.component';
 
+type UserRole = 'Owner' | 'Worker' | 'Administrator' | null;
+
 @Component({
   selector: 'app-initial-layout',
+  standalone: true,
   imports: [RouterOutlet, CommonModule, RouterLink],
   templateUrl: './initial-layout.component.html',
-  styleUrl: './initial-layout.component.css'
+  styleUrl: './initial-layout.component.css',
 })
 export class InitialLayoutComponent implements OnInit, OnDestroy {
   isInitializing = true;
   private loadingDialogRef: MatDialogRef<LoadingComponent> | null = null;
+  isCompany = false;
+  userRole: UserRole = null;
 
   userProfile: UserProfile = {
     id: '',
@@ -28,214 +30,199 @@ export class InitialLayoutComponent implements OnInit, OnDestroy {
     email: '',
     phone: '',
     imageUrl: '',
-    isProfileCompleted: false
+    local: '',
+    interestArea: [],
+    isCompany: false,
   };
 
+  isMenuOpen = false;
   loginDisplay = false;
   showCompleteProfileicon = true;
-  loginMethod: 'keycloak' | 'msal' | null = null;
+  loginMethod: 'keycloak' | null = null;
 
   private readonly _destroying$ = new Subject<void>();
 
   constructor(
     private userService: UserService,
     private dialog: MatDialog,
-    private msalService: MsalService,
-    private msalBroadcastService: MsalBroadcastService,
     private keycloakService: KeycloakOperationService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
+    window.addEventListener('scroll', this.closeMenuOnScroll.bind(this), true);
+
     this.loadingDialogRef = this.dialog.open(LoadingComponent, {
-      height: "300px",
-      width: "450px",
+      height: '300px',
+      width: '450px',
       disableClose: true,
       panelClass: 'loading-dialog-panel',
-      backdropClass: 'loading-dialog-backdrop'
+      backdropClass: 'loading-dialog-backdrop',
     });
 
-    const loggedWithKeycloakFlag = sessionStorage.getItem('loginWithKeycloak') === 'true';
-    const loggedWithMicrosoftFlag = sessionStorage.getItem('loginWithMicrosoft') === 'true';
-
-    this.msalBroadcastService.msalSubject$
-      .pipe(
-        filter((msg: EventMessage) =>
-          msg.eventType === EventType.LOGIN_SUCCESS ||
-          msg.eventType === EventType.ACQUIRE_TOKEN_SUCCESS
-        ),
-        takeUntil(this._destroying$)
-      )
-      .subscribe((result: EventMessage) => {
-        const payload = result.payload as AuthenticationResult;
-        this.msalService.instance.setActiveAccount(payload.account);
-        sessionStorage.setItem('loginWithMicrosoft', 'true');
-        this.loginMethod = 'msal';
-        console.log('Evento MSAL LOGIN/ACQUIRE_TOKEN_SUCCESS detectado. Realizando setup.');
-        this.afterLoginSetup();
-      });
-
-    if (loggedWithKeycloakFlag) {
-      this.loginMethod = 'keycloak';
-      this.validateKeycloakSession();
-      this.afterLoginSetup();
-    } else if (loggedWithMicrosoftFlag) {
-      this.loginMethod = 'msal';
-      this.validateMsalSession();
-    } else {
-      this.checkExistingSessions();
-
-      if (!this.loginMethod) {
-        console.warn('Nenhuma sessão ativa detectada. Redirecionando para /login.');
-        this.router.navigate(['/login']);
-        return;
-      }
-
-      if (this.loginMethod === 'keycloak' && !loggedWithKeycloakFlag) {
-        this.afterLoginSetup();
-      }
-    }
-  }
-
-  async validateKeycloakSession(): Promise<void> {
-    const accessToken = sessionStorage.getItem('access_token');
-    if (accessToken && !this.keycloakService.isTokenExpired(accessToken)) {
-      console.log('Sessão Keycloak válida.');
-    } else {
-      console.warn('Sessão Keycloak inválida ou expirada. Limpando flags e redirecionando.');
-      sessionStorage.removeItem('loginWithKeycloak');
-      sessionStorage.removeItem('access_token');
-      this.loginMethod = null;
-      this.router.navigate(['/login']);
-    }
-  }
-
-  afterLoginSetup() {
-    this.loginDisplay = true;
-    this.getLoggedUserProfile();
-  }
-
-  getLoggedUserProfile() {
-    this.userService.getOwnProfile().pipe(take(1)).subscribe({
-      next: (profile: UserProfile) => {
-        this.userProfile = profile;
-        this.showCompleteProfileicon = !profile.isProfileCompleted;
-        console.log("Perfil do usuário carregado:", this.userProfile);
-        this.loadingDialogRef?.close();
-        this.isInitializing = false;
-      },
-      error: (error: any) => {
-        console.error('Erro ao carregar perfil do usuário:', error);
-        this.loadingDialogRef?.close();
-        this.isInitializing = false;
-        console.warn('Erro ao obter perfil. Redirecionando para login.');
-        this.router.navigate(['/login']);
-        sessionStorage.removeItem('loginWithKeycloak');
-        sessionStorage.removeItem('loginWithMicrosoft');
-        sessionStorage.removeItem('access_token');
-        this.loginMethod = null;
-      }
-    })
+    this.handleSession();
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('scroll', this.closeMenuOnScroll.bind(this), true);
     this._destroying$.next(undefined);
     this._destroying$.complete();
   }
 
-  validateMsalSession(): void {
-    const accounts = this.msalService.instance.getAllAccounts();
-    if (accounts.length > 0) {
-      this.msalService.instance.setActiveAccount(accounts[0]);
-      console.log('Sessão MSAL ativa.');
-    } else {
-      console.warn('Nenhuma conta MSAL ativa. Limpando flags e esperando por LOGIN_SUCCESS.');
-      sessionStorage.removeItem('loginWithMicrosoft');
-      this.loginMethod = null;
-    }
-
-    this.msalBroadcastService.msalSubject$
-      .pipe(filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS || msg.eventType === EventType.ACQUIRE_TOKEN_SUCCESS))
-      .subscribe((result: EventMessage) => {
-        const payload = result.payload as AuthenticationResult;
-        this.msalService.instance.setActiveAccount(payload.account);
-        sessionStorage.setItem('loginWithMicrosoft', 'true');
-        this.loginMethod = 'msal';
-        this.afterLoginSetup();
-      });
-
-    this.msalBroadcastService.inProgress$
-      .pipe(
-        filter((status: InteractionStatus) => status === InteractionStatus.None)
-      )
-      .subscribe(() => {
-
-        if (sessionStorage.getItem('loginWithMicrosoft') === 'true' &&
-          this.msalService.instance.getAllAccounts().length === 0 &&
-          this.loginMethod !== 'msal') {
-          console.warn('MSAL finalizou interação sem conta ativa. Redirecionando para /login.');
-          sessionStorage.removeItem('loginWithMicrosoft');
-          this.router.navigate(['/login']);
-        }
-      });
-  }
-
-  async checkExistingSessions(): Promise<void> {
-    const accounts = this.msalService.instance.getAllAccounts();
-    if (accounts.length > 0) {
-      this.msalService.instance.setActiveAccount(accounts[0]);
-      sessionStorage.setItem('loginWithMicrosoft', 'true');
-      this.loginMethod = 'msal';
-      console.log('Sessão MSAL existente detectada.');
-      return;
-    }
-
-    const keycloakLoggedIn = await this.keycloakService.isLoggedIn();
-    const accessToken = sessionStorage.getItem('access_token');
-
-    if (keycloakLoggedIn && accessToken && !this.keycloakService.isTokenExpired(accessToken)) {
-      sessionStorage.setItem('loginWithKeycloak', 'true');
-      this.loginMethod = 'keycloak';
-      console.log('Sessão Keycloak existente detectada.');
-      return;
-    }
-  }
-
-  async checkKeycloakLogin(): Promise<boolean> {
+  private async handleSession(): Promise<void> {
     const loggedIn = await this.keycloakService.isLoggedIn();
     if (loggedIn) {
       this.loginMethod = 'keycloak';
-      this.setLoginDisplay();
-      this.getLoggedUserProfile();
-      return true;
+      this.afterLoginSetup();
+    } else {
+      this.closeLoadingAndRedirect();
     }
-    return false;
   }
 
-  setLoginDisplay() {
-    this.loginDisplay = this.msalService.instance.getAllAccounts().length > 0;
+  private afterLoginSetup(): void {
+    this.loginDisplay = true;
+    this.getLoggedUserProfile();
   }
 
-  openDialog() {
-    if (this.isInitializing) {
-      console.log('Aguardando a inicialização do perfil do usuário...');
+  private closeLoadingAndRedirect(): void {
+    this.loadingDialogRef?.close();
+    this.isInitializing = false;
+    sessionStorage.clear();
+    this.loginMethod = null;
+    this.router.navigate(['/login']);
+  }
+
+  private getLoggedUserProfile(): void {
+    this.userService
+      .getOwnProfile()
+      .pipe(take(1))
+      .subscribe({
+        next: (profile: UserProfile) => {
+          this.userProfile = profile;
+          this.loadUserCompanyRole();
+        },
+        error: (error: any) => {
+          console.error('Erro ao carregar perfil do usuário:', error);
+          this.closeLoadingAndRedirect();
+        },
+      });
+  }
+
+  private loadUserCompanyRole(): void {
+    const companyId = this.keycloakService.getActiveCompanyId();
+
+    if (!companyId) {
+      this.isCompany = false;
+      this.userRole = null;
+      this.finishLoading();
       return;
     }
 
-    const dialogRef = this.dialog.open(ConfigsComponent, {
+    this.keycloakService.verifyUserRole(companyId).pipe(take(1)).subscribe({
+      next: (res) => {
+        const normalizedRole = (res.role || '').trim().toLowerCase();
+
+        if (res.hasRole && normalizedRole) {
+          if (normalizedRole === 'owner') {
+            this.userRole = 'Owner';
+            this.isCompany = true;
+          } else if (normalizedRole === 'worker' || normalizedRole === 'employee') {
+            this.userRole = 'Worker';
+            this.isCompany = true;
+          } else if (normalizedRole === 'administrator' || normalizedRole === 'admin') {
+            this.userRole = 'Administrator';
+            this.isCompany = true;
+          } else {
+            console.warn(`🔸 Papel desconhecido recebido: ${normalizedRole}`);
+            this.userRole = null;
+            this.isCompany = false;
+          }
+        } else {
+          this.userRole = null;
+          this.isCompany = false;
+        }
+        this.finishLoading();
+      },
+      error: (err) => {
+        console.error('Erro ao verificar papel do usuário:', err);
+        this.userRole = null;
+        this.isCompany = false;
+        this.finishLoading();
+      },
+    });
+  }
+
+  verifyCompanyRole(): void {
+    this.keycloakService.verifyUserRole().pipe(take(1)).subscribe({
+      next: (res) => {
+        const normalizedRole = (res.role || '').trim().toLowerCase();
+
+        if (res.hasRole && normalizedRole) {
+          if (normalizedRole === 'owner' || normalizedRole === 'companyowner') {
+            this.userRole = 'Owner';
+          } else if (normalizedRole === 'worker' || normalizedRole === 'employee') {
+            this.userRole = 'Worker';
+          } else if (normalizedRole === 'administrator' || normalizedRole === 'admin') {
+            this.userRole = 'Administrator';
+          } else {
+            this.userRole = null;
+          }
+
+          this.isCompany = this.userRole !== null;
+        } else {
+          this.userRole = null;
+          this.isCompany = false;
+        }
+      },
+      error: (err) => {
+        console.error('Erro ao verificar papel do usuário:', err);
+        this.userRole = null;
+      },
+    });
+  }
+
+  private finishLoading(): void {
+    this.loadingDialogRef?.close();
+    this.isInitializing = false;
+  }
+
+  toggleMenu(forceState?: boolean): void {
+    if (window.innerWidth <= 1124) {
+      this.isMenuOpen = forceState !== undefined ? forceState : !this.isMenuOpen;
+    }
+  }
+
+  closeMenuOnScroll(): void {
+    if (window.innerWidth <= 1024 && this.isMenuOpen) {
+      setTimeout(() => (this.isMenuOpen = false), 50);
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    const sidebar = document.getElementById('sidebar');
+    const trigger = document.querySelector('.menu-trigger-area');
+    if (!sidebar || !trigger) return;
+
+    const insideMenu = sidebar.contains(target);
+    const clickedButton = trigger.contains(target);
+
+    if (this.isMenuOpen && !insideMenu && !clickedButton) {
+      this.isMenuOpen = false;
+    }
+  }
+
+  openDialog(): void {
+    if (this.isInitializing) return;
+
+    this.isMenuOpen = false;
+
+    this.dialog.open(ConfigsComponent, {
       minWidth: '230px',
       minHeight: '130px',
-      position: {
-        bottom: '80px',
-        left: '130px'
-      },
-      panelClass: 'custom-dialog'
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        console.log('fechou');
-      }
+      position: { bottom: '80px', left: '130px' },
+      panelClass: 'custom-dialog',
     });
   }
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { RouterModule } from '@angular/router';
 @Component({
@@ -10,9 +10,26 @@ import { RouterModule } from '@angular/router';
 })
 
 export class ComofuncionaComponent {
-  i: number = 0;
+  i = 0;
+  private intervalId?: any;
+
+  constructor(private zone: NgZone) { }
 
   setSlide(index: number) {
     this.i = index;
+  }
+
+  ngOnInit(): void {
+    this.zone.runOutsideAngular(() => {
+      this.intervalId = setInterval(() => {
+        this.zone.run(() => {
+          this.i = (this.i + 1) % 2;
+        });
+      }, 10000);
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.intervalId) clearInterval(this.intervalId);
   }
 }

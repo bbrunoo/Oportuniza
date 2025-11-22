@@ -1,3 +1,22 @@
-<div class="container">
-  <p>Meu perfil!</p>
+<div class="profile-container">
+  <div class="profile-card">
+    <div *ngIf="isLoading" class="loading">Carregando perfil...</div>
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+    <div *ngIf="userProfile && !isLoading" class="content">
+      <div class="left">
+        <img [src]="userProfile.imageUrl || '../../../../assets/etapas/perfil.png'" alt="Foto de perfil"
+          class="avatar" />
+        <a *ngIf="userProfile" (click)="goToProfile(userProfile.id)" class="edit-btn">
+          Editar Perfil
+        </a>
+      </div>
+
+      <div class="right">
+        <h2 class="username">{{ userProfile.name }}</h2>
+        <p><strong>E-mail:</strong> {{ userProfile.email }}</p>
+        <p><strong>Localização:</strong> {{userProfile.local || 'Não informado.'}}</p>
+      </div>
+    </div>
+  </div>
 </div>

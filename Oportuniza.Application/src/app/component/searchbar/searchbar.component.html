@@ -1,0 +1,5 @@
+<div class="search-bar">
+  <img class="search-icon" src="../../../assets/Search.png" width="20px" height="20px" alt="">
+  <input type="text" name="search" [(ngModel)]="searchTerm" placeholder="Pesquisar sobre vagas" (keyup.enter)="onSearch()">
+  <img class="filter-icon" src="../../../assets/Filter.png" width="40px" height="40px" alt="" (click)="openFiltersDialog()">
+</div>

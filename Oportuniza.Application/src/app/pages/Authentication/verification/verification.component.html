@@ -1,0 +1,60 @@
+<div class="verify-wrapper">
+  <span>
+    <img src="../../../../assets/logo.png" alt="">
+  </span>
+  <div class="verify-card" *ngIf="!isLoading; else loadingTemplate">
+    <header class="verify-header">
+      <h1>Verifique seu e-mail</h1>
+      <p class="verify-subtitle">
+        Enviamos um código de {{ codeLength }} dígitos para
+        <strong>{{ email }}</strong>.
+      </p>
+      <p class="verify-subtitle">Digite o código abaixo para continuar.</p>
+    </header>
+
+    <div class="alert info" *ngIf="message && !errorMessage">{{ message }}</div>
+    <div class="alert error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <div class="otp-group">
+      <input #d1 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+        [(ngModel)]="codeInputs[0]" (input)="onInput($event, 0)" (keydown)="onKeydown($event, 0)" />
+      <input #d2 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+        [(ngModel)]="codeInputs[1]" (input)="onInput($event, 1)" (keydown)="onKeydown($event, 1)" />
+      <input #d3 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+        [(ngModel)]="codeInputs[2]" (input)="onInput($event, 2)" (keydown)="onKeydown($event, 2)" />
+      <input #d4 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+        [(ngModel)]="codeInputs[3]" (input)="onInput($event, 3)" (keydown)="onKeydown($event, 3)" />
+      <input #d5 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+        [(ngModel)]="codeInputs[4]" (input)="onInput($event, 4)" (keydown)="onKeydown($event, 4)" />
+      <input #d6 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+        [(ngModel)]="codeInputs[5]" (input)="onInput($event, 5)" (keydown)="onKeydown($event, 5)" />
+      <input #d7 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+        [(ngModel)]="codeInputs[6]" (input)="onInput($event, 6)" (keydown)="onKeydown($event, 6)" />
+      <input #d8 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*"
+        [(ngModel)]="codeInputs[7]" (input)="onInput($event, 7)" (keydown)="onKeydown($event, 7)" />
+    </div>
+
+    <button class="btn btn-primary" (click)="validateCodeAndRegisterUser()">
+      Verificar código
+    </button>
+
+    <div class="resend-row">
+      <span class="muted">Não recebeu?</span>
+      <button class="btn btn-link" [disabled]="cooldown > 0" (click)="resendCode()">
+        {{ cooldown > 0 ? 'Reenviar em ' + cooldown + 's' : 'Reenviar código' }}
+      </button>
+    </div>
+
+    <footer class="verify-footer">
+      <button class="btn btn-ghost" (click)="router.navigate(['/cadastro'])">
+        Alterar e-mail
+      </button>
+    </footer>
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="verify-card loading">
+      <p>⏳ {{ message }}</p>
+    </div>
+  </ng-template>
+</div>

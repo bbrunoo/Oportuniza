@@ -1,0 +1,371 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
+namespace Oportuniza.Infrastructure.Migrations
+{
+    /// <inheritdoc />
+    public partial class initial : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: "City",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Uf = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_City", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CnpjCache",
+                columns: table => new
+                {
+                    Cnpj = table.Column<string>(type: "char(14)", nullable: false),
+                    Situacao = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    AtualizadoEm = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CnpjCache", x => x.Cnpj);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CompanyRole",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CompanyRole", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LoginAttempt",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IPAddress = table.Column<string>(type: "nvarchar(45)", maxLength: 45, nullable: false),
+                    FailedAttempts = table.Column<int>(type: "int", nullable: false),
+                    LockoutEnd = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LoginAttempt", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "User",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    IsAdmin = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    Active = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    IsProfileCompleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    KeycloakId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    VerifiedEmail = table.Column<bool>(type: "bit", nullable: false),
+                    Local = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Latitude = table.Column<double>(type: "float", nullable: true),
+                    Longitude = table.Column<double>(type: "float", nullable: true),
+                    UserType = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Company",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Active = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    CityState = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Cnpj = table.Column<string>(type: "nvarchar(18)", maxLength: 18, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsActive = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Company", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Company_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CompanyEmployee",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsActive = table.Column<int>(type: "int", nullable: false),
+                    CompanyRoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CanPostJobs = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CompanyEmployee", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CompanyEmployee_CompanyRole_CompanyRoleId",
+                        column: x => x.CompanyRoleId,
+                        principalTable: "CompanyRole",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CompanyEmployee_Company_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CompanyEmployee_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Publication",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Resumee = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    Salary = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Shift = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Contract = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Local = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Latitude = table.Column<double>(type: "float(9)", precision: 9, scale: 6, nullable: true),
+                    Longitude = table.Column<double>(type: "float(9)", precision: 9, scale: 6, nullable: true),
+                    ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Expired = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AuthorUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    AuthorCompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    PostAuthorName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    IsActive = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Publication", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Publication_Company_AuthorCompanyId",
+                        column: x => x.AuthorCompanyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Publication_User_AuthorUserId",
+                        column: x => x.AuthorUserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Publication_User_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CandidateApplications",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PublicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PublicationAuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserIdKeycloak = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    ApplicationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    PublicationId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UserId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CandidateApplications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CandidateApplications_Publication_PublicationId",
+                        column: x => x.PublicationId,
+                        principalTable: "Publication",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CandidateApplications_Publication_PublicationId1",
+                        column: x => x.PublicationId1,
+                        principalTable: "Publication",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_CandidateApplications_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CandidateApplications_User_UserId1",
+                        column: x => x.UserId1,
+                        principalTable: "User",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CandidateExtra",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CandidateApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Observation = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    ResumeUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CandidateExtra", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CandidateExtra_CandidateApplications_CandidateApplicationId",
+                        column: x => x.CandidateApplicationId,
+                        principalTable: "CandidateApplications",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "CompanyRole",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { new Guid("14282161-01c3-4ae9-aa11-1447b90d8663"), "Owner" },
+                    { new Guid("513c143b-d165-4acb-b440-7bea03bdabb3"), "Administrator" },
+                    { new Guid("c63e1e73-900f-4022-92d9-9c83ceef0584"), "Worker" }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CandidateApplications_PublicationId",
+                table: "CandidateApplications",
+                column: "PublicationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CandidateApplications_PublicationId1",
+                table: "CandidateApplications",
+                column: "PublicationId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CandidateApplications_UserId",
+                table: "CandidateApplications",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CandidateApplications_UserId1",
+                table: "CandidateApplications",
+                column: "UserId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CandidateExtra_CandidateApplicationId",
+                table: "CandidateExtra",
+                column: "CandidateApplicationId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Company_UserId",
+                table: "Company",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CompanyEmployee_CompanyId",
+                table: "CompanyEmployee",
+                column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CompanyEmployee_CompanyRoleId",
+                table: "CompanyEmployee",
+                column: "CompanyRoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CompanyEmployee_UserId",
+                table: "CompanyEmployee",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Publication_AuthorCompanyId",
+                table: "Publication",
+                column: "AuthorCompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Publication_AuthorUserId",
+                table: "Publication",
+                column: "AuthorUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Publication_CreatedByUserId",
+                table: "Publication",
+                column: "CreatedByUserId");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "CandidateExtra");
+
+            migrationBuilder.DropTable(
+                name: "City");
+
+            migrationBuilder.DropTable(
+                name: "CnpjCache");
+
+            migrationBuilder.DropTable(
+                name: "CompanyEmployee");
+
+            migrationBuilder.DropTable(
+                name: "LoginAttempt");
+
+            migrationBuilder.DropTable(
+                name: "CandidateApplications");
+
+            migrationBuilder.DropTable(
+                name: "CompanyRole");
+
+            migrationBuilder.DropTable(
+                name: "Publication");
+
+            migrationBuilder.DropTable(
+                name: "Company");
+
+            migrationBuilder.DropTable(
+                name: "User");
+        }
+    }
+}

@@ -1,0 +1,379 @@
+* {
+  text-decoration: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.layout-container {
+  background-image: url(../../../../assets/home-assets/Fundo.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: 100vh;
+  width: 100%;
+  height: 100vh;
+}
+
+.menu-trigger-area {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 2000;
+  width: 500px;
+  cursor: pointer;
+}
+
+hr {
+  display: none;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  transition: left 0.4s ease;
+  background-color: transparent;
+}
+
+.title {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 30px;
+  color: white;
+  margin-bottom: 15px;
+}
+
+.company-logo {
+  width: 100px;
+  height: 100px;
+  background-color: rgb(215, 215, 215);
+  border-radius: 100%;
+}
+
+.company-datas span {
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.center-content {
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+nav {
+  width: 85%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 5px;
+}
+
+.company-datas {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  font-weight: 500;
+  color: white;
+  transition: 0.3s;
+  gap: 10px;
+  background-color: rgba(9, 9, 9, 0.3);
+  backdrop-filter: blur(2px);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(3px);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.company-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  padding: 13px 8px;
+  transition: 0.3s;
+  background-color: rgba(9, 9, 9, 0.3);
+  backdrop-filter: blur(2px);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(3px);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: none;
+}
+
+button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  padding: 13px 8px;
+  transition: 0.3s;
+  background-color: rgba(115, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(3px);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: rgba(96, 0, 0, 0.498);
+  transform: none;
+}
+
+.active-link {
+  background-color: rgba(0, 0, 0, 0.723);
+  transform: scale(1.05);
+}
+
+.active-link:hover {
+  background-color: rgba(0, 0, 0, 0.529);
+  transform: scale(1.05);
+}
+
+.user-content {
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0 30px;
+}
+
+.return-button img {
+  width: 30px;
+  height: 30px;
+}
+
+.return-button {
+  gap: 20px;
+  display: flex;
+  border: none;
+  align-items: center;
+  justify-content: center;
+  background: #5c5c5c;
+  color: white;
+  padding: 10px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: 0.2s;
+  width: 85%;
+}
+
+.return-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: none;
+}
+
+.content {
+  height: 55em;
+  width: 95em;
+  margin: 2em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(22, 22, 22, 0.5);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border-radius: 1em;
+  padding: 2em;
+  transition: all 0.3s ease;
+}
+
+.layout-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.menu-trigger-area {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 2000;
+  cursor: pointer;
+}
+
+.menu-icon {
+  width: 30px;
+  height: 30px;
+  filter: invert(1);
+  transition: transform 0.2s ease;
+}
+
+.menu-icon:hover {
+  transform: scale(1.1);
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  display: none;
+}
+
+.overlay.show {
+  display: block;
+}
+
+.menu-icon {
+  padding: .5em;
+  display: none;
+}
+
+.menu-icon img {
+  width: 25px;
+}
+
+@media screen and (max-width: 1400px) {
+  .content {
+    width: 65em;
+    height: 38em;
+    padding: 1.8em;
+    margin: 1.5em;
+    border-radius: 0.9em;
+    background-color: transparent;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .content {
+    width: 48em;
+    height: 32em;
+    padding: 1.5em;
+    margin: 1em;
+    border-radius: 0.8em;
+    border: none;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .content {
+    width: 36em;
+    height: 28em;
+    padding: 1.2em;
+    margin: 0.8em;
+    border-radius: 0.7em;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .content {
+    width: 24em;
+    height: 26em;
+    padding: 1em;
+    margin: 0.5em;
+    border-radius: 0.6em;
+  }
+}
+
+@media screen and (max-width: 1124px) {
+  .layout-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    width: 250px;
+    height: 100vh;
+    background-color: #1a1a1dea;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
+    transition: left 0.4s ease;
+    z-index: 1001;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .menu-trigger-area {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 100vh;
+    cursor: pointer;
+    z-index: 999;
+  }
+
+  .content {
+    width: 100%;
+    height: auto;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .company-logo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .company-datas span {
+    font-size: 16px;
+  }
+
+  a,
+  button {
+    font-size: 15px;
+  }
+
+  .return-button img {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .layout-container {
+    background-attachment: scroll !important;
+  }
+}

@@ -1,66 +1,110 @@
 <div class="container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Criar Nova Empresa</mat-card-title>
-      <mat-card-subtitle>Preencha os dados e adicione o logo da empresa</mat-card-subtitle>
-    </mat-card-header>
+  <div class="conteudo">
+    <div class="conteudo-left">
+      <div class="image-upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.dragging]="isDragging">
+        <img *ngIf="previewUrl" [src]="previewUrl" alt="Preview da Imagem da Vaga" class="preview-image" />
 
-    <mat-card-content>
-      <form [formGroup]="companyForm" (ngSubmit)="onSubmit()">
-
-        <div class="upload-section">
-          <div
-            class="preview-container"
-            [style.backgroundImage]="'url(' + previewUrl + ')'"
-            (click)="fileInput.click()"
-            mat-ripple>
-
-            <div *ngIf="!previewUrl" class="upload-placeholder">
-              <mat-icon>add_a_photo</mat-icon>
-              <span>Logo da Empresa</span>
-            </div>
-          </div>
-          <input
-            hidden
-            type="file"
-            #fileInput
-            (change)="onFileSelected($event)"
-            accept="image/png, image/jpeg">
+        <div class="upload-placeholder" *ngIf="!previewUrl">
+          <p>Arraste e solte a imagem aqui</p>
+          <p class="upload-subtext">ou clique para selecionar</p>
         </div>
-        <div class="error-container" *ngIf="companyForm.get('image')?.touched && companyForm.get('image')?.hasError('required')">
-            <mat-error>É obrigatório selecionar uma imagem para o logo.</mat-error>
-        </div>
+      </div>
+      <input hidden type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" />
+      <button type="button" class="btn btn-outline-primary mt-3" (click)="fileInput.click()">
+        Escolher Imagem 🖼️
+      </button>
+    </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Nome da Empresa</mat-label>
-          <input matInput formControlName="name" required>
-
-        </mat-form-field>
-
-        <!-- Campo Descrição -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Descrição da Empresa</mat-label>
-          <textarea matInput formControlName="description"
-
-                    rows="4"></textarea>
-          <mat-hint align="end">{{ companyForm.get('description')?.value?.length || 0 }} / 500</mat-hint>
-        </mat-form-field>
-
-        <!-- Botão de Ação -->
-        <div class="actions-container">
-          <button mat-raised-button color="primary" type="submit" routerlink="/inicio" [disabled]="companyForm.invalid || isLoading">
-            <span *ngIf="!isLoading" class="button-content">
-              <mat-icon>save</mat-icon>
-              <span>Criar Empresa</span>
-            </span>
-            <span *ngIf="isLoading" class="button-content">
-              <mat-spinner diameter="24" class="button-spinner"></mat-spinner>
-              <span>Criando...</span>
-            </span>
+    <div class="conteudo-right">
+      <h2 class="title">Informações da Empresa</h2>
+      <form (ngSubmit)="onSubmit()">
+        <input type="text" placeholder="Nome da empresa" class="form-control" [(ngModel)]="name" name="name" />
+        <input type="text" [value]="selectedCity?.name" placeholder="Selecione a cidade" readonly class="form-control"
+          (click)="openCityModal()" />
+        <input type="tel" placeholder="Telefone" class="form-control" [(ngModel)]="phone" name="phone"
+          mask="00 00000-0000" />
+        <input type="email" placeholder="E-mail" class="form-control" [(ngModel)]="email" name="email" />
+        <input type="text" placeholder="CNPJ" class="form-control" [(ngModel)]="cnpj" name="cnpj"
+          mask="00.000.000/0000-00" />
+        <textarea placeholder="Escreva sobre a empresa (máx. 300 caracteres)..." class="form-control form-textarea"
+          maxlength="300" [(ngModel)]="description" name="description"></textarea>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Criar Empresa</span>
+            <span *ngIf="isLoading">Criando...</span>
           </button>
         </div>
-
       </form>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="cityModalOpen">
+  <div class="modal">
+    <h3>Selecione a cidade</h3>
+
+    <input type="text" [formControl]="cityControl" placeholder="Digite para buscar" class="custom-input" />
+
+    <ul *ngIf="filteredCities.length > 0" class="custom-options">
+      <li *ngFor="let city of filteredCities" (click)="selectCity(city)" class="custom-option">
+        {{ city.name }}
+      </li>
+    </ul>
+    <button class="close-btn" (click)="closeCityModal()">Fechar</button>
+  </div>
+</div>
+
+<div class="email-verification-overlay" *ngIf="verificationModalOpen">
+  <div class="email-verification-modal">
+    <h3>Verificação de Empresa</h3>
+
+    <div *ngIf="!codeSent" class="email-step">
+      <p>Será enviado um código de verificação para o e-mail informado.</p>
+      <p><strong>{{ email }}</strong></p>
+      <div class="email-actions">
+        <button class="email-btn email-btn-cancel" (click)="closeVerificationModal()">Cancelar</button>
+        <button class="email-btn email-btn-send" (click)="sendEmailCode()">Enviar Código</button>
+      </div>
+    </div>
+
+    <div *ngIf="codeSent" class="verify-card">
+      <header class="verify-header">
+        <p class="verify-subtitle">
+          Enviamos um código de {{ codeLength }} dígitos para
+          <strong>{{ email }}</strong>.
+        </p>
+        <p class="verify-subtitle">Digite o código abaixo para continuar.</p>
+      </header>
+
+      <div class="otp-group">
+        <input #d1 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[0]"
+          (input)="onInput($event, 0)" (keydown)="onKeydown($event, 0)" />
+        <input #d2 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[1]"
+          (input)="onInput($event, 1)" (keydown)="onKeydown($event, 1)" />
+        <input #d3 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[2]"
+          (input)="onInput($event, 2)" (keydown)="onKeydown($event, 2)" />
+        <input #d4 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[3]"
+          (input)="onInput($event, 3)" (keydown)="onKeydown($event, 3)" />
+        <input #d5 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[4]"
+          (input)="onInput($event, 4)" (keydown)="onKeydown($event, 4)" />
+        <input #d6 class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="codeInputs[5]"
+          (input)="onInput($event, 5)" (keydown)="onKeydown($event, 5)" />
+      </div>
+
+      <div class="resend-row">
+        <span class="muted">Não recebeu?</span>
+        <button class="btn btn-link" [disabled]="cooldown > 0" (click)="resendCode()">
+          {{ cooldown > 0 ? 'Reenviar em ' + cooldown + 's' : 'Reenviar código' }}
+        </button>
+      </div>
+
+      <div class="email-actions">
+        <button class="email-btn email-btn-cancel" (click)="closeVerificationModal()">Cancelar</button>
+        <button class="email-btn email-btn-confirm" [disabled]="isVerifying" (click)="confirmCompany()">
+          {{ isVerifying ? 'Verificando...' : 'Confirmar e Criar Empresa' }}
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

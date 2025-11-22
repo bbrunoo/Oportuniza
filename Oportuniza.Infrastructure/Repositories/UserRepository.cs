@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Oportuniza.Domain.DTOs.Company;
 using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Domain.Models;
@@ -17,10 +16,6 @@ namespace Oportuniza.Infrastructure.Repositories
 
         public async Task<User> Add(User user)
         {
-
-            //if (user.PasswordHash == null || user.PasswordSalt == null)
-            //    throw new ArgumentException("Hash e salt da senha são obrigatórios.");
-
             await _context.User.AddAsync(user);
             await _context.SaveChangesAsync();
             return user;
@@ -59,19 +54,6 @@ namespace Oportuniza.Infrastructure.Repositories
             return await _context.User.FindAsync(id);
         }
 
-        public async Task<User?> GetByIdentityProviderIdAsync(string identityProviderId, string identityProviderType)
-        {
-            return await _context.User
-                       .FirstOrDefaultAsync(u => u.IdentityProviderId == identityProviderId && u.IdentityProvider == identityProviderType);
-        }
-
-        public async Task<User?> GetByIdWithInterests(Guid id)
-        {
-            return await _context.User
-                    .Include(u => u.UserAreasOfInterest)
-                    .FirstOrDefaultAsync(u => u.Id == id);
-        }
-
         public async Task<UserInfoDTO> GetUserInfoAsync(Guid id)
         {
             var userInfo = await _context.User
@@ -87,10 +69,16 @@ namespace Oportuniza.Infrastructure.Repositories
             if (userInfo == null) throw new KeyNotFoundException("User not found");
             return userInfo;
         }
-        public async Task<bool> Update(User user)
+
+        public async Task<User> GetUserByKeycloakIdAsync(string keycloakId)
         {
-            _context.User.Update(user);
-            return await _context.SaveChangesAsync() > 0;
+            return await _context.User.FirstOrDefaultAsync(u => u.KeycloakId == keycloakId);
+        }
+
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await _context.User
+                                 .FirstOrDefaultAsync(u => u.Email == email);
         }
     }
 }

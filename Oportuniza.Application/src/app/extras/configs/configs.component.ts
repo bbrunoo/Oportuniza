@@ -1,70 +1,61 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { MatDialogRef } from '@angular/material/dialog';
-import { UsersAPIResponse } from 'stream-chat';
 import { UserService } from '../../services/user.service';
 import { CommonModule } from '@angular/common';
 import { KeycloakOperationService } from '../../services/keycloak.service';
-import { MsalService } from '@azure/msal-angular';
 
 @Component({
   selector: 'app-configs',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, RouterLink],
   templateUrl: './configs.component.html',
   styleUrl: './configs.component.css'
 })
 
 export class ConfigsComponent implements OnInit {
-  showCompleteProfileButton = true;
-
-  constructor(private authService: AuthService, private router: Router, public dialogRef: MatDialogRef<ConfigsComponent>, private msalService: MsalService, private userService: UserService, private keycloakService: KeycloakOperationService) { }
-
   containerHeight = '200px';
 
-  ngOnInit(): void {
-    this.userService.getOwnProfile().subscribe({
-      next: (profile) => {
-        this.showCompleteProfileButton = !profile.isProfileCompleted;
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    public dialogRef: MatDialogRef<ConfigsComponent>,
+    private userService: UserService,
+    private keycloakService: KeycloakOperationService
+  ) { }
 
-        this.containerHeight = this.showCompleteProfileButton ? '200px' : '130px';
-      },
-      error: (err) => {
-        console.error("Erro ao buscar perfil", err);
-        this.showCompleteProfileButton = false;
-        this.containerHeight = '140px';
+  ngOnInit(): void {
+    this.keycloakService.isLoggedIn().then(isLoggedIn => {
+      if (isLoggedIn) {
+        this.loadUserProfile();
       }
     });
   }
 
-  async logout() {
-    this.dialogRef.close();
+  private loadUserProfile(): void {
+    this.userService.getOwnProfile().subscribe({
+      next: (profile) => {
+        this.containerHeight = '130px';
+      },
+      error: (err) => {
+        console.error("Erro ao buscar perfil", err);
 
-    if (this.msalService.instance.getAllAccounts().length > 0) {
-      console.log("Fazendo logout do MSAL...");
-      await this.msalService.logoutRedirect();
-    }
-
-    else if (await this.keycloakService.isLoggedIn()) {
-      console.log("Fazendo logout do Keycloak...");
-      await this.keycloakService.logout();
-    }
-    else {
-      console.warn("Nenhum provedor de identidade ativo detectado. Limpando o armazenamento local como fallback.");
-      localStorage.clear();
-      sessionStorage.clear();
-      this.router.navigate(['/']);
-    }
-  }
-
-  completePerfil() {
-    this.router.navigate(['/primeira-etapa']);
-    this.dialogRef.close();
+        this.containerHeight = '200px';
+      }
+    });
   }
 
-  changeAccount() {
-    this.router.navigate(['']);
+  async logout(): Promise<void> {
     this.dialogRef.close();
+    this.router.navigate(['']);
+    await this.keycloakService.logout();
+  }
+
+  async changeAccount(): Promise<void> {
+    this.dialogRef.close();
+    this.router.navigate(['/login']);
+    await this.keycloakService.logout();
   }
 
   closeDialog(): void {

@@ -4,8 +4,11 @@
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public string Desc { get; set; }
+        public string CityState { get; set; }
+        public string Phone { get; set; }
         public string Email { get; set; }
-        public string imageUrl { get; set; }
+        public string Cnpj { get; set; }
+        public string? Description { get; set; }
+        public string ImageUrl { get; set; }
     }
 }

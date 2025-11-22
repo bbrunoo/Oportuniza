@@ -1,0 +1,54 @@
+<div class="container">
+  <div class="edit-panel">
+    <h2 class="config-text">
+      EDITAR
+    </h2>
+    <p class="edit-intro-text">
+      Edite a imagem, o nome e a descrição da sua empresa sempre que precisar.
+    </p>
+    <form (ngSubmit)="onSave()" class="edit-content-wrapper">
+      <div class="edit-content">
+        <div class="conteudo-left">
+          <p>LOGO</p>
+          <div class="image-upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.dragging]="isDragging">
+            <img *ngIf="previewUrl" [src]="previewUrl" alt="Preview da Imagem da Vaga" class="preview-image" />
+
+            <div class="upload-placeholder" *ngIf="!previewUrl">
+              <p><small>Arraste e solte a imagem aqui</small></p>
+              <p class="upload-subtext">ou clique para selecionar</p>
+            </div>
+          </div>
+          <input hidden type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" />
+          <button type="button" class="btn btn-secondary mt-1" (click)="fileInput.click()">
+            Escolher Imagem 🖼️
+          </button>
+        </div>
+
+        <div class="form-section">
+          <div class="form-field">
+            <label for="company-name">Nome da empresa</label>
+            <input type="text" id="company-name" placeholder="Nome da empresa" [(ngModel)]="companyName"
+              name="companyName" maxlength="100" required class="text-input">
+          </div>
+
+          <div class="form-field">
+            <label for="company-description">Descrição</label>
+            <textarea id="company-description" [(ngModel)]="companyDescription" name="companyDescription"
+              [maxLength]="maxDescriptionLength" class="textarea-input"
+              placeholder="Descreva sua empresa em até 500 caracteres"></textarea>
+
+            <div class="char-count">{{ descriptionCharCount }}/{{ maxDescriptionLength }}</div>
+          </div>
+
+          <div class="button-row">
+            <button type="submit" class="save-button"
+              [disabled]="!companyName || descriptionCharCount > maxDescriptionLength || isSubmitting">
+              {{ isSubmitting ? 'Salvando...' : 'Salvar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

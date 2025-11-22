@@ -19,15 +19,16 @@
         public bool IsAdmin { get; set; }
         public bool Active { get; set; }
         public bool IsProfileCompleted { get; set; }
-        public string IdentityProviderId { get; set; }
-        public string IdentityProvider { get; set; }
+        public string KeycloakId { get; set; }
+        public bool VerifiedEmail { get; set; } = false; 
+        public string? Local { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public UserType UserType { get; set; }
+        public ICollection<CandidateApplication> CandidateApplication { get; set; }
         public ICollection<CompanyEmployee> CompanyLinks { get; set; } = new List<CompanyEmployee>();
-        public ICollection<UserAreaOfInterest> UserAreasOfInterest { get; set; } = new List<UserAreaOfInterest>();
-        public ICollection<Curriculum> Curriculum { get; set; } = new List<Curriculum>();
         public virtual ICollection<Publication> CreatedPublications { get; set; }
         public virtual ICollection<Publication> AuthoredAsUserPublications { get; set; }
         public virtual ICollection<Company> CompaniesOwned { get; set; } = new List<Company>();
-
     }
 }

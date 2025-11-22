@@ -88,17 +88,6 @@
   margin-bottom: 10px;
 }
 
-.icon.hover {
-  display: none;
-}
-
-.icon.normal:hover {
-  display: none;
-}
-
-.icon.normal:hover+.icon.hover {
-  display: inline-block;
-}
 
 .card h4 {
   font-size: 18px;

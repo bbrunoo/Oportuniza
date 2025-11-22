@@ -1,14 +1,10 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Oportuniza.API.Services;
 using Oportuniza.Domain.Interfaces;
 using Oportuniza.Infrastructure.Data;
 using Oportuniza.Infrastructure.Repositories;
-using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,32 +35,104 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityRequirement(new OpenApiSecurityRequirement { { securityScheme, Array.Empty<string>() } });
 });
 
-var AZURE_CONNECTION_STRING = Environment.GetEnvironmentVariable("AZURE_SQL_OPORTUNIZA");
-var LOCAL_CONNECTION_STRING = Environment.GetEnvironmentVariable("LOCAL_SQL_OPORTUNIZA");
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+var authBuilder = builder.Services.AddAuthentication(options =>
 {
-    //options.UseSqlServer(AZURE_CONNECTION_STRING);
+    options.DefaultAuthenticateScheme = "DualJwt";
+    options.DefaultChallengeScheme = "DualJwt";
+});
+
+authBuilder.AddJwtBearer("Keycloak", options =>
+{
+    var keycloak = builder.Configuration.GetSection("Keycloak");
+    options.Authority = keycloak["Authority"];
+    options.Audience = keycloak["Audience"];
+    options.RequireHttpsMetadata = false;
+});
+
+authBuilder.AddJwtBearer("Backend", options =>
+{
+    var jwtSection = builder.Configuration.GetSection("jwt");
+    var secret = jwtSection["secretKey"];
+    if (string.IsNullOrEmpty(secret))
+        throw new InvalidOperationException("jwt:secretKey não está configurado!");
+
+    var key = System.Text.Encoding.ASCII.GetBytes(secret);
+
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSection["issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSection["audience"],
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthentication()
+    .AddPolicyScheme("DualJwt", "JWT Dual Scheme", options =>
+    {
+        options.ForwardDefaultSelector = context =>
+       {
+            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+            if (authHeader?.StartsWith("Bearer ") == true)
+            {
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+                var jwt = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().ReadJwtToken(token);
+
+                if (jwt.Claims.Any(c => c.Type == "company_id"))
+                    return "Backend";
+
+                return "Keycloak";
+            }
+
+            return "Keycloak";
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes("DualJwt")
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
+builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
+{
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthenticateUser, AuthenticateUser>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
-builder.Services.AddScoped<IAreaOfInterest, AreaOfInterestRepository>();
-builder.Services.AddScoped<ICurriculumRepository, CurriculumRepository>();
+builder.Services.AddScoped<ICompanyEmployeeRepository, CompanyEmployeeRepository>();
 builder.Services.AddScoped<IPublicationRepository, PublicationRepository>();
-builder.Services.AddScoped<IUserAreaOfInterestRepository, UserAreaOfInterestRepository>();
+builder.Services.AddScoped<ICandidateApplicationRepository, CandidateApplicationRepository>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
-builder.Services.AddSingleton<SmsService>();
-builder.Services.AddSingleton<OtpCacheService>();
+builder.Services.AddScoped<ICompanyRoleRepository, CompanyRoleRepository>();
+builder.Services.AddScoped<IActiveContextService, ActiveContextService>();
+builder.Services.AddSingleton<IVerificationCodeService, VerificationCodeService>();
+builder.Services.AddSingleton<IEmailService, MailGunEmailService>();
+builder.Services.AddScoped<ICandidateExtraRepository, CandidateExtraRepository>();
+builder.Services.AddScoped<ICnpjCacheRepository, CnpjCacheRepository>();
+builder.Services.AddScoped<ILoginAttemptRepository, LoginAttemptRepository>();
+
+builder.Services.AddHttpClient<GeolocationService>();
+builder.Services.AddHttpClient<CNPJService>();
+
+builder.Services.AddHostedService<PublicationExpirationService>();
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddHttpClient<KeycloakAuthService>();
 
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddHttpClient<GeminiClientService>();
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddSignalR();
 
@@ -79,75 +147,12 @@ builder.Services.AddCors(options =>
     });
 });
 
-//var jwtSettings = builder.Configuration.GetSection("jwt");
-//var key = Encoding.ASCII.GetBytes(jwtSettings["secretKey"]);
-
-var authBuilder = builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-});
-
-authBuilder.AddMicrosoftIdentityWebApi(
-    jwtBearerScheme: JwtBearerDefaults.AuthenticationScheme,
-    configurationSection: builder.Configuration.GetSection("AzureAd")
-);
-
-authBuilder.AddJwtBearer("KeycloakScheme", options =>
-{
-    var keycloak = builder.Configuration.GetSection("Keycloak");
-    options.Authority = keycloak["Authority"];
-    options.Audience = keycloak["Audience"];
-    options.RequireHttpsMetadata = false;
-
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateAudience = true,
-        ValidAudience = keycloak["Audience"],
-        ValidateIssuer = true,
-        ValidIssuer = keycloak["Authority"],
-        NameClaimType = ClaimTypes.NameIdentifier,
-        RoleClaimType = "roles"
-    };
-
-    options.Events = new JwtBearerEvents
-    {
-        OnTokenValidated = context =>
-        {
-            if (context.Principal?.Identity is ClaimsIdentity identity)
-            {
-                identity.AddClaim(new Claim("idp", "keycloak"));
-                if (!string.IsNullOrEmpty(identity.FindFirst("preferred_username")?.Value))
-                {
-                    identity.AddClaim(new Claim(ClaimTypes.Name, identity.FindFirst("preferred_username")!.Value));
-                }
-            }
-            Console.WriteLine($"Token validado pelo esquema KeycloakScheme. Name: {context.Principal?.Identity?.Name}");
-            return Task.CompletedTask;
-        },
-        OnAuthenticationFailed = context =>
-        {
-            Console.WriteLine($"Authentication failed for KeycloakScheme: {context.Exception.Message}");
-            return Task.CompletedTask;
-        }
-    };
-});
-
-//builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
-//{
-//    options.TokenValidationParameters.RoleClaimType = ClaimConstants.Role;
-//});
-
-builder.Services.AddAuthorization(options =>
-{
-    options.DefaultPolicy = new AuthorizationPolicyBuilder()
-        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, "KeycloakScheme")
-        .RequireAuthenticatedUser()
-        .Build();
-});
-
 builder.Services.AddHttpClient();
+
+builder.Services.AddHttpClient<CNPJService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
 
 var app = builder.Build();
 
@@ -157,9 +162,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors();
-
 app.UseHttpsRedirection();
+
+app.UseCors(policy =>
+{
+    policy.WithOrigins(
+        "http://localhost:4200",
+        "https://oportuniza.site",
+        "https://www.oportuniza.site"
+    )
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials();
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

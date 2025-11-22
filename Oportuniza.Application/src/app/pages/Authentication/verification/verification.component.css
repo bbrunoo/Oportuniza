@@ -1,0 +1,158 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+span img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 10px;
+  width: 165px;
+  height: 110px;
+}
+
+.verify-wrapper {
+  background-image: url(../../../../assets/home-assets/Fundo.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: scroll;
+  background-color: #000;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.verify-card {
+  background-color: #fff;
+  color: #1f2937;
+  border-radius: 20px;
+  padding: 40px 30px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.verify-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 10px;
+}
+
+.verify-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.alert {
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.alert.info {
+  background-color: #e0f2fe;
+  border: 1px solid #7dd3fc;
+  color: #075985;
+}
+
+.alert.error {
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #7f1d1d;
+}
+
+.otp-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 15px 0 25px 0;
+}
+
+.otp-input {
+  width: 40px;
+  height: 45px;
+  border-radius: 8px;
+  border: 1.5px solid #d1d5db;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  outline: none;
+  background-color: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.otp-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  background-color: #fff;
+}
+
+.btn {
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background-color: #2563eb;
+  color: #fff;
+  font-size: 15px;
+  margin-top: 10px;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-link {
+  background: none;
+  color: #2563eb;
+  text-decoration: underline;
+  font-size: 14px;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #6b7280;
+  font-size: 13px;
+  margin-top: 20px;
+}
+
+.resend-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  font-size: 13px;
+}
+
+@media (max-width: 480px) {
+  .verify-card {
+    padding: 25px 20px;
+  }
+
+  .otp-group {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .otp-input {
+    width: 35px;
+    height: 40px;
+    font-size: 16px;
+  }
+}

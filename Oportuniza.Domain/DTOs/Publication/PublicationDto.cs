@@ -1,5 +1,4 @@
 ﻿using Oportuniza.Domain.Enums;
-using Oportuniza.Domain.Models;
 
 namespace Oportuniza.Domain.DTOs.Publication
 {
@@ -12,10 +11,19 @@ namespace Oportuniza.Domain.DTOs.Publication
         public string? ImageUrl { get; set; }
         public string Salary { get; set; }
         public bool Expired { get; set; }
+        public string Contract { get; set; }
+        public string Shift { get; set; }
+        public string Local { get; set; }
+        public string Resumee { get; set; }
+        public DateTime ExpirationDate { get; set; }
         public Guid AuthorId { get; set; }
         public string AuthorName { get; set; }
+        public string PostAuthorName { get; set; }
         public string AuthorType { get; set; }
         public string AuthorImageUrl { get; set; }
         public PublicationStatus Status { get; set; }
+        public PublicationAvailable IsActive { get; set; }
+        public Guid? CompanyOwnerId { get; set; }
+
     }
 }

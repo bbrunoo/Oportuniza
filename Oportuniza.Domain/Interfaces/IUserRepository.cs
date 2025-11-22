@@ -1,6 +1,4 @@
-﻿
-using Oportuniza.Domain.DTOs.Company;
-using Oportuniza.Domain.DTOs.User;
+﻿using Oportuniza.Domain.DTOs.User;
 using Oportuniza.Domain.Models;
 
 namespace Oportuniza.Domain.Interfaces
@@ -10,7 +8,7 @@ namespace Oportuniza.Domain.Interfaces
         Task<bool> Exist(Guid id);
         Task<UserInfoDTO> GetUserInfoAsync(Guid id);
         Task<IEnumerable<AllUsersInfoDTO>> GetAllUserInfosAsync();
-        Task<User?> GetByIdWithInterests(Guid id);
-        Task<User?> GetByIdentityProviderIdAsync(string identityProviderId, string identityProviderType);
+        Task<User> GetUserByKeycloakIdAsync(string keycloakId);
+        Task<User?> GetUserByEmailAsync(string email);
     }
 }

@@ -1,8 +1,4 @@
-﻿using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
+﻿using System.Net.Http.Headers;
 
 public class KeycloakAuthService
 {
@@ -17,32 +13,96 @@ public class KeycloakAuthService
 
     public async Task<string?> LoginWithCredentialsAsync(string email, string password)
     {
-        var tokenEndpoint = "http://localhost:9090/realms/oportuniza/protocol/openid-connect/token";
+        var tokenEndpoint = "https://auth.oportuniza.site/realms/oportuniza/protocol/openid-connect/token";
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
+
+        using var client = new HttpClient(handler);
 
         var form = new FormUrlEncodedContent(new[]
         {
-            new KeyValuePair<string, string>("grant_type", "password"),
-            new KeyValuePair<string, string>("client_id", "oportuniza-client"),
-            new KeyValuePair<string, string>("client_secret", "Sr1LFcfOHwtFckn8HAHHAf7IxklDiBI3"),
-            new KeyValuePair<string, string>("username", email),
-            new KeyValuePair<string, string>("password", password),
-        });
+        new KeyValuePair<string, string>("grant_type", "password"),
+        new KeyValuePair<string, string>("client_id", "oportuniza-client"),
+        new KeyValuePair<string, string>("client_secret", "yfq4temRzipAqpkQvobcCY78ES7wH3G4"),
+        new KeyValuePair<string, string>("username", email),
+        new KeyValuePair<string, string>("password", password),
+    });
 
-        var request = new HttpRequestMessage(HttpMethod.Post, tokenEndpoint)
-        {
-            Content = form
-        };
-
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        var response = await _httpClient.SendAsync(request);
+        var response = await client.PostAsync(tokenEndpoint, form);
+        var content = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
         {
+            Console.WriteLine($"[KeycloakAuthService] Erro: {response.StatusCode} - {content}");
             return null;
         }
 
-        var content = await response.Content.ReadAsStringAsync();
+        var tokenJson = System.Text.Json.JsonDocument.Parse(content);
+        var accessToken = tokenJson.RootElement.GetProperty("access_token").GetString();
+
+        if (string.IsNullOrEmpty(accessToken))
+            return null;
+
+        var isVerified = await IsEmailVerifiedAsync(email, accessToken);
+        if (!isVerified)
+        {
+            Console.WriteLine($"[KeycloakAuthService] E-mail de {email} não verificado.");
+            return "NOT_VERIFIED";
+        }
+
         return content;
+    }
+
+    private async Task<bool> IsEmailVerifiedAsync(string email, string accessToken)
+    {
+        var adminToken = await GetAdminToken();
+        using var client = new HttpClient();
+
+        var request = new HttpRequestMessage(
+            HttpMethod.Get,
+            $"https://auth.oportuniza.site/admin/realms/oportuniza/users?email={email}"
+        );
+
+        request.Headers.Authorization =
+            new AuthenticationHeaderValue("Bearer", adminToken);
+
+        var response = await client.SendAsync(request);
+        var json = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+            return false;
+
+        dynamic users = Newtonsoft.Json.JsonConvert.DeserializeObject(json)!;
+        if (users.Count == 0)
+            return false;
+
+        return users[0].emailVerified == true;
+    }
+
+    private async Task<string> GetAdminToken()
+    {
+        using var client = new HttpClient();
+
+        var parameters = new Dictionary<string, string>
+        {
+            ["grant_type"] = "password",
+            ["client_id"] = "admin-cli",
+            ["username"] = "admin",
+            ["password"] = "admin"
+        };
+
+        var content = new FormUrlEncodedContent(parameters);
+        var response = await client.PostAsync(
+            "https://auth.oportuniza.site/realms/master/protocol/openid-connect/token",
+            content
+        );
+
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync();
+        dynamic obj = Newtonsoft.Json.JsonConvert.DeserializeObject(json)!;
+        return obj.access_token;
     }
 }

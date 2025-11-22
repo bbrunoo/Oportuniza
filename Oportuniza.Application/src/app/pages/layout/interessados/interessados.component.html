@@ -1,3 +1,94 @@
 <div class="container">
-  <p>Interessados!</p>
+  <div class="mobile-titulos">
+    <a class="mobile-button" (click)="activeTab = 'candidates'; loadData('candidates')"
+      [class.active]="activeTab === 'candidates'">
+      {{ isCompany ? 'Meus Candidatos' : 'Meus Candidatos' }}
+    </a>
+
+    <a class="mobile-button" *ngIf="!isCompany" (click)="activeTab = 'inscription'; loadData('inscription')"
+      [class.active]="activeTab === 'inscription'">
+      Minhas Candidaturas
+    </a>
+  </div>
+
+  <div class="quadrado">
+    <div class="titulos">
+      <a class="opcoes-button" (click)="activeTab = 'candidates'; loadData('candidates')"
+        [class.active]="activeTab === 'candidates'">
+        {{ isCompany ? 'Candidatos às Minhas Vagas' : 'Candidatos nas Minhas Vagas' }}
+      </a>
+
+      <span *ngIf="!isCompany">|</span>
+
+      <a class="opcoes-button" *ngIf="!isCompany" (click)="activeTab = 'inscription'; loadData('inscription')"
+        [class.active]="activeTab === 'inscription'">
+        Minhas Candidaturas
+      </a>
+    </div>
+
+    <div class="candidates" *ngIf="activeTab === 'candidates'">
+      <div class="candidates-content" *ngFor="let pub of publicationsWithCandidates">
+
+        <div class="person-content" *ngFor="let candidate of pub.candidates">
+          <div class="vaga-preview">
+            <img class="vaga-imagem" [src]="pub.imageUrl" alt="Imagem da Vaga"
+              (click)="goToPublication(pub.publicationId)" />
+            <div class="vaga-info">
+              <p class="vaga-title" (click)="goToPublication(pub.publicationId)">{{ pub.title }}</p>
+              <p class="vaga-resumee">{{ pub.resumee }}</p>
+            </div>
+          </div>
+
+          <div class="left">
+            <img class="profile" [src]="candidate.userImage || '../../../../assets/etapas/perfil.png'"
+              alt="Foto de Perfil" />
+          </div>
+
+          <div class="center">
+            <p class="name">{{ candidate.userName }}</p>
+            <p class="description">{{ candidate.observation || 'Nenhuma observação informada.' }}</p>
+
+            <div class="curriculo" *ngIf="candidate.resumeUrl">
+              <button class="download-button" (click)="downloadResume(candidate.resumeUrl)">
+                📄 Baixar Currículo
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="inscription" *ngIf="activeTab === 'inscription' && !isCompany">
+      <div class="candidates-content" *ngFor="let pub of inscriptionsDisplay">
+
+        <div class="person-content">
+
+          <div class="vaga-preview">
+
+            <div class="vaga-info">
+              <img class="vaga-imagem" [src]="pub.imageUrl" alt="Imagem da Vaga"
+                (click)="goToPublication(pub.publicationId)" />
+
+              <div class="vaga-info-conteudo">
+
+                <p class="vaga-title" (click)="goToPublication(pub.publicationId)">
+                  {{ pub.title }}
+                </p>
+                <p class="vaga-resumee">{{ pub.resumee }}</p>
+              </div>
+
+            </div>
+
+            <button (click)="cancelApplication(getApplicationId(pub.publicationId))" class="applied-button">
+              Candidatado
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nothing" *ngIf="!loading && !hasData">
+      <p class="nothing-text">No momento nenhuma informação disponível.</p>
+    </div>
+  </div>
 </div>

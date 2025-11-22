@@ -1,0 +1,357 @@
+.container {
+  width: 98em;
+  height: 55em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  color: white;
+}
+
+.conteudo-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  width: 250px;
+}
+
+.btn {
+  border: none;
+  background-color: #3245C3;
+  color: white;
+  padding: 8px 30px;
+  border-radius: 8px;
+  transition: 0.2s ease-in;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  transition: 0.2s ease-in;
+  transform: scale(1.05);
+}
+
+.image-upload-area {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px dashed #a9a9a9;
+  background-color: #f9f9f9;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  width: 250px;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 100%;
+}
+
+.image-upload-area .preview-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+
+.upload-placeholder mat-icon {
+  font-size: 35px;
+  width: 35px;
+  height: 35px;
+}
+
+.upload-placeholder p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.upload-subtext {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.edit-panel {
+  border-radius: 10px;
+  width: 100%;
+  max-width: 950px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.config-text {
+  font-weight: 500;
+}
+
+.edit-intro-text {
+  color: white;
+  font-size: 1.1em;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.edit-content {
+  display: flex;
+  gap: 50px;
+  align-items: start;
+  justify-content: space-evenly;
+}
+
+.form-section {
+  background-color: #E9E9E9;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  padding: 30px 45px;
+  border-radius: 10px;
+  width: 25em;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.form-field label {
+  color: #565656;
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+.text-input,
+.textarea-input {
+  background-color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 15px;
+  color: #565656;
+  font-size: 1em;
+}
+
+.textarea-input {
+  resize: none;
+  min-height: 120px;
+  padding-bottom: 30px;
+}
+
+.char-count {
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+  font-size: 0.8em;
+  color: #666;
+  background-color: transparent;
+  padding: 0 5px;
+  border-radius: 3px;
+}
+
+.button-row {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 15px;
+}
+
+.save-button {
+  background-color: #505050;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 30px;
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.save-button:hover {
+  background-color: #7a7a7a;
+}
+
+@media screen and (max-width: 1400px) {
+  .container {
+    width: 65em;
+    height: 92vh;
+  }
+
+  .edit-panel {
+    width: 65em;
+    gap: 2em;
+  }
+
+  .form-section {
+    width: 22em;
+    padding: 2em 2.5em;
+  }
+
+  .image-upload-area {
+    width: 14em;
+    height: 14em;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .container {
+    width: 45em;
+    height: 88vh;
+    flex-direction: column;
+    padding: 1em 0;
+  }
+
+  .edit-panel {
+    width: 45em;
+    gap: 1em;
+  }
+
+  .edit-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 3em;
+  }
+
+  .conteudo-left {
+    width: auto;
+    align-items: center;
+  }
+
+  .form-section {
+    width: 35vw;
+    padding: 2em;
+  }
+
+  .image-upload-area {
+    width: 13em;
+    height: 13em;
+  }
+
+  .edit-intro-text {
+    font-size: 1em;
+    padding: 0 2em;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .container {
+    width: 90vw;
+    height: 84vh;
+    flex-direction: column;
+  }
+
+  .edit-panel {
+    width: 80vw;
+    padding: 2em 1em;
+    gap: 1em;
+  }
+
+  .edit-content {
+    gap: 2em;
+  }
+
+  .form-section {
+    width: 60vw;
+    padding: 1.8em;
+  }
+
+  .text-input,
+  .textarea-input {
+    font-size: 0.95em;
+    padding: 0.8em 1em;
+  }
+
+  .save-button {
+    width: auto;
+    padding: 0.8em 2em;
+    font-size: 0.95em;
+  }
+
+  .image-upload-area {
+    width: 11em;
+    height: 11em;
+  }
+
+  .upload-placeholder mat-icon {
+    font-size: 1.8em;
+  }
+
+  .upload-placeholder p,
+  .upload-subtext {
+    font-size: 0.8em;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .container {
+    width: 95vw;
+    height: 80vh;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .edit-panel {
+    width: 85vw;
+    padding: 1em;
+    gap: 1em;
+  }
+
+  .edit-intro-text {
+    font-size: 0.9em;
+    text-align: center;
+    margin-bottom: 0.8em;
+  }
+
+  .edit-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5em;
+  }
+
+  .conteudo-left {
+    align-items: center;
+  }
+
+  .image-upload-area {
+    width: 9em;
+    height: 9em;
+  }
+
+  .form-section {
+    width: 70vw;
+    padding: 1em;
+  }
+
+  .form-field label {
+    font-size: 0.9em;
+  }
+
+  .text-input,
+  .textarea-input {
+    font-size: 0.9em;
+    padding: 0.8em;
+  }
+
+  .save-button {
+    font-size: 0.9em;
+    padding: 0.8em 1.5em;
+  }
+
+  .char-count {
+    font-size: 0.75em;
+  }
+}

@@ -1,0 +1,153 @@
+.form-section {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  background-color: #f9f9f9;
+}
+
+.form-field {
+  margin-bottom: 1.5rem;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.input-with-button {
+  display: flex;
+  gap: 0;
+}
+
+.text-input {
+  flex-grow: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 1px #007bff;
+}
+
+.search-button {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  border-radius: 0 4px 4px 0;
+  padding: 0 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s, opacity 0.3s;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.search-button:hover:not([disabled]) {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.search-button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.search-result-wrapper,
+.search-error-wrapper {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.search-result-wrapper {
+  background-color: #e6ffed;
+  border: 1px solid #38c172;
+  color: #1f6438;
+}
+
+.search-error-wrapper {
+  background-color: #fff0f0;
+  border: 1px solid #e3342f;
+  color: #a5322d;
+}
+
+.search-result-wrapper p {
+  margin-bottom: 0.5rem;
+}
+
+.search-result-wrapper img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  vertical-align: middle;
+  margin-left: 0.5rem;
+}
+
+.header-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 80%;
+  color: white;
+  gap: 40px;
+}
+
+.conteudo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.texto-explicativo{
+  text-align: center;
+}
+
+.save-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.save-button:hover {
+  background-color: #1e7e34;
+}
+
+mat-icon {
+  font-size: 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  line-height: 1.25rem;
+}
+
+@media screen and (max-width: 1000px) {
+  .conteudo{
+    height: 90vh;
+    text-align: center;
+  }
+}
+

@@ -57,6 +57,7 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 10px;
 }
 
 .input-container {
@@ -224,6 +225,11 @@ input:focus {
 .password-criteria div.highlight {
   font-weight: bold;
   transform: scale(1.03);
+}
+
+.password-criteria div.notMet {
+  color: #cf0d0d;
+  font-weight: 500;
 }
 
 

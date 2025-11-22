@@ -1,0 +1,42 @@
+<div class="background-wrapper">
+  <span class="logo">Oportuniza</span>
+  <h2>Selecione o acesso que você desejar.</h2>
+  <div class="context-switcher-container">
+    <div class="header-section">
+      <p class="description">
+        Você pode acessar sua conta como usuário individual ou em nome de uma das
+        empresas associadas.
+      </p>
+    </div>
+
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Carregando contextos...</p>
+    </div>
+
+    <div *ngIf="error" class="alert error">{{ error }}</div>
+
+    <div *ngIf="!loading && contexts.length > 0" class="context-list">
+      <div *ngFor="let context of contexts" class="context-item" [class.active]="context.id === currentContextId">
+        <div class="image-section" (click)="selectContext(context)">
+          <img *ngIf="context.type === 'User'" [src]="context.imageUrl || '../../../../assets/etapas/perfil.png'"
+            alt="Usuário" />
+          <img *ngIf="context.type === 'Company'" [src]="context.imageUrl" alt="Microsoft" />
+        </div>
+
+        <div class="info-section" (click)="selectContext(context)">
+          <span class="context-name">{{ context.name }}</span>
+        </div>
+
+        <button *ngIf="context.type === 'Company' && context.role !== 'Owner'" class="unlink-button"
+          (click)="unlinkContext(context)" type="button">
+          Desvincular-se
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="!loading && contexts.length === 0" class="alert info">
+      Nenhum contexto de empresa encontrado. Seu acesso é apenas pessoal.
+    </div>
+  </div>
+</div>

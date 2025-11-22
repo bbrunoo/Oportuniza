@@ -10,17 +10,6 @@ namespace Oportuniza.Infrastructure.Configurations
         {
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.IdentityProviderId)
-                   .IsRequired()
-                   .HasMaxLength(256);
-
-            builder.Property(x => x.IdentityProvider)
-                    .IsRequired()
-                    .HasMaxLength(50); 
-
-            builder.HasIndex(x => new { x.IdentityProviderId, x.IdentityProvider })
-                   .IsUnique();
-
             builder.Property(x => x.Name)
                    .IsRequired()
                    .HasMaxLength(100);
@@ -36,6 +25,9 @@ namespace Oportuniza.Infrastructure.Configurations
 
             builder.Property(x => x.ImageUrl)
                    .HasMaxLength(300);
+
+            builder.Property(x => x.KeycloakId)
+                .HasMaxLength(100);
 
             builder.Property(x => x.IsAdmin)
                    .HasDefaultValue(false);
@@ -53,16 +45,6 @@ namespace Oportuniza.Infrastructure.Configurations
                    .WithOne(e => e.User)
                    .HasForeignKey(e => e.UserId)
                    .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasMany(u => u.Curriculum)
-                .WithOne()
-                .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(u => u.UserAreasOfInterest)
-                .WithOne()
-                .HasForeignKey(a => a.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

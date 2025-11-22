@@ -1,17 +1,29 @@
 <div class="container">
   <div class="title">Minhas Postagens</div>
-  <div class="post-container">
-    <div class="post-card" *ngFor="let post of posts">
-      <div class="card-overlay" *ngIf="post.pendente">
-        <img  src="../../../../assets/alert.png" alt="">
-        <span class="overlay-text">Em Análise...</span>
-      </div>
 
-      <img class="post-card-img" [src]="post.imageUrl" />
+  <div *ngIf="publications.length === 0" class="no-posts">
+    <p>Você ainda não fez nenhuma publicação.</p>
+  </div>
+
+  <div class="post-container" *ngIf="publications.length > 0">
+    <div class="post-card" *ngFor="let post of publications" (click)="openDialog($event, post)">
+      <img class="post-card-img" [src]="post.imageUrl" alt="Imagem da postagem" />
       <div class="description">
-        <p>Postado por {{ post.name }}</p>
-        <p>Expira em {{ post.data }}</p>
+        <span class="post-author">{{ post.postAuthorName }}</span>
+        <p>Expira em {{ post.expirationDate | date: 'dd/MM/yyyy' }}</p>
       </div>
     </div>
+  </div>
+
+  <div class="pagination" *ngIf="totalPages > 1 && publications.length > 0">
+    <button class="change-button" *ngIf="pageNumber > 1" (click)="prevPage()">
+      Anterior
+    </button>
+
+    <span>Página {{ pageNumber }} de {{ totalPages }}</span>
+
+    <button class="change-button" *ngIf="pageNumber < totalPages" (click)="nextPage()">
+      Próxima
+    </button>
   </div>
 </div>

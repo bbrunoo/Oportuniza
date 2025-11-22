@@ -9,27 +9,37 @@ namespace Oportuniza.API.Mapper
         public PublicationProfile()
         {
             CreateMap<Publication, PublicationDto>()
-             .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src =>
-                 src.AuthorCompanyId.HasValue && src.AuthorCompany != null
-                     ? src.AuthorCompany.Id
-                     : src.AuthorUser.Id))
+                .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src =>
+                    src.AuthorCompany != null ? src.AuthorCompany.Id :
+                    src.AuthorUser != null ? src.AuthorUser.Id :
+                    src.CreatedByUser != null ? src.CreatedByUser.Id : Guid.Empty))
 
-             .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src =>
-                 src.AuthorCompanyId.HasValue && src.AuthorCompany != null
-                     ? src.AuthorCompany.Name
-                     : src.AuthorUser.Name))
+                .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src =>
+                    src.AuthorCompany != null ? src.AuthorCompany.Name :
+                    src.AuthorUser != null ? src.AuthorUser.Name :
+                    src.CreatedByUser != null ? src.CreatedByUser.Name : "Unknown"))
 
-             .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src =>
-                 src.AuthorCompanyId.HasValue && src.AuthorCompany != null
-                     ? src.AuthorCompany.ImageUrl
-                     : src.AuthorUser.ImageUrl))
+                .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src =>
+                    src.AuthorCompany != null ? src.AuthorCompany.ImageUrl :
+                    src.AuthorUser != null ? src.AuthorUser.ImageUrl :
+                    src.CreatedByUser != null ? src.CreatedByUser.ImageUrl : null))
 
-             .ForMember(dest => dest.AuthorType, opt => opt.MapFrom(src =>
-                 src.AuthorCompanyId.HasValue ? "Company" : "User"))
+                .ForMember(dest => dest.AuthorType, opt => opt.MapFrom(src =>
+                    src.AuthorCompany != null ? "Company" :
+                    src.AuthorUser != null ? "User" : "Unknown"))
 
-             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+                .ForMember(dest => dest.CompanyOwnerId, opt => opt.MapFrom(src => src.AuthorCompanyId))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+
+                .ForMember(dest => dest.PostAuthorName,
+                    opt => opt.MapFrom(src => src.CreatedByUser != null ? src.CreatedByUser.Name : null));
 
             CreateMap<PublicationCreateDto, Publication>();
+
+            CreateMap<PublicationUpdateDto, Publication>()
+                .ForMember(dest => dest.Resumee, opt => opt.MapFrom(src => src.Resumee));
+
+
         }
     }
 }

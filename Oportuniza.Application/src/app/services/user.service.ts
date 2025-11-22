@@ -1,43 +1,69 @@
 import { UserProfile } from './../models/UserProfile.model';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-// import { useAuth } from '../authConfig';
-// import { TokenService } from './token.service';
+import { jwtDecode } from 'jwt-decode';
+import { map, Observable } from 'rxjs';
+import { KeycloakOperationService } from './keycloak.service';
+import { GetProfiles } from '../models/new-models/Profiles.model';
+import { ProfileResponse } from '../models/profile-response.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private keycloakService: KeycloakOperationService
+  ) { }
 
   apiUrl = 'http://localhost:5000/api/v1/User';
-  uploadApi = 'http://localhost:5000/api/Upload/upload-profile-picture';
+  private verifyApi = `${environment.apiUrl}/Publication`;
 
-  getOwnProfile() {
-    return this.http.get<UserProfile>(`${this.apiUrl}/profile`);
+  getOwnProfile(): Observable<ProfileResponse> {
+    return this.http.get<ProfileResponse>(`${this.apiUrl}/profile`);
   }
 
-  updateProfile(profileData: {
-    fullName: string;
-    imageUrl: string;
-    phone: string;
-    interests: string;
-    areaOfInterestIds: string[];
-  }, id: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/completar-perfil/${id}`, profileData);
+  validateImageSafety(formData: FormData) {
+    return this.http.post<{ isSafe: boolean }>(`${this.verifyApi}/validate-image`, formData);
   }
 
-  uploadProfilePicture(file: File): Observable<{ imageUrl: string }> {
-    if (!file) {
-      throw new Error('Nenhum arquivo fornecido.');
+  async getLoggedInUserId(): Promise<string | undefined> {
+    try {
+      const isLoggedIn = await this.keycloakService.isLoggedIn();
+      if (isLoggedIn) {
+        const token = await this.keycloakService.getToken();
+
+        if (token) {
+          const decodedToken: any = jwtDecode(token);
+          return decodedToken.sub || decodedToken.id;
+        }
+      }
+    } catch (e) {
+      console.error('Falha ao obter o ID do usuário do Keycloak:', e);
     }
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    return this.http.post<{ imageUrl: string }>(`${this.uploadApi}`, formData);
+    return undefined;
   }
 
+  getUserById(id: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${id}`);
+  }
+
+  getUserId(): Observable<string> {
+    return this.http.get<{ id: string }>(`${this.apiUrl}/getUserId`).pipe(
+      map(response => {
+        return response.id;
+      })
+    );
+  }
+
+  editProfile(name: string, location: string, imageFile?: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('location', location);
+    if (imageFile) formData.append('image', imageFile);
+
+    return this.http.put(`${this.apiUrl}/editar-perfil`, formData);
+  }
 }

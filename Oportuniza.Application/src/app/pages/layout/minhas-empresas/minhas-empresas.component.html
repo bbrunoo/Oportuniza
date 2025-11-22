@@ -1,0 +1,61 @@
+<div *ngIf="isLoading" class="loading-spinner">
+  <p>Carregando empresas...</p>
+</div>
+
+<div class="container" *ngIf="!isLoading && companies.length === 0">
+  <div class="quadrado">
+    <div class="titulo">
+      <img src="../../../../assets/briefcase.png" alt="logo do oportuniza" />
+      <h2>Minhas Empresas</h2>
+    </div>
+    <div class="textos">
+      <p>
+        Aqui aparecerão as empresas registradas por você, e então poderá fazer os
+        ajustes necessários para melhor atender às suas necessidades!
+      </p>
+      <p>
+        Caso ainda não possua nenhuma empresa registrada, cadastre uma agora!
+      </p>
+    </div>
+    <div class="custom-button" (click)="createCompany()">
+      <img src="../../../../assets/plusicon.png" alt="Ícone de mais" />
+      <span>Cadastrar Empresa</span>
+    </div>
+  </div>
+</div>
+
+<div class="container-empresas" *ngIf="!isLoading && companies.length > 0">
+  <div class="empresas">
+    <div class="header">
+      <img src="../../../../assets/briefcase.png" width="40" height="40" alt="">
+      <h2>Minhas Empresas</h2>
+      <button class="create-company" (click)="createCompany()">+</button>
+    </div>
+
+    <div class="post-container">
+      <div class="post-card" *ngFor="let company of companies" [class.inactive-company]="company.IsDisabled">
+
+        <img class="post-card-img" [src]="company.imageUrl || '../../../../assets/company-placeholder.png'"
+          alt="Logo da empresa" />
+
+        <div class="description">
+          <p>{{ company.name }}</p>
+        </div>
+
+        <div *ngIf="company.IsActiveStatus" class="configure config-button"
+          [class.disabled]="isCompanyContext && company.id !== activeCompanyId" (click)="goToCompanyConfig(company.id)">
+          <img src="../../../../assets/white-settings.png" alt="Configurar">
+          <span>Configurar</span>
+        </div>
+
+        <div *ngIf="company.IsDisabled" class="configure reativar" (click)="toggleCompanyStatus(company)">
+          <img src="../../../../assets/atualizar.png" alt="atualizar">
+          <span>Reativar</span>
+        </div>
+
+      </div>
+
+      <div class="pagination" *ngIf="totalPages > 1"></div>
+    </div>
+  </div>
+</div>

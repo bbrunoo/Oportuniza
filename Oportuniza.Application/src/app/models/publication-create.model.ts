@@ -1,6 +1,11 @@
 export interface PublicationCreate {
   title: string;
-  content: string; 
+  description: string;
   salary: string;
-  postAsCompanyId: string | null;
+  shift: string;
+  contract: string,
+  local: string,
+  expirationDate: string;
+  cityId: string;
+  postAsCompanyId?: string | null;
 }

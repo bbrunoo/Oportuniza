@@ -1,81 +1,42 @@
-<h1 mat-dialog-title>Recortar Imagem</h1>
+<div class="modal-overlay">
+  <div class="modal-box">
+    <h1 class="modal-title">Recortar Imagem</h1>
+    <div class="modal-content">
+      <div class="dialog-container">
+        <div *ngIf="!isImageLoaded && !loadImageError" class="loading-shade">
+          <div class="spinner"></div>
+        </div>
+        <div *ngIf="loadImageError" class="loading-shade error">
+          <span class="error-icon">⚠️</span>
+          <span>Falha ao carregar a imagem.</span>
+        </div>
+        <div [hidden]="!isImageLoaded" class="cropper-container">
+          <div class="cropper-wrapper">
+            <image-cropper #cropper [imageBase64]="imageBase64" [maintainAspectRatio]="true" [aspectRatio]="1"
+              [resizeToWidth]="400" [resizeToHeight]="400" [transform]="transform" [onlyScaleDown]="false" format="png"
+              (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()"
+              (loadImageFailed)="loadImageFailed()"></image-cropper>
+          </div>
 
-<mat-dialog-content class="mat-typography">
-  <div class="dialog-container">
-    <div *ngIf="!isImageLoaded && !loadImageError" class="loading-shade">
-      <mat-spinner></mat-spinner>
-    </div>
-
-    <div *ngIf="loadImageError" class="loading-shade">
-        <mat-icon>error_outline</mat-icon>
-        <span>Falha ao carregar a imagem.</span>
-    </div>
-
-    <div [hidden]="!isImageLoaded" class="cropper-container">
-      <div class="cropper-wrapper">
-        <image-cropper
-          #cropper
-          [imageBase64]="imageBase64"
-          [maintainAspectRatio]="true"
-          [aspectRatio]="1"
-          [resizeToWidth]="400"
-          [resizeToHeight]="400"
-          [transform]="transform"
-          format="png"
-          (imageCropped)="imageCropped($event)"
-          (imageLoaded)="imageLoaded()"
-          (loadImageFailed)="loadImageFailed()"
-        >
-        </image-cropper>
-      </div>
-
-      <div class="cropper-controls">
-        <button mat-icon-button aria-label="Girar para a esquerda" (click)="rotateLeft()">
-          <mat-icon>rotate_left</mat-icon>
-        </button>
-        <button mat-icon-button aria-label="Girar para a direita" (click)="rotateRight()">
-          <mat-icon>rotate_right</mat-icon>
-        </button>
-         <button mat-icon-button aria-label="Inverter" (click)="flipHorizontal()">
-          <mat-icon>flip</mat-icon>
-        </button>
-        <button mat-icon-button aria-label="Aumentar zoom" (click)="zoomIn()">
-          <mat-icon>zoom_in</mat-icon>
-        </button>
-        <button mat-icon-button aria-label="Diminuir zoom" (click)="zoomOut()">
-          <mat-icon>zoom_out</mat-icon>
-        </button>
+          <div class="cropper-controls">
+            <button (click)="rotateLeft()" title="Girar para a esquerda">⟲</button>
+            <button (click)="rotateRight()" title="Girar para a direita">⟳</button>
+            <button (click)="flipHorizontal()" title="Inverter">⇋</button>
+            <button (click)="zoomIn()" title="Aumentar zoom">＋</button>
+            <button (click)="zoomOut()" title="Diminuir zoom">－</button>
+          </div>
+        </div>
       </div>
     </div>
+    <div class="modal-actions">
+      <button class="btn-outline" (click)="fileInput.click()">📁 Trocar Imagem</button>
+      <input hidden type="file" #fileInput (change)="fileChangeEvent($event)" accept="image/*" />
+
+      <div class="spacer"></div>
+
+      <button class="btn-secondary" (click)="onCancel()">✖ Cancelar</button>
+      <button class="btn-primary" (click)="onSave()" [disabled]="!isImageLoaded">✔ Salvar</button>
+    </div>
+
   </div>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-  <button mat-stroked-button (click)="fileInput.click()">
-    <mat-icon>upload_file</mat-icon>
-    Trocar Imagem
-  </button>
-  <input
-    hidden
-    type="file"
-    #fileInput
-    (change)="fileChangeEvent($event)"
-    accept="image/*"
-  />
-
-  <span class="spacer"></span>
-
-  <button mat-button (click)="onCancel()">
-    <mat-icon>close</mat-icon>
-    Cancelar
-  </button>
-  <button
-    mat-flat-button
-    color="primary"
-    (click)="onSave()"
-    [disabled]="!isImageLoaded"
-  >
-    <mat-icon>check</mat-icon>
-    Salvar
-  </button>
-</mat-dialog-actions>
+</div>

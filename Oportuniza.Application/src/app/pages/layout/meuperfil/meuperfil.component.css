@@ -1,26 +1,94 @@
-.container{
-  background-color: rgba(255, 255, 255, 0.26);
-  width: 90em;
-  height: 55em;
+.profile-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-card {
+  background: #fff;
+  border-radius: 25px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  padding: 40px 60px;
+  max-width: 800px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.content {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-direction: row;
+  gap: 50px;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 5px solid #3D50CA;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 15px;
+}
+
+.edit-btn {
+  background: #3D50CA;
   color: white;
-  border-radius: 25px;
-  font-weight: 600;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 12px;
+  transition: 0.3s ease;
+  cursor: pointer;
 }
 
-@media screen and (max-width: 1920px) {
-  .container {
-    width: 80em;
-    height: 48em;
+.edit-btn:hover {
+  background: #3D50CA;
+  transform: translateY(-5px);
+}
+
+.right {
+  flex: 1;
+}
+
+.username {
+  font-size: 26px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+p {
+  font-size: 16px;
+  color: #555;
+  margin: 8px 0;
+}
+
+.loading,
+.error {
+  text-align: center;
+  font-size: 18px;
+  color: #555;
+  padding: 30px;
+}
+
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
-}
-
-@media screen and (max-width: 1400px) {
-  .container {
-    width: 65em;
-    height: 38em;
+  .profile-card {
+    padding: 30px;
+  }
+  .username {
+    font-size: 22px;
   }
 }
