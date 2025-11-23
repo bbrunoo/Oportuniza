@@ -101,7 +101,9 @@
         <ng-container *ngIf="userProfile.isCompany; else normalUser">
           <img class="user-image" [src]="userProfile.imageUrl || '../../../../assets/home-assets/company.png'"
             alt="Logo da Empresa" />
-          {{ userProfile.name }}
+          <p class="username">
+            {{ userProfile.name }}
+          </p>
         </ng-container>
 
         <ng-template #normalUser>

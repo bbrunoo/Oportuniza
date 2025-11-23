@@ -1,13 +1,28 @@
-import { Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
 import { PublicationService } from '../../../services/publication.service';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormsModule, NgForm, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormsModule,
+  NgForm,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { UserService } from '../../../services/user.service';
 import { UserProfile } from '../../../models/UserProfile.model';
-import { MatToolbarModule } from "@angular/material/toolbar"
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialog } from '@angular/material/dialog';
-import { CropperDialogComponent, CropperDialogData } from '../../../extras/cropper-dialog/cropper-dialog.component';
+import {
+  CropperDialogComponent,
+  CropperDialogData,
+} from '../../../extras/cropper-dialog/cropper-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import { CompanyListDto } from '../../../models/company-list-dto-model';
 import { CompanyService } from '../../../services/company.service';
@@ -19,18 +34,23 @@ import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { GetProfiles } from '../../../models/new-models/Profiles.model';
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-publication',
-  imports: [CommonModule, FormsModule, MatToolbarModule, MatIconModule,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatToolbarModule,
+    MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     MatAutocompleteModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   templateUrl: './publication.component.html',
-  styleUrl: './publication.component.css'
+  styleUrl: './publication.component.css',
 })
-
 export class PublicationComponent implements OnInit {
   @ViewChild('publicationForm') publicationForm!: NgForm;
 
@@ -86,7 +106,7 @@ export class PublicationComponent implements OnInit {
   showCities = false;
 
   hideCities() {
-    setTimeout(() => this.showCities = false, 200);
+    setTimeout(() => (this.showCities = false), 200);
   }
 
   cityControl = new FormControl('');
@@ -99,9 +119,9 @@ export class PublicationComponent implements OnInit {
     private userService: UserService,
     private dialog: MatDialog,
     private companyService: CompanyService,
-    private cityService: CityService
+    private cityService: CityService,
+    private router: Router
   ) {
-
     const date = new Date();
     this.today = date.toISOString().split('T')[0];
   }
@@ -109,19 +129,21 @@ export class PublicationComponent implements OnInit {
   ngOnInit(): void {
     this.loadInitialData();
 
-    this.cityControl.valueChanges.pipe(
-      debounceTime(300),
-      switchMap(value =>
-        value && value.length > 0
-          ? this.cityService.searchCities(value, 1, 20)
-          : this.cityService.getCities(1, 20)
+    this.cityControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        switchMap((value) =>
+          value && value.length > 0
+            ? this.cityService.searchCities(value, 1, 20)
+            : this.cityService.getCities(1, 20)
+        )
       )
-    ).subscribe({
-      next: (cities) => {
-        this.filteredCities = cities;
-      },
-      error: (err) => console.error('Erro ao carregar cidades:', err)
-    });
+      .subscribe({
+        next: (cities) => {
+          this.filteredCities = cities;
+        },
+        error: (err) => console.error('Erro ao carregar cidades:', err),
+      });
   }
 
   blockSpecialChars(event: KeyboardEvent): void {
@@ -214,16 +236,19 @@ export class PublicationComponent implements OnInit {
       },
       error: (err) => {
         console.error('[Email Verification] Erro:', err);
-        let msg = 'Não foi possível enviar o código. Verifique sua conexão e tente novamente.';
+        let msg =
+          'Não foi possível enviar o código. Verifique sua conexão e tente novamente.';
 
         if (err.status === 429)
-          msg = 'Você solicitou códigos muitas vezes. Aguarde alguns minutos antes de tentar novamente.';
+          msg =
+            'Você solicitou códigos muitas vezes. Aguarde alguns minutos antes de tentar novamente.';
 
         if (err.status === 404)
-          msg = 'O e-mail informado não foi encontrado. Faça login novamente e tente enviar o código.';
+          msg =
+            'O e-mail informado não foi encontrado. Faça login novamente e tente enviar o código.';
 
         Swal.fire('Erro no envio do código', msg, 'error');
-      }
+      },
     });
   }
 
@@ -258,7 +283,7 @@ export class PublicationComponent implements OnInit {
   }
 
   loadInitialData(): void {
-    this.userService.getOwnProfile().subscribe(profile => {
+    this.userService.getOwnProfile().subscribe((profile) => {
       this.userProfile = profile;
       this.selectedAuthorId = profile.id;
 
@@ -276,11 +301,10 @@ export class PublicationComponent implements OnInit {
             UserRole: profile.role ?? '',
             OwnerId: profile.id,
             isActive: profile.isActive,
-          }
+          },
         ];
-      }
-      else {
-        this.companyService.getUserCompanies().subscribe(companies => {
+      } else {
+        this.companyService.getUserCompanies().subscribe((companies) => {
           this.userCompanies = companies;
         });
       }
@@ -322,7 +346,11 @@ export class PublicationComponent implements OnInit {
     const MIN_SIZE_PX = 400;
 
     if (!validTypes.includes(file.type)) {
-      Swal.fire('Tipo inválido', 'Apenas imagens PNG, JPG ou JPEG são permitidas.', 'warning');
+      Swal.fire(
+        'Tipo inválido',
+        'Apenas imagens PNG, JPG ou JPEG são permitidas.',
+        'warning'
+      );
       return;
     }
 
@@ -345,7 +373,11 @@ export class PublicationComponent implements OnInit {
           this.openCropperDialog(reader.result as string, file);
         };
         img.onerror = () => {
-          Swal.fire('Erro', 'Não foi possível carregar a imagem para verificar as dimensões.', 'error');
+          Swal.fire(
+            'Erro',
+            'Não foi possível carregar a imagem para verificar as dimensões.',
+            'error'
+          );
         };
         img.src = reader.result as string;
       }
@@ -359,17 +391,16 @@ export class PublicationComponent implements OnInit {
   private openCropperDialog(imageBase64: string, originalFile: File): void {
     const dialogData: CropperDialogData = {
       imageBase64: imageBase64,
-
     };
 
     const dialogRef = this.dialog.open(CropperDialogComponent, {
       minWidth: '1000px',
       minHeight: '600px',
       data: dialogData,
-      disableClose: true
+      disableClose: true,
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.selectedImage = result;
         this.previewUrl = URL.createObjectURL(result);
@@ -411,7 +442,9 @@ export class PublicationComponent implements OnInit {
 
     this.isVerifying = true;
 
-    const selectedCompany = this.userCompanies.find(c => c.id === this.selectedAuthorId);
+    const selectedCompany = this.userCompanies.find(
+      (c) => c.id === this.selectedAuthorId
+    );
     const dto: PublicationCreate = {
       title: this.publication.title,
       description: this.publication.description,
@@ -421,30 +454,37 @@ export class PublicationComponent implements OnInit {
       local: this.publication.local,
       expirationDate: this.publication.expirationDate,
       cityId: this.publication.cityId!,
-      postAsCompanyId: selectedCompany ? selectedCompany.id : null
+      postAsCompanyId: selectedCompany ? selectedCompany.id : null,
     };
 
-    this.publicationService.createPublicationWithCode(dto, this.selectedImage!, this.verificationCode).subscribe({
-      next: () => {
-        this.isVerifying = false;
-        this.closeVerificationModal();
-        Swal.fire({
-          icon: 'success',
-          title: 'Publicação criada!',
-          text: 'Sua vaga foi publicada com sucesso e já está visível para outros usuários.',
-        });
-        this.publicationForm.resetForm();
-        this.previewUrl = null;
-        this.selectedImage = undefined;
-        this.codeInputs = ['', '', '', '', '', ''];
-      },
-      error: (err) => {
-        this.isVerifying = false;
-        const status = err.status;
-        const msg = this.resolveServerError(err, status);
-        Swal.fire('Erro ao publicar', msg, 'error');
-      }
-    });
+    this.publicationService
+      .createPublicationWithCode(
+        dto,
+        this.selectedImage!,
+        this.verificationCode
+      )
+      .subscribe({
+        next: () => {
+          this.isVerifying = false;
+          this.closeVerificationModal();
+          Swal.fire({
+            icon: 'success',
+            title: 'Publicação criada!',
+            text: 'Sua vaga foi publicada com sucesso e já está visível para outros usuários.',
+          });
+          this.publicationForm.resetForm();
+          this.previewUrl = null;
+          this.selectedImage = undefined;
+          this.codeInputs = ['', '', '', '', '', ''];
+          this.router.navigate(['/inicio']);
+        },
+        error: (err) => {
+          this.isVerifying = false;
+          const status = err.status;
+          const msg = this.resolveServerError(err, status);
+          Swal.fire('Erro ao publicar', msg, 'error');
+        },
+      });
   }
 
   private resolveServerError(err: any, status: number): string {
@@ -478,8 +518,10 @@ export class PublicationComponent implements OnInit {
     if (!this.publication.salary) missingFields.push('Faixa salarial');
     if (!this.publication.shift) missingFields.push('Turno');
     if (!this.publication.contract) missingFields.push('Tipo de contrato');
-    if (!this.publication.local || !this.publication.cityId) missingFields.push('Localização');
-    if (!this.publication.expirationDate) missingFields.push('Data de expiração');
+    if (!this.publication.local || !this.publication.cityId)
+      missingFields.push('Localização');
+    if (!this.publication.expirationDate)
+      missingFields.push('Data de expiração');
     if (!this.selectedAuthorId) missingFields.push('Autor');
 
     if (missingFields.length > 0) {
@@ -489,9 +531,9 @@ export class PublicationComponent implements OnInit {
         html: `
         <p>Preencha os seguintes campos antes de continuar:</p>
         <ul style="text-align:left; margin-left:1rem;">
-          ${missingFields.map(f => `<li>${f}</li>`).join('')}
+          ${missingFields.map((f) => `<li>${f}</li>`).join('')}
         </ul>
-      `
+      `,
       });
       return;
     }
@@ -501,7 +543,9 @@ export class PublicationComponent implements OnInit {
       formData.append('file', this.selectedImage);
 
       try {
-        const result = await this.publicationService.validateImageSafety(formData).toPromise();
+        const result = await this.publicationService
+          .validateImageSafety(formData)
+          .toPromise();
         if (!result?.isSafe) {
           Swal.fire({
             icon: 'warning',

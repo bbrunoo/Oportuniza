@@ -426,7 +426,7 @@ a {
   .container,
   .container-empresas {
     width: 65em;
-    height: 40em;
+    height: 38em;
   }
 
   .title {
@@ -462,6 +462,7 @@ a {
     width: 25px;
     height: 25px;
   }
+
 }
 
 @media screen and (max-width: 768px) {

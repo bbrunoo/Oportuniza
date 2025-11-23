@@ -19,7 +19,7 @@ export class FilterComponent {
     salaryRange: null,
     latitude: null,
     longitude: null,
-    radiusKm: 0
+    radiusKm: 0,
   };
 
   constructor(
@@ -34,7 +34,7 @@ export class FilterComponent {
       salaryRange: data?.salaryRange ?? null,
       latitude: null,
       longitude: null,
-      radiusKm: 0
+      radiusKm: 0,
     };
   }
 
@@ -53,32 +53,26 @@ export class FilterComponent {
   }
 
   toggleSalary(salary: string) {
-    this.filters.salaryRange = this.filters.salaryRange === salary ? null : salary;
+    this.filters.salaryRange =
+      this.filters.salaryRange === salary ? null : salary;
   }
 
   async onRadiusChange() {
     if (this.filters.radiusKm && this.filters.radiusKm > 0) {
-      const result = await Swal.fire({
-        title: 'Usar localização atual?',
-        text: `Deseja permitir que o sistema use sua localização para buscar vagas num raio de ${this.filters.radiusKm} km?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Sim, permitir',
-        cancelButtonText: 'Não',
-        reverseButtons: true,
-      });
-
-      if (result.isConfirmed) {
-        this.getUserLocation();
-      } else {
-        this.filters.radiusKm = 0;
-      }
+      this.getUserLocation();
+    } else {
+      this.filters.latitude = null;
+      this.filters.longitude = null;
     }
   }
 
   getUserLocation() {
     if (!navigator.geolocation) {
-      Swal.fire('Erro', 'Geolocalização não é suportada neste navegador.', 'error');
+      Swal.fire(
+        'Erro',
+        'Geolocalização não é suportada neste navegador.',
+        'error'
+      );
       return;
     }
 
@@ -86,7 +80,6 @@ export class FilterComponent {
       (pos) => {
         this.filters.latitude = pos.coords.latitude;
         this.filters.longitude = pos.coords.longitude;
-        Swal.fire('Sucesso', 'Localização obtida com sucesso.', 'success');
       },
       (err) => {
         console.warn('Erro ao obter localização:', err);
@@ -110,17 +103,22 @@ export class FilterComponent {
       salaryRange: null,
       latitude: null,
       longitude: null,
-      radiusKm: 0
+      radiusKm: 0,
     };
   }
 
   apply() {
     const filtersToSend = { ...this.filters };
-    filtersToSend.contracts = (filtersToSend.contracts ?? []).map(c => c.toLowerCase());
-    filtersToSend.shifts = (filtersToSend.shifts ?? []).map(s => s.toLowerCase());
+    filtersToSend.contracts = (filtersToSend.contracts ?? []).map((c) =>
+      c.toLowerCase()
+    );
+    filtersToSend.shifts = (filtersToSend.shifts ?? []).map((s) =>
+      s.toLowerCase()
+    );
     filtersToSend.local = filtersToSend.local?.toLowerCase() || '';
     filtersToSend.searchTerm = filtersToSend.searchTerm?.toLowerCase() || '';
-    filtersToSend.salaryRange = filtersToSend.salaryRange?.toLowerCase() || null;
+    filtersToSend.salaryRange =
+      filtersToSend.salaryRange?.toLowerCase() || null;
     this.dialogRef.close(filtersToSend);
     this.clearFilters();
   }

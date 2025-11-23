@@ -8,13 +8,6 @@
   color: white;
 }
 
-@media screen and (max-width: 1400px) {
-  .container {
-    width: 62em;
-    height: 38em;
-  }
-}
-
 h2 {
   font-weight: 500;
 }
@@ -149,7 +142,7 @@ h2 {
 @media screen and (max-width: 1400px) {
   .container {
     width: 66em;
-    height: 40em;
+    height: 36em;
   }
 
   .company-display {

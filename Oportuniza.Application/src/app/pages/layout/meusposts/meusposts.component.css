@@ -158,7 +158,7 @@
 @media screen and (max-width: 1400px) {
   .container {
     width: 65em;
-    height: 40em;
+    height: 38em;
   }
 
   .title {
@@ -170,8 +170,8 @@
   }
 
   .post-card img {
-    width: 225px;
-    height: 225px;
+    width: 210px;
+    height: 210px;
   }
 
   .description {

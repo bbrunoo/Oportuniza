@@ -34,7 +34,7 @@
         <div *ngIf="isUserAdmin" class="employee-actions">
           <span class="status-badge" [class.active]="employee.isActive === 0" [class.inactive]="employee.isActive === 1"
             (click)="openStatusModal(employee)">
-            {{ employee.isActive === 0 ? 'Ativo' : 'Inativo' }}
+            {{ employee.isActive === 0 ? 'Ativo' : 'Desativado' }}
           </span>
 
           <button *ngIf="employee.roles !== 'Owner'" class="settings-button" (click)="openSettings(employee.id)">
