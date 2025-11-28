@@ -486,3 +486,34 @@
     padding: 8px;
   }
 }
+
+@media screen and (max-width: 480px) {
+  .post-description {
+    width: 290px;
+  }
+
+  .right-image {
+    width: 250px;
+    height: 160px;
+  }
+
+  .title {
+    font-size: 15px;
+  }
+
+  .main-description {
+    font-size: 12px;
+  }
+
+  .spec-description label {
+    font-size: 10px;
+  }
+
+  .bottom button {
+    font-size: 13px;
+  }
+
+  .pagination{
+    padding-bottom: 10px;
+  }
+}

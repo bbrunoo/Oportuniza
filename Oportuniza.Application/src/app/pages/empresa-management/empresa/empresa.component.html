@@ -1,10 +1,9 @@
 <div class="layout-container">
   <div class="menu-trigger-area" (click)="toggleMenu()">
     <div class="menu-icon">
-      <img src="../../../../assets/burger-bar.png" alt="">
+      <img src="../../../../assets/burger-bar.png" alt="Menu" />
     </div>
   </div>
-
   <div class="overlay" [class.show]="isMenuOpen" (click)="toggleMenu(false)"></div>
 
   <aside class="sidebar" [class.open]="isMenuOpen">

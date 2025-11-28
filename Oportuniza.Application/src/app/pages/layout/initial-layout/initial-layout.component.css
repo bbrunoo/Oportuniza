@@ -215,6 +215,9 @@ button:hover {
 }
 
 @media screen and (max-width: 1400px) {
+  /* .layout-container{
+  } */
+
   .center-content {
     font-size: 10px;
   }
@@ -305,9 +308,9 @@ button:hover {
     top: 0;
     left: 0;
     width: 40px;
-    height: 100vh;
+    height:40px;
     cursor: pointer;
-    z-index: 999;
+    z-index: 9999;
   }
 
   hr {
@@ -325,6 +328,7 @@ button:hover {
   }
 
 }
+
 
 @supports (-webkit-touch-callout: none) {
   .layout-container {

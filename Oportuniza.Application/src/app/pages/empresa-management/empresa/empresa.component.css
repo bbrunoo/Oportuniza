@@ -17,15 +17,6 @@
   height: 100vh;
 }
 
-.menu-trigger-area {
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  z-index: 2000;
-  width: 500px;
-  cursor: pointer;
-}
-
 hr {
   display: none;
 }
@@ -230,17 +221,26 @@ button:hover {
 
 .menu-trigger-area {
   position: fixed;
-  top: 15px;
-  left: 15px;
-  z-index: 2000;
+  top: 0;
+  left: 15;
+  width: 40px;
+  height:40px;
   cursor: pointer;
+  z-index: 999;
 }
 
 .menu-icon {
   width: 30px;
   height: 30px;
-  filter: invert(1);
   transition: transform 0.2s ease;
+  filter: invert(1);
+  padding: 10px;
+  display:none;
+}
+
+.menu-icon img {
+  width: 30px;
+  height: 30px;
 }
 
 .menu-icon:hover {
@@ -260,15 +260,6 @@ button:hover {
 
 .overlay.show {
   display: block;
-}
-
-.menu-icon {
-  padding: .5em;
-  display: none;
-}
-
-.menu-icon img {
-  width: 25px;
 }
 
 @media screen and (max-width: 1400px) {
@@ -335,16 +326,6 @@ button:hover {
     left: 0;
   }
 
-  .menu-trigger-area {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 40px;
-    height: 100vh;
-    cursor: pointer;
-    z-index: 999;
-  }
-
   .content {
     width: 100%;
     height: auto;
@@ -369,6 +350,10 @@ button:hover {
   .return-button img {
     width: 25px;
     height: 25px;
+  }
+
+  .menu-icon{
+    display: block;
   }
 }
 
