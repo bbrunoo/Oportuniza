@@ -488,6 +488,11 @@
 }
 
 @media screen and (max-width: 480px) {
+  .container{
+    margin-top: 30px;
+
+  }
+
   .post-description {
     width: 290px;
   }

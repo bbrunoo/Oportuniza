@@ -534,41 +534,91 @@ form {
 
 @media (max-width: 1000px) {
   .container {
-    width: 95%;
+    width: 100%;
     height: auto;
+    padding: 10px;
+    margin-top: 40px;
+  }
+
+  .option-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: start;
+    width: 90%;
+  }
+
+  .author-option {
+    margin: 3px;
+  }
+
+  .form-section {
+    width: 100%;
+  }
+
+  .form-textarea {
+    width: 94%;
   }
 
   .conteudo {
-    flex-direction: column;
+    display: flex;
     align-items: center;
-    height: auto;
-    padding: 20px;
-  }
-
-  .conteudo-left,
-  .conteudo-right {
-    width: 100%;
-    flex: none;
+    justify-content: center;
+    flex-direction: column;
+    width: 70vw;
   }
 
   .conteudo-left {
-    margin-bottom: 20px;
+    order: 1;
+    width: 90%;
+  }
+
+  .conteudo-right {
+    order: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
   }
 
   .image-upload-area {
-    width: 80%;
+    width: 100%;
+    max-width: 350px;
     height: auto;
     aspect-ratio: 1 / 1;
   }
 
-  .form-input,
-  .form-textarea {
-    width: 100%;
+  .author-option {
+    font-size: 11px;
+    height: auto;
+    padding: 6px;
   }
 
-  .author-options {
-    flex-wrap: wrap;
+  .form-input {
+    width: 100%;
+    font-size: 12px;
+  }
+
+  .option-button {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .form-inline-group {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    flex-direction: row;
+    gap: 50px;
+  }
+
+  .submit-section {
     justify-content: center;
+  }
+
+  .submit-button {
+    width: 100%;
+    max-width: 300px;
   }
 }
 
@@ -626,7 +676,7 @@ form {
     padding: 6px;
   }
 
-  .form-input{
+  .form-input {
     width: 100%;
     font-size: 12px;
   }

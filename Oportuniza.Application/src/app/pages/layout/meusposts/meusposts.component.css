@@ -143,22 +143,11 @@
   cursor: not-allowed;
 }
 
-@media (max-width: 500px) {
-  .pagination {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .change-button {
-    width: 100%;
-    text-align: center;
-  }
-}
-
 @media screen and (max-width: 1400px) {
   .container {
     width: 65em;
     height: 38em;
+    margin-top: 35px;
   }
 
   .title {
@@ -195,6 +184,7 @@
     width: 80vw;
     height: 45vw;
     min-height: 30em;
+    border-radius: 5px;
   }
 
   .title {
@@ -259,13 +249,14 @@
   }
 
   .post-card {
-    width: 180px;
-    height: 195px;
+    width: 195px;
+    height: 205px;
   }
 
   .post-card img {
     width: 170px;
     height: 170px;
+    border-radius: 5px;
   }
 
   .description {
@@ -284,6 +275,39 @@
   .change-button {
     font-size: 12px;
     padding: 5px 8px;
+  }
+}
+
+@media (max-width: 500px) {
+
+
+  .post-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 90%;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .post-card {
+    width: 190px;
+    height: 195px;
+  }
+
+  .post-card img {
+    width: 160px;
+    height: 160px;
+    border-radius: 5px;
+  }
+
+  .change-button {
+    width: 100%;
+    text-align: center;
   }
 }
 

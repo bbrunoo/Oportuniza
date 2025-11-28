@@ -462,7 +462,7 @@ textarea::placeholder {
 
 @media (max-width: 1400px) {
   .container {
-    width: 90%;
+    width: 70vw;
     height: auto;
     padding: 50px;
   }
@@ -472,23 +472,24 @@ textarea::placeholder {
     height: 280px;
   }
 
-  form {
-    max-width: 400px;
+  .conteudo-right {
+    width: 40vw;
+  }
+
+  .form-control {
+    width: 90%;
   }
 }
 
 @media (max-width: 1000px) {
   .container {
-    width: 95%;
-    height: 90%;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    border-radius: 30px;
+    margin: 50px;
   }
 
   .conteudo {
     flex-direction: column;
     gap: 30px;
+    width: 75vw;
   }
 
   .conteudo-left,
@@ -513,13 +514,6 @@ textarea::placeholder {
 }
 
 @media (max-width: 768px) {
-  .container {
-    width: 100%;
-    border-radius: 0;
-    box-shadow: none;
-    padding: 15px;
-  }
-
   .conteudo {
     flex-direction: column;
     gap: 25px;
@@ -549,33 +543,19 @@ textarea::placeholder {
     padding: 20px;
   }
 
+  .email-verification-modal {
+    margin: 15px;
+  }
+
   .modal h3 {
     font-size: 1.2rem;
   }
 }
 
 @media (max-width: 480px) {
-  .container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    width: 24em;
-    border-radius: 10px;
-  }
-
-  .conteudo {
-    width: 25em;
-  }
-
-  .conteudo-left,
-  .conteudo-right {
-    width: 90%;
-  }
-
   .image-upload-area {
-    width: 130px;
-    height: 130px;
+    width: 140px;
+    height: 140px;
   }
 
   .title {
@@ -590,6 +570,50 @@ textarea::placeholder {
   textarea {
     font-size: 12px;
     width: 23em;
+  }
+
+  .modal {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .custom-input {
+    font-size: 13px;
+  }
+
+  .custom-option {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .close-btn {
+    font-size: 13px;
+    padding: 8px 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .container {
+    width: 60vw;
+  }
+
+  .title {
+    font-size: 15px;
+  }
+
+  input,
+  textarea {
+    font-size: 12px;
+    width: 23em;
+  }
+
+  .email-verification-modal {
+    margin: 30px;
+    font-size: 15px;
+  }
+
+  .email-btn{
+    font-size: 12px;
   }
 
   .modal {

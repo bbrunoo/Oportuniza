@@ -32,6 +32,15 @@ span img {
 }
 
 .layout-container {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layout-container {
   background-image: url(../../../../assets/home-assets/Fundo.png);
   background-size: cover;
   background-repeat: no-repeat;
@@ -215,8 +224,9 @@ button:hover {
 }
 
 @media screen and (max-width: 1400px) {
-  /* .layout-container{
-  } */
+  .layout-container {
+    background-position: top center;
+  }
 
   .center-content {
     font-size: 10px;
@@ -251,6 +261,7 @@ button:hover {
 @media screen and (max-width: 1124px) {
   .layout-container {
     flex-direction: column;
+    background-position: top center;
   }
 
   .menu-icon {
@@ -308,9 +319,9 @@ button:hover {
     top: 0;
     left: 0;
     width: 40px;
-    height:40px;
+    height: 40px;
     cursor: pointer;
-    z-index: 9999;
+    z-index: 999;
   }
 
   hr {
@@ -329,6 +340,23 @@ button:hover {
 
 }
 
+@media screen and (max-width:1000px) {
+  .layout-container {
+    background-position: top center;
+  }
+}
+
+@media screen and (max-width:900px) {
+  .layout-container {
+    background-position: top center;
+  }
+}
+
+@media screen and (max-width:700px) {
+  .layout-container {
+    background-position: top center;
+  }
+}
 
 @supports (-webkit-touch-callout: none) {
   .layout-container {

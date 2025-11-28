@@ -94,13 +94,13 @@ input::placeholder {
   }
 
   .search-bar input {
-    width: 120px;
+    width: 170px;
     font-size: 12px;
     padding: 8px 8px 8px 32px;
   }
 
   .search-icon {
-    transform: translateX(-85px);
+    transform: translateX(-110px);
     width: 15px;
     height: 15px;
   }

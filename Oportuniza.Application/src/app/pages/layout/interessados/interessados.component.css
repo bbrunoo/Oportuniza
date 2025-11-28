@@ -389,13 +389,13 @@ a {
   }
 }
 
-.inscription .vaga-preview{
+.inscription .vaga-preview {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.inscription .vaga-info{
+.inscription .vaga-info {
   display: flex;
   flex-direction: row;
   gap: 25px;
@@ -403,11 +403,11 @@ a {
   justify-content: space-between;
 }
 
-.vaga-info-conteudo{
+.vaga-info-conteudo {
   display: flex;
   align-items: start;
   justify-content: center;
-  flex-direction: column ;
+  flex-direction: column;
 }
 
 
@@ -466,7 +466,14 @@ a {
   word-break: break-word;
 }
 
+@media screen and (max-width: 1200px) {
+  .container {
+    margin: 35px;
+  }
+}
+
 @media screen and (max-width: 900px) {
+
   .vaga-resumee {
     -webkit-line-clamp: 2;
     font-size: 14px;
