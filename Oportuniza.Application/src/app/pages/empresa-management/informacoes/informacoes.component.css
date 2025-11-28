@@ -141,12 +141,12 @@ h2 {
 
 @media screen and (max-width: 1400px) {
   .container {
-    width: 66em;
+    width: 75vw;
     height: 36em;
-  }
+    }
 
   .company-display {
-    width: 65em;
+    width: 75vw;
     gap: 2.5em;
     padding: 2.2em 3em;
   }
